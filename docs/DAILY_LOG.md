@@ -50,3 +50,40 @@
 - 所有设计决策必须写文件存档，不依赖对话记忆
 - 会话轮次多了AI效果下降，保持简洁明确
 - 公司环境随时不可用，代码即写即push
+## 2026-06-27（第二天凌晨）
+
+### 核心代码完成
+
+**完成内容：**
+- 16个TypeScript代码文件（GameManager/SaveSystem/CoinSystem等）
+- 设计文档：SPEC.md v1.1（完整版）
+- 搭建指南：docs/BUILD_GUIDE.md（Cocos Creator逐步操作文档）
+
+**文件清单：**
+- assets/scripts/Constants.ts      游戏常量（属相/命格/等级/产金/召唤配置）
+- assets/scripts/Types.ts         类型定义（DragonData/GameSaveData等）
+- assets/scripts/SaveSystem.ts     存档系统
+- assets/scripts/GameManager.ts     主管理器
+- assets/scripts/MergeSystem.ts     合成逻辑
+- assets/scripts/SummonSystem.ts    召唤系统
+- assets/scripts/CoinSystem.ts      产金系统
+- assets/scripts/TianJiSystem.ts    天机时辰
+- assets/scripts/FateSystem.ts      每日运势
+- assets/scripts/QiSystem.ts        龙气系统
+- assets/scripts/ShareSystem.ts     分享系统
+- assets/scripts/MainSceneCtrl.ts   主场景UI控制
+- assets/scripts/StartSceneCtrl.ts  起始场景UI控制
+
+**待完成：**
+- Cocos Creator可视化界面搭建（StartScene + MainScene）
+- 拖拽事件实现
+- 广告接入
+- 发布审核
+
+**环境信息：**
+- Ubuntu开发机：Cocos Creator无法安装（无GPU/Linux版）
+- Windows电脑：Cocos Creator 3.8.8已安装，用户正在搭建界面
+- GitHub：shuofuo/game-project，所有代码已同步
+
+**下一步：**
+用户按 docs/BUILD_GUIDE.md 搭建界面，然后测试运行

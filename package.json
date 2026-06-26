@@ -1,0 +1,12 @@
+{
+  "name": "shengxiao-tianji",
+  "version": "1.0.0",
+  "description": "生肖天机 - 放置合成游戏（Cocos Creator 3.x）",
+  "scripts": {
+    "dev": "cocos-creator .",
+    "build": "cocos-creator build --platform web-desktop"
+  },
+  "keywords": ["game", "cocos-creator", "shengxiao"],
+  "author": "shuofuo",
+  "license": "MIT"
+}

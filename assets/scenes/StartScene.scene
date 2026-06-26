@@ -1,0 +1,64 @@
+[
+  {
+    "objId": "scene_root",
+    "type": "cc.Node",
+    "name": "StartScene",
+    "children": [
+      {
+        "objId": "title",
+        "type": "cc.Node",
+        "name": "Title",
+        "children": [
+          {
+            "objId": "game_title",
+            "type": "cc.Label",
+            "name": "GameTitle",
+            "value": "生肖天机"
+          }
+        ]
+      },
+      {
+        "objId": "zodiac_section",
+        "type": "cc.Node",
+        "name": "ZodiacSection",
+        "children": [
+          {
+            "objId": "title",
+            "type": "cc.Label",
+            "name": "Title",
+            "value": "选择你的属相"
+          },
+          {
+            "objId": "grid",
+            "type": "cc.Node",
+            "name": "ZodiacGrid"
+          }
+        ]
+      },
+      {
+        "objId": "fate_section",
+        "type": "cc.Node",
+        "name": "FateSection",
+        "children": [
+          {
+            "objId": "title",
+            "type": "cc.Label",
+            "name": "Title",
+            "value": "选择你的命格"
+          },
+          {
+            "objId": "list",
+            "type": "cc.Node",
+            "name": "FateList"
+          }
+        ]
+      },
+      {
+        "objId": "start_btn",
+        "type": "cc.Button",
+        "name": "StartButton",
+        "label": "开始游戏"
+      }
+    ]
+  }
+]

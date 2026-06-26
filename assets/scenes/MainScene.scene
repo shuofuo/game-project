@@ -1,0 +1,103 @@
+[
+  {
+    "objId": "scene_root",
+    "type": "cc.Node",
+    "name": "MainScene",
+    "children": [
+      {
+        "objId": "bg",
+        "type": "cc.Node",
+        "name": "Background",
+        "children": []
+      },
+      {
+        "objId": "top_bar",
+        "type": "cc.Node",
+        "name": "TopBar",
+        "children": [
+          {
+            "objId": "coin_label",
+            "type": "cc.Label",
+            "name": "CoinLabel",
+            "value": "💰 0"
+          },
+          {
+            "objId": "qi_label",
+            "type": "cc.Label",
+            "name": "QiLabel",
+            "value": "✨ 0"
+          },
+          {
+            "objId": "rate_label",
+            "type": "cc.Label",
+            "name": "RateLabel",
+            "value": "0/s"
+          }
+        ]
+      },
+      {
+        "objId": "play_area",
+        "type": "cc.Node",
+        "name": "PlayArea",
+        "children": [
+          {
+            "objId": "merge_zone",
+            "type": "cc.Node",
+            "name": "MergeZone",
+            "children": []
+          }
+        ]
+      },
+      {
+        "objId": "bottom_bar",
+        "type": "cc.Node",
+        "name": "BottomBar",
+        "children": [
+          {
+            "objId": "btn_summon",
+            "type": "cc.Button",
+            "name": "SummonButton",
+            "label": "召唤 100💰"
+          },
+          {
+            "objId": "btn_qi",
+            "type": "cc.Button",
+            "name": "QiButton",
+            "label": "龙气召唤 500✨"
+          },
+          {
+            "objId": "btn_fate_free",
+            "type": "cc.Button",
+            "name": "FateFreeButton",
+            "label": "土命免费 3/3"
+          },
+          {
+            "objId": "btn_ad",
+            "type": "cc.Button",
+            "name": "AdButton",
+            "label": "看广告 5/5"
+          }
+        ]
+      },
+      {
+        "objId": "menu_btn",
+        "type": "cc.Button",
+        "name": "MenuButton"
+      }
+    ]
+  },
+  {
+    "objId": "components",
+    "type": "Array",
+    "items": [
+      {
+        "type": "GameManager",
+        "name": "GameManager"
+      },
+      {
+        "type": "MainSceneCtrl",
+        "name": "MainSceneCtrl"
+      }
+    ]
+  }
+]

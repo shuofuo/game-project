@@ -112,59 +112,84 @@ class GameManager extends Component {
 class MergeSystem {
   /**
    * 检查两个灵兽是否可以合成
-   * 规则：等级相同 + 等级 < 12
+   * 规则：等级相同 + 等级 < 15（Lv15不可合成）
    */
-  canMerge(d1: Dragon, d2: Dragon): boolean;
+  canMerge(d1: DragonData, d2: DragonData): boolean;
 
   /**
-   * 执行合成
-   * 返回合成后的新灵兽，或 null
+   * 执行合成：返回新等级（d1.level + 1），或null
+   * 规则：两条相同等级 → 合成更高一级
    */
-  doMerge(d1: Dragon, d2: Dragon): Dragon | null;
+  doMerge(d1: DragonData, d2: DragonData): number | null;
 
   /**
-   * 检查合成区是否触发了合成
+   * 检查合成区是否触发了合成（拖拽时调用）
    */
   checkMergeZone(): void;
 
   /**
    * 获取当前背包中所有灵兽
    */
-  getBackpack(): Dragon[];
+  getBackpack(): DragonData[];
 
   /**
    * 向背包添加灵兽
    */
-  addToBackpack(dragon: Dragon): void;
+  addToBackpack(dragon: DragonData): void;
+
+  /**
+   * 从背包移除灵兽（合成后调用）
+   */
+  removeFromBackpack(id: string): void;
 }
 ```
 
 #### DragonSystem.ts（灵兽管理）
 
 ```typescript
+// 灵兽数据结构（精简版，zodiac/fate是玩家属性不是灵兽属性）
 interface DragonData {
-  id: string;           // 唯一ID
-  level: number;        // 1~12
-  zodiac: number;       // 0~11（生成时随机）
-  fate: number;         // 0~4（生成时随机）
-  posX: number;         // 屏幕位置
+  id: string;    // 唯一ID
+  level: number; // 1~15
+  posX: number;  // 屏幕位置（像素）
   posY: number;
 }
+
+// 产金表（15级）
+const COIN_PER_SECOND: number[] = [
+  0,   // 占位（索引0不用）
+  1,   // Lv1 灵蛋
+  3,   // Lv2 幼灵
+  8,   // Lv3 化形
+  20,  // Lv4 灵通
+  55,  // Lv5 化星
+  150, // Lv6 凝神
+  400, // Lv7 通灵
+  1100,// Lv8 灵兽
+  3000,// Lv9 神兽
+  8000,// Lv10 天兽
+  20000,// Lv11 圣兽
+  50000,// Lv12 天命
+  120000,// Lv13 天尊
+  300000,// Lv14 天帝
+  800000,// Lv15 鸿蒙神兽
+];
 
 class DragonSystem {
   dragons: DragonData[];
 
-  // 生成新灵兽
-  summonByCoins(): DragonData | null;
-  summonByQi(qiCost: number): DragonData | null;
-  summonByAd(): DragonData | null;
-  summonByFate(): DragonData | null;  // 土命免费召唤
+  // 生成新灵兽（等级根据召唤类型随机）
+  summonByCoins(): DragonData | null;     // Lv1~3随机
+  summonByQi(qiCost: number): DragonData | null; // Lv4~6随机
+  summonByAd(): DragonData | null;       // Lv1~6随机
+  summonByFate(): DragonData | null;      // 土命免费 Lv1~3
 
   // 产金计算
-  calcCoinPerSecond(): number;         // 累加所有灵兽产金
+  calcCoinPerSecond(): number;  // 累加所有灵兽产金×命格加成
 
-  // 灵兽数据 ↔ Cocos 节点
+  // 灵兽 ↔ Cocos 节点
   createDragonNode(d: DragonData): Node;
+  removeDragonNode(id: string): void;
   updateAllNodes(): void;
 }
 ```
@@ -321,14 +346,14 @@ MainScene.fire
 
 | 等级 | 文件命名 | 说明 |
 |------|---------|------|
-| Lv1~Lv12 | creature_lv1.png ~ creature_lv12.png | 共12张基础图 |
+| Lv1~Lv15 | creature_lv1.png ~ creature_lv15.png | 共15张基础图 |
 | 火命特效 | creature_lv{n}_fire.png | 带火焰特效叠加 |
 | 水命特效 | creature_lv{n}_water.png | 带水波特效叠加 |
 | 木命特效 | creature_lv{n}_wood.png | 带藤蔓特效叠加 |
 | 金命特效 | creature_lv{n}_metal.png | 带金光特效叠加 |
 | 土命特效 | creature_lv{n}_earth.png | 带山石特效叠加 |
 
-**总计：12 + 12×5 = 72张图**
+**总计：15 + 15×5 = 90张图（v1.0先用简单素材）**
 
 ### 4.2 资源来源
 

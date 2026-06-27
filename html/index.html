@@ -125,9 +125,9 @@ body{background:#07071a;min-height:100vh;min-height:100dvh;display:flex;align-it
 
 /* ===== 游戏主界面 ===== */
 #gamePage{width:100%;padding-bottom:calc(100px + env(safe-area-inset-bottom));}
-.ach-panel{position:fixed;top:0;right:0;width:min(380px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:300;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
-.ach-panel.open{display:block;transform:translateX(0);}
-.ach-panel::-webkit-scrollbar{width:0;}
+.cult-panel,.ach-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:301;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.cult-panel.open,.ach-panel.open{display:block;transform:translateX(0);}
+.cult-panel::-webkit-scrollbar,.ach-panel::-webkit-scrollbar{width:0;}
 @keyframes achSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes achFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes achToast{0%{transform:translateX(120%);opacity:0}15%{transform:translateX(0);opacity:1}85%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
@@ -413,7 +413,7 @@ function doStart(){
     <div class="hud-top">
       <div class="hud-left"><span id="hudZodiac"></span><span id="hudFate"></span></div>
       <div class="hud-center"><div class="coin-row"><span class="coin-icon">💰</span><span id="hudCoins">0</span></div><div class="cps-row"><span id="hudCps">0/s</span></div></div>
-      <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span><button id="achBtn" onclick="openAchPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="成就">🏅</button></div>
+      <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span><button id="cultBtn" onclick="openCultPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="命格修炼">⚗️</button><button id="achBtn" onclick="openAchPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="成就">🏅</button></div>
     </div>
     <div class="hud-bottom"><span id="hudYunshi">⭐ 大吉</span><span id="hudTime">甲辰时·卯时</span></div>
   </div>
@@ -435,6 +435,7 @@ function doStart(){
   <div id="mergeFlash" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.7);z-index:300;pointer-events:none;font-size:60px;align-items:center;justify-content:center;">
     <span id="mergeText">⭐</span>
   </div>
+  <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
 </div>
@@ -455,9 +456,9 @@ const ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗
 const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
 const YUN_COIN   = [-.5,-.2,0,.3,.5];
 
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
 let nextId = 1;
-let cpsTimer = null;
+let cpsTimer = null, qiTimer = null;
 
 function saveGame(){
   localStorage.setItem(SAVE_KEY, JSON.stringify(G));
@@ -478,7 +479,8 @@ function calcCps(){
   const fc=FATE_C[G.fate]||1;
   const yc=1+(YUN_COIN[G.currentFate]||0);
   let base=G.dragons.reduce((s,d)=>s+(COIN_S[d.level]||0),0);
-  return Math.floor(base*fc*yc*1.3);
+  const coinBonus=(getCultBonus().coinBonus||0);
+  return Math.floor(base*fc*yc*1.3*(1+coinBonus));
 }
 function updateHud(){
   if(!G.created)return;
@@ -567,6 +569,8 @@ function doDrop(src,dst){
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
       G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst});
       G.mergeCount++;
+      const qiGain=Math.floor(Math.random()*2);
+      if(qiGain>0){G.qi=Math.min(99999,G.qi+qiGain);updateHud();}
       showMergeFlash(LICON[s.level+1]);
       showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
       saveGame();renderGrid();updateHud();
@@ -630,12 +634,23 @@ function startCps(){
     const cps=calcCps();
     if(cps>0){G.coins+=cps;updateHud();if(Math.random()<.01)saveGame();}
   },1000);
+  // 龙气回复（每分钟）
+  qiTimer=setInterval(()=>{
+    if(!G.created)return;
+    const elapsed=(Date.now()-G.lastQiTime)/60000;
+    const rate=getCultBonus().qiRate;
+    if(rate>0&&elapsed>=1){
+      G.qi=Math.min(99999,G.qi+Math.floor(elapsed*rate));
+      G.lastQiTime=Date.now();
+      updateHud();
+    }
+  },15000);
 }
-function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}}
+function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}if(qiTimer){clearInterval(qiTimer);qiTimer=null;}}
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;
-  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;
+  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
   saveGame();
   document.getElementById('modal').classList.remove('show');
   document.getElementById('loginWrap').style.display='none';
@@ -821,6 +836,122 @@ function renderAch(){
 function openAchPanel(){renderAch();document.getElementById('achPanel').classList.add('open');}
 function closeAchPanel(){document.getElementById('achPanel').classList.remove('open');}
 function initAch(){if(G.created)setTimeout(checkAch,500);}
+
+// ===== 命格修炼系统 =====
+const CULTivation=[
+  {key:'mu',  name:'木', icon:'🪵', color:'#4caf50', desc:'召唤灵兽',       node:[{cost:100,  title:'嫩芽萌发',desc:'召唤低级概率+10%'},{cost:500,  title:'枝繁叶茂',desc:'召唤低级概率+25%'},{cost:2000, title:'参天大树',desc:'召唤低级概率+50%'}]},
+  {key:'huo', name:'火', icon:'🔥', color:'#f44336', desc:'融合炼化',       node:[{cost:100,  title:'火苗初燃',desc:'合成成功率+5%'},{cost:500,  title:'烈火焚烧',desc:'合成成功率+15%'},{cost:2000, title:'烈焰焚天',desc:'合成成功率+30%'}]},
+  {key:'tu',  name:'土', icon:'🟤', color:'#795548', desc:'厚土载物',       node:[{cost:100,  title:'泥土夯实',desc:'金币产出+10%'},{cost:500,  title:'沃土千里',desc:'金币产出+25%'},{cost:2000, title:'厚德载物',desc:'金币产出+50%'}]},
+  {key:'kin', name:'金', icon:'⚪', color:'#9e9e9e', desc:'点石成金',       node:[{cost:100,  title:'沙里淘金',desc:'高级灵兽概率+10%'},{cost:500,  title:'点铁成金',desc:'高级灵兽概率+25%'},{cost:2000, title:'点石成金',desc:'高级灵兽概率+50%'}]},
+  {key:'shui',name:'水', icon:'💧', color:'#2196f3', desc:'水润万物',       node:[{cost:100,  title:'涓涓细流',desc:'龙气回复+20%/min'},{cost:500,  title:'江河奔涌',desc:'龙气回复+50%/min'},{cost:2000, title:'汪洋大海',desc:'龙气回复+100%/min'}]},
+];
+const QI_RATE=[0,0,0,0,0,20,50,100]; // 每级每分钟龙气回复量
+
+function getCultBonus(){
+  const c=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
+  return{
+    summonLowRate:(c.mu===1?.1:c.mu===2?.25:.35)*(c.mu===0?0:1),
+    mergeBonus:(c.huo===1?.05:c.huo===2?.15:.3)*(c.huo===0?0:1),
+    coinBonus:(c.tu===1?.1:c.tu===2?.25:.5)*(c.tu===0?0:1),
+    highRate:(c.kin===1?.1:c.kin===2?.25:.5)*(c.kin===0?0:1),
+    qiRate:QI_RATE[Object.values(c).reduce((a,b)=>a+b,0)]||0,
+  };
+}
+function calcCultQi(){
+  const now=Date.now();
+  const elapsed=(now-G.lastQiTime)/60000; // 分钟
+  const rate=getCultBonus().qiRate;
+  if(rate>0) G.qi=Math.min(99999,G.qi+Math.floor(elapsed*rate));
+  G.lastQiTime=now;
+  saveGame();
+}
+function doCultNode(cultKey,nodeIdx){
+  if(!G.created)return;
+  const cult=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
+  const cfg=CULTivation.find(c=>c.key===cultKey);
+  const node=cfg.node[nodeIdx];
+  if(cult[cultKey]>nodeIdx){showNotif('info','此节点已修炼');return;}
+  if(G.qi<node.cost){showNotif('error','龙气不足');return;}
+  G.qi-=node.cost;
+  cult[cultKey]=nodeIdx+1;
+  G.cultivation=cult;
+  saveGame();
+  saveCultUI();
+  updateHud();
+  calcCps();
+  showNotif('success','⚗️ '+cfg.icon+' '+cfg.name+'修炼：'+node.title);
+}
+function saveCultUI(){
+  // 实时更新修炼面板的节点显示
+  if(!document.getElementById('cultPanel').classList.contains('open'))return;
+  const cult=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
+  CULTivation.forEach(c=>{
+    const lv=cult[c.key]||0;
+    c.node.forEach((n,i)=>{
+      const nodeEl=document.getElementById('cult_'+c.key+'_'+i);
+      if(!nodeEl)return;
+      if(i<lv){ nodeEl.style.opacity='1'; nodeEl.style.borderColor='rgba(255,215,0,.4)'; nodeEl.style.background='rgba(255,215,0,.08)'; }
+      else if(i===lv){ nodeEl.style.opacity='1'; nodeEl.style.borderColor=c.color; nodeEl.style.background='rgba(255,255,255,.03)'; }
+      else{ nodeEl.style.opacity='.35'; nodeEl.style.borderColor='rgba(255,255,255,.06)'; nodeEl.style.background='rgba(255,255,255,.02)'; }
+    });
+  });
+}
+function renderCultPanel(){
+  const p=document.getElementById('cultPanel');
+  const cult=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
+  const bonus=getCultBonus();
+  p.innerHTML='<div style="padding:20px 16px 80px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
+      '<div style="font-size:16px;font-weight:700;">⚗️ 命格修炼</div>'+
+      '<div style="font-size:12px;color:#888;">'+
+        '<span style="color:#ffd700;">'+bonus.coinBonus.toFixed(0)+'%</span> 金币 '+
+        '<span style="color:#ffd700;">'+(bonus.summonLowRate*100).toFixed(0)+'%</span> 召唤 '+
+        '<span style="color:#ffd700;">'+(bonus.mergeBonus*100).toFixed(0)+'%</span> 合成'+
+      '</div>'+
+      '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeCultPanel()">✕</div>'+
+    '</div>'+
+    '<div style="font-size:11px;color:#555;margin-bottom:14px;background:rgba(255,255,255,.03);padding:10px;border-radius:10px;">'+
+      '消耗 <span style="color:#ffd700;">龙气</span> 提升修炼境界，每条命格可修炼3层'+
+    '</div>'+
+    CULTivation.map(c=>{
+      const lv=cult[c.key]||0;
+      return '<div style="margin-bottom:18px;">'+
+        '<div style="font-size:13px;font-weight:700;color:'+c.color+';margin-bottom:10px;display:flex;align-items:center;gap:6px;">'+
+          '<span style="font-size:18px;">'+c.icon+'</span>'+c.name+' · '+c.desc+
+        '</div>'+
+        '<div style="display:flex;gap:8px;">'+
+          c.node.map((n,i)=>{
+            const isDone=i<lv, isNext=i===lv;
+            return '<div id="cult_'+c.key+'_'+i+'" onclick="doCultNode(\''+c.key+'\','+i+')" style="'+
+              'flex:1;background:'+(isDone?'rgba(255,215,0,.08)':'rgba(255,255,255,.02)')+';'+
+              'border:1px solid '+(isDone?'rgba(255,215,0,.3)':isNext?c.color:'rgba(255,255,255,.06)')+';'+
+              'border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;opacity:'+(isDone||isNext?'1':'.35')+';'+
+              'transition:all .2s;'+
+              '" onmouseenter="this.style.transform=\'scale(1.03)\'" onmouseleave="this.style.transform=\'\'">'+
+              '<div style="font-size:11px;color:'+(isDone?'#ffd700':isNext?c.color:'#555')+';font-weight:600;">'+n.title+'</div>'+
+              '<div style="font-size:10px;color:#888;margin:3px 0 4px;">'+n.desc+'</div>'+
+              '<div style="font-size:10px;color:'+(G.qi>=n.cost?'#ffd700':'#f44336')+';">✨ '+n.cost+' 龙气</div>'+
+              (isDone?'<div style="font-size:16px;margin-top:4px;">✅</div>':'')+
+            '</div>';
+          }).join('')+
+        '</div>'+
+      '</div>';
+    }).join('')+
+    '<div style="margin-top:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);border-radius:12px;padding:12px;">'+
+      '<div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:6px;">📈 当前加成总览</div>'+
+      '<div style="font-size:11px;color:#888;line-height:1.9;">'+
+        '💰 金币产出 <span style="color:#ffd700;">+'+(bonus.coinBonus*100).toFixed(0)+'%</span><br>'+
+        '🐣 召唤概率 <span style="color:#ffd700;">+'+(bonus.summonLowRate*100).toFixed(0)+'%</span><br>'+
+        '⚡ 合成成功率 <span style="color:#ffd700;">+'+(bonus.mergeBonus*100).toFixed(0)+'%'</span><br>'+
+        '🐉 高级灵兽 <span style="color:#ffd700;">+'+(bonus.highRate*100).toFixed(0)+'%</span><br>'+
+        '✨ 龙气回复 <span style="color:#ffd700;">+'+bonus.qiRate+'/min</span>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function openCultPanel(){calcCultQi();renderCultPanel();document.getElementById('cultPanel').classList.add('open');}
+function closeCultPanel(){document.getElementById('cultPanel').classList.remove('open');}
+
 </script>
 </body>
 </html>

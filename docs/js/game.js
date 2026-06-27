@@ -8,7 +8,7 @@ function startGame(){
   document.getElementById('modal').classList.remove('show');
   document.getElementById('loginWrap').style.display='none';
   document.getElementById('hudZodiac').textContent=ZOD_E[sz]||'';
-  document.getElementById('hudFate').textContent=FATE_E[sf]||'';
+
   document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
   document.getElementById('gamePage').style.display='flex';
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
@@ -23,7 +23,7 @@ function initGame(){ initAch(); checkFateDaily();
   if(G.created){
     document.getElementById('loginWrap').style.display='none';
     document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';
-    document.getElementById('hudFate').textContent=FATE_E[G.fate]||'';
+
     document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
     document.getElementById('gamePage').style.display='flex';
     renderGrid();updateHud();startCps();startBgm();

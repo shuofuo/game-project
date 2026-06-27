@@ -262,6 +262,10 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 </style>
 </head>
 <body>
+<script>// Disable bfcache to ensure fresh JS execution
+window.addEventListener('pageshow', e => { if(e.persisted) location.reload(); });
+window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); });
+</script>
 <div class="bg"><div class="stars" id="stars"></div></div>
 
 <div class="wrap" id="loginWrap">

@@ -240,7 +240,7 @@ body{background:#07071a;min-height:100vh;display:flex;align-items:flex-start;jus
 <body>
 <div class="bg"><div class="stars" id="stars"></div></div>
 
-<div class="wrap">
+<div class="wrap" id="loginWrap">
   <div class="logo">
     <div class="logo-badge">✦ 天 机 降 临 ✦</div>
     <div class="logo-title-wrap">
@@ -624,7 +624,6 @@ function startGame(){
   document.getElementById('hudZodiac').textContent=ZOD_E[sz]||'';
   document.getElementById('hudFate').textContent=FATE_E[sf]||'';
   document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1];
-  document.getElementById('loginWrap').style.display='none';
   document.getElementById('gamePage').style.display='block';
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
   nextId=3;
@@ -638,7 +637,6 @@ function initGame(){
     document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';
     document.getElementById('hudFate').textContent=FATE_E[G.fate]||'';
     document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1];
-    document.getElementById('loginWrap').style.display='none';
     document.getElementById('gamePage').style.display='block';
     renderGrid();updateHud();startCps();
     if(G.fate===2)document.getElementById('btnFree').style.display='flex';

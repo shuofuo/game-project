@@ -415,7 +415,7 @@ function doStart(){
       <div class="hud-center"><div class="coin-row"><span class="coin-icon">💰</span><span id="hudCoins">0</span></div><div class="cps-row"><span id="hudCps">0/s</span></div></div>
       <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span><button id="cultBtn" onclick="openCultPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="命格修炼">⚗️</button><button id="achBtn" onclick="openAchPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="成就">🏅</button></div>
     </div>
-    <div class="hud-bottom"><span id="hudYunshi">⭐ 大吉</span><span id="hudTime">甲辰时·卯时</span></div>
+    <div class="hud-bottom"><span id="hudYunshi" onclick="showFateDetail()" style="cursor:pointer;" title="点击查看今日运势">⭐ 大吉</span><span id="hudTime">甲辰时·卯时</span></div>
   </div>
   <div id="dragonGrid"></div>
   <div id="summonBar">
@@ -437,6 +437,7 @@ function doStart(){
   </div>
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>
+  <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
 </div>
 
@@ -650,13 +651,14 @@ function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}if(qiTime
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;
-  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
+  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;
+  if(G.lastFateDate!==today()){rollFate();}G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
   saveGame();
   document.getElementById('modal').classList.remove('show');
   document.getElementById('loginWrap').style.display='none';
   document.getElementById('hudZodiac').textContent=ZOD_E[sz]||'';
   document.getElementById('hudFate').textContent=FATE_E[sf]||'';
-  document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1];
+  document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
   document.getElementById('gamePage').style.display='block';
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
   nextId=3;
@@ -664,13 +666,13 @@ function startGame(){
   if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
-function initGame(){ initAch();
+function initGame(){ initAch(); checkFateDaily();
   loadGame();
   if(G.created){
     document.getElementById('loginWrap').style.display='none';
     document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';
     document.getElementById('hudFate').textContent=FATE_E[G.fate]||'';
-    document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1];
+    document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
     document.getElementById('gamePage').style.display='block';
     renderGrid();updateHud();startCps();
     if(G.fate===2)document.getElementById('btnFree').style.display='flex';
@@ -836,6 +838,51 @@ function renderAch(){
 function openAchPanel(){renderAch();document.getElementById('achPanel').classList.add('open');}
 function closeAchPanel(){document.getElementById('achPanel').classList.remove('open');}
 function initAch(){if(G.created)setTimeout(checkAch,500);}
+
+function today(){
+  const d=new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function rollFate(){
+  G.currentFate=Math.floor(Math.random()*5)+1;
+  G.lastFateDate=today();
+  saveGame();
+  updateHud();
+  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','✨ 大吉'];
+  const icons=['⚠️','⚠️','☀️','🌟','⭐'];
+  const colors=['#f44336','#ff9800','#888','#8bc34a','#ffd700'];
+  showNotif('info','今日运势：'+names[G.currentFate-1]+'！产出'+(YUN_COIN[G.currentFate-1]>=0?'+'+(YUN_COIN[G.currentFate-1]*100).toFixed(0)+'%':(YUN_COIN[G.currentFate-1]*100).toFixed(0)+'%'));
+  updateFateOverlay();
+}
+function checkFateDaily(){
+  if(!G.created)return;
+  if(G.lastFateDate!==today()){
+    rollFate();
+    showNotif('warning','⏰ 新的一天！天机已变，运势已刷新');
+  }
+}
+function showFateDetail(){
+  const idx=G.currentFate-1;
+  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','✨ 大吉'];
+  const descs=['诸事不顺，产出-50%','略有不顺，产出-20%','运气平平，正常产出','运势旺盛，产出+30%','鸿运当头，产出+50%'];
+  const colors=['#f44336','#ff9800','#888','#8bc34a','#ffd700'];
+  const bonus=YUN_COIN[idx];
+  const pct=(bonus>=0?'+'+(bonus*100).toFixed(0)+'%':(bonus*100).toFixed(0)+'%');
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a0a1a;border:1px solid '+colors[idx]+';border-radius:20px;padding:24px;z-index:500;width:min(320px,88vw);text-align:center;';
+  el.innerHTML='<div style="font-size:40px;margin-bottom:8px;">'+names[idx]+'</div><div style="font-size:16px;font-weight:700;color:'+colors[idx]+';margin-bottom:6px;">'+pct+' 金币产出</div><div style="font-size:13px;color:#888;margin-bottom:16px;">'+descs[idx]+'</div><div style="font-size:11px;color:#555;">每日0点自动刷新</div><div style="margin-top:14px;padding:10px;background:rgba(255,255,255,.04);border-radius:12px;font-size:12px;color:#666;cursor:pointer;" onclick="this.parentElement.remove()">✕ 关闭</div>';
+  document.body.appendChild(el);
+}
+
+function updateFateOverlay(){
+  const overlay=document.getElementById('fateOverlay');
+  if(!overlay)return;
+  const opacities=[.35,.15,0,.1,.2];
+  const op=opacities[G.currentFate-1]||0;
+  const colors=['rgba(244,67,54,','rgba(255,152,0,','rgba(255,255,255,','rgba(139,195,74,','rgba(255,215,0,'];
+  overlay.style.background=colors[G.currentFate-1]+op+')';
+}
+
 
 // ===== 命格修炼系统 =====
 const CULTivation=[

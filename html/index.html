@@ -152,6 +152,89 @@ body{background:#07071a;min-height:100vh;display:flex;align-items:flex-start;jus
 @keyframes mergeFlash{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.3);opacity:1}100%{transform:scale(1);opacity:0}}
 #mergeFlash.show{display:flex!important;animation:mergeFlash .5s ease-out forwards;}
 
+
+/* ===== 召唤翻牌动画 ===== */
+#summonOverlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(5,5,20,.95);z-index:500;
+  align-items:center;justify-content:center;flex-direction:column;
+}
+#summonOverlay.show{display:flex!important;}
+/* 翻牌区域 */
+.scard-wrap{
+  perspective:800px;width:160px;height:200px;margin:30px 0;
+}
+.scard{
+  width:100%;height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;
+}
+.scard.flipped{transform:rotateY(180deg);}
+.scard-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:48px;
+  border:2px solid rgba(255,215,0,.4);
+}
+.scard-back{
+  background:linear-gradient(160deg,#1a1a3a,#2a1a4a);
+  box-shadow:0 0 40px rgba(255,215,0,.2);
+}
+.scard-back::before{
+  content:'？';font-size:64px;color:rgba(255,215,0,.3);
+}
+/* 金边框高级感 */
+.scard-front{
+  background:linear-gradient(160deg,#2a1a3a,#1a1a4a);
+  transform:rotateY(180deg);
+  border-color:#ffd700;
+  box-shadow:0 0 30px rgba(255,215,0,.3);
+  flex-direction:column;gap:8px;
+}
+.scard-front .sf-emoji{font-size:72px;line-height:1;}
+.scard-front .sf-name{font-size:18px;color:#ffd700;font-weight:700;}
+.scard-front .sf-cps{font-size:11px;color:#888;}
+/* 抽卡提示文字 */
+.summon-tip{color:rgba(255,255,255,.4);font-size:14px;letter-spacing:4px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.7}}
+/* 结果揭晓区 */
+.summon-result-anim{
+  display:none;text-align:center;
+  animation:fadeInUp .6s ease-out;
+}
+.summon-result-anim.show{display:block;}
+@keyframes fadeInUp{
+  from{transform:translateY(30px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.sra-emoji{font-size:90px;margin:10px 0;}
+.sra-name{font-size:26px;color:#ffd700;font-weight:900;}
+.sra-desc{font-size:14px;color:#888;margin-top:8px;}
+.sra-tag{font-size:12px;color:#aaa;margin-top:4px;letter-spacing:3px;}
+/* 光芒效果 */
+@keyframes shine{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.shine-text{
+  background:linear-gradient(90deg,#ffd700,#fff,#ffd700);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shine 2s linear infinite;
+}
+/* 弹窗里的召唤结果 */
+#summonModal .modal-box{max-width:340px;}
+.smodal-rarity{font-size:12px;letter-spacing:4px;margin-bottom:10px;}
+.smodal-rarity.r1{color:#aaa;}
+.smodal-rarity.r2{color:#7eb8ff;}
+.smodal-rarity.r3{color:#b57edc;}
+.smodal-rarity.r4{color:#ffd700;}
+/* 拖拽时目标格高亮 */
+.d-cell.drop-target{border-color:#ffd700!important;box-shadow:0 0 16px rgba(255,215,0,.5)!important;background:rgba(255,215,0,.1)!important;}
+
 </style>
 </head>
 <body>
@@ -200,6 +283,29 @@ body{background:#07071a;min-height:100vh;display:flex;align-items:flex-start;jus
     <button class="modal-btn modal-btn-cancel" onclick="reselect()">重新选择</button>
   </div>
 </div>
+
+<!-- 召唤翻牌动画遮罩 -->
+<div id="summonOverlay">
+  <div class="summon-tip">点击卡牌揭晓命运</div>
+  <div class="scard-wrap" onclick="revealSummon()">
+    <div class="scard" id="scard">
+      <div class="scard-face scard-back"></div>
+      <div class="scard-face scard-front">
+        <div class="sf-emoji" id="sfEmoji"></div>
+        <div class="sf-name"  id="sfName"></div>
+        <div class="sf-cps"   id="sfCps"></div>
+      </div>
+    </div>
+  </div>
+  <div class="summon-result-anim" id="summonResultAnim">
+    <div class="sra-emoji" id="sraEmoji"></div>
+    <div class="sra-name shine-text" id="sraName"></div>
+    <div class="sra-desc" id="sraDesc"></div>
+    <div class="sra-tag" id="sraTag"></div>
+  </div>
+  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="margin-top:20px;display:none;">收下 ✦</button>
+</div>
+
 
 <script>
 const ZDATA=[
@@ -470,17 +576,7 @@ function getSummonLevel(pool){
   for(const p of pool){acc+=p.weight;if(r<=acc)return p.level;}
   return pool[pool.length-1].level;
 }
-function doSummon(level){
-  const used=new Set(G.dragons.map(d=>d.idx));
-  const spots=[];
-  for(let i=0;i<TOTAL;i++)if(!used.has(i))spots.push(i);
-  if(spots.length===0){showNotif('error','灵兽已满，请先合并！');return;}
-  const idx=spots[Math.floor(Math.random()*spots.length)];
-  G.dragons.push({id:String(nextId++),level,idx});
-  G.summonCount++;
-  saveGame();renderGrid();updateHud();
-  showSummonResult(level);
-}
+
 function summonCoin(){
   const cost=G.summonCount<100?100:G.summonCount<500?150:G.summonCount<2000?200:250;
   if(G.coins<cost){showNotif('error','金币不足！');return;}
@@ -497,13 +593,8 @@ function summonFree(){
   G.freeLeft--;
   doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
 }
-function showSummonResult(lvl){
-  document.getElementById('summonResult').textContent=LICON[lvl]||'?';
-  document.getElementById('summonName').textContent=LNAME[lvl]||'灵兽';
-  document.getElementById('summonDesc').textContent=`Lv${lvl} · 每秒产金 ${COIN_S[lvl]}`;
-  document.getElementById('summonModal').classList.add('show');
-}
-function closeSummon(){document.getElementById('summonModal').classList.remove('show');}
+
+
 function showMergeFlash(emoji){
   const el=document.getElementById('mergeFlash');
   document.getElementById('mergeText').textContent=emoji;
@@ -553,6 +644,80 @@ function initGame(){
     if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   }
 }
+
+// ===== 召唤翻牌动画 =====
+const RARITY=[
+  {name:'普通',color:'#aaa',tag:'NORMAL'},
+  {name:'稀有',color:'#7eb8ff',tag:'RARE'},
+  {name:'史诗',color:'#b57edc',tag:'EPIC'},
+  {name:'传说',color:'#ffd700',tag:'LEGEND'},
+  {name:'神话',color:'#ff6b35',tag:'MYTH'},
+];
+function getRarity(lvl){
+  if(lvl<=3)return 0;
+  if(lvl<=6)return 1;
+  if(lvl<=9)return 2;
+  if(lvl<=12)return 3;
+  return 4;
+}
+let pendingSummonLevel=1;
+let summonRevealed=false;
+
+function revealSummon(){
+  if(summonRevealed)return;
+  summonRevealed=true;
+  const lvl=pendingSummonLevel;
+  const rar=getRarity(lvl);
+  // 填充翻牌正面内容
+  document.getElementById('sfEmoji').textContent=LICON[lvl]||'?';
+  document.getElementById('sfName').textContent=LNAME[lvl]||'灵兽';
+  document.getElementById('sfCps').textContent='+'+COIN_S[lvl]+'/s';
+  document.querySelector('.scard-front').style.borderColor=rar.color;
+  // 翻牌
+  document.getElementById('scard').classList.add('flipped');
+  // 1.4秒后显示结果
+  setTimeout(()=>{
+    document.getElementById('summonResultAnim').classList.add('show');
+    document.getElementById('sraEmoji').textContent=LICON[lvl]||'?';
+    document.getElementById('sraName').textContent=LNAME[lvl]||'灵兽';
+    document.getElementById('sraDesc').textContent='Lv'+lvl+' · 每秒产金 '+COIN_S[lvl];
+    document.getElementById('sraTag').textContent=rar.tag;
+    document.getElementById('sraTag').style.color=rar.color;
+    document.getElementById('sraBtn').style.display='block';
+    // 关闭提示
+    document.querySelector('.summon-tip').style.display='none';
+    document.querySelector('.scard-wrap').style.display='none';
+  },1400);
+}
+function closeSummonAnim(){
+  document.getElementById('summonOverlay').classList.remove('show');
+  document.getElementById('summonResultAnim').classList.remove('show');
+  document.getElementById('sraBtn').style.display='none';
+  document.querySelector('.summon-tip').style.display='block';
+  document.querySelector('.scard-wrap').style.display='flex';
+  document.getElementById('scard').classList.remove('flipped');
+  document.getElementById('summonResultAnim').classList.remove('show');
+  summonRevealed=false;
+}
+
+// 改造 doSummon：触发翻牌动画而不是直接弹窗
+function doSummon(level){
+  const used=new Set(G.dragons.map(d=>d.idx));
+  const spots=[];
+  for(let i=0;i<TOTAL;i++)if(!used.has(i))spots.push(i);
+  if(spots.length===0){showNotif('error','灵兽已满，请先合并！');return;}
+  const idx=spots[Math.floor(Math.random()*spots.length)];
+  G.dragons.push({id:String(nextId++),level,idx});
+  G.summonCount++;
+  saveGame();renderGrid();updateHud();
+  // 改为触发翻牌动画
+  pendingSummonLevel=level;
+  summonRevealed=false;
+  document.getElementById('summonOverlay').classList.add('show');
+  document.getElementById('summonResultAnim').classList.remove('show');
+  document.getElementById('sraBtn').style.display='none';
+}
+
 window.addEventListener('DOMContentLoaded',initGame);
 
 </script>

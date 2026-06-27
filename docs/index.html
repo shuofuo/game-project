@@ -636,6 +636,7 @@ function doDrop(src,dst){
       if(qiGain>0){G.qi=Math.min(99999,G.qi+qiGain);updateHud();}
       showMergeFlash(LICON[s.level+1]);
       showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
+      if(G.zodiac>=0) playSound('merge_z'+G.zodiac);
       saveGame();renderGrid();updateHud();
       checkAch();
     }else{s.idx=dst;t.idx=src;saveGame();renderGrid();}

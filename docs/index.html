@@ -15,7 +15,7 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.6;animation:twinkle 3s ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
 
-.wrap{position:relative;z-index:1;width:min(500px,96vw);max-width:96vw;padding:0 0 calc(16px + env(safe-area-inset-bottom)) 0;margin:0 auto;overflow-x:hidden;}
+.wrap{position:fixed;z-index:100;width:min(500px,96vw);max-width:96vw;padding:0 0 calc(16px + env(safe-area-inset-bottom)) 0;margin:0 auto;overflow-x:hidden;top:0;left:0;right:0;bottom:0;overflow-y:auto;}
 
 /* ===== 标题区：书法印章风格 ===== */
 .logo{text-align:center;margin-bottom:8px;position:relative;}

@@ -10,7 +10,7 @@ function startGame(){
   document.getElementById('hudZodiac').textContent=ZOD_E[sz]||'';
 
   document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
-  document.getElementById('gamePage').style.display='flex';
+  document.getElementById('gamePage').style.display='flex';document.getElementById('gamePage').style.visibility='visible';document.getElementById('gamePage').style.opacity='1';
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
   nextId=3;
   saveGame();renderGrid();updateHud();startCps();startBgm();initHomeGesture();try{updateHeroSection();}catch(e){}initHomeGesture();try{updateHeroSection();}catch(e){}
@@ -25,7 +25,7 @@ function initGame(){ localStorage.clear(); initAch(); checkFateDaily();
     document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';
 
     document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
-    document.getElementById('gamePage').style.display='flex';
+    document.getElementById('gamePage').style.display='flex';document.getElementById('gamePage').style.visibility='visible';document.getElementById('gamePage').style.opacity='1';
     renderGrid();updateHud();startCps();startBgm();initHomeGesture();try{updateHeroSection();}catch(e){}
     if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   }

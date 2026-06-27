@@ -900,54 +900,43 @@ function renderCultPanel(){
   const p=document.getElementById('cultPanel');
   const cult=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
   const bonus=getCultBonus();
-  p.innerHTML='<div style="padding:20px 16px 80px;">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
-      '<div style="font-size:16px;font-weight:700;">⚗️ 命格修炼</div>'+
-      '<div style="font-size:12px;color:#888;">'+
-        '<span style="color:#ffd700;">'+bonus.coinBonus.toFixed(0)+'%</span> 金币 '+
-        '<span style="color:#ffd700;">'+(bonus.summonLowRate*100).toFixed(0)+'%</span> 召唤 '+
-        '<span style="color:#ffd700;">'+(bonus.mergeBonus*100).toFixed(0)+'%</span> 合成'+
-      '</div>'+
-      '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeCultPanel()">✕</div>'+
-    '</div>'+
-    '<div style="font-size:11px;color:#555;margin-bottom:14px;background:rgba(255,255,255,.03);padding:10px;border-radius:10px;">'+
-      '消耗 <span style="color:#ffd700;">龙气</span> 提升修炼境界，每条命格可修炼3层'+
-    '</div>'+
-    CULTivation.map(c=>{
-      const lv=cult[c.key]||0;
-      return '<div style="margin-bottom:18px;">'+
-        '<div style="font-size:13px;font-weight:700;color:'+c.color+';margin-bottom:10px;display:flex;align-items:center;gap:6px;">'+
-          '<span style="font-size:18px;">'+c.icon+'</span>'+c.name+' · '+c.desc+
-        '</div>'+
-        '<div style="display:flex;gap:8px;">'+
-          c.node.map((n,i)=>{
-            const isDone=i<lv, isNext=i===lv;
-            return '<div id="cult_'+c.key+'_'+i+'" onclick="doCultNode(\''+c.key+'\','+i+')" style="'+
-              'flex:1;background:'+(isDone?'rgba(255,215,0,.08)':'rgba(255,255,255,.02)')+';'+
-              'border:1px solid '+(isDone?'rgba(255,215,0,.3)':isNext?c.color:'rgba(255,255,255,.06)')+';'+
-              'border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;opacity:'+(isDone||isNext?'1':'.35')+';'+
-              'transition:all .2s;'+
-              '" onmouseenter="this.style.transform=\'scale(1.03)\'" onmouseleave="this.style.transform=\'\'">'+
-              '<div style="font-size:11px;color:'+(isDone?'#ffd700':isNext?c.color:'#555')+';font-weight:600;">'+n.title+'</div>'+
-              '<div style="font-size:10px;color:#888;margin:3px 0 4px;">'+n.desc+'</div>'+
-              '<div style="font-size:10px;color:'+(G.qi>=n.cost?'#ffd700':'#f44336')+';">✨ '+n.cost+' 龙气</div>'+
-              (isDone?'<div style="font-size:16px;margin-top:4px;">✅</div>':'')+
-            '</div>';
-          }).join('')+
-        '</div>'+
-      '</div>';
-    }).join('')+
-    '<div style="margin-top:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);border-radius:12px;padding:12px;">'+
-      '<div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:6px;">📈 当前加成总览</div>'+
-      '<div style="font-size:11px;color:#888;line-height:1.9;">'+
-        '💰 金币产出 <span style="color:#ffd700;">+'+(bonus.coinBonus*100).toFixed(0)+'%</span><br>'+
-        '🐣 召唤概率 <span style="color:#ffd700;">+'+(bonus.summonLowRate*100).toFixed(0)+'%</span><br>'+
-        '⚡ 合成成功率 <span style="color:#ffd700;">+'+(bonus.mergeBonus*100).toFixed(0)+'%'</span><br>'+
-        '🐉 高级灵兽 <span style="color:#ffd700;">+'+(bonus.highRate*100).toFixed(0)+'%</span><br>'+
-        '✨ 龙气回复 <span style="color:#ffd700;">+'+bonus.qiRate+'/min</span>'+
-      '</div>'+
-    '</div>'+
-  '</div>';
+  p.innerHTML=`<div style="padding:20px 16px 80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">⚗️ 命格修炼</div>
+      <div style="font-size:12px;color:#888;">
+        <span style="color:#ffd700;">${(bonus.coinBonus*100).toFixed(0)}%</span>金币
+        <span style="color:#ffd700;">${(bonus.summonLowRate*100).toFixed(0)}%</span>召唤
+        <span style="color:#ffd700;">${(bonus.mergeBonus*100).toFixed(0)}%</span>合成
+      </div>
+      <div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeCultPanel()">✕</div>
+    </div>
+    <div style="font-size:11px;color:#555;margin-bottom:14px;background:rgba(255,255,255,.03);padding:10px;border-radius:10px;">
+      消耗 <span style="color:#ffd700;">龙气</span> 提升修炼境界，每条命格可修炼3层
+    </div>
+    ${CULTivation.map(c=>{const lv=cult[c.key]||0;return`<div style="margin-bottom:18px;">
+      <div style="font-size:13px;font-weight:700;color:${c.color};margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+        <span style="font-size:18px;">${c.icon}</span>${c.name}·${c.desc}
+      </div>
+      <div style="display:flex;gap:8px;">
+        ${c.node.map((n,i)=>{const done=i<lv,next=i===lv;return`<div id="cult_${c.key}_${i}" onclick="doCultNode('${c.key}',${i})" style="flex:1;background:${done?'rgba(255,215,0,.08)':'rgba(255,255,255,.02)'};border:1px solid ${done?'rgba(255,215,0,.3)':next?c.color:'rgba(255,255,255,.06)'};border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;opacity:${done||next?'1':'.35'};">
+          <div style="font-size:11px;color:${done?'#ffd700':next?c.color:'#555'};font-weight:600;">${n.title}</div>
+          <div style="font-size:10px;color:#888;margin:3px 0 4px;">${n.desc}</div>
+          <div style="font-size:10px;color:${G.qi>=n.cost?'#ffd700':'#f44336'};">✨${n.cost}龙气</div>
+          ${done?'<div style="font-size:16px;margin-top:4px;">✅</div>':''}
+        </div>`;}).join('')}
+      </div>
+    </div>`;}).join('')}
+    <div style="margin-top:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);border-radius:12px;padding:12px;">
+      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:6px;">📈 当前加成总览</div>
+      <div style="font-size:11px;color:#888;line-height:1.9;">
+        💰金币产出 <span style="color:#ffd700;">+${(bonus.coinBonus*100).toFixed(0)}%</span><br>
+        🐣召唤概率 <span style="color:#ffd700;">+${(bonus.summonLowRate*100).toFixed(0)}%</span><br>
+        ⚡合成成功率 <span style="color:#ffd700;">+${(bonus.mergeBonus*100).toFixed(0)}%</span><br>
+        🐉高级灵兽 <span style="color:#ffd700;">+${(bonus.highRate*100).toFixed(0)}%</span><br>
+        ✨龙气回复 <span style="color:#ffd700;">+${bonus.qiRate}/min</span>
+      </div>
+    </div>
+  </div>`;
 }
 function openCultPanel(){calcCultQi();renderCultPanel();document.getElementById('cultPanel').classList.add('open');}
 function closeCultPanel(){document.getElementById('cultPanel').classList.remove('open');}

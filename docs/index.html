@@ -471,14 +471,23 @@ function initAudio() {
 
 function playSound(type) {
   if (!_audioCtx || _audioState.muted) return;
-  try {
-    const osc = _audioCtx.createOscillator();
-    const gain = _audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(_audioCtx.destination);
-    osc.start();
-    osc.stop(_audioCtx.currentTime + 0.15);
-  } catch(e) {}
+  const now = _audioCtx.currentTime;
+  const v = _audioState.sfxVolume;
+  const mk = (freq, dur, vol=v, t=0) => {
+    const o = _audioCtx.createOscillator();
+    const g = _audioCtx.createGain();
+    o.connect(g); g.connect(_audioCtx.destination);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol * .25, now + t);
+    g.gain.exponentialRampToValueAtTime(.001, now + t + dur);
+    o.start(now + t); o.stop(now + t + dur);
+  };
+  switch(type) {
+    case 'notif':   mk(880, .08, .6); mk(1100, .12, .4, .07); break;
+    case 'error':   mk(120, .25, .5); break;
+    case 'achieve': mk(523, .3, .7); mk(659, .3, .6, .15); mk(784, .4, .5, .3); break;
+    case 'refresh': mk(330, 1.5, .5); mk(440, 1.5, .4, .1); break;
+  }
 }
 
 let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};

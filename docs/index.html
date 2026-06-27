@@ -277,11 +277,14 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
     <div class="logo-sub">放置合成 · 命运由我</div>
   </div>
 
+  <div class="zodiac-strip" id="zStrip"></div>
+
   <div class="login-section-title">壹 · 属相</div>
   <div class="zodiac-grid" id="zGrid"></div>
 
   <div class="login-section-title">贰 · 命格</div>
   <div class="fate-row" id="fGrid"></div>
+  <div class="bonus" id="bonus">命格加成：<b id="bc">产金×1</b> · <b id="bq">龙气×1</b> · <b id="be">经验×1</b></div>
 
   <button class="start-btn" id="sBtn" onclick="doStart()">请先选择属相与命格</button>
 </div>

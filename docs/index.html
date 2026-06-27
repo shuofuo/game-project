@@ -516,30 +516,9 @@ function doStart(){
   <!-- 灵兽网格（全量展示，包含召唤入口） -->
   <div id="dragonGrid" style="display:none;flex:1;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 14px;align-content:start;overflow-y:auto;min-height:0;"></div>
 
-<!-- 中央召唤组 -->
-    <div style="display:flex;gap:6px;">
-      <button onclick="summonCoin()" class="icon-btn icon-coin" title="金币召唤" id="btnCoin">
-        💰<span id="coinCost" style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(255,200,0,.8);font-weight:700;">100</span>
-      </button>
-      <button onclick="summonQi()" class="icon-btn icon-qi" title="龙气召唤" id="btnQi">
-        ✨<span style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(160,216,239,.8);font-weight:700;">500</span>
-      </button>
-      <button onclick="summonFree()" class="icon-btn icon-free" title="免费召唤" id="btnFree" style="display:none;">
-        🌿<span id="freeCount" style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(76,175,80,.9);font-weight:700;"></span>
-      </button>
-    </div>
-
-    <!-- 右侧功能组：排行+设置 -->
-    <div style="display:flex;gap:6px;">
-      <button onclick="openRankPanel()" class="icon-btn icon-rank" title="排行榜">🏅</button>
-      <button onclick="openAchPanel()" class="icon-btn icon-ach" title="成就">🏆</button>
-      <button onclick="openSettings()" class="icon-btn icon-set" title="设置">⚙️</button>
-    </div>
   </div>
 
-  <!-- ===== 移除旧的悬浮工具栏 ===== -->
-
-    <!-- ===== 底部召唤栏（居中纯图标） ===== -->
+<!-- ===== 底部召唤栏（居中纯图标） ===== -->
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 16px 16px;">
     <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" title="金币召唤">
       <span style="font-size:18px;">💰</span>

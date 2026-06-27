@@ -350,3 +350,27 @@ function renderHandbook(){
     </div>
   </div>`;
 }
+
+// ===== 底部栏新功能 =====
+function toggleDragonGrid(){
+  const grid=document.getElementById('dragonGrid');
+  const hero=document.getElementById('heroSection');
+  const btn=document.getElementById('gridToggleBtn');
+  if(grid.style.display==='flex'){
+    grid.style.display='none';
+    hero.style.display='flex';
+    btn.textContent='↓ 查看全部灵兽 ↓';
+  } else {
+    grid.style.display='flex';
+    hero.style.display='none';
+    btn.textContent='↑ 返回灵兽展示 ↑';
+  }
+}
+
+function openTaskPanel(){
+  showNotif('📋 每日任务 · 功能开发中',3000);
+}
+
+function openActivityPanel(){
+  showNotif('🎯 限时活动 · 功能开发中',3000);
+}

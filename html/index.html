@@ -5,251 +5,221 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>生肖天机</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  color: #fff;
-}
-.container {
-  text-align: center;
-  padding: 30px;
-  max-width: 520px;
-}
-h1 {
-  font-size: 48px;
-  color: #ffd700;
-  text-shadow: 0 0 20px rgba(255,215,0,0.5);
-  margin-bottom: 8px;
-}
-.subtitle {
-  color: #aaa;
-  font-size: 18px;
-  margin-bottom: 32px;
-}
-.section-title {
-  color: #ccc;
-  font-size: 22px;
-  margin: 24px 0 14px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 8px;
-}
-.card {
-  background: rgba(50,50,80,0.8);
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 14px 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  user-select: none;
-}
-.card:hover { background: rgba(70,70,110,0.9); border-color: rgba(255,255,255,0.3); }
-.card.selected { background: rgba(255,200,0,0.3); border-color: #ffc800; box-shadow: 0 0 15px rgba(255,200,0,0.4); }
-.card .emoji { font-size: 36px; display: block; }
-.card .name { font-size: 12px; color: #888; margin-top: 4px; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#07071a;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',sans-serif;color:#fff;overflow:hidden;}
 
-.fate-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.fate-card {
-  background: rgba(40,40,70,0.8);
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 80px;
-}
-.fate-card:hover { background: rgba(60,60,100,0.9); border-color: rgba(255,255,255,0.3); }
-.fate-card.selected { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
-.fate-card .emoji { font-size: 28px; display: block; }
-.fate-card .name { font-size: 14px; font-weight: bold; margin-top: 4px; }
-.fate-card .desc { font-size: 10px; color: #888; margin-top: 4px; max-width: 80px; }
-.fate-card.fate-0 .name { color: #4CAF50; }
-.fate-card.fate-1 .name { color: #FF5722; }
-.fate-card.fate-2 .name { color: #8D6E63; }
-.fate-card.fate-3 .name { color: #FFC107; }
-.fate-card.fate-4 .name { color: #2196F3; }
+/* 背景 */
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,#1a1060 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 80% 100%,#0d2050 0%,transparent 60%);}
+.stars{position:absolute;inset:0;}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.6;animation:twinkle 3s ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
 
-.btn {
-  margin-top: 28px;
-  padding: 14px 60px;
-  font-size: 24px;
-  background: linear-gradient(135deg, #c8a020, #8b6010);
-  border: none;
-  border-radius: 30px;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 4px;
-}
-.btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,215,0,0.4); }
-.btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+/* 主容器 */
+.wrap{position:relative;z-index:1;width:min(500px,96vw);padding:32px 28px 40px;}
 
-.bonus-box {
-  margin-top: 20px;
-  padding: 12px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 8px;
-  font-size: 12px;
-  color: #aaa;
-  display: none;
-}
-.bonus-box.show { display: block; }
-.bonus-box span { margin: 0 8px; }
-.bonus-box .c { color: #ffd700; }
-.bonus-box .q { color: #64b5f6; }
-.bonus-box .e { color: #81c784; }
+/* 标题区 */
+.logo{text-align:center;margin-bottom:36px;}
+.logo-top{display:inline-flex;align-items:center;gap:12px;margin-bottom:6px;}
+.logo-icon{width:56px;height:56px;background:linear-gradient(135deg,#ffd700,#ff8c00);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 32px rgba(255,200,0,.35);animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.logo-title{font-size:42px;font-weight:900;background:linear-gradient(135deg,#ffd700,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:4px;}
+.logo-sub{font-size:14px;color:#666;letter-spacing:8px;text-transform:uppercase;}
 
-.popup {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.8);
-  align-items: center; justify-content: center;
-  z-index: 100;
-}
-.popup.show { display: flex; }
-.popup-box {
-  background: linear-gradient(135deg, #1a1a3a, #2a2a5a);
-  border: 2px solid #ffd700;
-  border-radius: 20px;
-  padding: 40px;
-  text-align: center;
-  max-width: 360px;
-}
-.popup-box h2 { color: #ffd700; font-size: 32px; margin-bottom: 20px; }
-.popup-box .char-info { font-size: 18px; margin-bottom: 10px; }
-.popup-box .char-info span { font-size: 36px; margin: 0 8px; }
-.popup-box .bonus-info { font-size: 13px; color: #aaa; margin-top: 16px; }
-.popup-box .close-btn {
-  margin-top: 24px;
-  padding: 10px 40px;
-  background: #ffd700;
-  border: none;
-  border-radius: 20px;
-  color: #1a1a1a;
-  font-size: 16px;
-  cursor: pointer;
-}
+/* 分割线 */
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#333,transparent);}
+.divider span{color:#555;font-size:12px;letter-spacing:4px;white-space:nowrap}
+
+/* 选区 */
+.section{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:20px;margin-bottom:16px;}
+.section-label{text-align:center;font-size:13px;color:#556;color:#888;letter-spacing:3px;margin-bottom:16px;}
+
+/* 属相网格 3x4 */
+.zodiac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.zodiac-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 4px 10px;cursor:pointer;transition:all .25s;text-align:center;user-select:none;}
+.zodiac-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);transform:translateY(-2px);}
+.zodiac-card.on{background:linear-gradient(135deg,#2a2000,#1a1000);border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,.3),inset 0 0 20px rgba(255,215,0,.05);transform:translateY(-3px);}
+.zodiac-card .z-emoji{font-size:34px;line-height:1;margin-bottom:4px;}
+.zodiac-card .z-name{font-size:11px;color:#777;}
+.zodiac-card.on .z-name{color:#ffd700;font-weight:600;}
+
+/* 属相名字中文（金色系） */
+.zodiac-card .z-cn{font-size:13px;margin-top:2px;}
+
+/* 命格横排 */
+.fate-row{display:flex;gap:6px;justify-content:center;}
+.fate-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 8px;cursor:pointer;transition:all .25s;text-align:center;min-width:72px;user-select:none;}
+.fate-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);transform:translateY(-2px);}
+.fate-card.on{border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.2);transform:translateY(-3px);}
+.fate-card .f-emoji{font-size:28px;}
+.fate-card .f-name{font-size:13px;font-weight:700;margin-top:4px;}
+.fate-card.fate-0 .f-name{color:#4CAF50}
+.fate-card.fate-1 .f-name{color:#FF5722}
+.fate-card.fate-2 .f-name{color:#a0785a}
+.fate-card.fate-3 .f-name{color:#FFC107}
+.fate-card.fate-4 .f-name{color:#42a5f5}
+.fate-card .f-desc{font-size:9px;color:#555;margin-top:3px;line-height:1.4;}
+
+/* 加成展示 */
+.bonus{display:none;margin-top:12px;text-align:center;font-size:12px;color:#888;}
+.bonus.show{display:block;}
+.bonus b{color:#ffd700;margin:0 4px;}
+
+/* 开始按钮 */
+.start-btn{margin-top:20px;width:100%;padding:16px;font-size:20px;background:linear-gradient(135deg,#2a2000,#1a1000);border:1.5px solid #5a4000;border-radius:40px;color:#888;cursor:not-allowed;letter-spacing:6px;font-weight:600;transition:all .3s;}
+.start-btn.ready{background:linear-gradient(135deg,#c8a020,#8b6010);border-color:#ffd700;color:#fff;cursor:pointer;letter-spacing:6px;box-shadow:0 8px 30px rgba(200,160,32,.3);}
+.start-btn.ready:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(200,160,32,.4);}
+
+/* 弹窗 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+.modal.show{display:flex;}
+.modal-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:28px;padding:40px 36px;width:min(380px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-badge{display:inline-block;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a0a00;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:3px;margin-bottom:20px;}
+.modal-chars{display:flex;justify-content:center;align-items:center;gap:20px;margin:16px 0 24px;}
+.modal-chars .mc-zodiac{font-size:64px;line-height:1;}
+.modal-chars .mc-vs{font-size:20px;color:#444;}
+.modal-chars .mc-fate{font-size:64px;line-height:1;}
+.modal-info{font-size:13px;color:#888;line-height:1.8;}
+.modal-info b{color:#ffd700;}
+.modal-btn{margin-top:28px;width:100%;padding:14px;background:#ffd700;border:none;border-radius:30px;color:#1a0a00;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all .2s;}
+.modal-btn:hover{transform:scale(1.03);box-shadow:0 8px 24px rgba(255,215,0,.3);}
 </style>
 </head>
 <body>
+<div class="bg"><div class="stars" id="stars"></div></div>
 
-<div class="container">
-  <h1>🐾 生肖天机</h1>
-  <p class="subtitle">放置合成 · 天机降临</p>
-
-  <p class="section-title">请选择你的属相</p>
-  <div class="grid" id="zodiacGrid"></div>
-
-  <p class="section-title">请选择命格</p>
-  <div class="fate-grid" id="fateGrid"></div>
-
-  <button class="btn" id="startBtn" disabled onclick="startGame()">请先选择属相和命格</button>
-
-  <div class="bonus-box" id="bonusBox">
-    命格加成：
-    <span class="c" id="bonusCoin">产金×1.0</span>
-    <span class="q" id="bonusQi">龙气×1.0</span>
-    <span class="e" id="bonusExp">经验×1.0</span>
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-top">
+      <div class="logo-icon">⚙</div>
+      <div class="logo-title">生肖天机</div>
+    </div>
+    <div class="logo-sub">放置合成 · 天机降临</div>
   </div>
+
+  <div class="divider"><span>壹 · 属相</span></div>
+  <div class="section">
+    <div class="section-label">选择你的属相</div>
+    <div class="zodiac-grid" id="zGrid"></div>
+  </div>
+
+  <div class="divider"><span>贰 · 命格</span></div>
+  <div class="section">
+    <div class="section-label">选择你的命格</div>
+    <div class="fate-row" id="fGrid"></div>
+    <div class="bonus" id="bonus">命格加成：<b id="bc">产金×1.0</b> · <b id="bq">龙气×1.0</b> · <b id="be">经验×1.0</b></div>
+  </div>
+
+  <button class="start-btn" id="sBtn" onclick="doStart()">请先选择属相与命格</button>
 </div>
 
-<div class="popup" id="popup">
-  <div class="popup-box">
-    <h2>🎉 游戏开始！</h2>
-    <p class="char-info">
-      <span id="popupZodiac"></span>
-      <span id="popupFate"></span>
-    </p>
-    <p class="bonus-info" id="popupBonus"></p>
-    <button class="close-btn" onclick="document.getElementById('popup').classList.remove('show')">开始探索</button>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-badge">命运已定</div>
+    <div class="modal-chars">
+      <div class="mc-zodiac" id="mZ">🐀</div>
+      <div class="mc-vs">×</div>
+      <div class="mc-fate" id="mF">🌿</div>
+    </div>
+    <div class="modal-info">
+      你选择了 <b id="mZn">鼠</b> 属相<br>
+      天生 <b id="mFn">木</b> 命<br><br>
+      <span id="mDesc">产金×1.0 · 龙气×1.0 · 经验×1.5</span>
+    </div>
+    <button class="modal-btn" onclick="closeModal()">开启天机之旅 ✦</button>
   </div>
 </div>
 
 <script>
-const ZODIAC_NAMES = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"];
-const ZODIAC_EMOJIS = ["🐀","🐂","🐅","🐇","🐉","🐍","🐎","🐏","🐒","🐓","🐕","🐖"];
-const FATE_NAMES = ["木","火","土","金","水"];
-const FATE_EMOJIS = ["🌿","🔥","🟤","⚪","💧"];
-const FATE_COIN_MULT = [1.0, 1.5, 1.0, 1.0, 1.0];
-const FATE_QI_MULT   = [1.0, 1.0, 1.0, 1.0, 1.5];
-const FATE_EXP_MULT  = [1.5, 1.0, 1.0, 1.0, 1.0];
-const FATE_BONUS_DESC = [
-  "升级经验+50%，顿悟概率+20%",
-  "金币产出+50%",
-  "每日3次免费召唤",
-  "高级召唤概率+30%",
-  "龙气+50%，离线收益+50%"
+// 12属相：emoji + 中文名
+const ZDATA=[
+  {e:"🐀",n:"鼠"},{e:"🐂",n:"牛"},{e:"🐅",n:"虎"},{e:"🐇",n:"兔"},
+  {e:"🐉",n:"龙"},{e:"🐍",n:"蛇"},{e:"🐎",n:"马"},{e:"🐏",n:"羊"},
+  {e:"🐒",n:"猴"},{e:"🐓",n:"鸡"},{e:"🐕",n:"狗"},{e:"🐖",n:"猪"}
+];
+// 5命格：emoji + 名字 + 加成描述
+const FDATA=[
+  {e:"🌿",n:"木",d:"升级经验+50% · 顿悟概率+20%",c:1,q:1,e:1.5},
+  {e:"🔥",n:"火",d:"金币产出+50%",c:1.5,q:1,e:1},
+  {e:"🟤",n:"土",d:"每日3次免费召唤",c:1,q:1,e:1},
+  {e:"⚪",n:"金",d:"高级召唤概率+30%",c:1,q:1,e:1},
+  {e:"💧",n:"水",d:"龙气+50% · 离线收益+50%",c:1,q:1.5,e:1}
 ];
 
-let selectedZodiac = -1;
-let selectedFate = -1;
+let sz=-1, sf=-1;
 
-// 构建属相网格
-const zodiacGrid = document.getElementById('zodiacGrid');
-ZODIAC_NAMES.forEach((name, i) => {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML = `<span class="emoji">${ZODIAC_EMOJIS[i]}</span><span class="name">${name}</span>`;
-  card.onclick = () => selectZodiac(i);
-  zodiacGrid.appendChild(card);
+// 星空背景
+const stars=document.getElementById('stars');
+for(let i=0;i<60;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  s.style.left=Math.random()*100+'%';
+  s.style.top=Math.random()*100+'%';
+  s.style.animationDelay=Math.random()*3+'s';
+  s.style.width=s.style.height=(1+Math.random()*2)+'px';
+  stars.appendChild(s);
+}
+
+// 属相网格
+const zg=document.getElementById('zGrid');
+ZDATA.forEach((z,i)=>{
+  const c=document.createElement('div');
+  c.className='zodiac-card';
+  c.innerHTML=`<div class="z-emoji">${z.e}</div><div class="z-name">${z.n}</div>`;
+  c.onclick=()=>{
+    document.querySelectorAll('.zodiac-card').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    sz=i;
+    upd();
+  };
+  zg.appendChild(c);
 });
 
-// 构建命格网格
-const fateGrid = document.getElementById('fateGrid');
-FATE_NAMES.forEach((name, i) => {
-  const card = document.createElement('div');
-  card.className = `fate-card fate-${i}`;
-  card.innerHTML = `
-    <span class="emoji">${FATE_EMOJIS[i]}</span>
-    <span class="name">${name}命</span>
-    <span class="desc">${FATE_BONUS_DESC[i]}</span>
-  `;
-  card.onclick = () => selectFate(i);
-  fateGrid.appendChild(card);
+// 命格行
+const fg=document.getElementById('fGrid');
+FDATA.forEach((f,i)=>{
+  const c=document.createElement('div');
+  c.className='fate-card fate-'+i;
+  c.innerHTML=`<div class="f-emoji">${f.e}</div><div class="f-name">${f.n}命</div><div class="f-desc">${f.d}</div>`;
+  c.onclick=()=>{
+    document.querySelectorAll('.fate-card').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    sf=i;
+    document.getElementById('bonus').classList.add('show');
+    document.getElementById('bc').textContent='产金×'+f.c;
+    document.getElementById('bq').textContent='龙气×'+f.q;
+    document.getElementById('be').textContent='经验×'+f.e;
+    upd();
+  };
+  fg.appendChild(c);
 });
 
-function selectZodiac(i) {
-  selectedZodiac = i;
-  document.querySelectorAll('#zodiacGrid .card').forEach((c, idx) => {
-    c.classList.toggle('selected', idx === i);
-  });
-  updateStartBtn();
+function upd(){
+  const btn=document.getElementById('sBtn');
+  if(sz>=0&&sf>=0){
+    btn.className='start-btn ready';
+    btn.textContent='天机降临 · 开始';
+  } else {
+    btn.className='start-btn';
+    btn.textContent='请先选择属相与命格';
+  }
 }
 
-function selectFate(i) {
-  selectedFate = i;
-  document.querySelectorAll('#fateGrid .fate-card').forEach((c, idx) => {
-    c.classList.toggle('selected', idx === i);
-  });
-  // 显示加成
-  const box = document.getElementById('bonusBox');
-  box.classList.add('show');
-  document.getElementById('bonusCoin').textContent = `产金×${FATE_COIN_MULT[i]}`;
-  document.getElementById('bonusQi').textContent   = `龙气×${FATE_QI_MULT[i]}`;
-  document.getElementById('bonusExp').textContent  = `经验×${FATE_EXP_MULT[i]}`;
-  updateStartBtn();
+function doStart(){
+  if(sz<0||sf<0) return;
+  const z=ZDATA[sz],f=FDATA[sf];
+  document.getElementById('mZ').textContent=z.e;
+  document.getElementById('mF').textContent=f.e;
+  document.getElementById('mZn').textContent=z.n;
+  document.getElementById('mFn').textContent=f.n;
+  document.getElementById('mDesc').textContent=f.d;
+  document.getElementById('modal').classList.add('show');
 }
 
-function updateStartBtn() {
-  const btn = document.getElementById('startBtn');
-  const ready = selectedZodiac >= 0 && selectedFate >= 0;
-  btn.disabled = !ready;
-  btn.textContent = ready ? '开始游戏' : '请先选择属相和命格';
-}
-
-function startGame() {
-  if (selectedZodiac < 0 || selectedFate < 0) return;
-  document.getElementById('popupZodiac').textContent = ZODIAC_EMOJIS[selectedZodiac] + ' ' + ZODIAC_NAMES[selectedZodiac] + '属相';
-  document.getElementById('popupFate').textContent = FATE_EMOJIS[selectedFate] + ' ' + FATE_NAMES[selectedFate] + '命';
-  document.getElementById('popupBonus').innerHTML =
-    `产金×${FATE_COIN_MULT[selectedFate]} · 龙气×${FATE_QI_MULT[selectedFate]} · 经验×${FATE_EXP_MULT[selectedFate]}<br><br>${FATE_BONUS_DESC[selectedFate]}`;
-  document.getElementById('popup').classList.add('show');
+function closeModal(){
+  document.getElementById('modal').classList.remove('show');
 }
 </script>
 </body>

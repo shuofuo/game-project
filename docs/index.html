@@ -15,7 +15,7 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.6;animation:twinkle 3s ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
 
-.wrap{position:relative;z-index:1;width:min(500px,96vw);max-width:96vw;padding:20px 16px calc(32px + env(safe-area-inset-bottom)) 0;margin:0 auto;}
+.wrap{position:relative;z-index:1;width:min(500px,96vw);max-width:96vw;padding:0 0 calc(16px + env(safe-area-inset-bottom)) 0;margin:0 auto;overflow-x:hidden;}
 
 /* ===== 标题区：书法印章风格 ===== */
 .logo{text-align:center;margin-bottom:8px;position:relative;}
@@ -58,44 +58,41 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .zodiac-strip span{font-size:16px;}
 
 /* 分割线 */
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,#333,transparent);}
-.divider span{color:#555;font-size:12px;letter-spacing:4px;white-space:nowrap}
+.divider{display:none;}
 
 /* 选区 */
-.section{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:20px;margin-bottom:16px;}
-.section-label{text-align:center;font-size:13px;color:#888;letter-spacing:3px;margin-bottom:16px;}
+.section{display:none;}
 
 /* 属相网格 4x3 */
-.zodiac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.zodiac-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 4px 10px;cursor:pointer;transition:all .25s;text-align:center;user-select:none;}
-.zodiac-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);transform:translateY(-2px);}
+.zodiac-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}
+.zodiac-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:8px;padding:6px 2px 4px;cursor:pointer;transition:all .2s;text-align:center;user-select:none;}
+.zodiac-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);}
 .zodiac-card:active{transform:scale(.94);transition:transform .05s;}
-.fate-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);transform:translateY(-2px);}
+.fate-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);}
 .fate-card:active{transform:scale(.94);transition:transform .05s;}
 .start-btn:active{transform:scale(.97);}
 .d-card:active{transform:scale(.92);cursor:grabbing;}
-.zodiac-card.on{background:linear-gradient(135deg,#2a2000,#1a1000);border-color:#ffd700;box-shadow:0 0 18px rgba(255,215,0,.3);transform:translateY(-3px);}
-.zodiac-card .z-emoji{font-size:34px;line-height:1;margin-bottom:4px;}
-.zodiac-card .z-name{font-size:11px;color:#777;}
+.zodiac-card.on{background:linear-gradient(135deg,#2a2000,#1a1000);border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.25);}
+.zodiac-card .z-emoji{font-size:clamp(20px,6vw,28px);line-height:1;margin-bottom:2px;}
+.zodiac-card .z-name{font-size:9px;color:#777;overflow:hidden;white-space:nowrap;}
 .zodiac-card.on .z-name{color:#ffd700;font-weight:600;}
 
 /* 命格：2行网格（3+2）更好看 */
-.fate-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:380px;margin:0 auto;}
-.fate-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 8px;cursor:pointer;transition:all .25s;text-align:center;user-select:none;}
-.fate-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);transform:translateY(-2px);}
-.fate-card.on{border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.2);transform:translateY(-3px);}
-/* 第5个命格居中 */
-.fate-card:nth-child(4){grid-column:1;}
-.fate-card:nth-child(5){grid-column:3;}
-.fate-card .f-emoji{font-size:30px;}
-.fate-card .f-name{font-size:14px;font-weight:700;margin-top:6px;}
+.fate-row{display:flex;justify-content:center;gap:5px;align-items:center;}
+.fate-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 3px 5px;cursor:pointer;transition:all .2s;text-align:center;flex:1;min-width:58px;max-width:70px;}
+.fate-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);}
+.fate-card.on{border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,.2);}
+.fate-card .f-emoji{font-size:clamp(18px,5.5vw,26px);}
+.fate-card .f-name{font-size:10px;font-weight:700;margin-top:2px;overflow:hidden;white-space:nowrap;}
 .fate-card.fate-0 .f-name{color:#4CAF50}
 .fate-card.fate-1 .f-name{color:#FF5722}
 .fate-card.fate-2 .f-name{color:#a0785a}
 .fate-card.fate-3 .f-name{color:#FFC107}
 .fate-card.fate-4 .f-name{color:#42a5f5}
-.fate-card .f-desc{font-size:9px;color:#555;margin-top:4px;line-height:1.4;}
+.fate-card .f-desc{display:none;}
+/* 第5个命格居中 */
+.fate-card:nth-child(4){margin-left:auto;}
+.fate-card:nth-child(5){margin-right:auto;}
 
 /* 加成展示 */
 .bonus{display:none;margin-top:12px;text-align:center;font-size:12px;color:#888;}
@@ -103,9 +100,9 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .bonus b{color:#ffd700;margin:0 4px;}
 
 /* 开始按钮 */
-.start-btn{margin-top:20px;width:100%;padding:16px;font-size:20px;background:linear-gradient(135deg,#2a2000,#1a1000);border:1.5px solid #5a4000;border-radius:40px;color:#888;cursor:not-allowed;letter-spacing:6px;font-weight:600;transition:all .3s;}
-.start-btn.ready{background:linear-gradient(135deg,#c8a020,#8b6010);border-color:#ffd700;color:#fff;cursor:pointer;letter-spacing:6px;box-shadow:0 8px 30px rgba(200,160,32,.3);}
-.start-btn.ready:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(200,160,32,.4);}
+.start-btn{margin-top:16px;width:100%;padding:13px;font-size:16px;background:linear-gradient(135deg,#2a2000,#1a1000);border:1.5px solid #5a4000;border-radius:30px;color:#888;cursor:not-allowed;letter-spacing:4px;font-weight:600;transition:all .3s;}
+.start-btn.ready{background:linear-gradient(135deg,#c8a020,#8b6010);border-color:#ffd700;color:#fff;cursor:pointer;letter-spacing:4px;box-shadow:0 6px 20px rgba(200,160,32,.3);}
+.start-btn.ready:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,160,32,.4);}
 
 /* 弹窗 */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
@@ -275,20 +272,12 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
     </div>
     <div class="logo-sub">放置合成 · 命运由我</div>
   </div>
-  <div class="zodiac-strip" id="zStrip"></div>
 
-  <div class="divider"><span>壹 · 属相</span></div>
-  <div class="section">
-    <div class="section-label">选择你的属相</div>
-    <div class="zodiac-grid" id="zGrid"></div>
-  </div>
+  <div class="login-section-title">壹 · 属相</div>
+  <div class="zodiac-grid" id="zGrid"></div>
 
-  <div class="divider"><span>贰 · 命格</span></div>
-  <div class="section">
-    <div class="section-label">选择你的命格</div>
-    <div class="fate-row" id="fGrid"></div>
-    <div class="bonus" id="bonus">命格加成：<b id="bc">产金×1</b> · <b id="bq">龙气×1</b> · <b id="be">经验×1</b></div>
-  </div>
+  <div class="login-section-title">贰 · 命格</div>
+  <div class="fate-row" id="fGrid"></div>
 
   <button class="start-btn" id="sBtn" onclick="doStart()">请先选择属相与命格</button>
 </div>

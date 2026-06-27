@@ -733,15 +733,16 @@ function playFullBgm(z){
   const hi=o=>o*2;
 
   // 音色合成器
-  const osc=(f,t0,dur,vol,type='sine',fadep=.08)=>{
+  const osc=(f,t0,dur,vol,type='sine',fadep=.05)=>{
     const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
     o.type=type;o.frequency.value=f;
-    g.gain.setValueAtTime(.001,now+t0-fadep);
+    const tStart=Math.max(0,t0-fadep);
+    g.gain.setValueAtTime(.001,now+tStart);
     g.gain.linearRampToValueAtTime(vol,now+t0);
-    g.gain.setValueAtTime(vol,now+t0+dur-fadep);
-    g.gain.linearRampToValueAtTime(.001,now+t0+dur);
+    g.gain.setValueAtTime(vol,now+t0+dur*.7);
+    g.gain.exponentialRampToValueAtTime(.001,now+t0+dur);
     o.connect(g);g.connect(_audioCtx.destination);
-    o.start(now+t0-fadep);o.stop(now+t0+dur+.01);
+    o.start(now+tStart);o.stop(now+t0+dur+.02);
   };
   // 噪声（鼓点）
   const noise=(t0,dur,vol)=>{

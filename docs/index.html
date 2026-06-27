@@ -828,7 +828,7 @@ const ZODIAC_BGM=[
 function playFullBgm(z){
   if(!_audioCtx||z<0)return;
   stopBgm();_bgmZ=z;
-  const track=ZODIAS_BGM[z]||ZODIAS_BGM[4];
+  const track=ZODIAC_BGM[z]||ZODIAC_BGM[4];
   _bgmIdx=0;
   function tick(){
     if(!_audioCtx||_audioState.muted){stopBgm();return;}

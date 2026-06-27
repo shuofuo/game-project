@@ -1063,6 +1063,13 @@ function today(){
   const d=new Date();
   return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 }
+function reselect(){
+  G.created=false;
+  document.getElementById('modal').classList.remove('show');
+  document.getElementById('loginWrap').style.display='block';
+  stopBgm();
+}
+
 function rollFate(){
   G.currentFate=Math.floor(Math.random()*5)+1;
   G.lastFateDate=today();

@@ -760,13 +760,21 @@ function playFullBgm(z){
 
   // ===== 鼠BGM 90秒完整作品（5段落无缝循环）=====
   if(z===0){
+    // 测试提示音：立刻响一个可闻的音
+    const _to=_audioCtx.createOscillator(),_tg=_audioCtx.createGain();
+    _to.connect(_tg);_tg.connect(_audioCtx.destination);_to.frequency.value=523.25;
+    _tg.gain.setValueAtTime(.25,_audioCtx.currentTime);
+    _tg.gain.exponentialRampToValueAtTime(.001,_audioCtx.currentTime+1.5);
+    _to.start();_to.stop(_audioCtx.currentTime+1.51);
+
     const bpm=120,bt=.5; // 120BPM, .5秒/拍
-    const S=(f,d,v,t,type='sine')=>osc(f,d,v,t,type,.04);
+    const D=0; // 不延迟
+    const S=(f,d,v,t,type='sine')=>osc(f,d,v,t+D,type,.04);
 
     // --- 开场 0~10s：氛围铺底，渐入 ---
     // 背景和声垫音（C-G-D-E宫调式和弦）
     [[261.63,.4,.05],[329.63,.4,.05],[392,.4,.05],[523.25,.4,.05]].forEach(([f,d,v])=>{
-      osc(f,10,d,now+v,'sine');osc(f*2,10,d*.5,now+v+.01,'triangle');
+      osc(f,10,d,now+v+D,'sine');osc(f*2,10,d*.5,now+v+D+.01,'triangle');
     });
     // 轻柔节拍（每2拍一次，渐强）
     for(let i=0;i<20;i++){const t=i*bt*2;const v=.02+i*.001;noise(now+t,.04,Math.min(v,.08));}

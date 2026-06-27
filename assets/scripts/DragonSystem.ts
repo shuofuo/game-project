@@ -1,87 +1,110 @@
 /**
- * 生肖天机 - 合成系统
- * 核心玩法：两条相同等级的灵兽 → 合成更高一级
+ * 生肖天机 - 灵兽节点管理
+ * 负责 Cocos 场景中灵兽节点的创建、销毁、拖拽
+ * 注意：存档数据由 SaveSystem 管理，本模块只管 Cocos 节点
  */
 
-import { _decorator, Node, tween, Vec3, Sprite, Label } from 'cc';
-import { SaveSystem } from './SaveSystem';
-import { COIN_PER_SECOND, MAX_LEVEL, SUMMON_POOL_BASIC, SUMMON_POOL_MID, SUMMON_POOL_HIGH, SUMMON_POOL_AD, LEVEL_NAMES } from './Constants';
+import { _decorator, Node, Sprite, Label, tween, Vec3, UITransform, Color } from 'cc';
+import { ZODIAC_EMOJIS, LEVEL_NAMES } from './Constants';
 import type { DragonData } from './Types';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('MergeSystem')
-export class MergeSystem {
-    private _save: SaveSystem;
+@ccclass('DragonSystem')
+export class DragonSystem {
+    /** 灵兽颜色渐变表 */
+    private static readonly LEVEL_COLORS: [number, number, number][] = [
+        [200, 200, 200],  // Lv1 灰
+        [100, 200, 100],  // Lv2 绿
+        [100, 180, 255],  // Lv3 蓝
+        [255, 200, 100],  // Lv4 黄
+        [255, 150, 100],  // Lv5 橙
+        [255, 100, 100],  // Lv6 红
+        [255, 100, 200],  // Lv7 粉
+        [200, 100, 255],  // Lv8 紫
+        [100, 100, 255],  // Lv9 深蓝
+        [255, 255, 100],  // Lv10 金黄
+        [255, 200, 50],   // Lv11 亮金
+        [255, 150, 0],    // Lv12 橙金
+        [255, 100, 50],   // Lv13 红金
+        [200, 50, 50],    // Lv14 深红
+        [255, 215, 0],    // Lv15 金色（鸿蒙）
+    ];
 
-    constructor(save: SaveSystem) {
-        this._save = save;
-    }
-
-    // ============== 合成判断 ==============
-
-    /**
-     * 检查两个灵兽是否可以合成
-     * 规则：等级相同 且 等级 < 15
-     */
-    public canMerge(d1: DragonData, d2: DragonData): boolean {
-        return d1.level === d2.level && d1.level < MAX_LEVEL;
-    }
-
-    /**
-     * 执行合成
-     * 返回新等级的灵兽数据，或null（无法合成）
-     */
-    public doMerge(d1: DragonData, d2: DragonData): DragonData | null {
-        if (!this.canMerge(d1, d2)) return null;
-
-        const newLevel = d1.level + 1;
-        
-        // 在存档中移除旧的两条
-        this._save.removeDragon(d1.id);
-        this._save.removeDragon(d2.id);
-
-        // 记录合成次数
-        this._save.addMergeCount();
-
-        // 生成新的灵兽（在两者的中间位置）
-        const newDragon: DragonData = {
-            id: this.generateId(),
-            level: newLevel,
-            posX: (d1.posX + d2.posX) / 2,
-            posY: (d1.posY + d2.posY) / 2
-        };
-
-        // 添加新灵兽到存档
-        this._save.addDragon(newDragon);
-
-        console.log(`[MergeSystem] 合成成功：Lv${d1.level} + Lv${d2.level} → Lv${newLevel}（${LEVEL_NAMES[newLevel]}）`);
-
-        return newDragon;
-    }
+    private static readonly NODE_SIZE = 80; // 灵兽节点大小
 
     /**
-     * 获取背包中所有灵兽
+     * 创建灵兽 Cocos 节点
      */
-    public getBackpack(): DragonData[] {
-        return this._save.getDragons();
+    public static createDragonNode(dragon: DragonData, parent: Node): Node {
+        const node = new Node(`Dragon_${dragon.id}`);
+        node.setPosition(dragon.posX, dragon.posY, 0);
+
+        // 背景圆
+        const sprite = node.addComponent(Sprite);
+        const [r, g, b] = this.LEVEL_COLORS[Math.min(dragon.level - 1, this.LEVEL_COLORS.length - 1)];
+        sprite.color = new Color(r, g, b, 255);
+
+        // 设置大小
+        const transform = node.addComponent(UITransform);
+        const size = this.NODE_SIZE + dragon.level * 2; // 高级灵兽稍大
+        transform.setContentSize(size, size);
+
+        // 显示等级文字
+        const label = node.addComponent(Label);
+        label.string = `Lv${dragon.level}`;
+        label.fontSize = 16;
+        label.color = new Color(255, 255, 255, 255);
+        label.horizontalAlign = 1;
+        label.verticalAlign = 1;
+
+        parent.addChild(node);
+        return node;
     }
 
     /**
-     * 获取最高等级灵兽
+     * 更新灵兽节点颜色（反应等级）
      */
-    public getMaxLevel(): number {
-        const dragons = this._save.getDragons();
-        let max = 0;
-        for (const d of dragons) {
-            if (d.level > max) max = d.level;
+    public static updateNodeColor(node: Node, level: number): void {
+        const sprite = node.getComponent(Sprite);
+        if (sprite) {
+            const [r, g, b] = this.LEVEL_COLORS[Math.min(level - 1, this.LEVEL_COLORS.length - 1)];
+            sprite.color = new Color(r, g, b, 255);
         }
-        return max;
     }
 
-    // ============== 私有方法 ==============
+    /**
+     * 播放合成动画
+     * 缩放弹跳 + 发光闪烁
+     */
+    public static playMergeAnim(node: Node): void {
+        // 放大后缩小（弹跳）
+        tween(node)
+            .to(0.15, { scale: new Vec3(1.3, 1.3, 1) })
+            .to(0.15, { scale: new Vec3(1, 1, 1) })
+            .start();
+    }
 
-    private generateId(): string {
-        return 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+    /**
+     * 播放召唤落地下沉动画
+     */
+    public static playSummonAnim(node: Node): void {
+        node.setScale(0, 0, 0);
+        tween(node)
+            .to(0.3, { scale: new Vec3(1.1, 1.1, 1) })
+            .to(0.1, { scale: new Vec3(1, 1, 1) })
+            .start();
+    }
+
+    /**
+     * 高亮节点（金色边框效果）
+     */
+    public static highlightNode(node: Node, on: boolean): void {
+        const sprite = node.getComponent(Sprite);
+        if (sprite) {
+            sprite.color = on
+                ? new Color(255, 215, 0, 255)   // 金色高亮
+                : new Color(200, 200, 200, 255); // 恢复白色
+        }
     }
 }

@@ -4,21 +4,13 @@
  */
 
 import { _decorator, sys } from 'cc';
-import { SAVE_KEY, FATE_FREE_COUNT, AD_SUMMON_LIMIT, ATLAS_MAX, MAX_LEVEL } from './Constants';
-import type { GameSaveData, DragonData, DailyFate } from './Types';
+import { SAVE_KEY, FATE_FREE_COUNT, AD_SUMMON_LIMIT } from './Constants';
+import type { GameSaveData, DragonData } from './Types';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('SaveSystem')
 export class SaveSystem {
-    private static _instance: SaveSystem | null = null;
-    public static getInstance(): SaveSystem {
-        if (!SaveSystem._instance) {
-            SaveSystem._instance = new SaveSystem();
-        }
-        return SaveSystem._instance;
-    }
-
     /** 当前存档 */
     private _save: GameSaveData;
 
@@ -229,7 +221,7 @@ export class SaveSystem {
     /** 数据迁移（版本升级时调用） */
     private migrate(data: any): GameSaveData {
         const version = data.version || 'v1.0';
-        
+
         // v1.0 -> v1.1 迁移（新增字段）
         if (version === 'v1.0') {
             data.version = 'v1.1';

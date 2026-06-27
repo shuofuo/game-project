@@ -521,7 +521,7 @@ function playSound(type) {
 
 let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
 let nextId = 1;
-let cpsTimer = null, qiTimer = null;
+let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
 function saveGame(){
   localStorage.setItem(SAVE_KEY, JSON.stringify(G));
@@ -710,7 +710,31 @@ function startCps(){
     }
   },15000);
 }
-function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}if(qiTimer){clearInterval(qiTimer);qiTimer=null;}}
+function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}if(qiTimer){clearInterval(qiTimer);qiTimer=null;}if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
+
+function playBgmNote(freq,dur,vol,t){
+  if(!_audioCtx||_audioState.muted)return;
+  const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+  o.connect(g);g.connect(_audioCtx.destination);
+  o.type='triangle';
+  o.frequency.value=freq;
+  g.gain.setValueAtTime((vol||.15)*_audioState.bgmVolume,_audioCtx.currentTime+(t||0));
+  g.gain.exponentialRampToValueAtTime(.001,_audioCtx.currentTime+(t||0)+dur);
+  o.start(_audioCtx.currentTime+(t||0));
+  o.stop(_audioCtx.currentTime+(t||0)+dur+.05);
+}
+function playBgm(){
+  if(!_audioCtx||_audioState.muted)return;
+  // 古筝五声音阶旋律（C宫调式）
+  const mel=[[261,1],[293,1],[329,1],[392,1],[523,1.5],[392,.5],[523,1],[659,2]];
+  mel.forEach(([f,d])=>playBgmNote(f,d,.12,(mel.indexOf([f,d])>0?mel.slice(0,mel.indexOf([f,d])).reduce((s,[,x])=>s+x,0):0)));
+}
+function startBgm(){
+  if(bgmTimer)return;
+  initAudio();playBgm();
+  bgmTimer=setInterval(playBgm,8000);
+}
+function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;
@@ -725,7 +749,7 @@ function startGame(){
   document.getElementById('gamePage').style.display='block';
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
   nextId=3;
-  saveGame();renderGrid();updateHud();startCps();
+  saveGame();renderGrid();updateHud();startCps();startBgm();
   if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
@@ -737,7 +761,7 @@ function initGame(){ initAch(); checkFateDaily();
     document.getElementById('hudFate').textContent=FATE_E[G.fate]||'';
     document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
     document.getElementById('gamePage').style.display='block';
-    renderGrid();updateHud();startCps();
+    renderGrid();updateHud();startCps();startBgm();
     if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   }
 }

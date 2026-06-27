@@ -497,7 +497,7 @@ function updateHeroSection(){
   const icon = LICON[best.level] || '🐣';
   const cps = COIN_S[best.level] || 0;
   heroIcon.textContent = icon;
-  heroIcon.style.fontSize = Math.min(100, 60 + best.level * 4) + 'px';
+  heroIcon.style.fontSize = Math.min(100, 50 + best.level * 3) + 'px';
   heroLv.textContent = 'Lv.' + best.level;
   heroCps.textContent = '+' + cps + '/s';
   if(heroFate){
@@ -512,7 +512,7 @@ function updateHeroSection(){
     heroThumbs.innerHTML = sorted.map(d => {
       const icon2 = LICON[d.level] || '🐣';
       const opacity = 0.3 + (d.level / 25) * 0.7;
-      return `<div class="ht" style="font-size:28px;opacity:${opacity.toFixed(1)};">${icon2}</div>`;
+      return `<div class="ht" style="font-size:min(26px,6vw);opacity:${opacity.toFixed(1)};">${icon2}</div>`;
     }).join('');
   }
 }

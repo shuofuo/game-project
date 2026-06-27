@@ -629,6 +629,7 @@ function startGame(){
   G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;
   saveGame();
   document.getElementById('modal').classList.remove('show');
+  document.getElementById('loginWrap').style.display='none';
   document.getElementById('hudZodiac').textContent=ZOD_E[sz]||'';
   document.getElementById('hudFate').textContent=FATE_E[sf]||'';
   document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1];
@@ -642,6 +643,7 @@ function startGame(){
 function initGame(){
   loadGame();
   if(G.created){
+    document.getElementById('loginWrap').style.display='none';
     document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';
     document.getElementById('hudFate').textContent=FATE_E[G.fate]||'';
     document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1];

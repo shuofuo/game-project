@@ -5,29 +5,29 @@ function startGame(){
   G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;
   if(G.lastFateDate!==today()){rollFate();}G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
   saveGame();
-  document.getElementById('modal').classList.remove('show');
-  document.getElementById('loginWrap').style.display='none';
-  document.getElementById('hudZodiac').textContent=ZOD_E[sz]||'';
-
-  document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
-  document.getElementById('gamePage').style.display='flex';document.getElementById('gamePage').style.visibility='visible';document.getElementById('gamePage').style.opacity='1';
+  var el;
+  el=document.getElementById('modal');if(el)el.classList.remove('show');
+  el=document.getElementById('loginWrap');if(el)el.style.display='none';
+  el=document.getElementById('hudZodiac');if(el)el.textContent=ZOD_E[sz]||'';
+  el=document.getElementById('hudYunshi');if(el)el.textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
+  el=document.getElementById('gamePage');if(el){el.style.display='flex';el.style.visibility='visible';el.style.opacity='1';}
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
   nextId=3;
-  saveGame();renderGrid();updateHud();startCps();startBgm();initHomeGesture();try{updateHeroSection();}catch(e){}initHomeGesture();try{updateHeroSection();}catch(e){}
-  if(G.fate===2)document.getElementById('btnFree').style.display='flex';
+  saveGame();renderGrid();updateHud();startCps();startBgm();initHomeGesture();try{updateHeroSection();}catch(e){}
+  el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
 function initGame(){ localStorage.clear(); initAch(); checkFateDaily();
   loadGame();
   try{loadSettings();}catch(e){}
   if(G.created){
-    document.getElementById('loginWrap').style.display='none';
-    document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';
-
-    document.getElementById('hudYunshi').textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
-    document.getElementById('gamePage').style.display='flex';document.getElementById('gamePage').style.visibility='visible';document.getElementById('gamePage').style.opacity='1';
+    var el;
+    el=document.getElementById('loginWrap');if(el)el.style.display='none';
+    el=document.getElementById('hudZodiac');if(el)el.textContent=ZOD_E[G.zodiac]||'';
+    el=document.getElementById('hudYunshi');if(el)el.textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
+    el=document.getElementById('gamePage');if(el){el.style.display='flex';el.style.visibility='visible';el.style.opacity='1';}
     renderGrid();updateHud();startCps();startBgm();initHomeGesture();try{updateHeroSection();}catch(e){}
-    if(G.fate===2)document.getElementById('btnFree').style.display='flex';
+    el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
   }
 }
 

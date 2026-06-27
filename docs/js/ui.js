@@ -92,3 +92,74 @@ function closeHandbook(){document.getElementById('handbookPanel').classList.remo
 
 function openCultPanel(){calcCultQi();renderCultPanel();document.getElementById('cultPanel').classList.add('open');}
 function closeCultPanel(){document.getElementById('cultPanel').classList.remove('open');}
+
+function openSettings(){
+  loadSettings();
+  document.getElementById('settingsPanel').classList.add('open');
+}
+function closeSettings(){
+  document.getElementById('settingsPanel').classList.remove('open');
+}
+function onVolChange(v){
+  document.getElementById('volVal').textContent=v+'%';
+  _audioState.volume=v/100;
+}
+function onBgmToggle(on){
+  document.getElementById('bgmLabel').textContent=on?'开启':'关闭';
+  document.getElementById('bgmSlider').disabled=!on;
+  if(on){
+    _audioState.bgmVolume=_audioState.bgmLast||0.35;
+    startBgm();
+    document.getElementById('bgmSlider').value=Math.round(_audioState.bgmVolume*100);
+  }else{
+    _audioState.bgmLast=_audioState.bgmVolume||0.35;
+    _audioState.bgmVolume=0;
+    stopBgm();
+  }
+}
+function onBgmChange(v){
+  _audioState.bgmVolume=v/100;
+}
+function onSfxToggle(on){
+  document.getElementById('sfxLabel').textContent=on?'开启':'关闭';
+  document.getElementById('sfxSlider').disabled=!on;
+  if(on){
+    _audioState.sfxVolume=_audioState.sfxLast||0.8;
+    document.getElementById('sfxSlider').value=Math.round(_audioState.sfxVolume*100);
+  }else{
+    _audioState.sfxLast=_audioState.sfxVolume||0.8;
+    _audioState.sfxVolume=0;
+  }
+}
+function onSfxChange(v){
+  _audioState.sfxVolume=v/100;
+}
+function saveSettings(){
+  localStorage.setItem('audio_v2',JSON.stringify({
+    volume:_audioState.volume,
+    bgmVolume:_audioState.bgmVolume,
+    bgmLast:_audioState.bgmLast||0.35,
+    sfxVolume:_audioState.sfxVolume,
+    sfxLast:_audioState.sfxLast||0.8,
+  }));
+}
+function loadSettings(){
+  const s=JSON.parse(localStorage.getItem('audio_v2')||'{}');
+  if(s.volume!==undefined) _audioState.volume=s.volume;
+  if(s.bgmVolume!==undefined) _audioState.bgmVolume=s.bgmVolume;
+  if(s.bgmLast!==undefined) _audioState.bgmLast=s.bgmLast;
+  if(s.sfxVolume!==undefined) _audioState.sfxVolume=s.sfxVolume;
+  if(s.sfxLast!==undefined) _audioState.sfxLast=s.sfxLast;
+  document.getElementById('volSlider').value=Math.round(_audioState.volume*100);
+  document.getElementById('volVal').textContent=Math.round(_audioState.volume*100)+'%';
+  const bgmOn=_audioState.bgmVolume>0;
+  document.getElementById('bgmToggle').checked=bgmOn;
+  document.getElementById('bgmLabel').textContent=bgmOn?'开启':'关闭';
+  document.getElementById('bgmSlider').value=Math.round(_audioState.bgmVolume*100);
+  document.getElementById('bgmSlider').disabled=!bgmOn;
+  const sfxOn=_audioState.sfxVolume>0;
+  document.getElementById('sfxToggle').checked=sfxOn;
+  document.getElementById('sfxLabel').textContent=sfxOn?'开启':'关闭';
+  document.getElementById('sfxSlider').value=Math.round(_audioState.sfxVolume*100);
+  document.getElementById('sfxSlider').disabled=!sfxOn;
+}

@@ -249,6 +249,12 @@ body{background:#07071a;min-height:100vh;min-height:100dvh;display:flex;align-it
 /* 拖拽时目标格高亮 */
 .d-cell.drop-target{border-color:#ffd700!important;box-shadow:0 0 16px rgba(255,215,0,.5)!important;background:rgba(255,215,0,.1)!important;}
 
+
+/* 设置面板 */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(4px);}
+.panel-overlay.open{display:flex;}
+.panel-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:24px;width:min(380px,90vw);animation:popIn .3s ease;}
+.panel-header{background:linear-gradient(135deg,#1a1a3a,#0d0d2a);border-bottom:1px solid rgba(255,215,0,.2);padding:16px 20px;font-size:17px;font-weight:700;color:#ffd700;border-radius:24px 24px 0 0;}
 </style>
 </head>
 <body>
@@ -415,7 +421,7 @@ function doStart(){
     <div class="hud-top">
       <div class="hud-left"><span id="hudZodiac"></span><span id="hudFate"></span></div>
       <div class="hud-center"><div class="coin-row"><span class="coin-icon">💰</span><span id="hudCoins">0</span></div><div class="cps-row"><span id="hudCps">0/s</span></div></div>
-      <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span><button id="handbookBtn" onclick="openHandbook()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="灵兽图鉴">📖</button><button id="rankBtn" onclick="openRankPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="排行榜">🏅</button><button id="cultBtn" onclick="openCultPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="命格修炼">⚗️</button><button id="achBtn" onclick="openAchPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="成就">🏅</button></div>
+      <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span><button id="handbookBtn" onclick="openHandbook()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="灵兽图鉴">📖</button><button id="rankBtn" onclick="openRankPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="排行榜">🏅</button><button id="cultBtn" onclick="openCultPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;min-width:28px;" title="命格修炼">⚗️</button><button id="achBtn" onclick="openAchPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="成就">🏅</button><button id="settingsBtn" onclick="openSettings()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="设置">⚙️</button></div>
     </div>
     <div class="hud-bottom"><span id="hudYunshi" onclick="showFateDetail()" style="cursor:pointer;" title="点击查看今日运势">⭐ 大吉</span><span id="hudTime">甲辰时·卯时</span></div>
   </div>

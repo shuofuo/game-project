@@ -16,7 +16,7 @@ const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
 const YUN_COIN   = [-.5,-.2,0,.3,.5];
 
 let _audioCtx = null;
-let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8 };
+let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8, bgmLast: 0.35, sfxLast: 0.8 };
 
 function initAudio() {
   if (_audioCtx) return;

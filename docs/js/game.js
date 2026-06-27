@@ -19,6 +19,7 @@ function startGame(){
 }
 function initGame(){ initAch(); checkFateDaily();
   loadGame();
+  try{loadSettings();}catch(e){}
   if(G.created){
     document.getElementById('loginWrap').style.display='none';
     document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac]||'';

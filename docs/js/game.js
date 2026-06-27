@@ -17,7 +17,7 @@ function startGame(){
   if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
-function initGame(){ initAch(); checkFateDaily();
+function initGame(){ localStorage.clear(); initAch(); checkFateDaily();
   loadGame();
   try{loadSettings();}catch(e){}
   if(G.created){

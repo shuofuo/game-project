@@ -447,6 +447,38 @@ function doStart(){
   <div id="handbookPanel" class="handbook-panel"></div>
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>
+  <div id="settingsPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div class="panel-header">⚙️ 声音设置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
+      <div style="padding:20px 20px 24px;">
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🔊 总音量</span><span id="volVal">70%</span>
+          </div>
+          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#ffd700;" oninput="onVolChange(this.value)">
+        </div>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🎵 背景音乐</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
+              <input type="checkbox" id="bgmToggle" checked onchange="onBgmToggle(this.checked)"><span id="bgmLabel">开启</span>
+            </label>
+          </div>
+          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
+        </div>
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🔔 游戏音效</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
+              <input type="checkbox" id="sfxToggle" checked onchange="onSfxToggle(this.checked)"><span id="sfxLabel">开启</span>
+            </label>
+          </div>
+          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
+        </div>
+        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
+      </div>
+    </div>
+  </div>
   <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
 </div>

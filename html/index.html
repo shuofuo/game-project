@@ -723,18 +723,70 @@ function playBgmNote(freq,dur,vol,t){
   o.start(_audioCtx.currentTime+(t||0));
   o.stop(_audioCtx.currentTime+(t||0)+dur+.05);
 }
-function playBgm(){
-  if(!_audioCtx||_audioState.muted)return;
-  // 古筝五声音阶旋律（C宫调式）
-  const mel=[[261,1],[293,1],[329,1],[392,1],[523,1.5],[392,.5],[523,1],[659,2]];
-  mel.forEach(([f,d])=>playBgmNote(f,d,.08,(mel.indexOf([f,d])>0?mel.slice(0,mel.indexOf([f,d])).reduce((s,[,x])=>s+x,0):0)));
+function playZodiacBgm(z){
+  if(!_audioCtx||_audioState.muted||z<0)return;
+  const now=_audioCtx.currentTime;
+  const v=_audioState.bgmVolume*.35;
+  const n=(freq,dur,vol=v,t=0,wave='triangle')=>{
+    const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+    o.connect(g);g.connect(_audioCtx.destination);
+    o.type=wave;o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,now+t);
+    g.gain.exponentialRampToValueAtTime(.001,now+t+dur);
+    o.start(now+t);o.stop(now+t+dur+.05);
+  };
+  // 宫商角徵羽五声音阶基准（相对于C）
+  const G=261.63,D=293.66,A=329.63,E=392.00,B=493.88;
+  const hi=o=>o*2,lo=o=>o/2;
+  // 12生肖旋律数据：[频率,时长,音量倍率,延迟,波形]
+  const songs={
+    0:[// 鼠-轻快上行
+      [G,.25,1,0],[A,.25,1,.25],[D,.25,1,.5],[E,.4,1,.75],
+      [hi(G),.25,1,1.2],[hi(A),.25,1,1.45],[hi(D),.5,1,1.7],[0,.3,0,2.2]],
+    1:[// 牛-低沉稳重
+      [lo(G),.5,1.2,0],[lo(D),.4,1,0],[lo(G),.5,1.2,1],[lo(D),.5,1,1.5],
+      [lo(G),.6,1.2,2],[lo(E),.4,1,2.6],[0,.3,0,3]],
+    2:[// 虎-霸气威严
+      [E,.3,1.3,0,'sawtooth'],[lo(E),.3,1.2,0.3,'sawtooth'],[G,.4,1.3,0.6,'sawtooth'],
+      [hi(G),.5,1.2,1.1,'sawtooth'],[0,.4,0,1.6]],
+    3:[// 兔-灵动柔和
+      [A,.2,.9,0],[hi(D),.2,.9,.2],[hi(E),.3,.9,.4],[hi(G),.4,1,.7],
+      [hi(A),.3,.9,1.2],[hi(G),.4,.9,1.5],[0,.3,0,1.9]],
+    4:[// 龙-帝王宏大
+      [lo(G),.4,1.3,0],[G,.3,1.2,.4],[D,.3,1.2,.7],[E,.3,1.2,1],
+      [hi(G),.5,1.4,1.4],[hi(D),.4,1.3,1.9],[hi(E),.6,1.2,2.3],[0,.3,0,2.9]],
+    5:[// 蛇-阴柔幽深
+      [lo(D),.5,1.1,0],[A,.4,1.2,.5],[lo(D),.5,1,1],[hi(A),.4,1,1.5],
+      [lo(D),.6,1.1,2],[A,.5,1,2.6],[0,.3,0,3.1]],
+    6:[// 马-奔腾豪迈
+      [hi(D),.2,1.2,0,'sawtooth'],[E,.2,1.1,.2,'sawtooth'],[hi(D),.2,1.2,.4,'sawtooth'],
+      [E,.3,1.1,.6,'sawtooth'],[hi(G),.4,1.3,.9,'sawtooth'],[hi(E),.5,1.2,1.3,'sawtooth'],[0,.3,0,1.8]],
+    7:[// 羊-悠扬温和
+      [G,.35,1,0],[D,.35,1,.35],[E,.35,1,.7],[G,.35,1,1.05],
+      [A,.35,1,1.4],[hi(D),.35,1,1.75],[hi(G),.5,1,2.1],[0,.3,0,2.6]],
+    8:[// 猴-调皮跳跃
+      [hi(A),.12,1,0],[hi(G),.12,.9,.14],[hi(A),.12,1,.28],[hi(D),.2,1.1,.42],
+      [hi(A),.12,.9,.65],[hi(G),.12,.9,.77],[hi(A),.12,1,.91],[hi(D),.3,1.1,1.05],
+      [0,.3,0,1.35]],
+    9:[// 鸡-清脆嘹亮
+      [hi(E),.15,1.2,0],[hi(G),.15,1.1,.15],[hi(A),.2,1.2,.3],[hi(G),.15,1.1,.5],
+      [hi(E),.15,1.2,.7],[hi(G),.2,1.1,.85],[hi(D),.4,1.3,1.05],[0,.3,0,1.45]],
+    10:[// 狗-忠诚欢快
+      [D,.2,1,0],[E,.2,1,.2],[G,.25,1,.4],[A,.25,1,.65],
+      [G,.25,1,.9],[E,.25,1,1.15],[D,.4,1,1.4],[0,.3,0,1.8]],
+    11:[// 猪-憨厚圆润
+      [lo(G),.4,1.2,0],[lo(A),.3,1,0],[lo(G),.4,1.2,.4],[lo(D),.3,1,.8],
+      [lo(G),.5,1.2,1.1],[lo(D),.4,1,1.6],[lo(G),.6,1.2,2],[0,.3,0,2.6]],
+  };
+  const song=songs[z]||songs[4];
+  song.forEach(([f,dur,vol,t,wave])=>{if(f>0)n(f,dur,vol*v,t,wave||'triangle');});
 }
 function startBgm(){
-  if(bgmTimer)return;
-  initAudio();playBgm();
-  bgmTimer=setInterval(playBgm,20000);
+  initAudio();
+  playZodiacBgm(G.zodiac);
+  if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}
 }
-function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
+function stopBgm(){}
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;

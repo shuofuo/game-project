@@ -773,19 +773,19 @@ function playFullBgm(z){
     for(let rep=0;rep<reps;rep++){
       const t0=rep*phraseSec;
       // 旋律
-      mel.forEach(([f,dv,bv,tv])=>osc(f*2,t0+tv,dv*.8,.15*bv*V,'triangle',.05));
+      mel.forEach(([f,dv,bv,tv])=>osc(f*2,t0+tv,dv*.7,.35*bv,'triangle',.05));
       // 和声
       harm.forEach(([f1,f2,f3],bi)=>{
         const bt=bi*2*b+t0;
-        [f1,f2,f3].forEach(f=>osc(f,bt,b*1.6,.04*V,'sine'));
+        [f1,f2,f3].forEach(f=>osc(f,bt,b*1.6,.08,'sine'));
       });
       // 低音
-      bass.forEach((f,bi)=>osc(f,bi*2*b+t0,b*1.8,.08*V,'sine'));
+      bass.forEach((f,bi)=>osc(f,bi*2*b+t0,b*1.8,.2,'sine'));
       // 鼓点（每beat轻敲）
       for(let i=0;i<phraseSec*2;i++){
         const bt=i*b+t0;
-        if(i%2===0)noise(bt,.04,.06*V);
-        else noise(bt,.03,.03*V);
+        if(i%2===0)noise(bt,.05,.12);
+        else noise(bt,.03,.06);
       }
     }
     return;

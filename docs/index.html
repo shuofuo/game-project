@@ -57,7 +57,7 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .section{display:none;}
 
 /* 属相网格 4x3 */
-.zodiac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px;}
+.zodiac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 auto 14px;max-width:400px;padding:0 12px;box-sizing:border-box;}
 .zodiac-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:12px;padding:10px 4px 8px;cursor:pointer;transition:all .2s;text-align:center;user-select:none;}
 .zodiac-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);}
 .zodiac-card:active{transform:scale(.94);transition:transform .05s;}
@@ -66,27 +66,23 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .zodiac-card .z-name{font-size:11px;color:#666;overflow:hidden;white-space:nowrap;}
 .zodiac-card.on .z-name{color:#ffd700;font-weight:700;}
 
-/* 命格：2行网格（3+2）更好看 */
-.fate-row{display:flex;justify-content:center;gap:8px;align-items:stretch;margin-bottom:12px;}
-.fate-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:12px;padding:10px 4px 8px;cursor:pointer;transition:all .2s;text-align:center;flex:1;min-width:60px;max-width:60px;aspect-ratio:1;}
+/* 命格：grid 与属相宽度一致，5列居中 */
+.fate-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:0 auto 12px;max-width:400px;padding:0 12px;box-sizing:border-box;}
+.fate-card{background:#0f0f2a;border:1.5px solid rgba(255,255,255,.07);border-radius:12px;padding:10px 4px 8px;cursor:pointer;transition:all .2s;text-align:center;}
 .fate-card:hover{background:#1a1a40;border-color:rgba(255,255,255,.2);}
 .fate-card:active{transform:scale(.94);transition:transform .05s;}
 .fate-card.on{background:linear-gradient(135deg,#1a1a3a,#2a2050);border-color:#ffd700;box-shadow:0 0 16px rgba(255,215,0,.3);}
-.fate-card .f-emoji{font-size:clamp(22px,6.5vw,30px);display:block;margin-bottom:4px;}
+.fate-card .f-emoji{font-size:clamp(20px,6vw,28px);display:block;margin-bottom:4px;}
 .fate-card .f-name{font-size:11px;font-weight:700;display:block;}
 .fate-card.fate-0 .f-name{color:#4CAF50}
 .fate-card.fate-1 .f-name{color:#FF5722}
 .fate-card.fate-2 .f-name{color:#a0785a}
 .fate-card.fate-3 .f-name{color:#FFC107}
 .fate-card.fate-4 .f-name{color:#42a5f5}
-/* 5个命格：3+2 居中 */
-.fate-row{position:relative;}
-.fate-row::before{content:'';display:block;flex:1;}
-.fate-card:nth-child(1){margin-right:0;}
 /* 加成描述 */
-.bonus{min-height:18px;margin:0 0 12px 0;text-align:center;font-size:11px;color:#888;letter-spacing:.5px;}
+.bonus{min-height:18px;margin:0 0 12px 0;text-align:center;font-size:11px;color:#555;letter-spacing:.5px;}
 .bonus .bonus-name{font-weight:700;margin-right:4px;}
-.bonus .bonus-desc{color:#666;}
+.bonus .bonus-desc{color:#888;}
 
 /* 加成展示 */
 
@@ -325,7 +321,7 @@ const ZDATA=[
   {e:"🐒",n:"猴"},{e:"🐓",n:"鸡"},{e:"🐕",n:"狗"},{e:"🐖",n:"猪"}
 ];
 const FDATA=[
-  {e:"🌿",n:"木",d:"升级经验+50% · 顿悟概率+20%",c:1,q:1,exp:1.5},
+  {e:"🌿",n:"木",d:"经验+50% · 顿悟+20%",c:1,q:1,exp:1.5},
   {e:"🔥",n:"火",d:"金币产出+50%",c:1.5,q:1,exp:1},
   {e:"🟤",n:"土",d:"每日3次免费召唤",c:1,q:1,exp:1},
   {e:"⚪",n:"金",d:"高级召唤概率+30%",c:1,q:1,exp:1},
@@ -361,7 +357,7 @@ const fg=document.getElementById('fGrid');
 FDATA.forEach((f,i)=>{
   const c=document.createElement('div');
   c.className='fate-card fate-'+i;
-  c.innerHTML=`<div class="f-emoji">${f.e}</div><div class="f-name">${f.n}命</div><div class="f-desc">${f.d}</div>`;
+  c.innerHTML=`<div class="f-emoji">${f.e}</div><div class="f-name">${f.n}命</div>`;
   c.onclick=()=>{
     document.querySelectorAll('.fate-card').forEach(x=>x.classList.remove('on'));
     c.classList.add('on');

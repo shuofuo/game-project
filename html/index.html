@@ -723,43 +723,132 @@ function playBgmNote(freq,dur,vol,t){
   o.start(_audioCtx.currentTime+(t||0));
   o.stop(_audioCtx.currentTime+(t||0)+dur+.05);
 }
+let _bgmTimer=null,_bgmIdx=0,_bgmZ=-1;
+
+function playNote(f,dur,vol,type){
+  if(!_audioCtx||_audioState.muted)return;
+  const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+  o.connect(g);g.connect(_audioCtx.destination);
+  o.frequency.value=f;o.type=type||'triangle';
+  const now=_audioCtx.currentTime;
+  const fade=dur*.08;
+  g.gain.setValueAtTime(.001,now);
+  g.gain.linearRampToValueAtTime(vol,now+fade);
+  g.gain.setValueAtTime(vol,now+dur-fade);
+  g.gain.exponentialRampToValueAtTime(.001,now+dur);
+  o.start(now);o.stop(now+dur+.02);
+}
+
+const ZODIAC_BGM=[
+  // 0鼠-轻快活跃（五声音阶上行跳进）
+  {bpm:120,notes:[
+    {f:261.63,d:.45},{f:329.63,d:.45},{f:392,d:.45},{f:523.25,d:.45},{f:659.25,d:.45},{f:523.25,d:.45},{f:392,d:.45},{f:329.63,d:.45},
+    {f:329.63,d:.45},{f:392,d:.45},{f:523.25,d:.45},{f:659.25,d:.9},{f:523.25,d:.45},{f:392,d:.45},{f:329.63,d:.45},{f:261.63,d:.9},
+    {f:392,d:.45},{f:523.25,d:.45},{f:659.25,d:.45},{f:784,d:.9},{f:659.25,d:.45},{f:523.25,d:.45},{f:392,d:.45},{f:329.63,d:.9},
+    {f:261.63,d:.45},{f:329.63,d:.45},{f:392,d:.45},{f:523.25,d:.45},{f:659.25,d:.45},{f:784,d:.45},{f:880,d:.9},{f:784,d:.45},
+  ]},
+  // 1牛-低沉稳重（大跳下行）
+  {bpm:60,notes:[
+    {f:130.81,d:1},{f:164.81,d:1},{f:196,d:1},{f:130.81,d:1},{f:98,d:1},{f:65.41,d:1},{f:98,d:1},{f:130.81,d:1},
+    {f:164.81,d:1},{f:196,d:1},{f:164.81,d:1},{f:130.81,d:2},{f:98,d:1},{f:130.81,d:1},{f:164.81,d:1},{f:196,d:1},
+  ]},
+  // 2虎-霸气威严（锯齿波冲击）
+  {bpm:90,notes:[
+    {f:196,d:.4,type:'sawtooth'},{f:246.94,d:.4,type:'sawtooth'},{f:196,d:.4,type:'sawtooth'},{f:246.94,d:.8,type:'sawtooth'},
+    {f:261.63,d:.4,type:'sawtooth'},{f:329.63,d:.4,type:'sawtooth'},{f:261.63,d:.4,type:'sawtooth'},{f:329.63,d:.8,type:'sawtooth'},
+    {f:196,d:.4,type:'sawtooth'},{f:261.63,d:.4,type:'sawtooth'},{f:329.63,d:.4,type:'sawtooth'},{f:392,d:.8,type:'sawtooth'},
+    {f:261.63,d:.4,type:'sawtooth'},{f:196,d:.4,type:'sawtooth'},{f:130.81,d:1.6,type:'sawtooth'},
+  ]},
+  // 3兔-灵动柔和（羽调式轻盈）
+  {bpm:130,notes:[
+    {f:329.63,d:.35},{f:392,d:.35},{f:523.25,d:.35},{f:587.33,d:.35},{f:659.25,d:.35},{f:587.33,d:.35},{f:523.25,d:.35},{f:392,d:.35},
+    {f:329.63,d:.35},{f:392,d:.35},{f:523.25,d:.35},{f:659.25,d:.7},{f:523.25,d:.35},{f:392,d:.35},{f:329.63,d:.35},{f:261.63,d:.7},
+    {f:587.33,d:.35},{f:659.25,d:.35},{f:784,d:.35},{f:880,d:.35},{f:987.77,d:.35},{f:880,d:.35},{f:784,d:.35},{f:659.25,d:.35},
+    {f:523.25,d:.35},{f:392,d:.35},{f:329.63,d:.35},{f:261.63,d:.35},{f:329.63,d:.7},{f:392,d:.35},{f:523.25,d:.7},
+  ]},
+  // 4龙-帝王宏大（宫调式磅礴）
+  {bpm:70,notes:[
+    {f:130.81,d:.8},{f:261.63,d:.6},{f:196,d:.6},{f:261.63,d:.6},{f:329.63,d:.6},{f:261.63,d:.6},{f:196,d:.6},
+    {f:261.63,d:.6},{f:329.63,d:.6},{f:392,d:.6},{f:329.63,d:.6},{f:261.63,d:.6},{f:329.63,d:.6},{f:392,d:.6},
+    {f:523.25,d:.6},{f:659.25,d:.6},{f:523.25,d:.6},{f:392,d:.6},{f:523.25,d:.6},{f:659.25,d:1.2},
+    {f:784,d:.6},{f:659.25,d:.6},{f:523.25,d:.6},{f:392,d:.6},{f:261.63,d:.6},{f:329.63,d:.6},{f:261.63,d:.6},
+    {f:196,d:.6},{f:261.63,d:1.2},{f:196,d:.6},{f:130.81,d:1.2},
+  ]},
+  // 5蛇-阴柔幽深（滑音下行）
+  {bpm:55,notes:[
+    {f:293.66,d:1.5},{f:261.63,d:1.5},{f:220,d:1.5},{f:196,d:1.5},{f:174.61,d:1.5},{f:196,d:1.5},{f:220,d:1.5},
+    {f:261.63,d:1.5},{f:293.66,d:1.5},{f:329.63,d:1.5},{f:261.63,d:1.5},{f:220,d:1.5},{f:196,d:2},
+    {f:220,d:1.5},{f:261.63,d:1.5},{f:293.66,d:1.5},{f:261.63,d:1.5},{f:220,d:1.5},{f:196,d:2},
+  ]},
+  // 6马-奔腾豪迈（徵调式）
+  {bpm:150,notes:[
+    {f:392,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},{f:392,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},
+    {f:392,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},{f:587.33,d:.6,type:'triangle'},
+    {f:392,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},{f:659.25,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},
+    {f:392,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},{f:587.33,d:.3,type:'triangle'},{f:659.25,d:.3,type:'triangle'},
+    {f:784,d:.6,type:'triangle'},{f:659.25,d:.3,type:'triangle'},{f:523.25,d:.3,type:'triangle'},{f:392,d:1.2,type:'triangle'},
+  ]},
+  // 7羊-悠扬温和（宫调式舒缓）
+  {bpm:80,notes:[
+    {f:261.63,d:.7},{f:329.63,d:.7},{f:392,d:.7},{f:329.63,d:.7},{f:261.63,d:.7},{f:329.63,d:.7},{f:392,d:.7},{f:523.25,d:1.4},
+    {f:392,d:.7},{f:523.25,d:.7},{f:587.33,d:.7},{f:523.25,d:.7},{f:392,d:.7},{f:523.25,d:.7},{f:659.25,d:.7},{f:784,d:1.4},
+    {f:659.25,d:.7},{f:523.25,d:.7},{f:392,d:.7},{f:329.63,d:.7},{f:261.63,d:.7},{f:329.63,d:.7},{f:392,d:.7},{f:523.25,d:.7},
+    {f:392,d:.7},{f:329.63,d:.7},{f:261.63,d:.7},{f:196,d:.7},{f:261.63,d:1.4},{f:261.63,d:.7},{f:329.63,d:.7},{f:392,d:1.4},
+  ]},
+  // 8猴-调皮跳跃（跳进音型）
+  {bpm:135,notes:[
+    {f:587.33,d:.25},{f:784,d:.25},{f:587.33,d:.25},{f:784,d:.25},{f:659.25,d:.25},{f:523.25,d:.25},{f:659.25,d:.25},{f:523.25,d:.25},
+    {f:587.33,d:.25},{f:784,d:.25},{f:587.33,d:.25},{f:784,d:.25},{f:659.25,d:.25},{f:523.25,d:.25},{f:392,d:.5},{f:523.25,d:.5},
+    {f:659.25,d:.25},{f:784,d:.25},{f:659.25,d:.25},{f:784,d:.25},{f:880,d:.25},{f:987.77,d:.25},{f:880,d:.25},{f:784,d:.25},
+    {f:659.25,d:.25},{f:523.25,d:.25},{f:392,d:.5},{f:523.25,d:.5},{f:659.25,d:.5},{f:784,d:.5},{f:880,d:.5},{f:784,d:.5},
+  ]},
+  // 9鸡-清脆嘹亮（明亮高音）
+  {bpm:145,notes:[
+    {f:587.33,d:.3},{f:784,d:.3},{f:987.77,d:.3},{f:1174.66,d:.3},{f:987.77,d:.3},{f:784,d:.3},{f:587.33,d:.3},{f:784,d:.3},
+    {f:880,d:.3},{f:1174.66,d:.3},{f:1046.5,d:.3},{f:880,d:.3},{f:784,d:.3},{f:587.33,d:.3},{f:784,d:.3},{f:659.25,d:.3},
+    {f:587.33,d:.3},{f:784,d:.3},{f:987.77,d:.3},{f:1174.66,d:.6},{f:1046.5,d:.3},{f:880,d:.3},{f:784,d:.6},
+    {f:587.33,d:.3},{f:784,d:.3},{f:987.77,d:.3},{f:880,d:.3},{f:784,d:.3},{f:659.25,d:.3},{f:587.33,d:.3},{f:392,d:1.2},
+  ]},
+  // 10狗-忠诚欢快（商调式明快）
+  {bpm:115,notes:[
+    {f:293.66,d:.5},{f:392,d:.5},{f:523.25,d:.5},{f:392,d:.5},{f:293.66,d:.5},{f:392,d:.5},{f:523.25,d:1},
+    {f:293.66,d:.5},{f:392,d:.5},{f:523.25,d:.5},{f:659.25,d:.5},{f:523.25,d:.5},{f:392,d:.5},{f:523.25,d:.5},{f:659.25,d:.5},
+    {f:523.25,d:.5},{f:392,d:.5},{f:293.66,d:.5},{f:196,d:.5},{f:293.66,d:1},{f:523.25,d:.5},{f:392,d:.5},{f:293.66,d:1},
+    {f:392,d:.5},{f:523.25,d:.5},{f:392,d:.5},{f:293.66,d:.5},{f:196,d:1},{f:293.66,d:1},{f:392,d:.5},{f:523.25,d:1},
+  ]},
+  // 11猪-憨厚圆润（宫调式丰满）
+  {bpm:75,notes:[
+    {f:130.81,d:.8},{f:196,d:.8},{f:261.63,d:.8},{f:196,d:.8},{f:130.81,d:.8},{f:196,d:.8},{f:261.63,d:.8},{f:196,d:.8},
+    {f:261.63,d:.8},{f:329.63,d:.8},{f:392,d:.8},{f:329.63,d:.8},{f:261.63,d:.8},{f:329.63,d:.8},{f:392,d:.8},{f:523.25,d:.8},
+    {f:392,d:.8},{f:523.25,d:.8},{f:659.25,d:1.6},{f:523.25,d:.8},{f:392,d:.8},{f:329.63,d:.8},{f:261.63,d:.8},{f:196,d:.8},
+    {f:130.81,d:.8},{f:196,d:.8},{f:261.63,d:.8},{f:329.63,d:.8},{f:261.63,d:1.6},{f:196,d:.8},{f:261.63,d:.8},{f:196,d:1.6},
+  ]},
+];
+
 function playFullBgm(z){
-  if(!_audioCtx||_audioState.muted||z<0)return;
-  stopBgm();
-  // 鼠BGM：90个音符，每秒1个，setInterval接力播放
-  const notes=[261.63,329.63,392,523.25,392,329.63,523.25,659.25,523.25,392,
-    261.63,329.63,392,523.25,659.25,784,659.25,523.25,392,329.63,
-    261.63,392,523.25,392,329.63,261.63,329.63,392,523.25,659.25,
-    523.25,392,329.63,261.63,261.63,329.63,392,523.25,659.25,784,
-    880,784,659.25,523.25,392,329.63,261.63,329.63,392,523.25,659.25,
-    523.25,659.25,784,880,1046.5,880,784,659.25,523.25,392,329.63,
-    261.63,329.63,523.25,659.25,784,880,1046.5,1174.66,1046.5,880,
-    784,659.25,523.25,392,523.25,659.25,523.25,392,329.63,261.63,
-    329.63,392,523.25,659.25,523.25,392,329.63,261.63,261.63];
-  let idx=0;
-  function playNext(){
-    if(idx>=notes.length){stopBgm();return;}
+  if(!_audioCtx||z<0)return;
+  stopBgm();_bgmZ=z;
+  const track=ZODIAS_BGM[z]||ZODIAS_BGM[4];
+  _bgmIdx=0;
+  function tick(){
     if(!_audioCtx||_audioState.muted){stopBgm();return;}
-    const f=notes[idx],o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
-    o.connect(g);g.connect(_audioCtx.destination);
-    o.frequency.value=f;o.type='triangle';
-    g.gain.setValueAtTime(_audioState.bgmVolume*.4,_audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,_audioCtx.currentTime+.9);
-    o.start();o.stop(_audioCtx.currentTime+.91);
-    idx++;
-    _bgmTimer=setTimeout(playNext,1000);
+    if(_bgmZ!==z){return;} // 切换生肖时停止
+    const n=track.notes[_bgmIdx%track.notes.length];
+    playNote(n.f,n.d,_audioState.bgmVolume*.5,n.type);
+    _bgmIdx++;
+    _bgmTimer=setTimeout(tick,Math.round(n.d*950)); // 音符间95%时长，无缝衔接
   }
   initAudio();
-  playNext();
+  tick();
 }
-function stopBgm(){if(_bgmTimer){clearTimeout(_bgmTimer);_bgmTimer=null;}}
 
-
-function startBgm(){
-  initAudio();
-  playFullBgm(G.zodiac);
-  if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}
+function stopBgm(){
+  if(_bgmTimer){clearTimeout(_bgmTimer);_bgmTimer=null;}
+  _bgmIdx=0;_bgmZ=-1;
 }
+
+function startBgm(){initAudio();playFullBgm(G.zodiac);}
+
 function stopBgm(){}
 
 function startGame(){

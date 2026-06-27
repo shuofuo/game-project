@@ -450,18 +450,9 @@ function doStart(){
 </script>
 
 
-<div id="gamePage" >
-  <!-- ===== 左侧边栏：任务/活动（竖排） ===== -->
-  <div id="leftSidebar" style="width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:60px;gap:12px;z-index:50;">
-    <button onclick="openTaskPanel()" class="side-btn" title="每日任务">📋</button>
-    <button onclick="openActivityPanel()" class="side-btn" title="限时活动">🎯</button>
-    <button onclick="openHandbook()" class="side-btn" title="灵兽图鉴">📖</button>
-  </div>
+<div id="gamePage" style="display:flex;flex-direction:column;height:100dvh;overflow:hidden;touch-action:none;visibility:hidden;opacity:0;">
 
-  <!-- ===== 主内容区 ===== -->
-  <div id="gamePageWrap" style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
-
-  <!-- ===== 顶部HUD 50px ===== -->
+  <!-- ===== 第一行：顶部HUD ===== -->
   <div id="topHud" style="height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(7,7,26,.9);border-bottom:1px solid rgba(255,215,0,.08);">
     <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
     <div style="display:flex;align-items:center;gap:16px;">
@@ -469,56 +460,38 @@ function doStart(){
       <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span>
       <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
     </div>
-    <span id="hudYunshi" onclick="showFateDetail()" style="font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;min-width:50px;text-align:right;"></span>
-  </div>
 
-  <!-- ===== 灵兽展示台 ===== -->
-  <div id="heroSection" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 16px 8px;min-height:0;position:relative;overflow:hidden;">
+  <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
+  <div style="flex:1;display:flex;align-items:center;min-height:0;overflow:hidden;">
+    <!-- 左侧功能按钮（竖排） -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 4px;z-index:50;">
+      <button onclick="openTaskPanel()" class="side-btn" title="每日任务">📋</button>
+      <button onclick="openActivityPanel()" class="side-btn" title="限时活动">🎯</button>
+      <button onclick="openHandbook()" class="side-btn" title="灵兽图鉴">📖</button>
+    </div>
+
+    <!-- 灵兽中央区域 -->
+    <div id="heroSection" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 16px 8px;min-height:0;position:relative;overflow:hidden;">
     <!-- 命格标签 -->
     <div id="heroFateTag" style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">木命 · 大吉</div>
-
-    <!-- 光环 -->
-      <div class="hero-glow"></div>
-    <!-- 环绕属性容器 -->
-    <div style="position:relative;width:min(220px,58vw);height:min(220px,58vw);margin:4px auto;">
-      <!-- 轨道1：产出（金色，左上） -->
-      <div class="attr-ring ring-1">
-        <span class="attr-pill" id="attrCps">+1/s</span>
+    <!-- 灵兽网格（全屏覆盖，关闭按钮） -->
+    <div id="dragonGrid" style="display:none;position:absolute;left:52px;right:52px;top:0;bottom:0;background:rgba(7,7,26,.97);flex-direction:column;z-index:60;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid rgba(255,215,0,.1);">
+        <span style="font-size:13px;color:#ffd700;letter-spacing:2px;">全部灵兽</span>
+        <button onclick="toggleDragonGrid()" style="font-size:22px;color:rgba(255,255,255,.5);background:transparent;border:none;cursor:pointer;line-height:1;padding:0;">×</button>
       </div>
-      <!-- 轨道2：等级（金色，左下） -->
-      <div class="attr-ring ring-2">
-        <span class="attr-pill" id="attrLv">Lv.1</span>
-      </div>
-      <!-- 轨道3：龙气（金色，右上） -->
-      <div class="attr-ring ring-3">
-        <span class="attr-pill" id="attrQi">✨0</span>
-      </div>
-      <!-- 轨道4：命格（右边） -->
-      <div class="attr-ring ring-4">
-        <span class="attr-pill" id="attrFate">木命</span>
-      </div>
-      <!-- 中心灵兽 -->
-      <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:min(80px,18vw);line-height:1;filter:drop-shadow(0 0 24px rgba(255,215,0,.5));transition:all .3s;z-index:2;">🐣</div>
+      <div id="dragonGridInner" style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px;align-content:start;overflow-y:auto;"></div>
     </div>
 
-    <!-- 灵兽图谱mini -->
-    <div id="heroThumbs" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px;margin-top:8px;">
-      <div class="ht" style="font-size:min(26px,6.5vw);opacity:.9;">🐣</div>
-      <div class="ht" style="font-size:min(26px,6.5vw);opacity:.5;">🐥</div>
-      <div class="ht" style="font-size:min(26px,6.5vw);opacity:.3;">🐔</div>
+    <!-- 右侧功能按钮（竖排） -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 4px;z-index:50;">
+      <button onclick="openRankPanel()" class="side-btn" title="排行榜">🏅</button>
+      <button onclick="openAchPanel()" class="side-btn" title="成就">🏆</button>
+      <button onclick="openSettings()" class="side-btn" title="设置">⚙️</button>
     </div>
-    <!-- 灵兽网格切换按钮 -->
-    <button onclick="toggleDragonGrid()" id="gridToggleBtn" style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.3);background:transparent;border:none;cursor:pointer;letter-spacing:2px;animation:blink 2s infinite;">
-      ↓ 查看全部 ↓
-    </button>
-  </div>
+  </div><!-- /中间行 -->
 
-  <!-- 灵兽网格（全量展示，包含召唤入口） -->
-  <div id="dragonGrid" style="display:none;flex:1;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 14px;align-content:start;overflow-y:auto;min-height:0;"></div>
-
-  </div>
-
-<!-- ===== 底部召唤栏（居中纯图标） ===== -->
+  <!-- ===== 第三行：底部召唤栏 ===== -->
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 16px 16px;">
     <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" title="金币召唤">
       <span style="font-size:18px;">💰</span>
@@ -533,19 +506,9 @@ function doStart(){
       <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
     </button>
   </div>
-<div id="summonModal" class="modal">
-    <div class="modal-box">
-      <div class="modal-badge" id="summonBadge">恭喜获得</div>
-      <div id="summonResult" style="font-size:80px;margin:20px 0;">🐣</div>
-      <div id="summonName" style="font-size:20px;color:#ffd700;font-weight:700;">灵蛋</div>
-      <div style="font-size:13px;color:#888;margin-top:6px;" id="summonDesc">Lv1 · 每秒产金 1</div>
-      <button class="modal-btn modal-btn-start" onclick="closeSummon()">收下 ✦</button>
-    </div>
-  </div>
-  <div id="mergeFlash" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.7);z-index:300;pointer-events:none;font-size:60px;align-items:center;justify-content:center;">
-    <span id="mergeText">⭐</span>
-  </div>
-  <div id="rankPanel" class="rank-panel"></div>
+
+</div>
+<div id="rankPanel" class="rank-panel"></div>
   <div id="handbookPanel" class="handbook-panel"></div>
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>
@@ -583,15 +546,7 @@ function doStart(){
   </div>
   <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
-</div>
-
-  <!-- ===== 右侧边栏：排行/成就/设置 ===== -->
-  <div id="rightSidebar" style="width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:60px;gap:12px;z-index:50;">
-    <button onclick="openRankPanel()" class="side-btn" title="排行榜">🏅</button>
-    <button onclick="openAchPanel()" class="side-btn" title="成就">🏆</button>
-    <button onclick="openSettings()" class="side-btn" title="设置">⚙️</button>
-  </div>
-<script src="js/config.js"></script>
+  <script src="js/config.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/game.js"></script>
 <script src="js/ui.js"></script>

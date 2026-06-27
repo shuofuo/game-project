@@ -798,6 +798,8 @@ function closeSummonAnim(){
 
 // 改造 doSummon：触发翻牌动画而不是直接弹窗
 function doSummon(level){
+  initAudio();
+  if(G.zodiac>=0) playSound('summon_z'+G.zodiac);
   const used=new Set(G.dragons.map(d=>d.idx));
   const spots=[];
   for(let i=0;i<TOTAL;i++)if(!used.has(i))spots.push(i);

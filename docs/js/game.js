@@ -159,6 +159,9 @@ function getRank(){
   let r=RANKS[0];const cnt=new Set(G.dragons.map(d=>d.level)).size;
   RANKS.forEach(rk=>{if(cnt>=rk.min)r=rk;});return r;
 }
+function getRankList(){
+  try{return JSON.parse(localStorage.getItem(SAVE_KEY+'_rank')||'[]');}catch(e){return [];}
+}
 
 function today(){
   const d=new Date();

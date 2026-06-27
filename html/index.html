@@ -876,7 +876,7 @@ function doCultNode(cultKey,nodeIdx){
   cult[cultKey]=nodeIdx+1;
   G.cultivation=cult;
   saveGame();
-  saveCultUI();
+  renderCultPanel();
   updateHud();
   calcCps();
   showNotif('success','⚗️ '+cfg.icon+' '+cfg.name+'修炼：'+node.title);

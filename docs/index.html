@@ -323,7 +323,7 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 </div>
 
 
-<script>
+window.addEventListener('DOMContentLoaded', function() {
 const ZDATA=[
   {e:"🐀",n:"鼠"},{e:"🐂",n:"牛"},{e:"🐅",n:"虎"},{e:"🐇",n:"兔"},
   {e:"🐉",n:"龙"},{e:"🐍",n:"蛇"},{e:"🐎",n:"马"},{e:"🐏",n:"羊"},
@@ -386,6 +386,7 @@ FDATA.forEach((f,i)=>{
   };
   fg.appendChild(c);
 });
+
 
 function upd(){
   const btn=document.getElementById('sBtn');

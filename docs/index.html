@@ -249,6 +249,34 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 /* 灵兽缩略图 */
 .ht{transition:transform .15s;cursor:pointer;}
 .ht:hover{transform:scale(1.2);}
+
+/* 底部图标按钮统一圆形 */
+.icon-btn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;position:relative;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);transition:all .2s;flex-shrink:0;}
+.icon-btn:active{transform:scale(.9);}
+.icon-task{color:#c8a020;border-color:rgba(200,160,32,.3);background:rgba(200,160,32,.08);}
+.icon-book{color:#42a5f5;border-color:rgba(66,165,245,.3);background:rgba(66,165,245,.08);}
+.icon-active{color:#ff6b35;border-color:rgba(255,107,53,.3);background:rgba(255,107,53,.08);}
+.icon-coin{color:#ffd700;border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.1);}
+.icon-qi{color:#a0d8ef;border-color:rgba(160,216,239,.4);background:rgba(160,216,239,.08);}
+.icon-free{color:#4caf50;border-color:rgba(76,175,80,.4);background:rgba(76,175,80,.08);}
+.icon-rank{color:#e040fb;border-color:rgba(224,64,251,.3);background:rgba(224,64,251,.06);}
+.icon-ach{color:#ff9800;border-color:rgba(255,152,0,.3);background:rgba(255,152,0,.06);}
+.icon-set{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.04);}
+/* 灵兽环绕属性 */
+.attr-ring{position:absolute;display:flex;align-items:center;}
+.attr-pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:.5px;border:1px solid rgba(255,215,0,.3);background:rgba(255,215,0,.08);color:#ffd700;}
+.ring-1{left:0;top:50%;transform:translateY(-50%) translateX(-4px);animation:orbit-ring 8s ease-in-out infinite;}
+.ring-2{left:0;bottom:6px;animation:orbit-ring 10s ease-in-out infinite reverse;}
+.ring-3{right:0;top:50%;transform:translateY(-50%) translateX(4px);animation:orbit-ring-r 9s ease-in-out infinite;}
+.ring-4{right:0;bottom:6px;animation:orbit-ring-r 11s ease-in-out infinite reverse;}
+@keyframes orbit-ring{0%,100%{opacity:.5}50%{opacity:1;transform:translateX(-4px) translateY(-6px)}}
+@keyframes orbit-ring-r{0%,100%{opacity:.5}50%{opacity:1;transform:translateX(4px) translateY(-6px)}}
+/* 灵兽呼吸+光环 */
+#heroIcon{animation:hero-breathe 3s ease-in-out infinite;}
+@keyframes hero-breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.07)}}
+.hero-glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(200px,52vw);height:min(200px,52vw);border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,.14) 0%,transparent 70%);animation:hero-glow-pulse 2.5s ease-in-out infinite;z-index:1;pointer-events:none;}
+@keyframes hero-glow-pulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.15)}}
+
 </style>
 </head>
 <body>
@@ -409,59 +437,79 @@ function doStart(){
     <span id="hudYunshi" onclick="showFateDetail()" style="font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;min-width:50px;text-align:right;"></span>
   </div>
 
-  <!-- ===== 灵兽展示台（弹性占满中间） ===== -->
-  <div id="heroSection" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;min-height:0;position:relative;">
+  <!-- ===== 灵兽展示台 ===== -->
+  <div id="heroSection" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 16px 8px;min-height:0;position:relative;overflow:hidden;">
     <!-- 命格标签 -->
-    <div id="heroFateTag" style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:12px;letter-spacing:1px;">木命 · 大吉</div>
-    <!-- 最强灵兽 -->
-    <div id="heroIcon" style="font-size:min(90px,18vw);line-height:1;filter:drop-shadow(0 0 20px rgba(255,215,0,.4));transition:all .3s;">🐣</div>
-    <!-- 等级 -->
-    <div style="margin-top:8px;font-size:16px;font-weight:700;color:#ffd700;" id="heroLv">Lv.1</div>
-    <!-- 产出 -->
-    <div style="font-size:13px;color:rgba(255,255,255,.55);margin-top:4px;" id="heroCps">+1/s</div>
-    <!-- 分割线 -->
-    <div style="width:60px;height:1px;background:rgba(255,215,0,.2);margin:20px 0 16px;"></div>
-    <!-- 灵兽图谱（mini缩略图） -->
-    <div id="heroThumbs" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:300px;">
-      <div class="ht" style="font-size:min(30px,7vw);opacity:.9;">🐣</div>
-      <div class="ht" style="font-size:min(30px,7vw);opacity:.5;">🐥</div>
-      <div class="ht" style="font-size:min(30px,7vw);opacity:.3;">🐔</div>
+    <div id="heroFateTag" style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">木命 · 大吉</div>
+
+    <!-- 光环 -->
+      <div class="hero-glow"></div>
+    <!-- 环绕属性容器 -->
+    <div style="position:relative;width:min(220px,58vw);height:min(220px,58vw);margin:4px auto;">
+      <!-- 轨道1：产出（金色，左上） -->
+      <div class="attr-ring ring-1">
+        <span class="attr-pill" id="attrCps">+1/s</span>
+      </div>
+      <!-- 轨道2：等级（金色，左下） -->
+      <div class="attr-ring ring-2">
+        <span class="attr-pill" id="attrLv">Lv.1</span>
+      </div>
+      <!-- 轨道3：龙气（金色，右上） -->
+      <div class="attr-ring ring-3">
+        <span class="attr-pill" id="attrQi">✨0</span>
+      </div>
+      <!-- 轨道4：命格（右边） -->
+      <div class="attr-ring ring-4">
+        <span class="attr-pill" id="attrFate">木命</span>
+      </div>
+      <!-- 中心灵兽 -->
+      <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:min(80px,18vw);line-height:1;filter:drop-shadow(0 0 24px rgba(255,215,0,.5));transition:all .3s;z-index:2;">🐣</div>
+    </div>
+
+    <!-- 灵兽图谱mini -->
+    <div id="heroThumbs" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px;margin-top:8px;">
+      <div class="ht" style="font-size:min(26px,6.5vw);opacity:.9;">🐣</div>
+      <div class="ht" style="font-size:min(26px,6.5vw);opacity:.5;">🐥</div>
+      <div class="ht" style="font-size:min(26px,6.5vw);opacity:.3;">🐔</div>
     </div>
     <!-- 灵兽网格切换按钮 -->
-    <button onclick="toggleDragonGrid()" id="gridToggleBtn" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.3);background:transparent;border:none;cursor:pointer;animation:blink 2s infinite;">
-      ↓ 查看全部灵兽 ↓
+    <button onclick="toggleDragonGrid()" id="gridToggleBtn" style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.3);background:transparent;border:none;cursor:pointer;letter-spacing:2px;animation:blink 2s infinite;">
+      ↓ 查看全部 ↓
     </button>
   </div>
 
-  <!-- 灵兽网格（全量展示） -->
+  <!-- 灵兽网格（全量展示，包含召唤入口） -->
   <div id="dragonGrid" style="display:none;flex:1;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 14px;align-content:start;overflow-y:auto;min-height:0;"></div>
 
-  <!-- ===== 底部功能区：左侧任务 + 中央召唤 + 右侧设置 ===== -->
-  <div id="gameBottomBar" style="flex-shrink:0;padding:10px 16px 20px;background:linear-gradient(to top,#07071a 80%,transparent);">
-    <!-- 左侧：任务/活动入口 -->
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
-      <button onclick="openTaskPanel()" style="flex:1;padding:10px 0;border-radius:12px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);color:#c8a020;font-size:12px;cursor:pointer;letter-spacing:1px;">
-        📋 每日任务
-      </button>
-      <button onclick="openActivityPanel()" style="flex:1;padding:10px 0;border-radius:12px;background:rgba(255,100,50,.08);border:1px solid rgba(255,100,50,.2);color:#ff6b35;font-size:12px;cursor:pointer;letter-spacing:1px;">
-        🎯 限时活动
-      </button>
-      <button onclick="openRankPanel()" style="width:44px;height:44px;border-radius:12px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);color:#ffd700;font-size:16px;cursor:pointer;flex-shrink:0;" title="排行榜">🏅</button>
+  <!-- ===== 底部功能栏：7个统一圆形图标 ===== -->
+  <div id="gameBottomBar" style="flex-shrink:0;padding:10px 12px 20px;background:linear-gradient(to top,#07071a 80%,transparent);display:flex;align-items:center;justify-content:space-between;gap:6px;">
+
+    <!-- 左侧功能组：任务+图鉴+活动 -->
+    <div style="display:flex;gap:6px;">
+      <button onclick="openTaskPanel()" class="icon-btn icon-task" title="每日任务">📋</button>
+      <button onclick="openHandbook()" class="icon-btn icon-book" title="灵兽图鉴">📖</button>
+      <button onclick="openActivityPanel()" class="icon-btn icon-active" title="限时活动">🎯</button>
     </div>
-    <!-- 中央：召唤按钮 -->
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button class="sbtn sbtn-coin" id="btnCoin" onclick="summonCoin()" style="flex:1;padding:14px 0;border-radius:14px;font-size:15px;">
-        <span>💰 金币召唤</span><br><small id="coinCost" style="font-size:11px;opacity:.7;">100</small>
+
+    <!-- 中央召唤组 -->
+    <div style="display:flex;gap:6px;">
+      <button onclick="summonCoin()" class="icon-btn icon-coin" title="金币召唤" id="btnCoin">
+        💰<span id="coinCost" style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(255,200,0,.8);font-weight:700;">100</span>
       </button>
-      <button class="sbtn sbtn-qi" id="btnQi" onclick="summonQi()" style="flex:1;padding:14px 0;border-radius:14px;font-size:15px;">
-        <span>✨ 龙气召唤</span><br><small style="font-size:11px;opacity:.7;">500</small>
+      <button onclick="summonQi()" class="icon-btn icon-qi" title="龙气召唤" id="btnQi">
+        ✨<span style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(160,216,239,.8);font-weight:700;">500</span>
       </button>
-      <button onclick="openSettings()" style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;flex-shrink:0;" title="设置">⚙️</button>
+      <button onclick="summonFree()" class="icon-btn icon-free" title="免费召唤" id="btnFree" style="display:none;">
+        🌿<span id="freeCount" style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(76,175,80,.9);font-weight:700;"></span>
+      </button>
     </div>
-    <!-- 免费召唤（免费次数 > 0 时显示） -->
-    <button class="sbtn sbtn-free" id="btnFree" onclick="summonFree()" style="display:none;width:100%;margin-top:6px;padding:10px;border-radius:12px;font-size:13px;">
-      🌿 免费召唤 · 剩余 <span id="freeCount">3</span> 次
-    </button>
+
+    <!-- 右侧功能组：排行+设置 -->
+    <div style="display:flex;gap:6px;">
+      <button onclick="openRankPanel()" class="icon-btn icon-rank" title="排行榜">🏅</button>
+      <button onclick="openAchPanel()" class="icon-btn icon-ach" title="成就">🏆</button>
+      <button onclick="openSettings()" class="icon-btn icon-set" title="设置">⚙️</button>
+    </div>
   </div>
 
   <!-- ===== 移除旧的悬浮工具栏 ===== -->

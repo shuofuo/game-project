@@ -277,6 +277,32 @@ body{background:#07071a;display:flex;align-items:flex-start;justify-content:cent
 .hero-glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(200px,52vw);height:min(200px,52vw);border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,.14) 0%,transparent 70%);animation:hero-glow-pulse 2.5s ease-in-out infinite;z-index:1;pointer-events:none;}
 @keyframes hero-glow-pulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.15)}}
 
+
+/* 侧边栏按钮 */
+.side-btn{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;border:none;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  transition:all .2s;color:rgba(255,255,255,.6);
+}
+.side-btn:active{transform:scale(.88);}
+.side-btn:hover{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.3);color:#ffd700;}
+
+/* 召唤按钮 */
+.summon-btn{
+  display:flex;align-items:center;justify-content:center;
+  border-radius:24px;padding:8px 18px;cursor:pointer;border:none;
+  font-size:13px;font-weight:700;gap:4px;min-width:70px;
+  transition:all .2s;
+}
+.summon-btn:active{transform:scale(.94);}
+.summon-coin{background:rgba(255,215,0,.15);border:1.5px solid rgba(255,215,0,.4);color:#ffd700;}
+.summon-coin:hover{background:rgba(255,215,0,.25);}
+.summon-qi{background:rgba(160,216,239,.12);border:1.5px solid rgba(160,216,239,.35);color:#a0d8ef;}
+.summon-qi:hover{background:rgba(160,216,239,.2);}
+.summon-free{background:rgba(76,175,80,.15);border:1.5px solid rgba(76,175,80,.4);color:#4caf50;padding:8px 14px;min-width:0;}
+.summon-free:hover{background:rgba(76,175,80,.25);}
 </style>
 </head>
 <body>
@@ -424,7 +450,16 @@ function doStart(){
 </script>
 
 
-<div id="gamePage">
+<div id="gamePage" style="display:flex;align-items:stretch;padding:0;">
+  <!-- ===== 左侧边栏：任务/活动（竖排） ===== -->
+  <div id="leftSidebar" style="width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:60px;gap:12px;z-index:50;">
+    <button onclick="openTaskPanel()" class="side-btn" title="每日任务">📋</button>
+    <button onclick="openActivityPanel()" class="side-btn" title="限时活动">🎯</button>
+    <button onclick="openHandbook()" class="side-btn" title="灵兽图鉴">📖</button>
+  </div>
+
+  <!-- ===== 主内容区 ===== -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
 
   <!-- ===== 顶部HUD 50px ===== -->
   <div id="topHud" style="height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(7,7,26,.9);border-bottom:1px solid rgba(255,215,0,.08);">
@@ -481,17 +516,7 @@ function doStart(){
   <!-- 灵兽网格（全量展示，包含召唤入口） -->
   <div id="dragonGrid" style="display:none;flex:1;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 14px;align-content:start;overflow-y:auto;min-height:0;"></div>
 
-  <!-- ===== 底部功能栏：7个统一圆形图标 ===== -->
-  <div id="gameBottomBar" style="flex-shrink:0;padding:10px 12px 20px;background:linear-gradient(to top,#07071a 80%,transparent);display:flex;align-items:center;justify-content:space-between;gap:6px;">
-
-    <!-- 左侧功能组：任务+图鉴+活动 -->
-    <div style="display:flex;gap:6px;">
-      <button onclick="openTaskPanel()" class="icon-btn icon-task" title="每日任务">📋</button>
-      <button onclick="openHandbook()" class="icon-btn icon-book" title="灵兽图鉴">📖</button>
-      <button onclick="openActivityPanel()" class="icon-btn icon-active" title="限时活动">🎯</button>
-    </div>
-
-    <!-- 中央召唤组 -->
+<!-- 中央召唤组 -->
     <div style="display:flex;gap:6px;">
       <button onclick="summonCoin()" class="icon-btn icon-coin" title="金币召唤" id="btnCoin">
         💰<span id="coinCost" style="font-size:9px;position:absolute;bottom:2px;right:3px;color:rgba(255,200,0,.8);font-weight:700;">100</span>
@@ -514,7 +539,22 @@ function doStart(){
 
   <!-- ===== 移除旧的悬浮工具栏 ===== -->
 
-  <div id="summonModal" class="modal">
+    <!-- ===== 底部召唤栏（居中纯图标） ===== -->
+  <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 16px 16px;">
+    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" title="金币召唤">
+      <span style="font-size:18px;">💰</span>
+      <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
+    </button>
+    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" title="龙气召唤">
+      <span style="font-size:18px;">✨</span>
+      <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
+    </button>
+    <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
+      <span style="font-size:18px;">🌿</span>
+      <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
+    </button>
+  </div>
+<div id="summonModal" class="modal">
     <div class="modal-box">
       <div class="modal-badge" id="summonBadge">恭喜获得</div>
       <div id="summonResult" style="font-size:80px;margin:20px 0;">🐣</div>

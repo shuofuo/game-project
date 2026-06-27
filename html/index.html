@@ -727,12 +727,12 @@ function playBgm(){
   if(!_audioCtx||_audioState.muted)return;
   // 古筝五声音阶旋律（C宫调式）
   const mel=[[261,1],[293,1],[329,1],[392,1],[523,1.5],[392,.5],[523,1],[659,2]];
-  mel.forEach(([f,d])=>playBgmNote(f,d,.12,(mel.indexOf([f,d])>0?mel.slice(0,mel.indexOf([f,d])).reduce((s,[,x])=>s+x,0):0)));
+  mel.forEach(([f,d])=>playBgmNote(f,d,.08,(mel.indexOf([f,d])>0?mel.slice(0,mel.indexOf([f,d])).reduce((s,[,x])=>s+x,0):0)));
 }
 function startBgm(){
   if(bgmTimer)return;
   initAudio();playBgm();
-  bgmTimer=setInterval(playBgm,8000);
+  bgmTimer=setInterval(playBgm,20000);
 }
 function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
 

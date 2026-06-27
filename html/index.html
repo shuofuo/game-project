@@ -725,162 +725,36 @@ function playBgmNote(freq,dur,vol,t){
 }
 function playFullBgm(z){
   if(!_audioCtx||_audioState.muted||z<0)return;
-  const now=_audioCtx.currentTime;
-  const V=_audioState.bgmVolume;
-  const beat=.5; // 120BPM
-  // 宫商角徵羽
-  const G=261.63,M2=293.66,A3=329.63,P4=392.00,P5=493.88,D5=587.33;
-  const hi=o=>o*2;
-
-  // 音色合成器
-  const osc=(f,t0,dur,vol,type='sine',fadep=.05)=>{
-    const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
-    o.type=type;o.frequency.value=f;
-    const tStart=Math.max(0,t0-fadep);
-    g.gain.setValueAtTime(.001,now+tStart);
-    g.gain.linearRampToValueAtTime(vol,now+t0);
-    g.gain.setValueAtTime(vol,now+t0+dur*.7);
-    g.gain.exponentialRampToValueAtTime(.001,now+t0+dur);
+  stopBgm();
+  // 鼠BGM：90个音符，每秒1个，setInterval接力播放
+  const notes=[261.63,329.63,392,523.25,392,329.63,523.25,659.25,523.25,392,
+    261.63,329.63,392,523.25,659.25,784,659.25,523.25,392,329.63,
+    261.63,392,523.25,392,329.63,261.63,329.63,392,523.25,659.25,
+    523.25,392,329.63,261.63,261.63,329.63,392,523.25,659.25,784,
+    880,784,659.25,523.25,392,329.63,261.63,329.63,392,523.25,659.25,
+    523.25,659.25,784,880,1046.5,880,784,659.25,523.25,392,329.63,
+    261.63,329.63,523.25,659.25,784,880,1046.5,1174.66,1046.5,880,
+    784,659.25,523.25,392,523.25,659.25,523.25,392,329.63,261.63,
+    329.63,392,523.25,659.25,523.25,392,329.63,261.63,261.63];
+  let idx=0;
+  function playNext(){
+    if(idx>=notes.length){stopBgm();return;}
+    if(!_audioCtx||_audioState.muted){stopBgm();return;}
+    const f=notes[idx],o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
     o.connect(g);g.connect(_audioCtx.destination);
-    o.start(now+tStart);o.stop(now+t0+dur+.02);
-  };
-  // 噪声（鼓点）
-  const noise=(t0,dur,vol)=>{
-    const sz=Math.ceil(_audioCtx.sampleRate*dur);
-    const buf=_audioCtx.createBuffer(1,sz,_audioCtx.sampleRate);
-    const d=buf.getChannelData(0);
-    for(let i=0;i<sz;i++)d[i]=(Math.random()*2-1);
-    const s=_audioCtx.createBufferSource();s.buffer=buf;
-    const g=_audioCtx.createGain();
-    const f=_audioCtx.createBiquadFilter();f.type='highpass';f.frequency.value=3000;
-    g.gain.setValueAtTime(vol,now+t0);g.gain.exponentialRampToValueAtTime(.001,now+t0+dur);
-    s.connect(f);f.connect(g);g.connect(_audioCtx.destination);
-    s.start(now+t0);s.stop(now+t0+dur+.01);
-  };
-
-  // ===== 鼠BGM 90秒完整作品（5段落无缝循环）=====
-  if(z===0){
-    const bpm=120,bt=.5; // 120BPM, .5秒/拍
-    const D=0; // 所有声音从0秒立刻开始
-    const S=(f,d,v,t,type='sine')=>osc(f,d,v,t,type,.04);
-
-    // --- 开场 0~10s：氛围铺底，渐入 ---
-    // 和声垫音，立刻以中等音量开始
-    [[261.63,10,.08],[329.63,10,.06],[392,10,.05]].forEach(([f,dur,v])=>{
-      osc(f,dur,v,0,'sine');
-      osc(f*2,dur,v*.4,0,'triangle');
-    });
-    // 轻柔节拍（每2拍一次，渐强）
-    for(let i=0;i<20;i++){const t=i*bt*2;const v=.02+i*.001;noise(now+t,.04,Math.min(v,.08));}
-    // 基础低音脉动
-    for(let i=0;i<10;i++)S(130.81,bt*1.8,.08,i*bt*2+2);
-
-    // --- 主段A 10~28s：轻快主旋律（主题完整呈现）---
-    const tA=0;
-    const melA=[
-      // 主题句1（2小节）G宫五声音阶上行
-      [261.63,bt,.8,0],[329.63,bt,.8,bt],[392,bt,.8,bt*2],[523.25,bt*.9,.9,bt*3],
-      [659.25,bt*.9,1,bt*4],[784,bt*.9,.9,bt*5],[659.25,bt*.9,.8,bt*6],[523.25,bt*.9,.8,bt*7],
-      // 主题句2（2小节）转到上方音区
-      [392,bt,.8,bt*8],[523.25,bt,.9,bt*9],[659.25,bt,.8,bt*10],[784,bt*.9,.9,bt*11],
-      [880,bt*.9,1,bt*12],[1046.5,bt*.9,.9,bt*13],[880,bt,.8,bt*14],[784,bt,.7,bt*15],
-      // 连接句（2小节）下降回落
-      [659.25,bt*.9,.8,bt*16],[523.25,bt*.9,.7,bt*17],[392,bt*.9,.7,bt*18],[329.63,bt,bt*2,.9,bt*19],
-      // 终止句（2小节）回到主音
-      [261.63,bt*.9,.8,bt*20],[329.63,bt*.9,.7,bt*21],[392,bt*.9,.7,bt*22],[261.63,bt*2,1,bt*23],
-    ];
-    melA.forEach(([f,d,v,t])=>S(f,d,v*.5,tA+t,'triangle'));
-    // A段和声
-    [[261.63,392,523.25],[329.63,523.25,659.25],[392,523.25,659.25],[261.63,392,523.25]].forEach((chord,ci)=>{
-      chord.forEach(f=>S(f,bt*1.8,.04,tA+ci*bt*4));
-    });
-    // A段低音（每小节根音）
-    [130.81,164.81,196,261.63].forEach((f,ci)=>S(f,bt*1.8,.12,tA+ci*bt*4));
-    // A段鼓点（每拍）
-    for(let i=0;i<36;i++){const t=tA+i*bt;noise(now+t,i%4===0?.06:.03,i%2===0?.08:.04);}
-
-    // --- 展开B 28~54s：旋律变奏 + 节奏加强 ---
-    const tB=18;
-    const melB=[
-      // 变奏1（2小节）切分节奏
-      [392,bt*.5,.9,0],[523.25,bt*.5,.8,bt*.5],[659.25,bt*.5,.9,bt*1.5],[784,bt*.5,.9,bt*2],
-      [880,bt*.5,.9,bt*2.5],[1046.5,bt*.5,.8,bt*3],[880,bt,bt*1.5,1,bt*3.5],
-      // 变奏2（2小节）双音
-      [523.25,bt,.9,bt*4],[659.25,bt,.8,bt*5],[784,bt*.9,.9,bt*6],[1046.5,bt*.9,1,bt*7],
-      [1174.66,bt,1,bt*8],[1046.5,bt,1,bt*9],[880,bt,bt*1.5,.9,bt*10],
-      // 变奏3（2小节）下行分解和弦
-      [1046.5,bt*.5,.9,bt*12],[880,bt*.5,.8,bt*12.5],[784,bt*.5,.8,bt*13],[659.25,bt*.5,.7,bt*13.5],
-      [523.25,bt*.5,.7,bt*14],[392,bt*.5,.6,bt*14.5],[261.63,bt*1.5,.8,bt*15],
-      // 变奏4（2小节）上行冲击
-      [329.63,bt*.5,.8,bt*16],[392,bt*.5,.8,bt*16.5],[523.25,bt*.5,.9,bt*17],[659.25,bt,1,bt*17.5],
-      [784,bt,1,bt*18.5],[880,bt,1,bt*19.5],[1046.5,bt*1.5,1.1,bt*20.5],
-      // 变奏5（2小节）休止后强起
-      [0,bt*2,0,bt*22],[523.25,bt,.9,bt*24],[659.25,bt,.9,bt*25],[784,bt,.9,bt*26],
-      [659.25,bt,.8,bt*27],[523.25,bt,.7,bt*28],[392,bt*2,.8,bt*29],
-    ];
-    melB.forEach(([f,d,v,t])=>{if(f>0)S(f,d,v*.45,tB+t,'triangle');});
-    // B段和声
-    [[261.63,392,659.25],[329.63,523.25,784],[392,523.25,784],[261.63,392,523.25]].forEach((chord,ci)=>{
-      chord.forEach(f=>S(f,bt*1.9,.05,tB+ci*bt*4));
-    });
-    // B段低音（每拍）
-    [130.81,130.81,164.81,196,196,261.63,261.63,196].forEach((f,ci)=>S(f,bt*.9,.15,tB+ci*bt*2));
-    // B段鼓点（加强）
-    for(let i=0;i<52;i++){
-      const t=tB+i*bt;
-      noise(now+t,i%4===0?.07:.04,i%2===0?.1:.05);
-      if(i%8===0)noise(now+t,.03,.14); // 重拍
-    }
-
-    // --- 高潮C 54~74s：最高音区 + 最强鼓点 ---
-    const tC=44;
-    const melC=[
-      // 高音区主题（4小节）
-      [784,bt,.9,0],[880,bt,1,bt],[1046.5,bt,1,bt*2],[1174.66,bt,1.1,bt*3],
-      [1318.51,bt,1.1,bt*4],[1567.98,bt,1.2,bt*5],[1318.51,bt,1,bt*6],[1174.66,bt*1.5,1,bt*7],
-      // 冲刺（4小节）密集音符
-      [1046.5,bt*.5,1,bt*8],[1174.66,bt*.5,.9,bt*8.5],[1318.51,bt*.5,1,bt*9],[1174.66,bt*.5,.9,bt*9.5],
-      [1046.5,bt*.5,1,bt*10],[880,bt*.5,.9,bt*10.5],[784,bt*.5,.9,bt*11],[659.25,bt,1,bt*11.5],
-      // 双音齐奏（2小节）
-      [1046.5,bt*2,.9,bt*12],[784,bt*2,.7,bt*12],[523.25,bt*2,.6,bt*12],
-      // 终止（2小节）强收
-      [659.25,bt*1.5,1,bt*16],[523.25,bt*1.5,.9,bt*17.5],[392,bt*2.5,1,bt*19],
-    ];
-    melC.forEach(([f,d,v,t])=>S(f,d,v*.45,tC+t,'triangle'));
-    // C段和声（更丰满）
-    [[523.25,659.25,784],[659.25,784,1046.5],[523.25,659.25,784],[261.63,523.25,659.25]].forEach((chord,ci)=>{
-      chord.forEach(f=>S(f,bt*1.9,.06,tC+ci*bt*4));
-    });
-    // C段低音（更强）
-    [130.81,130.81,164.81,196].forEach((f,ci)=>S(f,bt*1.8,.2,tC+ci*bt*4));
-    // C段鼓点（最强）
-    for(let i=0;i<40;i++){
-      const t=tC+i*bt;
-      noise(now+t,i%4===0?.08:.05,i%2===0?.12:.06);
-      if(i%4===0)noise(now+t,.04,.18); // 重击
-    }
-
-    // --- 收尾 74~90s：渐弱，完美衔接开场 ---
-    const tD=64;
-    // 逐渐淡出旋律
-    for(let i=0;i<8;i++){
-      const t=tD+i*bt*2;
-      const v=(8-i)/8*.35;
-      if(i%2===0)S(261.63,bt*1.8,v,'sine');
-      if(i%4===0)noise(now+t,.06,v*.3);
-    }
-    // 最后一个音和开场完全一致（衔接到开头）
-    S(261.63,bt*2,.05,tD+bt*16,'triangle');
-    // 背景垫音渐弱
-    [[261.63,.4,.05],[329.63,.4,.05]].forEach(([f,d,v])=>{
-      osc(f,16,d*.5,now+tD+v,'sine');
-    });
-    // 无缝衔接：结尾的最后一个音 = 开场的第一个音
-    // 90秒结束点 = G2(261.63)，下一轮从头开始也是G2
-
-    return;
+    o.frequency.value=f;o.type='triangle';
+    g.gain.setValueAtTime(_audioState.bgmVolume*.4,_audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,_audioCtx.currentTime+.9);
+    o.start();o.stop(_audioCtx.currentTime+.91);
+    idx++;
+    _bgmTimer=setTimeout(playNext,1000);
   }
+  initAudio();
+  playNext();
 }
+function stopBgm(){if(_bgmTimer){clearTimeout(_bgmTimer);_bgmTimer=null;}}
+
+
 function startBgm(){
   initAudio();
   playFullBgm(G.zodiac);

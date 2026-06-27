@@ -125,6 +125,13 @@ body{background:#07071a;min-height:100vh;min-height:100dvh;display:flex;align-it
 
 /* ===== 游戏主界面 ===== */
 #gamePage{width:100%;padding-bottom:calc(100px + env(safe-area-inset-bottom));}
+.ach-panel{position:fixed;top:0;right:0;width:min(380px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:300;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.ach-panel.open{display:block;transform:translateX(0);}
+.ach-panel::-webkit-scrollbar{width:0;}
+@keyframes achSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes achFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes achToast{0%{transform:translateX(120%);opacity:0}15%{transform:translateX(0);opacity:1}85%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
+
 #topHud{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#0a0a2a,rgba(10,10,42,.92));backdrop-filter:blur(8px);padding:10px 14px 8px;border-bottom:1px solid rgba(255,215,0,.15);margin:-20px -16px 12px;border-radius:0 0 16px 16px;}
 .hud-top{display:flex;align-items:center;justify-content:space-between;}
 .hud-left,.hud-right{display:flex;align-items:center;gap:4px;font-size:18px;}
@@ -406,7 +413,7 @@ function doStart(){
     <div class="hud-top">
       <div class="hud-left"><span id="hudZodiac"></span><span id="hudFate"></span></div>
       <div class="hud-center"><div class="coin-row"><span class="coin-icon">💰</span><span id="hudCoins">0</span></div><div class="cps-row"><span id="hudCps">0/s</span></div></div>
-      <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span></div>
+      <div class="hud-right"><span class="qi-icon">✨</span><span id="hudQi">0</span><button id="achBtn" onclick="openAchPanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:0 0 0 6px;line-height:1;min-width:28px;" title="成就">🏅</button></div>
     </div>
     <div class="hud-bottom"><span id="hudYunshi">⭐ 大吉</span><span id="hudTime">甲辰时·卯时</span></div>
   </div>
@@ -428,6 +435,7 @@ function doStart(){
   <div id="mergeFlash" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.7);z-index:300;pointer-events:none;font-size:60px;align-items:center;justify-content:center;">
     <span id="mergeText">⭐</span>
   </div>
+  <div id="achPanel" class="ach-panel"></div>
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
 </div>
 
@@ -562,6 +570,7 @@ function doDrop(src,dst){
       showMergeFlash(LICON[s.level+1]);
       showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
       saveGame();renderGrid();updateHud();
+      checkAch();
     }else{s.idx=dst;t.idx=src;saveGame();renderGrid();}
   }else{s.idx=dst;saveGame();renderGrid();}
 }
@@ -640,7 +649,7 @@ function startGame(){
   if(G.fate===2)document.getElementById('btnFree').style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
-function initGame(){
+function initGame(){ initAch();
   loadGame();
   if(G.created){
     document.getElementById('loginWrap').style.display='none';
@@ -718,6 +727,7 @@ function doSummon(level){
   G.dragons.push({id:String(nextId++),level,idx});
   G.summonCount++;
   saveGame();renderGrid();updateHud();
+  checkAch();
   // 改为触发翻牌动画
   pendingSummonLevel=level;
   summonRevealed=false;
@@ -728,6 +738,89 @@ function doSummon(level){
 
 window.addEventListener('DOMContentLoaded',initGame);
 
+
+
+// ===== 成就系统 =====
+const ACHIEVEMENTS=[
+  {id:'r1',type:'rank',title:'初窥',desc:'拥有3种不同灵兽',icon:'🔰',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=3},
+  {id:'r2',type:'rank',title:'小成',desc:'拥有6种不同灵兽',icon:'🥉',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=6},
+  {id:'r3',type:'rank',title:'大成',desc:'拥有10种不同灵兽',icon:'🥈',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
+  {id:'r4',type:'rank',title:'天师',desc:'拥有14种不同灵兽',icon:'🏆',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
+  {id:'s1',type:'summon',title:'初出茅庐',desc:'召唤1次',icon:'🐣',cond:g=>g.summonCount>=1},
+  {id:'s2',type:'summon',title:'小试牛刀',desc:'召唤10次',icon:'🐥',cond:g=>g.summonCount>=10},
+  {id:'s3',type:'summon',title:'渐入佳境',desc:'召唤50次',icon:'🐤',cond:g=>g.summonCount>=50},
+  {id:'s4',type:'summon',title:'龙腾四海',desc:'召唤200次',icon:'🐉',cond:g=>g.summonCount>=200},
+  {id:'s5',type:'summon',title:'凤鸣九天',desc:'召唤1000次',icon:'🔥',cond:g=>g.summonCount>=1000},
+  {id:'m1',type:'merge',title:'初次融合',desc:'合成1次',icon:'⚡',cond:g=>g.mergeCount>=1},
+  {id:'m2',type:'merge',title:'融合达人',desc:'合成50次',icon:'⚡⚡',cond:g=>g.mergeCount>=50},
+  {id:'m3',type:'merge',title:'融合宗师',desc:'合成200次',icon:'⚡⚡⚡',cond:g=>g.mergeCount>=200},
+  {id:'c1',type:'coin',title:'日进斗金',desc:'累计获得10K金币',icon:'💰',cond:g=>g.coins>=10000},
+  {id:'c2',type:'coin',title:'富甲一方',desc:'累计获得100K金币',icon:'💎',cond:g=>g.coins>=100000},
+  {id:'c3',type:'coin',title:'富可敌国',desc:'累计获得1M金币',icon:'👑',cond:g=>g.coins>=1000000},
+  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计获得1B金币',icon:'🌌',cond:g=>g.coins>=1000000000},
+  {id:'v1',type:'collect',title:'灵兽收藏家',desc:'拥有5种等级',icon:'📖',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=5},
+  {id:'v2',type:'collect',title:'灵兽大师',desc:'拥有10种等级',icon:'📚',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
+  {id:'v3',type:'collect',title:'灵兽宗师',desc:'拥有14种等级',icon:'📜',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
+];
+const RANKS=[
+  {title:'初窥',icon:'🔰',min:3,color:'#aaa'},
+  {title:'小成',icon:'🥉',min:6,color:'#cd7f32'},
+  {title:'大成',icon:'🥈',min:10,color:'#c0c0c0'},
+  {title:'天师',icon:'🏆',min:14,color:'#ffd700'},
+];
+let _unlocked=new Set(JSON.parse(localStorage.getItem(SAVE_KEY+'_ach')||'[]'));
+function saveAch(){localStorage.setItem(SAVE_KEY+'_ach',JSON.stringify([..._unlocked]));}
+function checkAch(){
+  if(!G.created)return;
+  ACHIEVEMENTS.forEach(a=>{
+    if(!_unlocked.has(a.id)&&a.cond(G)){
+      _unlocked.add(a.id);saveAch();
+      const el=document.createElement('div');
+      el.style.cssText='position:fixed;top:56px;right:12px;background:linear-gradient(135deg,#1a1a3a,#2a1a4a);border:1px solid #ffd700;border-radius:14px;padding:12px 16px;z-index:999;animation:achToast 3s ease forwards;min-width:180px;';
+      el.innerHTML='<div style="font-size:22px;text-align:center;margin-bottom:6px;">'+a.icon+'</div><div style="font-size:13px;font-weight:700;color:#ffd700;text-align:center;">🏅 成就达成</div><div style="font-size:13px;font-weight:600;color:#fff;text-align:center;margin-top:4px;">'+a.title+'</div><div style="font-size:10px;color:#888;text-align:center;margin-top:2px;">'+a.desc+'</div>';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),3100);
+    }
+  });
+}
+function getRank(){
+  let r=RANKS[0];const cnt=new Set(G.dragons.map(d=>d.level)).size;
+  RANKS.forEach(rk=>{if(cnt>=rk.min)r=rk;});return r;
+}
+function renderAch(){
+  const p=document.getElementById('achPanel');
+  const rank=getRank();
+  const done=_unlocked.size,total=ACHIEVEMENTS.length;
+  const pct=Math.round(done/total*100);
+  const cnt=new Set(G.dragons.map(d=>d.level)).size;
+  p.innerHTML='<div style="padding:20px 16px 80px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
+      '<div style="font-size:16px;font-weight:700;">🏅 成就</div>'+
+      '<div style="font-size:12px;color:#888;">'+done+'/'+total+'</div>'+
+      '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeAchPanel()">✕</div>'+
+    '</div>'+
+    '<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center;">'+
+      '<div style="font-size:40px;margin-bottom:4px;">'+rank.icon+'</div>'+
+      '<div style="font-size:18px;font-weight:700;color:'+rank.color+';">'+rank.title+'</div>'+
+      '<div style="font-size:11px;color:#888;margin-top:4px;">已集齐 '+cnt+' 种灵兽 · '+pct+'% 完成</div>'+
+      '<div style="margin-top:10px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">'+
+        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:3px;"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+    ACHIEVEMENTS.map(a=>{
+      const d=_unlocked.has(a.id);
+      return '<div style="background:'+(d?'rgba(255,215,0,.06)':'rgba(255,255,255,.02)')+';border:1px solid '+(d?'rgba(255,215,0,.25)':'rgba(255,255,255,.06)')+';border-radius:12px;padding:12px 8px;text-align:center;'+(d?'':'opacity:.4')+'">'+
+        '<div style="font-size:26px;margin-bottom:4px;">'+a.icon+'</div>'+
+        '<div style="font-size:12px;font-weight:600;color:'+(d?'#ffd700':'#666')+';">'+a.title+'</div>'+
+        '<div style="font-size:10px;color:#555;margin-top:3px;">'+a.desc+'</div>'+
+      '</div>';
+    }).join('')+
+    '</div></div>';
+}
+function openAchPanel(){renderAch();document.getElementById('achPanel').classList.add('open');}
+function closeAchPanel(){document.getElementById('achPanel').classList.remove('open');}
+function initAch(){if(G.created)setTimeout(checkAch,500);}
 </script>
 </body>
 </html>

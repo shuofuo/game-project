@@ -191,7 +191,7 @@ function doDrop(src,dst){
       showMergeFlash(LICON[s.level+1]);
       showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
       if(G.zodiac>=0) playSound('merge_z'+G.zodiac);
-      saveGame();renderGrid();updateHud();
+      saveGame();renderGrid();updateHud();try{updateHeroSection();}catch(e){}
       checkAch();
     }else{s.idx=dst;t.idx=src;saveGame();renderGrid();}
   }else{s.idx=dst;saveGame();renderGrid();}
@@ -416,3 +416,103 @@ function stopBgm(){
 
 function startBgm(){initAudio();playFullBgm(G.zodiac);}
 
+
+// ===== 主页滑动切换 =====
+let _inGridMode = false;
+let _touchStartY = 0;
+
+function initHomeGesture(){
+  const hero = document.getElementById('heroSection');
+  if(!hero) return;
+  hero.addEventListener('touchstart', e => {
+    _touchStartY = e.touches[0].clientY;
+  }, {passive: true});
+  hero.addEventListener('touchend', e => {
+    const dy = _touchStartY - e.changedTouches[0].clientY;
+    if(Math.abs(dy) < 30) return;
+    if(dy > 0 && !_inGridMode) enterGridMode();
+    else if(dy < 0 && _inGridMode) exitGridMode();
+  }, {passive: true});
+  hero.addEventListener('click', e => {
+    if(e.target.classList.contains('ht')) {
+      // 点击缩略图也进入网格
+      if(!_inGridMode) enterGridMode();
+    }
+  });
+}
+
+function enterGridMode(){
+  _inGridMode = true;
+  const hero = document.getElementById('heroSection');
+  const grid = document.getElementById('dragonGrid');
+  if(!hero || !grid) return;
+  hero.style.transition = 'opacity .3s, transform .3s';
+  hero.style.opacity = '0';
+  hero.style.transform = 'scale(.95)';
+  setTimeout(() => {
+    hero.style.display = 'none';
+    grid.style.display = 'grid';
+    grid.style.opacity = '0';
+    grid.style.transition = 'opacity .3s';
+    grid.style.opacity = '1';
+    _inGridMode = true;
+    markMergeable();
+  }, 300);
+}
+
+function exitGridMode(){
+  _inGridMode = false;
+  const hero = document.getElementById('heroSection');
+  const grid = document.getElementById('dragonGrid');
+  if(!hero || !grid) return;
+  grid.style.transition = 'opacity .3s, transform .3s';
+  grid.style.opacity = '0';
+  setTimeout(() => {
+    grid.style.display = 'none';
+    hero.style.display = 'flex';
+    hero.style.opacity = '0';
+    hero.style.transform = 'scale(1.05)';
+    setTimeout(() => {
+      hero.style.opacity = '1';
+      hero.style.transform = 'scale(1)';
+    }, 20);
+    updateHeroSection();
+  }, 300);
+}
+
+function updateHeroSection(){
+  const heroIcon = document.getElementById('heroIcon');
+  const heroLv = document.getElementById('heroLv');
+  const heroCps = document.getElementById('heroCps');
+  const heroFate = document.getElementById('heroFateTag');
+  const heroThumbs = document.getElementById('heroThumbs');
+  if(!heroIcon) return;
+  if(!G.dragons || G.dragons.length === 0){
+    heroIcon.textContent = '🐣';
+    heroLv.textContent = 'Lv.1';
+    heroCps.textContent = '+0/s';
+    return;
+  }
+  const best = G.dragons.reduce((a,b) => (a.level||0) >= (b.level||0) ? a : b);
+  const icon = LICON[best.level] || '🐣';
+  const cps = COIN_S[best.level] || 0;
+  heroIcon.textContent = icon;
+  heroIcon.style.fontSize = Math.min(100, 60 + best.level * 4) + 'px';
+  heroLv.textContent = 'Lv.' + best.level;
+  heroCps.textContent = '+' + cps + '/s';
+  if(heroFate){
+    const fateNames = ['','木命','火命','土命','金命','水命'];
+    const fate = fateNames[G.fate] || '';
+    const yun = YUN_NAMES[(G.currentFate||3)-1] || '中平';
+    heroFate.textContent = fate + ' · ' + yun;
+  }
+  if(heroThumbs){
+    // 取所有灵兽从高到低排前8个
+    const sorted = [...G.dragons].sort((a,b) => (b.level||0) - (a.level||0)).slice(0,8);
+    heroThumbs.innerHTML = sorted.map(d => {
+      const icon2 = LICON[d.level] || '🐣';
+      const opacity = 0.3 + (d.level / 25) * 0.7;
+      return `<div class="ht" style="font-size:28px;opacity:${opacity.toFixed(1)};">${icon2}</div>`;
+    }).join('');
+  }
+}

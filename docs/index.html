@@ -760,21 +760,15 @@ function playFullBgm(z){
 
   // ===== 鼠BGM 90秒完整作品（5段落无缝循环）=====
   if(z===0){
-    // 测试提示音：立刻响一个可闻的音
-    const _to=_audioCtx.createOscillator(),_tg=_audioCtx.createGain();
-    _to.connect(_tg);_tg.connect(_audioCtx.destination);_to.frequency.value=523.25;
-    _tg.gain.setValueAtTime(.25,_audioCtx.currentTime);
-    _tg.gain.exponentialRampToValueAtTime(.001,_audioCtx.currentTime+1.5);
-    _to.start();_to.stop(_audioCtx.currentTime+1.51);
-
     const bpm=120,bt=.5; // 120BPM, .5秒/拍
-    const D=0; // 不延迟
-    const S=(f,d,v,t,type='sine')=>osc(f,d,v,t+D,type,.04);
+    const D=0; // 所有声音从0秒立刻开始
+    const S=(f,d,v,t,type='sine')=>osc(f,d,v,t,type,.04);
 
     // --- 开场 0~10s：氛围铺底，渐入 ---
-    // 背景和声垫音（C-G-D-E宫调式和弦）
-    [[261.63,.4,.05],[329.63,.4,.05],[392,.4,.05],[523.25,.4,.05]].forEach(([f,d,v])=>{
-      osc(f,10,d,now+v+D,'sine');osc(f*2,10,d*.5,now+v+D+.01,'triangle');
+    // 和声垫音，立刻以中等音量开始
+    [[261.63,10,.08],[329.63,10,.06],[392,10,.05]].forEach(([f,dur,v])=>{
+      osc(f,dur,v,0,'sine');
+      osc(f*2,dur,v*.4,0,'triangle');
     });
     // 轻柔节拍（每2拍一次，渐强）
     for(let i=0;i<20;i++){const t=i*bt*2;const v=.02+i*.001;noise(now+t,.04,Math.min(v,.08));}
@@ -782,7 +776,7 @@ function playFullBgm(z){
     for(let i=0;i<10;i++)S(130.81,bt*1.8,.08,i*bt*2+2);
 
     // --- 主段A 10~28s：轻快主旋律（主题完整呈现）---
-    const tA=10;
+    const tA=0;
     const melA=[
       // 主题句1（2小节）G宫五声音阶上行
       [261.63,bt,.8,0],[329.63,bt,.8,bt],[392,bt,.8,bt*2],[523.25,bt*.9,.9,bt*3],
@@ -806,7 +800,7 @@ function playFullBgm(z){
     for(let i=0;i<36;i++){const t=tA+i*bt;noise(now+t,i%4===0?.06:.03,i%2===0?.08:.04);}
 
     // --- 展开B 28~54s：旋律变奏 + 节奏加强 ---
-    const tB=28;
+    const tB=18;
     const melB=[
       // 变奏1（2小节）切分节奏
       [392,bt*.5,.9,0],[523.25,bt*.5,.8,bt*.5],[659.25,bt*.5,.9,bt*1.5],[784,bt*.5,.9,bt*2],
@@ -839,7 +833,7 @@ function playFullBgm(z){
     }
 
     // --- 高潮C 54~74s：最高音区 + 最强鼓点 ---
-    const tC=54;
+    const tC=44;
     const melC=[
       // 高音区主题（4小节）
       [784,bt,.9,0],[880,bt,1,bt],[1046.5,bt,1,bt*2],[1174.66,bt,1.1,bt*3],
@@ -867,7 +861,7 @@ function playFullBgm(z){
     }
 
     // --- 收尾 74~90s：渐弱，完美衔接开场 ---
-    const tD=74;
+    const tD=64;
     // 逐渐淡出旋律
     for(let i=0;i<8;i++){
       const t=tD+i*bt*2;

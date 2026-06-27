@@ -461,6 +461,26 @@ const ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗
 const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
 const YUN_COIN   = [-.5,-.2,0,.3,.5];
 
+let _audioCtx = null;
+let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8 };
+
+function initAudio() {
+  if (_audioCtx) return;
+  try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+}
+
+function playSound(type) {
+  if (!_audioCtx || _audioState.muted) return;
+  try {
+    const osc = _audioCtx.createOscillator();
+    const gain = _audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(_audioCtx.destination);
+    osc.start();
+    osc.stop(_audioCtx.currentTime + 0.15);
+  } catch(e) {}
+}
+
 let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
 let nextId = 1;
 let cpsTimer = null, qiTimer = null;

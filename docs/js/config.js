@@ -207,29 +207,41 @@ function endDrag(e){
   document.removeEventListener('mouseup',endDrag);
   document.removeEventListener('touchmove',onDrag);
   document.removeEventListener('touchend',endDrag);
-  dragCard.classList.remove('dragging');
-  dragCard.style.left='';dragCard.style.top='';dragCard.style.width='';dragCard.style.height='';dragCard.style.position='';dragCard.style.padding='';dragCard.style.display='';dragCard.style.alignItems='';dragCard.style.justifyContent='';
-  // 清除所有 drop-target 高亮
   document.querySelectorAll('.drop-target').forEach(c=>{c.classList.remove('drop-target');c.style.borderColor='';c.style.boxShadow='';});
-  const cx=e.changedTouches?e.changedTouches[0].clientX:e.clientX;
-  const cy=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
+
+  // 用拖拽卡片自身的实时坐标（卡片已 position:fixed，卡片中心即鼠标按下时的坐标）
+  // 兼容：若 left/top 仍是像素值则直接 parse，否则 fallback 到鼠标坐标
+  let cx, cy;
+  if(dragCard.style.left&&dragCard.style.top){
+    cx=parseFloat(dragCard.style.left);
+    cy=parseFloat(dragCard.style.top);
+  } else {
+    cx=e.changedTouches?e.changedTouches[0].clientX:e.clientX;
+    cy=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
+  }
+  // 找最近的格子（拖拽卡片中心位置匹配，120px容差）
   const cells=document.querySelectorAll('.d-cell');
   let target=null, minDist=Infinity;
-  // 用最近单元格算法：找最近的格子（扩大碰撞半径到60px容差）
   cells.forEach(cell=>{
     const r=cell.getBoundingClientRect();
-    const cx2=r.left+r.width/2, cy2=r.top+r.height/2;
-    const d=Math.hypot(cx-cx2,cy-cy2);
-    if(d<minDist&&d<80){minDist=d;target=cell;}
+    const ccx=r.left+r.width/2, ccy=r.top+r.height/2;
+    const d=Math.hypot(cx-ccx,cy-ccy);
+    if(d<minDist&&d<120){minDist=d;target=cell;}
   });
   if(target){
     const dst=parseInt(target.dataset.idx);
     if(dst!==srcIdx){
       target.classList.add('drop-target');
-      setTimeout(()=>target&&target.classList.remove('drop-target'),600);
+      setTimeout(()=>target&&target.classList.remove('drop-target'),800);
       doDrop(srcIdx,dst);
     }
   }
+  // 恢复卡片原位（动画消失）
+  dragCard.style.transition='left .15s,top .15s,opacity .15s';
+  dragCard.classList.remove('dragging');
+  dragCard.style.left='';dragCard.style.top='';dragCard.style.transition='';
+  dragCard.style.width='';dragCard.style.height='';dragCard.style.position='';
+  dragCard.style.padding='';dragCard.style.display='';dragCard.style.alignItems='';dragCard.style.justifyContent='';
   dragCard=null;dragData=null;srcIdx=-1;
 }
 function doDrop(src,dst){
@@ -572,37 +584,24 @@ function updateHeroSection(){
     heroFate.textContent = fate + ' · ' + yun;
   }
   if(heroThumbs){
-    // 进化链缩略图：当前 + 下一级（共2个）
     const bestLvl = best.level || 1;
     const nextLvl = Math.min(bestLvl + 1, 15);
-    const currentIcon = LICON[bestLvl] || '?';
-    const nextIcon   = LICON[nextLvl]  || '?';
-    const nextNew    = nextLvl > bestLvl;
-    const nextCps   = COIN_S[nextLvl] || 0;
+    const ci = LICON[bestLvl] || '?';
+    const ni = LICON[nextLvl]  || '?';
+    const nextNew = nextLvl > bestLvl;
+    const nextCps = COIN_S[nextLvl] || 0;
     heroThumbs.innerHTML = `
-      <div class="thumb-current" onclick="if(!_inGridMode)enterGridMode()" style="
-        display:flex;flex-direction:column;align-items:center;gap:2px;
-        padding:8px 14px;border-radius:14px;
-        background:rgba(255,215,0,.07);border:1.5px solid rgba(255,215,0,.25);
-        cursor:pointer;transition:all .15s;
-        font-size:34px;line-height:1;min-width:60px;
-      " onmouseover="this.style.background='rgba(255,215,0,.12)'" onmouseout="this.style.background='rgba(255,215,0,.07)'">
-        <span>${currentIcon}</span>
-        <span style="font-size:9px;color:rgba(255,215,0,.7);font-weight:600;">Lv${bestLvl}</span>
-        <span style="font-size:8px;color:rgba(255,215,0,.4);">点击管理</span>
+      <div onclick="if(!_inGridMode)enterGridMode()" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'">
+        <span>${ci}</span>
+        <span style="font-size:9px;color:rgba(255,215,0,.65);font-weight:600;">Lv${bestLvl}</span>
       </div>
-      <div style="display:flex;align-items:center;font-size:14px;color:rgba(255,255,255,.2);align-self:center;margin:0 4px;">→</div>
-      <div class="thumb-next" onclick="previewNextLevel(${nextLvl},${nextCps},'${nextIcon}')" style="
-        display:flex;flex-direction:column;align-items:center;gap:2px;
-        padding:8px 14px;border-radius:14px;
-        background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);
-        opacity:${nextNew ? 0.75 : 0.25};transition:all .2s;cursor:pointer;
-        font-size:30px;line-height:1;min-width:60px;
-      " onmouseover="this.style.background='rgba(126,184,255,.08)';this.style.borderColor='rgba(126,184,255,.3)'" onmouseout="this.style.background='rgba(255,255,255,.02)';this.style.borderColor='rgba(255,255,255,.06)'">
-        <span style="${nextNew ? 'filter:none' : 'filter:grayscale(1);opacity:.4'}">${nextIcon}</span>
+      <div style="display:flex;align-items:center;font-size:11px;color:rgba(255,255,255,.15);align-self:center;margin:0 4px;">→</div>
+      <div onclick="previewNextLevel(${nextLvl},${nextCps},'${ni}')" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;opacity:${nextNew?0.7:0.25};font-size:24px;line-height:1;" onmouseover="if(${nextNew}){this.style.background='rgba(126,184,255,.08)';this.style.opacity='0.9'}" onmouseout="this.style.background='transparent';this.style.opacity='${nextNew?0.7:0.25}'">
+        <span style="filter:${nextNew?'none':'grayscale(1)'}">${ni}</span>
         <span style="font-size:9px;color:${nextNew?'rgba(126,184,255,.7)':'#444'};font-weight:600;">Lv${nextLvl}</span>
-        <span style="font-size:8px;color:${nextNew?'rgba(126,184,255,.4)':'#333'};${nextNew?'':'display:none'}">+${nextCps}/s</span>
+        ${nextNew?'<span style="font-size:8px;color:rgba(126,184,255,.4);">+'+nextCps+'/s</span>':''}
       </div>
     `;
   }
 }
+

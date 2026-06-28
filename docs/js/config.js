@@ -91,9 +91,11 @@ function previewNextLevel(lvl, cps, icon){
       <div>⚡ 合成成功率：${getCultBonus ? (100+getCultBonus().mergeBonus*100).toFixed(0)+'%' : '100%'}</div>
       <div>💰 升级后金币产出大幅提升</div>
     </div>
-    <button onclick="this.closest('[style]').remove()" style="width:100%;padding:12px;border-radius:22px;background:transparent;border:1px solid rgba(255,255,255,.2);color:#888;font-size:14px;cursor:pointer;">知道了</button>
+    <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:16px;">点击任意处关闭</div>
   </div>`;
-  el.onclick = e => { if(e.target===el) el.remove(); };
+  // 点击任意处或按任意键关闭，关闭后退出网格模式返回主页面
+  el.onclick = e => { el.remove(); if(_inGridMode) exitGridMode(); };
+  el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
 let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
@@ -177,7 +179,7 @@ function renderGridToInner(){}
 
 function setupDrag(card,d){
   card.addEventListener('mousedown',e=>startDrag(e,card,d));
-  card.addEventListener('touchstart',e=>{e.preventDefault();startDrag(e,card,d);},{passive:false});
+  card.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();startDrag(e,card,d);},{passive:false});
 }
 let dragCard=null,dragData=null,srcIdx=-1;
 function startDrag(e,card,d){
@@ -228,21 +230,18 @@ function endDrag(e){
     const d=Math.hypot(cx-ccx,cy-ccy);
     if(d<minDist&&d<120){minDist=d;target=cell;}
   });
-  if(target){
-    const dst=parseInt(target.dataset.idx);
-    if(dst!==srcIdx){
-      target.classList.add('drop-target');
-      setTimeout(()=>target&&target.classList.remove('drop-target'),800);
-      doDrop(srcIdx,dst);
-    }
-  }
-  // 恢复卡片原位（动画消失）
-  dragCard.style.transition='left .15s,top .15s,opacity .15s';
+  // 保存 srcIdx，因为 dragCard 会在 renderGrid 里被重建
+  const _src=srcIdx, _dst=target?parseInt(target.dataset.idx):null;
+  // 先清掉 dragCard（合成后 renderGrid 会重建整个网格）
+  dragCard.style.transition='opacity .12s';
   dragCard.classList.remove('dragging');
   dragCard.style.left='';dragCard.style.top='';dragCard.style.transition='';
   dragCard.style.width='';dragCard.style.height='';dragCard.style.position='';
   dragCard.style.padding='';dragCard.style.display='';dragCard.style.alignItems='';dragCard.style.justifyContent='';
   dragCard=null;dragData=null;srcIdx=-1;
+  if(_dst!==null&&_dst!==_src){
+    doDrop(_src,_dst);
+  }
 }
 function doDrop(src,dst){
   const s=G.dragons.find(d=>d.idx===src);

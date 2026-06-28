@@ -133,9 +133,9 @@ function playFullBgm(z){
     // 主音
     playNote(f,dur,Vb*.4,inst.main);
     // 副音（叠音）
-    if(inst.sub>0)playNote(f*Math.pow(2,inst.sub/12),dur,V*.18,'sine');
+    if(inst.sub>0)playNote(f*Math.pow(2,inst.sub/12),dur,Vb*.18,'sine');
     // 和声
-    if(inst.harm)playNote(f*Math.pow(2,4/12),dur*.7,V*.12,'sine');
+    if(inst.harm)playNote(f*Math.pow(2,4/12),dur*.7,Vb*.12,'sine');
     _bgmIdx++;
     _bgmTimer=setTimeout(tick,dur*860);
   }

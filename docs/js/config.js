@@ -518,9 +518,11 @@ function initHomeGesture(){
     if(dy > 0 && !_inGridMode) enterGridMode();
     else if(dy < 0 && _inGridMode) exitGridMode();
   }, {passive: true});
+  // 主页点击缩略图 → 进入网格（不改影响灵兽点击事件）
   hero.addEventListener('click', e => {
-    if(e.target.classList.contains('ht')) {
-      // 点击缩略图也进入网格
+    const t = e.target;
+    // 点击缩略图图标区，进入网格
+    if(t.classList.contains('ht') || (t.parentElement && t.parentElement.classList.contains('ht'))) {
       if(!_inGridMode) enterGridMode();
     }
   });
@@ -580,11 +582,20 @@ function updateHeroSection(){
   const heroFate = document.getElementById('heroFateTag');
   const heroThumbs = document.getElementById('heroThumbs');
   if(!heroIcon) return;
+  // 无灵兽时：初始化两只 + 提示召唤
   if(!G.dragons || G.dragons.length === 0){
-    heroIcon.textContent = '🐣';
-    if(heroLv)   heroLv.textContent   = 'Lv.1';
-    if(heroCps)  heroCps.textContent  = '+0/s';
-    return;
+    G.dragons = [{id:String(nextId++),level:1,idx:12},{id:String(nextId++),level:1,idx:13}];
+    saveGame();
+    renderGrid();
+    // 没有灵兽时显示引导提示
+    if(heroThumbs){
+      heroThumbs.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:rgba(255,215,0,.4);padding:4px 12px;letter-spacing:1px;">
+          <span style="font-size:22px;margin-bottom:2px;">✨</span>
+          <span>首次召唤获得灵兽</span>
+          <span style="font-size:9px;opacity:.6;">点击下方召唤按钮</span>
+        </div>`;
+    }
   }
   const best = G.dragons.reduce((a,b) => (a.level||0) >= (b.level||0) ? a : b);
   const icon = LICON[best.level] || '🐣';
@@ -623,7 +634,7 @@ function updateHeroSection(){
     const nextNew = nextLvl > bestLvl;
     const nextCps = COIN_S[nextLvl] || 0;
     heroThumbs.innerHTML = `
-      <div onclick="if(!_inGridMode)enterGridMode()" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'">
+      <div class="ht" onclick="if(!_inGridMode)enterGridMode()" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'">
         <span>${ci}</span>
         <span style="font-size:9px;color:rgba(255,215,0,.65);font-weight:600;">Lv${bestLvl}</span>
       </div>

@@ -496,7 +496,7 @@ function doStart(){
   </div>
 
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
-  <div id="middleRow" style="flex:1;display:flex;align-items:stretch;min-height:0;overflow:hidden;position:relative;margin:0;">
+  <div id="middleRow" style="flex:1;display:flex;align-items:center;min-height:0;overflow:hidden;position:relative;margin:0;">
     <!-- 左侧功能按钮（竖排） -->
     <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:52px;padding-bottom:90px;">
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
@@ -505,7 +505,7 @@ function doStart(){
     </div>
 
     <!-- 灵兽中央区域 -->
-    <div id="heroSection" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:0 16px;">
+    <div id="heroSection" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:8px 16px;">
       <!-- 命格标签 -->
       <div id="heroFateTag" style="font-size:12px;color:rgba(255,255,255,.5);letter-spacing:4px;text-transform:uppercase;margin-bottom:8px;font-weight:600;">木命 · 大吉</div>
       <!-- 光环 -->
@@ -541,8 +541,8 @@ function doStart(){
   </div><!-- /中间行 -->
 
   <!-- ===== 第三行：底部召唤栏 ===== -->
-  <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 32px 20px;">
-    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:90px;padding:10px 16px;" title="金币召唤">
+  <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
+    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
       <span style="font-size:18px;">💰</span>
       <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
     </button>
@@ -563,7 +563,7 @@ function doStart(){
   <div id="achPanel" class="ach-panel"></div>
   <div id="settingsPanel" class="panel-overlay">
     <div class="panel-box">
-      <div class="panel-header">⚙️ 声音设置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
+      <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
       <div style="padding:20px 20px 24px;">
         <div style="margin-bottom:18px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">

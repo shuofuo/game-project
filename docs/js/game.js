@@ -17,6 +17,17 @@ function startGame(){
   el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
+function resetGame(){
+  if(!confirm('确定要重新开始吗？所有数据将被清除！'))return;
+  localStorage.removeItem(SAVE_KEY || 'sxgame_v2');
+  G.zodiac=-1;G.fate=-1;G.created=false;
+  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;
+  G.freeLeft=3;G.currentFate=3;G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};
+  G.lastQiTime=Date.now();G.heroAnimIdx=0;
+  saveGame();
+  location.reload();
+}
+
 function initGame(){ initAch(); checkFateDaily();
   loadGame();
   try{loadSettings();}catch(e){}

@@ -13,8 +13,6 @@ const LANIM_NAMES = [
   '天命','天命',                    // Lv11-12 神话
   '永恒','永恒','永恒'             // Lv13-15 终极
 ];
-// 当前灵兽动画索引（点击切换，持久化到存档）
-if(typeof G.heroAnimIdx === 'undefined') G.heroAnimIdx = 0;
 // 点击主页灵兽 → 切换动作
 function cycleHeroAnim(){
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
@@ -117,7 +115,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),heroAnimIdx:0};
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
@@ -364,12 +362,12 @@ function playBgmNote(freq,dur,vol,t){
   o.start(_audioCtx.currentTime+(t||0));
   o.stop(_audioCtx.currentTime+(t||0)+dur+.05);
 }
-let _bgmTimer=null,_bgmIdx=0,_bgmZ=-1;
+let __bgmTimer=null,__bgmIdx=0,__bgmZ=-1;
 
 // 乐器音色：主音色+副音色组合，模仿真实乐器
 // sub: 副旋律相对主音的音程（0=无, 12=八度, 7=五度, 5=四度）
 // harm: 和声叠音（上方三度/六度等）
-const INSTRUMENTS=[
+const __INSTRUMENTS=[
   {name:'古筝',main:'triangle',sub:12,harm:false},   // 0鼠-清脆跳进
   {name:'低音鼓',main:'sine',sub:0,harm:false},      // 1牛-沉稳
   {name:'铜管',main:'sawtooth',sub:0,harm:false},    // 2虎-威严
@@ -473,15 +471,15 @@ const ZODIAC_BGM=[
 
 function playFullBgm(z){
   if(!_audioCtx||z<0)return;
-  stopBgm();_bgmZ=z;
+  stopBgm();__bgmZ=z;
   const track=ZODIAC_BGM[z]||ZODIAC_BGM[4];
-  const inst=INSTRUMENTS[track.inst]||INSTRUMENTS[0];
+  const inst=__INSTRUMENTS[track.inst]||__INSTRUMENTS[0];
   _bgmIdx=0;
   function tick(){
     if(!_audioCtx||_audioState.muted){stopBgm();return;}
-    if(_bgmZ!==z)return;
+    if(__bgmZ!==z)return;
     const V=_audioState.bgmVolume;
-    const f=track.notes[_bgmIdx%track.notes.length];
+    const f=track.notes[__bgmIdx%track.notes.length];
     const dur=(60/track.bpm)*(1+(Math.random()-.5)*.12); // BPM+时值随机微扰12%
     // 主音
     playNote(f,dur,V*.4,inst.main);
@@ -489,16 +487,16 @@ function playFullBgm(z){
     if(inst.sub>0)playNote(f*Math.pow(2,inst.sub/12),dur,V*.18,'sine');
     // 和声
     if(inst.harm)playNote(f*Math.pow(2,4/12),dur*.7,V*.12,'sine');
-    _bgmIdx++;
-    _bgmTimer=setTimeout(tick,dur*860);
+    __bgmIdx++;
+    __bgmTimer=setTimeout(tick,dur*860);
   }
   initAudio();
   tick();
 }
 
 function stopBgm(){
-  if(_bgmTimer){clearTimeout(_bgmTimer);_bgmTimer=null;}
-  _bgmIdx=0;_bgmZ=-1;
+  if(__bgmTimer){clearTimeout(__bgmTimer);__bgmTimer=null;}
+  __bgmIdx=0;__bgmZ=-1;
 }
 
 function startBgm(){initAudio();playFullBgm(G.zodiac);}

@@ -16,7 +16,7 @@ let _bgmTimer=null,_bgmIdx=0,_bgmZ=-1;
 // 乐器音色：主音色+副音色组合，模仿真实乐器
 // sub: 副旋律相对主音的音程（0=无, 12=八度, 7=五度, 5=四度）
 // harm: 和声叠音（上方三度/六度等）
-const INSTRUMENTS=[
+const _INSTRUMENTS=[
   {name:'古筝',main:'triangle',sub:12,harm:false},   // 0鼠-清脆跳进
   {name:'低音鼓',main:'sine',sub:0,harm:false},      // 1牛-沉稳
   {name:'铜管',main:'sawtooth',sub:0,harm:false},    // 2虎-威严
@@ -45,7 +45,7 @@ function playNote(f,dur,vol,type){
   o.start(now);o.stop(now+dur+.02);
 }
 
-const ZODIAC_BGM=[
+const _ZODIAC_BGM=[
   // 0鼠-轻快古筝（BPM90）
   {bpm:90,inst:0,notes:[
     261.63,329.63,392,523.25,329.63,392,523.25,392,261.63,392,523.25,659.25,
@@ -122,16 +122,16 @@ function playFullBgm(z){
   if(!_audioCtx||z<0)return;
   stopBgm();_bgmZ=z;
   const track=ZODIAC_BGM[z]||ZODIAC_BGM[4];
-  const inst=INSTRUMENTS[track.inst]||INSTRUMENTS[0];
+  const inst=_INSTRUMENTS[track.inst]||_INSTRUMENTS[0];
   _bgmIdx=0;
   function tick(){
     if(!_audioCtx||_audioState.muted){stopBgm();return;}
     if(_bgmZ!==z)return;
-    const V=_audioState.bgmVolume;
+    const Vb=_audioState.bgmVolume;
     const f=track.notes[_bgmIdx%track.notes.length];
     const dur=(60/track.bpm)*(1+(Math.random()-.5)*.12); // BPM+时值随机微扰12%
     // 主音
-    playNote(f,dur,V*.4,inst.main);
+    playNote(f,dur,Vb*.4,inst.main);
     // 副音（叠音）
     if(inst.sub>0)playNote(f*Math.pow(2,inst.sub/12),dur,V*.18,'sine');
     // 和声

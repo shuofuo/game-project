@@ -15,11 +15,16 @@ const LANIM_NAMES = [
 ];
 // 点击主页灵兽 → 切换动作
 function cycleHeroAnim(){
+  // 点击灵兽显示品阶介绍（替代动作切换）
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
-  const maxIdx = Math.min(G.heroAnimIdx + 1, 3); // 每个等级最多4种动作
-  G.heroAnimIdx = (G.heroAnimIdx + 1) % 4;
-  saveGame();
-  updateHeroSection();
+  const lv = best.level || 1;
+  const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
+  const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
+  const colors = {普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
+  const desc = {普通:'初生的灵兽之灵，蕴含无限可能',稀有:'逐渐觉醒血脉之力',珍稀:'灵性显露，威能初现',传说:'龙魂觉醒，天地为之动容',史诗:'超越凡俗，接近神境',神话:'天命所归，永恒不灭'};
+  const color = colors[rarities[lv-1]];
+  const r = rarities[lv-1];
+  showNotif('info', names[lv-1] + ' · ' + r + ' · ' + desc[r]);
 }
 const LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
 const COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
@@ -115,7 +120,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),heroAnimIdx:0};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
@@ -605,11 +610,11 @@ function updateHeroSection(){
   // 点击切换动作
   heroIcon.onclick = e => { e.stopPropagation(); cycleHeroAnim(); };
   heroIcon.style.cursor = 'pointer';
-  // 应用当前动画
-  const animClass = ['breathe','float','whirl','eternal'][G.heroAnimIdx || 0];
-  heroIcon.className = 'hero-anim-' + animClass;
-  // 动作名称提示
-  const animHints = ['静息呼吸','轻盈漂浮','神龙摆尾','天命永恒'];
+  // 应用专属动作：根据灵兽等级选动画 class
+  const animClass = 'anim-L' + (best.level || 1);
+  heroIcon.className = animClass;
+  // 动作名称（按等级显示）
+  const animNames = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
   let hint = document.getElementById('heroAnimHint');
   if(!hint){
     hint = document.createElement('div');

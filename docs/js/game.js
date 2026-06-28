@@ -355,31 +355,6 @@ function renderHandbook(){
 }
 
 // ===== 底部栏新功能 =====
-function toggleDragonGrid(){
-  const grid=document.getElementById('dragonGrid');
-  if(!grid) return;
-  if(grid.style.display==='flex'){
-    grid.style.display='none';
-  } else {
-    grid.style.display='flex';
-    // 若 grid 还没内容，填充
-    if(!document.getElementById('dragonGridInner').children.length){
-      var all=[G.dragons[G.activeDragonId]];
-      var owned=Object.values(G.dragons);
-      var html='';
-      for(var i=0;i<owned.length;i++){
-        var d=owned[i];
-        html+='<div style="display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:10px;background:rgba(255,215,0,.05);font-size:28px;opacity:'+(i===0?'1':'0.45')+';">'+
-          '<span style="font-size:38px;">'+d.icon+'</span>'+
-          '<span style="font-size:11px;color:#ffd700;margin-top:4px;">'+d.name+'</span>'+
-          '<span style="font-size:10px;color:#aaa;">Lv.'+d.level+'</span>'+
-          '<span style="font-size:10px;color:#8be9e3;">+'+d.cps+'/s</span></div>';
-      }
-      document.getElementById('dragonGridInner').innerHTML=html;
-    }
-  }
-}
-
 function openTaskPanel(){
   showNotif('📋 每日任务 · 功能开发中',3000);
 }

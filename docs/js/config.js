@@ -135,6 +135,26 @@ function renderGrid(){
   }
   markMergeable();
 }
+
+// 渲染到灵兽网格内层（4列，按等级从高到低排序）
+function renderGridToInner(){
+  const inner = document.getElementById('dragonGridInner');
+  if(!inner) return;
+  const sorted = [...G.dragons].sort((a,b) => (b.level||0) - (a.level||0));
+  inner.innerHTML = sorted.map(d => {
+    const icon2 = LICON[d.level] || '?';
+    const rarity = getRarity ? getRarity(d.level).name : '普通';
+    const rarColors = {'普通':'#aaa','稀有':'#7eb8ff','史诗':'#b57edc','传说':'#ffd700','神话':'#ff6b35'};
+    const rc = rarColors[rarity] || '#aaa';
+    return `<div style="display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);cursor:default;">
+      <span style="font-size:38px;line-height:1;margin-bottom:4px;filter:drop-shadow(0 2px 8px rgba(255,215,0,.3));">${icon2}</span>
+      <span style="font-size:12px;font-weight:700;color:${rc};margin-bottom:2px;">Lv${d.level}</span>
+      <span style="font-size:10px;color:#ffd700;">+${COIN_S[d.level]||0}/s</span>
+      <span style="font-size:9px;color:#555;margin-top:2px;">${rarity}</span>
+    </div>`;
+  }).join('');
+}
+
 function setupDrag(card,d){
   card.addEventListener('mousedown',e=>startDrag(e,card,d));
   card.addEventListener('touchstart',e=>{e.preventDefault();startDrag(e,card,d);},{passive:false});
@@ -442,33 +462,41 @@ function initHomeGesture(){
 }
 
 function enterGridMode(){
+  if(_inGridMode) return;
   _inGridMode = true;
   const hero = document.getElementById('heroSection');
   const grid = document.getElementById('dragonGrid');
+  const gridInner = document.getElementById('dragonGridInner');
   if(!hero || !grid) return;
   hero.style.transition = 'opacity .3s, transform .3s';
   hero.style.opacity = '0';
   hero.style.transform = 'scale(.95)';
   setTimeout(() => {
     hero.style.display = 'none';
-    grid.style.display = 'grid';
+    // 重渲染网格（5列×5行）
+    if(gridInner) gridInner.innerHTML = '';
+    renderGridToInner();
+    const cnt = document.getElementById('gridCount');
+    if(cnt) cnt.textContent = `(${G.dragons.length}只)`;
+    grid.style.display = 'flex';
     grid.style.opacity = '0';
     grid.style.transition = 'opacity .3s';
     grid.style.opacity = '1';
-    _inGridMode = true;
-    markMergeable();
   }, 300);
 }
 
 function exitGridMode(){
+  if(!_inGridMode) return;
   _inGridMode = false;
   const hero = document.getElementById('heroSection');
   const grid = document.getElementById('dragonGrid');
+  const gridInner = document.getElementById('dragonGridInner');
   if(!hero || !grid) return;
   grid.style.transition = 'opacity .3s, transform .3s';
   grid.style.opacity = '0';
   setTimeout(() => {
     grid.style.display = 'none';
+    if(gridInner) gridInner.innerHTML = '';
     hero.style.display = 'flex';
     hero.style.opacity = '0';
     hero.style.transform = 'scale(1.05)';

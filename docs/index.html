@@ -450,10 +450,10 @@ function doStart(){
 </script>
 
 
-<div id="gamePage" style="display:flex;flex-direction:column;height:100dvh;overflow:hidden;touch-action:none;visibility:hidden;opacity:0;">
+<div id="gamePage" style="display:flex;flex-direction:column;height:100dvh;overflow:hidden;touch-action:none;visibility:hidden;opacity:0;padding-top:env(safe-area-inset-top);">
 
-  <!-- ===== 第一行：顶部HUD ===== -->
-  <div id="topHud" style="height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(7,7,26,.9);border-bottom:1px solid rgba(255,215,0,.08);">
+  <!-- ===== 第一行：顶部HUD（顶部留出刘海屏安全区） ===== -->
+  <div id="topHud" style="height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;padding-top:max(env(safe-area-inset-top), 8px);background:rgba(7,7,26,.9);border-bottom:1px solid rgba(255,215,0,.08);">
     <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
     <div style="display:flex;align-items:center;gap:16px;">
       <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
@@ -486,19 +486,16 @@ function doStart(){
         <div class="attr-ring ring-4"><span class="attr-pill" id="attrFate">木命</span></div>
         <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:min(96px,22vw);line-height:1;filter:drop-shadow(0 0 32px rgba(255,215,0,.7));transition:all .3s;z-index:2;">🐣</div>
       </div>
-      <!-- 灵兽图谱mini -->
-      <div id="heroThumbs" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:300px;margin-top:14px;">
-        <div class="ht" style="font-size:28px;opacity:.9;">🐣</div>
-        <div class="ht" style="font-size:min(26px,6.5vw);opacity:.5;">🐥</div>
-        <div class="ht" style="font-size:min(26px,6.5vw);opacity:.3;">🐔</div>
-      </div>
+      <!-- 灵兽图谱mini：进化链预览，点击进入灵兽网格 -->
+      <div id="heroThumbs" onclick="if(!_inGridMode)enterGridMode()" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:300px;margin-top:14px;cursor:pointer;padding:6px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);"></div>
     </div>
 
     <!-- 灵兽网格（隐藏，覆盖在中间） -->
     <div id="dragonGrid" style="display:none;position:absolute;left:52px;right:52px;top:0;bottom:0;background:rgba(7,7,26,.97);flex-direction:column;z-index:60;overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid rgba(255,215,0,.1);">
+      <div style="display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid rgba(255,215,0,.1);">
+        <button onclick="exitGridMode()" style="font-size:22px;color:rgba(255,215,0,.7);background:transparent;border:none;cursor:pointer;line-height:1;padding:0;flex-shrink:0;width:32px;">‹</button>
         <span style="font-size:13px;color:#ffd700;letter-spacing:2px;">全部灵兽</span>
-        <button onclick="toggleDragonGrid()" style="font-size:22px;color:rgba(255,255,255,.5);background:transparent;border:none;cursor:pointer;line-height:1;padding:0;">×</button>
+        <span id="gridCount" style="font-size:11px;color:#888;margin-left:4px;"></span>
       </div>
       <div id="dragonGridInner" style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 14px;align-content:start;overflow-y:auto;"></div>
     </div>

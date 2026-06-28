@@ -4,6 +4,25 @@
 // ===== 游戏数据 =====
 const SAVE_KEY = 'sx_sg_v1';
 const LICON = ['🐣','🐥','🐤','🦅','🐦','🕊','🦋','🐉','🦅','🐲','🐍','🐎','🐉','🐲','🐉🔥'];
+// 每个等级灵兽的动画名（中英文+效果描述）
+const LANIM_NAMES = [
+  '呼吸','呼吸','呼吸','呼吸',      // Lv1-4 基础
+  '漂浮','漂浮',                    // Lv5-6 轻飘
+  '御风','御风',                    // Lv7-8 飞行
+  '龙吟','龙吟',                    // Lv9-10 神龙
+  '天命','天命',                    // Lv11-12 神话
+  '永恒','永恒','永恒'             // Lv13-15 终极
+];
+// 当前灵兽动画索引（点击切换，持久化到存档）
+if(typeof G.heroAnimIdx === 'undefined') G.heroAnimIdx = 0;
+// 点击主页灵兽 → 切换动作
+function cycleHeroAnim(){
+  const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
+  const maxIdx = Math.min(G.heroAnimIdx + 1, 3); // 每个等级最多4种动作
+  G.heroAnimIdx = (G.heroAnimIdx + 1) % 4;
+  saveGame();
+  updateHeroSection();
+}
 const LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
 const COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
 const FATE_E = ['🪵','🔥','🟤','⚪','💧'];
@@ -573,7 +592,23 @@ function updateHeroSection(){
   const icon = LICON[best.level] || '🐣';
   const cps = COIN_S[best.level] || 0;
   heroIcon.textContent = icon;
-  heroIcon.style.fontSize = Math.min(100, 50 + best.level * 3) + 'px';
+  heroIcon.style.fontSize = 'min(130px,30vw)';
+  // 点击切换动作
+  heroIcon.onclick = e => { e.stopPropagation(); cycleHeroAnim(); };
+  heroIcon.style.cursor = 'pointer';
+  // 应用当前动画
+  const animClass = ['breathe','float','whirl','eternal'][G.heroAnimIdx || 0];
+  heroIcon.className = 'hero-anim-' + animClass;
+  // 动作名称提示
+  const animHints = ['静息呼吸','轻盈漂浮','神龙摆尾','天命永恒'];
+  let hint = document.getElementById('heroAnimHint');
+  if(!hint){
+    hint = document.createElement('div');
+    hint.id = 'heroAnimHint';
+    hint.className = 'hero-anim-hint';
+    heroIcon.parentElement.appendChild(hint);
+  }
+  hint.textContent = animHints[G.heroAnimIdx || 0];
   heroLv.textContent = 'Lv.' + best.level;
   heroCps.textContent = '+' + cps + '/s';
   if(heroFate){

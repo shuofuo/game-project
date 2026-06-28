@@ -73,6 +73,29 @@ function playSound(type) {
   }
 }
 
+// 点击下一级缩略图 → 弹出升级预览弹窗
+function previewNextLevel(lvl, cps, icon){
+  const rarity = lvl<=2?'普通':lvl<=4?'稀有':lvl<=7?'珍稀':lvl<=10?'传说':lvl<=13?'史诗':'神话';
+  const rarColors = {'普通':'#aaa','稀有':'#7eb8ff','珍稀':'#42a5f5','传说':'#9c27b0','史诗':'#ff9800','神话':'#ffd700'};
+  const diff = cps - (COIN_S[G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b).level]||0);
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);';
+  el.innerHTML = `<div style="background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid ${rarColors[rarity]};border-radius:24px;padding:32px 28px;width:min(320px,88vw);text-align:center;animation:popIn .3s ease;">
+    <div style="font-size:11px;letter-spacing:4px;color:${rarColors[rarity]};margin-bottom:12px;">${rarity.toUpperCase()}</div>
+    <div style="font-size:72px;margin:12px 0;filter:drop-shadow(0 0 24px ${rarColors[rarity]}55);">${icon}</div>
+    <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;">Lv.${lvl} · ${LNAME[lvl]||'灵兽'}</div>
+    <div style="font-size:28px;font-weight:900;color:${rarColors[rarity]};margin:10px 0;">+${cps}/s</div>
+    <div style="font-size:13px;color:#888;margin:8px 0 20px;">比当前等级多 <span style="color:#ffd700;">+${diff}/s</span></div>
+    <div style="background:rgba(255,255,255,.04);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;font-size:12px;color:#666;line-height:1.8;">
+      <div>🎯 两张同等级灵兽可合成升级</div>
+      <div>⚡ 合成成功率：${getCultBonus ? (100+getCultBonus().mergeBonus*100).toFixed(0)+'%' : '100%'}</div>
+      <div>💰 升级后金币产出大幅提升</div>
+    </div>
+    <button onclick="this.closest('[style]').remove()" style="width:100%;padding:12px;border-radius:22px;background:transparent;border:1px solid rgba(255,255,255,.2);color:#888;font-size:14px;cursor:pointer;">知道了</button>
+  </div>`;
+  el.onclick = e => { if(e.target===el) el.remove(); };
+  document.body.appendChild(el);
+}
 let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
@@ -115,7 +138,7 @@ function updateHud(){
 }
 const COLS=5, TOTAL=25;
 function renderGrid(){
-  const grid=document.getElementById('dragonGrid');
+  const grid=document.getElementById('dragonGridInner');
   if(!grid)return;
   grid.innerHTML='';
   for(let i=0;i<TOTAL;i++){
@@ -137,23 +160,8 @@ function renderGrid(){
 }
 
 // 渲染到灵兽网格内层（4列，按等级从高到低排序）
-function renderGridToInner(){
-  const inner = document.getElementById('dragonGridInner');
-  if(!inner) return;
-  const sorted = [...G.dragons].sort((a,b) => (b.level||0) - (a.level||0));
-  inner.innerHTML = sorted.map(d => {
-    const icon2 = LICON[d.level] || '?';
-    const rarity = getRarity ? getRarity(d.level).name : '普通';
-    const rarColors = {'普通':'#aaa','稀有':'#7eb8ff','史诗':'#b57edc','传说':'#ffd700','神话':'#ff6b35'};
-    const rc = rarColors[rarity] || '#aaa';
-    return `<div style="display:flex;flex-direction:column;align-items:center;padding:10px 4px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);cursor:default;">
-      <span style="font-size:38px;line-height:1;margin-bottom:4px;filter:drop-shadow(0 2px 8px rgba(255,215,0,.3));">${icon2}</span>
-      <span style="font-size:12px;font-weight:700;color:${rc};margin-bottom:2px;">Lv${d.level}</span>
-      <span style="font-size:10px;color:#ffd700;">+${COIN_S[d.level]||0}/s</span>
-      <span style="font-size:9px;color:#555;margin-top:2px;">${rarity}</span>
-    </div>`;
-  }).join('');
-}
+// renderGridToInner 已废弃，功能合并到 enterGridMode → renderGrid()
+function renderGridToInner(){}
 
 function setupDrag(card,d){
   card.addEventListener('mousedown',e=>startDrag(e,card,d));
@@ -473,12 +481,12 @@ function enterGridMode(){
   hero.style.transform = 'scale(.95)';
   setTimeout(() => {
     hero.style.display = 'none';
-    // 重渲染网格（5列×5行）
     if(gridInner) gridInner.innerHTML = '';
-    renderGridToInner();
+    grid.style.display = 'flex';
+    grid.style.flexDirection = 'column';
+    renderGrid(); // 5×5可拖拽格子渲染到 dragonGridInner
     const cnt = document.getElementById('gridCount');
     if(cnt) cnt.textContent = `(${G.dragons.length}只)`;
-    grid.style.display = 'flex';
     grid.style.opacity = '0';
     grid.style.transition = 'opacity .3s';
     grid.style.opacity = '1';
@@ -492,7 +500,7 @@ function exitGridMode(){
   const grid = document.getElementById('dragonGrid');
   const gridInner = document.getElementById('dragonGridInner');
   if(!hero || !grid) return;
-  grid.style.transition = 'opacity .3s, transform .3s';
+  grid.style.transition = 'opacity .3s';
   grid.style.opacity = '0';
   setTimeout(() => {
     grid.style.display = 'none';
@@ -535,12 +543,37 @@ function updateHeroSection(){
     heroFate.textContent = fate + ' · ' + yun;
   }
   if(heroThumbs){
-    // 取所有灵兽从高到低排前8个
-    const sorted = [...G.dragons].sort((a,b) => (b.level||0) - (a.level||0)).slice(0,8);
-    heroThumbs.innerHTML = sorted.map(d => {
-      const icon2 = LICON[d.level] || '🐣';
-      const opacity = 0.3 + (d.level / 25) * 0.7;
-      return `<div class="ht" style="font-size:min(26px,6vw);opacity:${opacity.toFixed(1)};">${icon2}</div>`;
-    }).join('');
+    // 进化链缩略图：当前 + 下一级（共2个）
+    const bestLvl = best.level || 1;
+    const nextLvl = Math.min(bestLvl + 1, 15);
+    const currentIcon = LICON[bestLvl] || '?';
+    const nextIcon   = LICON[nextLvl]  || '?';
+    const nextNew    = nextLvl > bestLvl;
+    const nextCps   = COIN_S[nextLvl] || 0;
+    heroThumbs.innerHTML = `
+      <div class="thumb-current" onclick="if(!_inGridMode)enterGridMode()" style="
+        display:flex;flex-direction:column;align-items:center;gap:2px;
+        padding:8px 14px;border-radius:14px;
+        background:rgba(255,215,0,.07);border:1.5px solid rgba(255,215,0,.25);
+        cursor:pointer;transition:all .15s;
+        font-size:34px;line-height:1;min-width:60px;
+      " onmouseover="this.style.background='rgba(255,215,0,.12)'" onmouseout="this.style.background='rgba(255,215,0,.07)'">
+        <span>${currentIcon}</span>
+        <span style="font-size:9px;color:rgba(255,215,0,.7);font-weight:600;">Lv${bestLvl}</span>
+        <span style="font-size:8px;color:rgba(255,215,0,.4);">点击管理</span>
+      </div>
+      <div style="display:flex;align-items:center;font-size:14px;color:rgba(255,255,255,.2);align-self:center;margin:0 4px;">→</div>
+      <div class="thumb-next" onclick="previewNextLevel(${nextLvl},${nextCps},'${nextIcon}')" style="
+        display:flex;flex-direction:column;align-items:center;gap:2px;
+        padding:8px 14px;border-radius:14px;
+        background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);
+        opacity:${nextNew ? 0.75 : 0.25};transition:all .2s;cursor:pointer;
+        font-size:30px;line-height:1;min-width:60px;
+      " onmouseover="this.style.background='rgba(126,184,255,.08)';this.style.borderColor='rgba(126,184,255,.3)'" onmouseout="this.style.background='rgba(255,255,255,.02)';this.style.borderColor='rgba(255,255,255,.06)'">
+        <span style="${nextNew ? 'filter:none' : 'filter:grayscale(1);opacity:.4'}">${nextIcon}</span>
+        <span style="font-size:9px;color:${nextNew?'rgba(126,184,255,.7)':'#444'};font-weight:600;">Lv${nextLvl}</span>
+        <span style="font-size:8px;color:${nextNew?'rgba(126,184,255,.4)':'#333'};${nextNew?'':'display:none'}">+${nextCps}/s</span>
+      </div>
+    `;
   }
 }

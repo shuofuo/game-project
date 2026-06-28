@@ -209,12 +209,27 @@ function endDrag(e){
   document.removeEventListener('touchend',endDrag);
   dragCard.classList.remove('dragging');
   dragCard.style.left='';dragCard.style.top='';dragCard.style.width='';dragCard.style.height='';dragCard.style.position='';dragCard.style.padding='';dragCard.style.display='';dragCard.style.alignItems='';dragCard.style.justifyContent='';
+  // 清除所有 drop-target 高亮
+  document.querySelectorAll('.drop-target').forEach(c=>{c.classList.remove('drop-target');c.style.borderColor='';c.style.boxShadow='';});
   const cx=e.changedTouches?e.changedTouches[0].clientX:e.clientX;
   const cy=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
   const cells=document.querySelectorAll('.d-cell');
-  let target=null;
-  cells.forEach(c=>{const r=c.getBoundingClientRect();if(cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom)target=c;});
-  if(target){const dst=parseInt(target.dataset.idx);if(dst!==srcIdx)doDrop(srcIdx,dst);}
+  let target=null, minDist=Infinity;
+  // 用最近单元格算法：找最近的格子（扩大碰撞半径到60px容差）
+  cells.forEach(cell=>{
+    const r=cell.getBoundingClientRect();
+    const cx2=r.left+r.width/2, cy2=r.top+r.height/2;
+    const d=Math.hypot(cx-cx2,cy-cy2);
+    if(d<minDist&&d<80){minDist=d;target=cell;}
+  });
+  if(target){
+    const dst=parseInt(target.dataset.idx);
+    if(dst!==srcIdx){
+      target.classList.add('drop-target');
+      setTimeout(()=>target&&target.classList.remove('drop-target'),600);
+      doDrop(srcIdx,dst);
+    }
+  }
   dragCard=null;dragData=null;srcIdx=-1;
 }
 function doDrop(src,dst){
@@ -532,15 +547,15 @@ function exitGridMode(){
 
 function updateHeroSection(){
   const heroIcon = document.getElementById('heroIcon');
-  const heroLv = document.getElementById('heroLv');
+  const heroLv   = document.getElementById('heroLv');
   const heroCps = document.getElementById('heroCps');
   const heroFate = document.getElementById('heroFateTag');
   const heroThumbs = document.getElementById('heroThumbs');
   if(!heroIcon) return;
   if(!G.dragons || G.dragons.length === 0){
     heroIcon.textContent = '🐣';
-    heroLv.textContent = 'Lv.1';
-    heroCps.textContent = '+0/s';
+    if(heroLv)   heroLv.textContent   = 'Lv.1';
+    if(heroCps)  heroCps.textContent  = '+0/s';
     return;
   }
   const best = G.dragons.reduce((a,b) => (a.level||0) >= (b.level||0) ? a : b);

@@ -137,6 +137,9 @@ function updateHud(){
   }
 }
 const COLS=5, TOTAL=25;
+const RAR_COLORS = {0:'#1a1a1a',1:'#0a1a2a',2:'#1a0a2a',3:'#2a1a00',4:'#2a0a00'}; // 0普通~4神话（暗色背景）
+const RAR_BORDER = {0:'rgba(255,255,255,.06)',1:'rgba(126,184,255,.3)',2:'rgba(181,126,220,.3)',3:'rgba(255,215,0,.4)',4:'rgba(255,107,53,.5)'};
+function rarIdx(lvl){if(lvl<=2)return 0;if(lvl<=4)return 1;if(lvl<=7)return 2;if(lvl<=10)return 3;return 4;}
 function renderGrid(){
   const grid=document.getElementById('dragonGridInner');
   if(!grid)return;
@@ -144,13 +147,22 @@ function renderGrid(){
   for(let i=0;i<TOTAL;i++){
     const cell=document.createElement('div');
     cell.className='d-cell';
+    cell.style.aspectRatio='1';
+    cell.style.borderRadius='12px';
+    cell.style.border='1.5px solid rgba(255,255,255,.06)';
+    cell.style.background='rgba(255,255,255,.02)';
     cell.dataset.idx=i;
     const d=G.dragons.find(d=>d.idx===i);
     if(d){
+      const ri = rarIdx(d.level);
+      const bg = RAR_COLORS[ri];
+      const bd = RAR_BORDER[ri];
       const card=document.createElement('div');
       card.className='d-card';
       card.dataset.id=d.id;
-      card.innerHTML=`<span class="d-icon">${LICON[d.level]||'?'}</span><span class="d-lv">Lv${d.level}</span><span class="d-gold">+${COIN_S[d.level]}/s</span>`;
+      card.style.background=`${bg}`;
+      card.style.border=`1px solid ${bd}`;
+      card.innerHTML=`<span class="d-icon" style="filter:drop-shadow(0 0 8px ${bd.replace(',.3)',',.4)').replace('rgba(','rgba(').replace(',.4)','40)')}">${LICON[d.level]||'?'}</span><span class="d-lv" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;">Lv${d.level}</span><span class="d-gold" style="font-size:9px;color:rgba(255,215,0,.6);">+${COIN_S[d.level]}/s</span>`;
       setupDrag(card,d);
       cell.appendChild(card);
     }
@@ -170,12 +182,12 @@ function setupDrag(card,d){
 let dragCard=null,dragData=null,srcIdx=-1;
 function startDrag(e,card,d){
   dragCard=card;dragData=d;srcIdx=d.idx;
-  const rect=card.getBoundingClientRect();
+  card.classList.add('dragging');
+  // 立即移到鼠标/触摸位置（图标居中）
   const cx=e.touches?e.touches[0].clientX:e.clientX;
   const cy=e.touches?e.touches[0].clientY:e.clientY;
-  card.style.left=(cx-rect.width/2)+'px';
-  card.style.top=(cy-rect.height/2)+'px';
-  card.classList.add('dragging');
+  card.style.left=cx+'px';
+  card.style.top=cy+'px';
   document.addEventListener('mousemove',onDrag);
   document.addEventListener('mouseup',endDrag);
   document.addEventListener('touchmove',onDrag,{passive:false});
@@ -186,8 +198,8 @@ function onDrag(e){
   e.preventDefault();
   const cx=e.touches?e.touches[0].clientX:e.clientX;
   const cy=e.touches?e.touches[0].clientY:e.clientY;
-  dragCard.style.left=(cx-30)+'px';
-  dragCard.style.top=(cy-30)+'px';
+  dragCard.style.left=cx+'px';
+  dragCard.style.top=cy+'px';
 }
 function endDrag(e){
   if(!dragCard)return;
@@ -196,7 +208,7 @@ function endDrag(e){
   document.removeEventListener('touchmove',onDrag);
   document.removeEventListener('touchend',endDrag);
   dragCard.classList.remove('dragging');
-  dragCard.style.left='';dragCard.style.top='';dragCard.style.position='';
+  dragCard.style.left='';dragCard.style.top='';dragCard.style.width='';dragCard.style.height='';dragCard.style.position='';dragCard.style.padding='';dragCard.style.display='';dragCard.style.alignItems='';dragCard.style.justifyContent='';
   const cx=e.changedTouches?e.changedTouches[0].clientX:e.clientX;
   const cy=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
   const cells=document.querySelectorAll('.d-cell');
@@ -225,14 +237,16 @@ function doDrop(src,dst){
   }else{s.idx=dst;saveGame();renderGrid();}
 }
 function markMergeable(){
-  document.querySelectorAll('.d-cell').forEach(c=>c.classList.remove('mergeable'));
+  document.querySelectorAll('.d-cell').forEach(c=>{c.classList.remove('mergeable');c.style.borderColor='';c.style.boxShadow='';});
   for(let i=0;i<G.dragons.length;i++){
     for(let j=i+1;j<G.dragons.length;j++){
       if(G.dragons[i].level===G.dragons[j].level&&G.dragons[i].level<15){
         document.querySelectorAll('.d-card').forEach(c=>{
           const id=parseInt(c.dataset.id);
-          if(id===parseInt(G.dragons[i].id)||id===parseInt(G.dragons[j].id))
-            c.closest('.d-cell').classList.add('mergeable');
+          if(id===parseInt(G.dragons[i].id)||id===parseInt(G.dragons[j].id)){
+            const cell=c.closest('.d-cell');
+            if(cell){cell.classList.add('mergeable');cell.style.border='1.5px solid rgba(255,215,0,.5)';cell.style.boxShadow='0 0 14px rgba(255,215,0,.3)';}
+          }
         });
       }
     }

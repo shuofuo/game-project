@@ -34,7 +34,7 @@ function resetGame(){
   location.reload();
 }
 
-function initGame(){ initAch(); startSkyEvents();
+function initGame(){ startSkyEvents();
   loadGame();
   checkFateDaily();
   checkSignDaily();

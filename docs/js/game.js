@@ -366,6 +366,7 @@ function doCultNode(cultKey,nodeIdx){
   saveGame();
   renderCultPanel();
   updateHud();
+  setTimeout(()=>_cultNodePulse(cultKey,nodeIdx),80);
   calcCps();
   showNotif('success','⚗️ '+cfg.icon+' '+cfg.name+'修炼：'+node.title);
 }
@@ -384,44 +385,77 @@ function saveCultUI(){
     });
   });
 }
+// 修炼成功发光动画（给节点加脉冲class，0.6s后移除）
+function _cultNodePulse(key,nodeIdx){
+  const el=document.getElementById('cult_'+key+'_'+nodeIdx);
+  if(el){ el.classList.add('cult-pulse'); setTimeout(()=>el.classList.remove('cult-pulse'),700); }
+}
+
 function renderCultPanel(){
   const p=document.getElementById('cultPanel');
   const cult=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
   const bonus=getCultBonus();
   p.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">⚗️ 命格修炼</div>
-      <div style="font-size:12px;color:#888;">
-        <span style="color:#ffd700;">${(bonus.coinBonus*100).toFixed(0)}%</span>金币
-        <span style="color:#ffd700;">${(bonus.summonLowRate*100).toFixed(0)}%</span>召唤
-        <span style="color:#ffd700;">${(bonus.mergeBonus*100).toFixed(0)}%</span>合成
-      </div>
-      <div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeCultPanel()">✕</div>
+      <div style="font-size:16px;font-weight:700;letter-spacing:1px;">⚗️ 命格修炼</div>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeCultPanel()">✕ 关闭</div>
     </div>
-    <div style="font-size:11px;color:#555;margin-bottom:14px;background:rgba(255,255,255,.03);padding:10px;border-radius:10px;">
-      消耗 <span style="color:#ffd700;">龙气</span> 提升修炼境界，每条命格可修炼3层
+    <div style="font-size:11px;color:#666;margin-bottom:18px;background:linear-gradient(135deg,rgba(255,215,0,.06),rgba(255,140,0,.04));border:1px solid rgba(255,215,0,.12);padding:10px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">
+      <span>当前拥有 <span style="color:#ffd700;font-weight:700;">✨ ${G.qi}</span> 龙气</span>
+      <span style="color:#555;">每条命格可修炼3层</span>
     </div>
-    ${CULTivation.map(c=>{const lv=cult[c.key]||0;return`<div style="margin-bottom:18px;">
-      <div style="font-size:13px;font-weight:700;color:${c.color};margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-        <span style="font-size:18px;">${c.icon}</span>${c.name}·${c.desc}
+    ${CULTivation.map(c=>{
+      const lv=cult[c.key]||0;
+      const pcts=[33,66,100][lv-1]||0;
+      return `<div style="margin-bottom:12px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-left:3px solid ${c.color};border-radius:14px;padding:14px 14px 12px;position:relative;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:22px;line-height:1;">${c.icon}</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:${c.color};">${c.name} · ${c.desc}</div>
+              <div style="font-size:10px;color:#555;margin-top:2px;">${c.node[lv]?c.node[lv].desc:'已满级'}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:700;color:${lv>0?c.color:'#444'};">Lv${lv}</div>
+            <div style="font-size:10px;color:#555;">${lv}/3 层</div>
+          </div>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:11px;position:relative;">
+          <div style="height:100%;width:${pcts}%;background:linear-gradient(90deg,${c.color}99,${c.color});border-radius:3px;transition:width .5s ease;${lv>0?'box-shadow:0 0 8px '+c.color+'88;':''}">
+            ${lv>0?'<div style="position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:9px;height:9px;background:#fff;border-radius:50%;box-shadow:0 0 6px '+c.color+';"></div>':''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          ${c.node.map((n,i)=>{
+            const done=i<lv,isNext=i===lv&&lv<3;
+            const canAfford=G.qi>=n.cost;
+            return `<div id="cult_${c.key}_${i}" onclick="doCultNode('${c.key}',${i})" style="flex:1;background:${done?'rgba(255,215,0,.07)':'rgba(255,255,255,.03)'};border:1.5px solid ${done?'rgba(255,215,0,.25)':isNext?c.color+'88':'rgba(255,255,255,.06)'};border-radius:10px;padding:8px 4px;text-align:center;cursor:${done?'default':(canAfford||isNext)?'pointer':'not-allowed'};opacity:${done?'1':isNext?'1':'.3'};transition:all .2s;">
+              <div style="font-size:9px;color:${done?'rgba(255,215,0,.8)':isNext?c.color:'#444'};font-weight:700;margin-bottom:3px;">${n.title}</div>
+              ${done?'<div style="font-size:14px;">✅</div>':`<div style="font-size:9px;color:${canAfford&&isNext?'#ffd700':'#555'};">✨${n.cost}</div>`}
+            </div>`;}).join('')}
+        </div>
+      </div>`;}).join('')}
+    <div style="margin-top:6px;background:linear-gradient(135deg,rgba(255,215,0,.08),rgba(255,140,0,.04));border:1px solid rgba(255,215,0,.15);border-radius:16px;padding:16px;">
+      <div style="font-size:12px;color:#ffd700;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+        <span style="font-size:14px;">📈</span> 当前加成总览
       </div>
-      <div style="display:flex;gap:8px;">
-        ${c.node.map((n,i)=>{const done=i<lv,next=i===lv;return`<div id="cult_${c.key}_${i}" onclick="doCultNode('${c.key}',${i})" style="flex:1;background:${done?'rgba(255,215,0,.08)':'rgba(255,255,255,.02)'};border:1px solid ${done?'rgba(255,215,0,.3)':next?c.color:'rgba(255,255,255,.06)'};border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;opacity:${done||next?'1':'.35'};">
-          <div style="font-size:11px;color:${done?'#ffd700':next?c.color:'#555'};font-weight:600;">${n.title}</div>
-          <div style="font-size:10px;color:#888;margin:3px 0 4px;">${n.desc}</div>
-          <div style="font-size:10px;color:${G.qi>=n.cost?'#ffd700':'#f44336'};">✨${n.cost}龙气</div>
-          ${done?'<div style="font-size:16px;margin-top:4px;">✅</div>':''}
-        </div>`;}).join('')}
-      </div>
-    </div>`;}).join('')}
-    <div style="margin-top:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);border-radius:12px;padding:12px;">
-      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:6px;">📈 当前加成总览</div>
-      <div style="font-size:11px;color:#888;line-height:1.9;">
-        💰金币产出 <span style="color:#ffd700;">+${(bonus.coinBonus*100).toFixed(0)}%</span><br>
-        🐣召唤概率 <span style="color:#ffd700;">+${(bonus.summonLowRate*100).toFixed(0)}%</span><br>
-        ⚡合成成功率 <span style="color:#ffd700;">+${(bonus.mergeBonus*100).toFixed(0)}%</span><br>
-        🐉高级灵兽 <span style="color:#ffd700;">+${(bonus.highRate*100).toFixed(0)}%</span><br>
-        ✨龙气回复 <span style="color:#ffd700;">+${bonus.qiRate}/min</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
+          <span style="font-size:15px;">💰</span><div><div style="font-size:10px;color:#555;">金币产出</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.coinBonus*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
+          <span style="font-size:15px;">🐣</span><div><div style="font-size:10px;color:#555;">召唤概率</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.summonLowRate*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
+          <span style="font-size:15px;">⚡</span><div><div style="font-size:10px;color:#555;">合成成功</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.mergeBonus*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
+          <span style="font-size:15px;">🐉</span><div><div style="font-size:10px;color:#555;">高级灵兽</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.highRate*100).toFixed(0)}%</div></div>
+        </div>
+        <div style="grid-column:1/-1;display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
+          <span style="font-size:15px;">✨</span><div><div style="font-size:10px;color:#555;">龙气回复</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${bonus.qiRate}/min</div></div>
+        </div>
       </div>
     </div>
   </div>`;

@@ -463,6 +463,14 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .summon-qi:hover{background:rgba(160,216,239,.2);}
 .summon-free{background:rgba(76,175,80,.15);border:1.5px solid rgba(76,175,80,.4);color:#4caf50;padding:8px 14px;min-width:0;}
 .summon-free:hover{background:rgba(76,175,80,.25);}
+/* 命格修炼节点脉冲动画 */
+.cult-pulse{animation:cultPulse .7s ease-out forwards;}
+@keyframes cultPulse{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,215,0,.6);}
+  40%{transform:scale(1.06);box-shadow:0 0 0 10px rgba(255,215,0,.2);}
+  70%{transform:scale(.97);}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,215,0,0);}
+}
 </style>
 </head>
 <body>

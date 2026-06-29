@@ -255,12 +255,27 @@ function checkAch(){
   ACHIEVEMENTS.forEach(a=>{
     if(!_unlocked.has(a.id)&&a.cond(G)){
       _unlocked.add(a.id);saveAch();
-      const el=document.createElement('div');
-      el.style.cssText='position:fixed;top:56px;right:12px;background:linear-gradient(135deg,#1a1a3a,#2a1a4a);border:1px solid #ffd700;border-radius:14px;padding:12px 16px;z-index:999;animation:achToast 3s ease forwards;min-width:180px;';
-      el.innerHTML='<div style="font-size:22px;text-align:center;margin-bottom:6px;">'+a.icon+'</div><div style="font-size:13px;font-weight:700;color:#ffd700;text-align:center;">🏅 成就达成</div><div style="font-size:13px;font-weight:600;color:#fff;text-align:center;margin-top:4px;">'+a.title+'</div><div style="font-size:10px;color:#888;text-align:center;margin-top:2px;">'+a.desc+'</div>';
-      document.body.appendChild(el);
-      if(G.zodiac>=0) playSound('achieve_z'+G.zodiac);
-      setTimeout(()=>el.remove(),3100);
+      // 居中成就弹窗
+      const mask=document.createElement('div');
+      mask.id='ach_'+a.id;
+      mask.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .3s ease;';
+      mask.innerHTML=`<div style="text-align:center;animation:achPopIn .5s ease forwards;">
+        <div style="background:linear-gradient(160deg,#1a1a3a,#2a1a5a);border:1.5px solid #ffd700;border-radius:24px;padding:28px 32px;min-width:220px;box-shadow:0 0 60px rgba(255,215,0,.25),0 20px 60px rgba(0,0,0,.8);">
+          <div style="font-size:48px;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(255,215,0,.6));">${a.icon}</div>
+          <div style="font-size:11px;color:#ffd700;font-weight:600;letter-spacing:2px;margin-bottom:10px;">🏅 成就达成</div>
+          <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">${a.title}</div>
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">${a.desc}</div>
+          <div style="font-size:11px;color:#555;margin-top:12px;">自动关闭</div>
+        </div>
+      </div>`;
+      document.body.appendChild(mask);
+      // 淡入
+      requestAnimationFrame(()=>{mask.style.opacity='1';});
+      if(playSound) playSound('achieve');
+      // 自动关闭
+      const remove=()=>{mask.style.opacity='0';mask.style.transition='opacity .4s ease';setTimeout(()=>mask.remove(),450);};
+      mask.addEventListener('click',remove);
+      setTimeout(remove,2800);
     }
   });
 }

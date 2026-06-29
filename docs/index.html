@@ -125,6 +125,9 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .task-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#07071a;z-index:303;display:none;overflow-y:auto;}
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
+.activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.activity-panel.open{display:block;transform:translateX(0);}
+.activity-panel::-webkit-scrollbar{width:0;}
 @keyframes achFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes achToast{0%{transform:translateX(120%);opacity:0}15%{transform:translateX(0);opacity:1}85%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
 @keyframes achPopIn{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
@@ -731,6 +734,7 @@ function doStart(){
 <div id="rankPanel" class="rank-panel"></div>
   <div id="signPanel" class="sign-panel"></div>
   <div id="taskPanel" class="task-panel"></div>
+  <div id="activityPanel" class="activity-panel"></div>
   <div id="handbookPanel" class="handbook-panel"></div>
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>

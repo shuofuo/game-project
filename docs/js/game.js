@@ -35,6 +35,8 @@ function initGame(){ initAch();
   checkFateDaily();
   checkSignDaily();
   checkTaskDaily();
+  // 活跃活动提示
+  getActiveActivities().forEach(a=>{showNotif('info',a.icon+' '+a.name+' 进行中！'+a.tip);});
   try{loadSettings();}catch(e){}
   if(G.created){
     var el;
@@ -706,6 +708,47 @@ function checkTaskDaily(){
 
 // ===== 限时活动（占位）=====
 function openActivityPanel(){
-  showNotif('🎯 限时活动 · 敬请期待',3000);
+  const panel=document.getElementById('activityPanel');
+  if(!panel) return;
+  const active=getActiveActivities();
+  panel.innerHTML=`<div style="padding:20px 16px 80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">🎯 限时活动</div>
+      <div style="font-size:12px;color:#ffd700;">${active.length} 个进行中</div>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeActivityPanel()">✕ 关闭</div>
+    </div>
+    <div style="font-size:11px;color:#555;margin-bottom:16px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
+      📌 活动自动生效，无需领取<br>
+      ⏰ 活动状态随时间/日期变化
+    </div>
+    ${ACTIVITIES.map(a=>{
+      const isActive=a.active();
+      return `<div style="margin-bottom:14px;background:rgba(255,255,255,.025);border:1px solid ${isActive?a.color+'55':'rgba(255,255,255,.05)'};border-radius:14px;padding:16px;${isActive?'box-shadow:0 0 20px '+a.color+'18;':''}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="font-size:28px;${isActive?'':'filter:grayscale(1);opacity:.5;'}">${a.icon}</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:${isActive?a.color:'#555'};">${a.name}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px;">${a.desc}</div>
+          </div>
+          <div style="margin-left:auto;">
+            ${isActive?'<div style="background:'+a.color+';color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;">🔥 进行中</div>':'<div style="background:rgba(255,255,255,.05);color:#555;font-size:10px;padding:3px 10px;border-radius:20px;">未激活</div>'}
+          </div>
+        </div>
+        ${isActive?'<div style="background:linear-gradient(135deg,'+a.color+'22,transparent);border:1px solid '+a.color+'33;border-radius:8px;padding:8px 12px;text-align:center;font-size:13px;color:'+a.color+';font-weight:700;">'+a.tip+'</div>':''}
+      </div>`;}).join('')}
+    <div style="margin-top:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;">
+      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">📅 活动时间</div>
+      <div style="font-size:11px;color:#666;line-height:2;">
+        🎁 <b style="color:#ff9800;">周末双倍</b>：周六 00:00 - 周日 24:00<br>
+        🌙 <b style="color:#7c4dff;">晚间金币</b>：每日 20:00 - 22:00
+      </div>
+    </div>
+  </div>`;
+  panel.classList.add('open');
+}
+
+function closeActivityPanel(){
+  const p=document.getElementById('activityPanel');
+  if(p)p.classList.remove('open');
 }
 

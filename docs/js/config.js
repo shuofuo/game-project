@@ -218,6 +218,40 @@ const SIGN_REWARDS = [
   {coin:15000, qi:150, free:1, label:'第6天'},
   {coin:30000, qi:300, free:2, label:'第7天'},
 ];
+
+// ===== 限时活动 =====
+// 支持多活动叠加，active() 返回是否触发
+const ACTIVITIES = [
+  {
+    id:'weekend2x',
+    icon:'🎁',
+    name:'周末双倍召唤',
+    desc:'周六/周日召唤产出翻倍',
+    color:'#ff9800',
+    active:()=>{const d=new Date();return d.getDay()===0||d.getDay()===6;},
+    summonBonus:1,  // 召唤产出的额外倍率加成
+    coinBonus:0,
+    tip:'召唤产出 ×2！',
+  },
+  {
+    id:'night1_5x',
+    icon:'🌙',
+    name:'晚间金币时段',
+    desc:'20:00-22:00 金币产出 ×1.5',
+    color:'#7c4dff',
+    active:()=>{const h=new Date().getHours();return h>=20||h<2;},
+    summonBonus:0,
+    coinBonus:.5,
+    tip:'金币 ×1.5！',
+  },
+];
+function getActiveActivities(){
+  return ACTIVITIES.filter(a=>a.active());
+}
+function getActivityBonus(){return getActiveActivities();}
+function calcSummonBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.summonBonus,0));}
+function calcCoinBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.coinBonus,0));}
+function fmtActivityCountdown(){const a=getActiveActivities()[0];if(!a)return'';if(a.id==='night1_5x'){const m=new Date();const end=new Date(m);end.setHours(22,0,0,0);if(m.getHours()>=20)return'剩余 '+(Math.max(0,Math.round((end-m)/60000)))+'min';}return'进行中';}
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
@@ -242,8 +276,9 @@ function calcCps(){
   const fc=FATE_C[G.fate]||1;
   const yc=1+(YUN_COIN[G.currentFate]||0);
   let base=G.dragons.reduce((s,d)=>s+(COIN_S[d.level]||0),0);
-  const coinBonus=(getCultBonus().coinBonus||0);
-  return Math.floor(base*fc*yc*1.3*(1+coinBonus));
+  const cultBonus=(getCultBonus().coinBonus||0);
+  const actBonus=(calcCoinBonus()-1);  // 活动加成（返回的是总倍率，-1得到增量）
+  return Math.floor(base*fc*yc*1.3*(1+cultBonus+actBonus));
 }
 function updateHud(){
   if(!G.created)return;
@@ -489,8 +524,11 @@ function markMergeable(){
   }
 }
 function getSummonLevel(pool){
-  let total=pool.reduce((s,p)=>s+p.weight,0),r=Math.random()*total,acc=0;
-  for(const p of pool){acc+=p.weight;if(r<=acc)return p.level;}
+  // 周末活动加成：高品阶权重翻倍
+  const weekend=ACTIVITIES.find(a=>a.id==='weekend2x'&&a.active());
+  const boosted=weekend?pool.map(p=>({...p,weight:p.level>=2?p.weight*2:p.weight})):pool;
+  let total=boosted.reduce((s,p)=>s+p.weight,0),r=Math.random()*total,acc=0;
+  for(const p of boosted){acc+=p.weight;if(r<=acc)return p.level;}
   return pool[pool.length-1].level;
 }
 

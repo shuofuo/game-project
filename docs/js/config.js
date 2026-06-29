@@ -872,3 +872,5 @@ function updateHeroSection(){
   }
 }
 
+// 预初始化音频上下文（选属相页就建好，召唤时不卡顿）
+try{ initAudio(); }catch(e){}

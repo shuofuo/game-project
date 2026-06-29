@@ -66,7 +66,51 @@ let pendingSummonLevel=1;
 let summonRevealed=false;
 
 // ── 召唤音效（按稀有度）────────────────────────────────
-function playSummonSound(r){initAudio();if(!_audioCtx||_audioState.muted)return;const t=_audioCtx.currentTime;const[o,g]=[_audioCtx.createOscillator(),_audioCtx.createGain()];o.connect(g);g.connect(_audioCtx.destination);const f=[220,330,440,660,880][r];const d=[.4,.5,.6,.8,1][r];o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.5,t+.15);g.gain.setValueAtTime(.2,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.05);}
+// 召唤结果音效：按稀有度分级（普通单音→神话四音和弦+泛音）
+function playSummonSound(r){
+  initAudio();
+  if(!_audioCtx||_audioState.muted)return;
+  const t=_audioCtx.currentTime;
+  const vol=.18;
+  if(r<=1){
+    // 普通/稀有：单音升调
+    const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+    o.connect(g);g.connect(_audioCtx.destination);
+    o.type='sine';o.frequency.setValueAtTime(330,t);
+    o.frequency.exponentialRampToValueAtTime(660,t+.2);
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+.5);
+    o.start(t);o.stop(t+.55);
+  } else if(r===2){
+    // 珍稀：双音上行
+    [440,660].forEach((f,i)=>{
+      const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+      o.connect(g);g.connect(_audioCtx.destination);
+      o.type='sine';o.frequency.setValueAtTime(f,t+i*.1);
+      g.gain.setValueAtTime(vol,t+i*.1);g.gain.exponentialRampToValueAtTime(.001,t+i*.1+.5);
+      o.start(t+i*.1);o.stop(t+i*.1+.55);
+    });
+  } else if(r===3){
+    // 传说：三音和弦
+    [523,659,784].forEach((f,i)=>{
+      const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+      o.connect(g);g.connect(_audioCtx.destination);
+      o.type='sine';o.frequency.setValueAtTime(f,t+i*.07);
+      g.gain.setValueAtTime(vol*.9,t+i*.07);g.gain.exponentialRampToValueAtTime(.001,t+i*.07+.6);
+      o.start(t+i*.07);o.stop(t+i*.07+.65);
+    });
+  } else {
+    // 史诗/神话：四音大调和弦+高音泛音
+    [523,659,784,1047].forEach((f,i)=>{
+      const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
+      o.connect(g);g.connect(_audioCtx.destination);
+      o.type=i<3?'sine':'triangle';
+      o.frequency.setValueAtTime(f,t+i*.06);
+      g.gain.setValueAtTime(vol*(i<3?.9:.5),t+i*.06);
+      g.gain.exponentialRampToValueAtTime(.001,t+i*.06+.8);
+      o.start(t+i*.06);o.stop(t+i*.06+.85);
+    });
+  }
+}
 
 // ── 粒子爆炸 ─────────────────────────────────────────────
 function spawnSummonParticles(r){
@@ -83,6 +127,19 @@ function checkNewDragon(lvl){const owned=new Set(G.dragons.map(d=>d.level));retu
 function revealSummon(){
   if(summonRevealed)return;
   summonRevealed=true;
+  // 翻牌音效
+  initAudio();
+  try{
+    const t=_audioCtx.currentTime;
+    const o=_audioCtx.createOscillator();
+    const g=_audioCtx.createGain();
+    o.connect(g);g.connect(_audioCtx.destination);
+    o.type='sine';o.frequency.setValueAtTime(1200,t);
+    o.frequency.exponentialRampToValueAtTime(600,t+.12);
+    g.gain.setValueAtTime(.15,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+.18);
+    o.start(t);o.stop(t+.22);
+  }catch(e){}
   const lvl=pendingSummonLevel;
   const rar=getRarity(lvl);
   // 填充翻牌正面内容

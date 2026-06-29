@@ -16,6 +16,10 @@ function startGame(){
   saveGame();renderGrid();updateHud();startCps();startBgm();initHomeGesture();
   requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
   requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
+  setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);
+  if(!window._skillBarInterval){
+    window._skillBarInterval=setInterval(()=>{try{renderSkillBar();}catch(e){}},2000);
+  }
   el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
@@ -70,6 +74,159 @@ function getRarity(lvl){
 }
 let pendingSummonLevel=1;
 let summonRevealed=false;
+
+// ── 主动技能系统 ───────────────────────────────────────
+const SKILLS=[
+  {id:'s1',name:'流星火雨',icon:'🔥',cost:200,qiCost:300,cd:120,desc:'5秒内每秒掉落火球，每球造成金币×3伤害',color:'#ff4444',rar:2},
+  {id:'s2',name:'金光护体',icon:'🛡',cost:150,qiCost:200,cd:90,desc:'8秒内每次合成额外获得+50%金币',color:'#ffd700',rar:2},
+  {id:'s3',name:'龙息吹息',icon:'💨',cost:250,qiCost:400,cd:150,desc:'3秒内金币产出速度×3',color:'#42a5f5',rar:3},
+  {id:'s4',name:'天罚雷击',icon:'⚡',cost:300,qiCost:500,cd:180,desc:'随机获得传说级灵兽×1',color:'#9c27b0',rar:3},
+  {id:'s5',name:'时光倒流',icon:'⏳',cost:180,qiCost:300,cd:120,desc:'撤销最近一次合成，返还全部消耗',color:'#7c4dff',rar:2},
+  {id:'s6',name:'天命召唤',icon:'⭐',cost:500,qiCost:800,cd:300,desc:'必得传说级或以上灵兽',color:'#ff6b35',rar:4},
+];
+// 道具配置
+const ITEMS=[
+  {id:'i1',name:'双倍金币',icon:'💰',desc:'下次召唤金币产出×2持续30秒'},
+  {id:'i2',name:'保护符',icon:'🛡',desc:'下次合成必定成功（不消失）'},
+  {id:'i3',name:'召唤券',icon:'🎫',desc:'额外获得1次免费召唤次数'},
+];
+// 初始化技能冷却状态
+if(G.skills===null){
+  const s={};
+  SKILLS.forEach(sk=>{s[sk.id]={lastUsed:0};});
+  G.skills=s;
+}
+if(G.items===null){
+  G.items=ITEMS.map(it=>({...it,count:0}));
+}
+if(!G._activeEffects)G._activeEffects={};
+if(!G.signHistory)G.signHistory={};
+
+// 技能冷却剩余秒数
+function skillCdLeft(id){
+  const sk=G.skills&&G.skills[id];
+  if(!sk)return 0;
+  const el=SKILLS.find(s=>s.id===id);
+  if(!el)return 0;
+  const past=(Date.now()-sk.lastUsed)/1000;
+  return Math.max(0,Math.ceil(el.cd-past));
+}
+
+// 激活技能
+function activateSkill(id){
+  const sk=SKILLS.find(s=>s.id===id);
+  if(!sk){showNotif('error','技能不存在');return;}
+  const state=G.skills&&G.skills[id];
+  const cd=skillCdLeft(id);
+  if(cd>0){showNotif('warning','冷却中 '+cd+'秒');return;}
+  if(G.qi<sk.qiCost){showNotif('error','龙气不足');return;}
+  G.qi-=sk.qiCost;
+  if(state)state.lastUsed=Date.now();
+  saveGame();updateHud();
+  showNotif('success',sk.icon+' '+sk.name+' 发动！');
+  renderSkillBar();
+  switch(id){
+    case 's1': // 流星火雨：5秒×5次，每次掉落
+      let fireCount=0;
+      const fi=setInterval(()=>{
+        fireCount++;
+        G.coins+=Math.floor(G.cps*3*3);
+        updateHud();
+        if(fireCount>=5){clearInterval(fi);showNotif('gold','🔥 流星火雨结束！+'+fireCount*3+'秒产金');}
+      },3000);
+      G._activeEffects.s1=fi;
+      break;
+    case 's2': // 金光护体：8秒内合成加成
+      G._activeEffects.s2=setTimeout(()=>{delete G._activeEffects.s2;showNotif('info','🛡 金光护体结束');},8000);
+      break;
+    case 's3': // 龙息吹息：3秒×3金币产出
+      G.coins+=Math.floor(G.cps*3*3);
+      updateHud();
+      setTimeout(()=>{G.coins+=Math.floor(G.cps*3*3);updateHud();},1000);
+      setTimeout(()=>{G.coins+=Math.floor(G.cps*3*3);updateHud();showNotif('gold','💨 龙息吹息结束！+9秒产金');},2000);
+      break;
+    case 's4': // 天罚雷击：直接获得传说灵兽
+      doSummon(Math.random()<.5?10:Math.random()<.6?11:9);
+      break;
+    case 's5': // 时光倒流：撤销最近一次合成（如果_dragonsBak存在）
+      if(G._dragonsBak&&G._dragonsBak.length>G.dragons.length){
+        G.dragons=G._dragonsBak.map(d=>({...d}));
+        G.mergeCount=Math.max(0,G.mergeCount-1);
+        saveGame();renderGrid();updateHud();checkAch();
+        showNotif('success','⏳ 时光倒流成功！');
+      }else{
+        G.qi+=sk.qiCost;updateHud();
+        showNotif('info','⏳ 无可撤销的合成');
+      }
+      break;
+    case 's6': // 天命召唤：必得传说+
+      doSummon(Math.random()<.5?11:(Math.random()<.7?10:12));
+      break;
+  }
+  if(playSound)playSound('achieve');
+}
+
+// 使用道具
+function useItem(id){
+  const it=G.items&&G.items.find(i=>i.id===id);
+  if(!it){showNotif('error','道具不存在');return;}
+  if(it.count<=0){showNotif('warning','道具数量不足');return;}
+  it.count--;
+  saveGame();
+  switch(id){
+    case 'i1': // 双倍金币30秒
+      G._activeEffects.i1=setTimeout(()=>{delete G._activeEffects.i1;showNotif('info','💰 双倍金币结束');G.cps=calcCps();updateHud();},30000);
+      G.cps=calcCps()*2;
+      updateHud();
+      showNotif('gold','💰 双倍金币生效30秒！');
+      break;
+    case 'i2': // 保护符（下次合成不消失，标记）
+      G._activeEffects.i2=true;
+      showNotif('success','🛡 保护符已激活，下次合成灵兽不会消失！');
+      break;
+    case 'i3': // 召唤券
+      G.freeLeft++;
+      saveGame();
+      showNotif('success','🎫 获得额外免费召唤！剩余'+G.freeLeft+'次');
+      try{updateFreeBtn();}catch(e){}
+      break;
+  }
+  renderSkillBar();
+}
+
+// 渲染技能条（每2秒刷新一次）
+function renderSkillBar(){
+  const bar=document.getElementById('skillBar');
+  if(!bar)return;
+  const now=Date.now();
+  bar.innerHTML=SKILLS.map(sk=>{
+    const state=G.skills&&G.skills[sk.id];
+    const cd=skillCdLeft(sk.id);
+    const onCooldown=cd>0;
+    const canAfford=G.qi>=sk.qiCost;
+    const disabled=onCooldown||!canAfford;
+    const cdPct=onCooldown?Math.round((cd/sk.cd)*100):0;
+    const rarityLabel=['','普通','稀有','珍稀','传说'][sk.rar]||'';
+    const rarityColor=['','#aaa','#7eb8ff','#42a5f5','#ffd700'][sk.rar]||'#aaa';
+    const itemCount=G.items&&G.items.find(i=>i.id==='i'+sk.id[1])?(G.items.find(i=>i.id==='i'+sk.id[1]).count):0;
+    return `<button class="skill-btn ${disabled?'disabled':''}" onclick="${disabled?'':'activateSkill(\''+sk.id+'\')'}" title="${sk.desc}\n龙气消耗:${sk.qiCost} 冷却:${sk.cd}秒\n品阶:${rarityLabel}">
+      <span style="font-size:22px;">${sk.icon}</span>
+      <span style="font-size:9px;color:${rarityColor};font-weight:600;">${sk.name}</span>
+      <span style="font-size:8px;color:rgba(160,216,239,.7);">✨${sk.qiCost}</span>
+      ${onCooldown?'<div class="skill-cd"><div style="width:'+cdPct+'%;height:100%;background:rgba(0,0,0,.6);position:absolute;left:0;top:0;transition:width 1s linear;"></div>'+cd+'s</div>':''}
+    </button>`;
+  }).join('');
+  // 渲染道具（放在技能条右侧/下方，小图标）
+  const invCount=G.items?G.items.filter(i=>i.count>0).length:0;
+  if(invCount>0){
+    bar.innerHTML+=G.items.filter(it=>it.count>0).map(it=>{
+      return `<button class="skill-btn" onclick="useItem('${it.id}')" title="${it.name}: ${it.desc}" style="border-color:rgba(255,215,0,.2);">
+        <span style="font-size:20px;">${it.icon}</span>
+        <span style="font-size:9px;color:#ffd700;font-weight:700;">${it.count}</span>
+      </button>`;
+    }).join('');
+  }
+}
 
 // ── 召唤音效（按稀有度）────────────────────────────────
 // 召唤结果音效：按稀有度分级（普通单音→神话四音和弦+泛音）
@@ -178,6 +335,12 @@ function revealSummon(){
     animateRarityBar(rar);
     // 粒子
     spawnSummonParticles(rar);
+    // 屏幕震动
+    const gp=document.getElementById('gamePage');
+    if(gp){gp.classList.add('screen-shake');setTimeout(()=>gp.classList.remove('screen-shake'),400);}
+    // 结果放大弹出
+    const sraEl=document.getElementById('summonResultAnim');
+    if(sraEl){sraEl.classList.remove('sra-result-pop');void sraEl.offsetWidth;sraEl.classList.add('sra-result-pop');}
     // 显示
     anim.classList.add('show');
     document.getElementById('sraBtn').style.display='block';
@@ -188,6 +351,9 @@ function revealSummon(){
   },1400);
 }
 function closeSummonAnim(){
+  // heroIcon 闪光
+  const hi=document.getElementById('heroIcon');
+  if(hi){hi.classList.remove('hero-icon-flash');void hi.offsetWidth;hi.classList.add('hero-icon-flash');setTimeout(()=>hi.classList.remove('hero-icon-flash'),500);}
   document.getElementById('summonOverlay').classList.remove('show');
   document.getElementById('summonResultAnim').classList.remove('show');
   document.getElementById('sraBtn').style.display='none';
@@ -208,7 +374,7 @@ function doSummon(level){
   for(let i=0;i<TOTAL;i++)if(!used.has(i))spots.push(i);
   if(spots.length===0){showNotif('error','灵兽已满，请先合并！');return;}
   const idx=spots[Math.floor(Math.random()*spots.length)];
-  G.dragons.push({id:String(nextId++),level,idx});
+  G.dragons.push({id:String(nextId++),level,idx,star:1});
   G.summonCount++;
   saveGame();renderGrid();updateHud();checkAch();
   try{updateHeroSection();}catch(e){}
@@ -218,6 +384,32 @@ function doSummon(level){
   document.getElementById('summonOverlay').classList.add('show');
   document.getElementById('summonResultAnim').classList.remove('show');
   document.getElementById('sraBtn').style.display='none';
+}
+
+// ── 升星系统 ───────────────────────────────────────────
+// 检查某灵兽是否满级可升星
+function canUpgradeStar(dragon){
+  return dragon.level>=15 && (!dragon.star || dragon.star<5);
+}
+// 升星消耗（金币）
+function starUpgradeCost(star){
+  return Math.floor(10000*(star||1));
+}
+// 升星操作
+function upgradeStar(id){
+  const dragon=G.dragons.find(d=>d.id===id);
+  if(!dragon){showNotif('error','灵兽不存在');return;}
+  if(dragon.level<15){showNotif('warning','需要满级(Lv15)才能升星！');return;}
+  const ns=(dragon.star||1)+1;
+  if(ns>5){showNotif('info','已达最高星阶！');return;}
+  const cost=starUpgradeCost(dragon.star||1);
+  if(G.coins<cost){showNotif('error','金币不足');return;}
+  G.coins-=cost;
+  dragon.level=1;
+  dragon.star=ns;
+  saveGame();renderGrid();updateHud();checkAch();
+  showNotif('gold','⭐ 升星成功！'+(ns)+'星 '+starMult(ns)+'×产金倍率！');
+  if(playSound)playSound('achieve');
 }
 
 window.addEventListener('DOMContentLoaded',initGame);
@@ -538,12 +730,42 @@ function renderSignPanel(){
   const p=document.getElementById('signPanel');
   const todayDone=!canSignToday();
   const streak=G.signStreak||0;
+  // ===== 日历视图 =====
+  const now=new Date();
+  const calYear=parseInt(p.dataset.calYear||now.getFullYear());
+  const calMonth=parseInt(p.dataset.calMonth||(now.getMonth()+1));
+  const firstDay=new Date(calYear,calMonth-1,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth,0).getDate();
+  const today=now.getDate();
+  const isCurrentMonth=calYear===now.getFullYear()&&calMonth===now.getMonth()+1;
+  const signedDays=G.signHistory||{};
+  const calKey=calYear+'-'+String(calMonth).padStart(2,'0');
+  const signedThisMonth=signedDays[calKey]||[];
+  const monthNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const weekDays=['日','一','二','三','四','五','六'];
+  let calCells='';
+  // 空格子
+  for(let i=0;i<firstDay;i++)calCells+='<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const signed=signedThisMonth.includes(d);
+    const isToday=isCurrentMonth&&d===today;
+    const isFuture=isCurrentMonth&&d>today;
+    calCells+=`<div class="cal-cell${signed?' signed':''}${isToday?' today':''}${isFuture&&!signed?' future':''}">${d}</div>`;
+  }
+  const canPrev=calYear>2024||(calYear===2024&&calMonth>1);
   p.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:700;">🎁 每日签到</div>
       <div style="font-size:12px;color:#ffd700;">🔥 连续 ${streak} 天</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeSignPanel()">✕ 关闭</div>
     </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="var p=document.getElementById('signPanel');var m=${calMonth}-1;var y=${calYear};if(m<1){m=12;y--;}p.dataset.calYear=y;p.dataset.calMonth=m;renderSignPanel();">◀ 上一月</button>
+      <span style="font-size:13px;color:#ffd700;font-weight:700;">${calYear}年 ${monthNames[calMonth-1]}</span>
+      <button class="cal-nav-btn" onclick="var p=document.getElementById('signPanel');var m=${calMonth}+1;var y=${calYear};if(m>12){m=1;y++;}p.dataset.calYear=y;p.dataset.calMonth=m;renderSignPanel();">下一月 ▶</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">${weekDays.map(d=>`<div style="text-align:center;font-size:9px;color:#555;padding:3px 0;">${d}</div>`).join('')}${calCells}</div>
+    <div class="cal-grid" style="display:none"></div>
     ${todayDone?`<div style="text-align:center;padding:12px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:12px;margin-bottom:14px;">
       <div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 今日已签到</div>
       <div style="font-size:11px;color:#888;margin-top:4px;">明天再来领取更多奖励</div>
@@ -591,6 +813,13 @@ function doSign(){
   G.freeLeft+=reward.free;
   G.signDate=today();
   G.signStreak=(G.signStreak||0)+1;
+  // 写入历史（供日历用）
+  const now2=new Date();
+  const y=now2.getFullYear(),m=now2.getMonth()+1;
+  const key=y+'-'+String(m).padStart(2,'0');
+  if(!G.signHistory)G.signHistory={};
+  if(!G.signHistory[key])G.signHistory[key]=[];
+  if(!G.signHistory[key].includes(now2.getDate()))G.signHistory[key].push(now2.getDate());
   saveGame();
   updateHud();
   if(playSound) playSound('achieve');

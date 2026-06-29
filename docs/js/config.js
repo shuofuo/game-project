@@ -141,19 +141,28 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
   const tag = isBest ? '<span style="background:#ffd700;color:#1a0a00;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:2px;display:inline-block;margin-bottom:8px;">★ 当前最强</span>' : '';
   const el = document.createElement('div');
   el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(6px);';
+  // 星级处理
+  const star=(dragon&&dragon.star)||1;
+  const smult=star>1?starMult(star):null;
+  const starsHtml=star>=1?'<div style="font-size:16px;color:#ffd700;letter-spacing:2px;margin-bottom:6px;">'+'⭐'.repeat(Math.min(star,5))+'</div>':'';
+  const upgradeBtn=dragon&&canUpgradeStar(dragon)?
+    `<button onclick="event.stopPropagation();upgradeStar('${dragon.id}')" class="star-up-btn">⬆ 升星（需 ${starUpgradeCost(star)} 金币）</button>`:
+    (dragon&&star<5?'<div style="font-size:10px;color:#555;margin-top:4px;">满级后可升星 ⭐</div>':'');
+  const finalCps=Math.floor(cps*(smult||1));
   el.innerHTML = `<div style="background:linear-gradient(160deg,#0d0d2a 0%,#1a1a3a 100%);border:1.5px solid ${color}44;border-radius:28px;padding:36px 32px;width:min(340px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 40px ${color}22;">
     ${tag}
     <div style="font-size:11px;letter-spacing:4px;color:${color};opacity:.8;margin-bottom:4px;">${header}</div>
     <div style="font-size:80px;margin:12px 0;filter:drop-shadow(0 0 30px ${color}66);">${icon}</div>
+    ${starsHtml}
     <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:2px;">${LNAME[level]||'灵兽'}</div>
-    <div style="font-size:12px;color:${color};letter-spacing:3px;margin-bottom:8px;">${r}</div>
-    <div style="font-size:36px;font-weight:900;color:${color};margin:8px 0;">+${cps}/s</div>
-    <div style="font-size:12px;color:#888;margin-bottom:16px;">每秒产出 <span style="color:#ffd700;">${cps}</span> 金币</div>
+    <div style="font-size:12px;color:${color};letter-spacing:3px;margin-bottom:8px;">${r}${smult?' ×'+smult+'产金':''}</div>
+    <div style="font-size:36px;font-weight:900;color:${color};margin:8px 0;">+${finalCps}/s</div>
+    <div style="font-size:12px;color:#888;margin-bottom:16px;">每秒产出 <span style="color:#ffd700;">${finalCps}</span> 金币${smult?'（⭐×'+smult+'）':''}</div>
     <div style="background:rgba(255,255,255,.04);border-radius:16px;padding:16px;margin-bottom:16px;text-align:left;font-size:13px;color:#999;line-height:1.9;">
       <div style="color:${color};font-weight:700;margin-bottom:8px;font-size:14px;">⚡ ${names}</div>
       <div>${desc}</div>
     </div>
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;">
       <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
         <div style="font-size:18px;">${isBest ? G.dragons.length : (dragon ? 1 : '?')}</div>
         <div style="font-size:10px;color:#555;letter-spacing:1px;">${isBest ? '灵兽总数' : '该等级'}</div>
@@ -167,7 +176,8 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
         <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
       </div>
     </div>
-    <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:4px;">点击任意处关闭</div>
+    ${upgradeBtn}
+    <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;">点击任意处关闭</div>
   </div>`;
   el.onclick = e => { if(e.target===el) el.remove(); };
   document.body.appendChild(el);
@@ -198,7 +208,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},webhookUrl:null};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 const TASKS = [
@@ -289,11 +299,15 @@ function fmtNum(n){
   if(n>=1e3)return(n/1e3).toFixed(1)+'K';
   return Math.floor(n)+'';
 }
+// 星级倍率表（1星=1×, 2星=1.5×, 3星=2×, 4星=3×, 5星=5×）
+function starMult(star){const t=[0,1,1.5,2,3,5];return t[Math.min(star||1,5)]||1;}
+
 function calcCps(){
   if(!G.created)return 0;
   const fc=FATE_C[G.fate]||1;
   const yc=1+(YUN_COIN[G.currentFate]||0);
-  let base=G.dragons.reduce((s,d)=>s+(COIN_S[d.level]||0),0);
+  // 星级倍率 × 基础产金
+  let base=G.dragons.reduce((s,d)=>s+(COIN_S[d.level]||0)*(d.star?starMult(d.star):1),0);
   const cultBonus=(getCultBonus().coinBonus||0);
   const actBonus=(calcCoinBonus()-1);  // 活动加成
   const comboBonus=(G.combo>=5?1:G.combo>=2?.5:0);  // combo加成（返回的是总倍率，-1得到增量）
@@ -517,8 +531,10 @@ function doDrop(src,dst){
   if(!s)return;
   if(t){
     if(s.level===t.level&&s.level<15){
+      // 时光倒流备份
+      G._dragonsBak=G.dragons.map(d=>({...d}));
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
-      G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst});
+      G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst,star:1});
       G.mergeCount++;
       // 命格修炼加成：土行额外金币、金行额外龙气
       try{

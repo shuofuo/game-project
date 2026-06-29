@@ -35,6 +35,24 @@ function openAchPanel(){renderAch();document.getElementById('achPanel').classLis
 function closeAchPanel(){document.getElementById('achPanel').classList.remove('open');}
 function initAch(){if(G.created)setTimeout(checkAch,500);}
 
+// ── 云端排行榜（#6）──
+// 提交当前分数到飞书自定义机器人 Webhook
+function submitToLeaderboard(url){
+  if(!url||!url.startsWith('http')){showNotif('error','请输入正确的 Webhook 地址');return;}
+  const meName=G.zodiac>=0?ZOD_E[G.zodiac]+'的'+FATE_E[G.fate]:'神秘玩家';
+  const maxLvl=G.dragons.length>0?Math.max(...G.dragons.map(d=>d.level)):0;
+  const maxStar=G.dragons.length>0?Math.max(...G.dragons.map(d=>d.star||1)):1;
+  const body={
+    msg_type:'text',
+    content:{text:'🏅 生肖天机天机榜\n👤 '+meName+'\n💰 '+fmtNum(G.coins)+' 金币\n⚡ '+fmtNum(G.cps)+'/s 产出\n🐣 灵兽 '+G.dragons.length+' 只（最高 Lv'+maxLvl+' ⭐'+maxStar+'）\n📅 '+new Date().toLocaleString('zh-CN')+' 来自生肖天机玩家'}
+  };
+  G.webhookUrl=url;saveGame();
+  fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(8000)})
+    .then(r=>r.ok?showNotif('success','☁️ 已提交到云端！'):Promise.reject())
+    .catch(()=>showNotif('error','☁️ 提交失败，请检查 Webhook 地址'));
+  showNotif('info','☁️ 正在提交...');
+}
+
 function saveRankScore(){
   try{
     const list=JSON.parse(localStorage.getItem(SAVE_KEY+'_rank')||'[]');
@@ -51,7 +69,15 @@ function renderRankPanel(){
   const meName=G.zodiac>=0?ZOD_E[G.zodiac]+'的'+FATE_E[G.fate]:'神秘玩家';
   const list=getRankList();
   const myRank=list.findIndex(e=>e.name===meName)+1;
+  const webhookVal=(G.webhookUrl||'');
+  const cloudSection='<div class="leaderboard-submit"><div class="lb-badge">☁️ 云端天机榜</div>'+
+    '<input type="text" id="lbWebhook" value="'+webhookVal+'" placeholder="飞书 Webhook URL（可选）">'+
+    '<div class="lb-btn">'+
+      '<button class="lb-submit-btn" onclick="submitToLeaderboard(document.getElementById(\x27lbWebhook\x27).value)">☁️ 提交我的分数</button>'+
+      '<button class="lb-reset-btn" onclick="document.getElementById(\x27lbWebhook\x27).value=\x27\x27;G.webhookUrl=null;saveGame();showNotif(\x27info\x27,\x27已清除\x27)">清除</button>'+
+    '</div><div class="lb-last-submit">填写飞书机器人 Webhook 地址即可上榜</div></div>';
   p.innerHTML='<div style="padding:20px 16px 80px;">'+
+    cloudSection+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
       '<div style="font-size:16px;font-weight:700;">🏅 天机榜</div>'+
       '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeRankPanel()">✕</div>'+

@@ -120,7 +120,7 @@ function playSummonSound(r){
 
 // ── 粒子爆炸 ─────────────────────────────────────────────
 function spawnSummonParticles(r){
-  const pw=document.getElementById('sraPw');if(!pw)return;pw.innerHTML='';const c=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'][r];const n=[8,12,18,24,32][r];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='sra-p';const ang=Math.random()*Math.PI*2,dist=30+Math.random()*60;const dx=Math.cos(ang)*dist,dy=Math.sin(ang)*dist;const sz=4+Math.random()*8;p.style.cssText=`left:50%;top:40%;width:${sz}px;height:${sz}px;background:${c};--dx:${dx}px;--dy:${dy}px;animation-delay:${Math.random()*.3}s;box-shadow:0 0 ${sz}px ${c}`;pw.appendChild(p);}
+  const pw=document.getElementById('sraPw');if(!pw)return;pw.innerHTML='';const c=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'][r];const n=[8,12,18,24,32][r];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='sra-p';const ang=Math.random()*Math.PI*2,dist=30+Math.random()*60;const dx=Math.cos(ang)*dist,dy=Math.sin(ang)*dist;const _sz=4+Math.random()*8;p.style.cssText=`left:50%;top:40%;width:${_sz}px;height:${_sz}px;background:${c};--dx:${dx}px;--dy:${dy}px;animation-delay:${Math.random()*.3}s;box-shadow:0 0 ${_sz}px ${c}`;pw.appendChild(p);}
 }
 
 // ── 稀有度进度条 ────────────────────────────────────────
@@ -938,10 +938,10 @@ function showGuideStep(n){
       ${n>1?'':`<button class="guide-skip" onclick="closeGuide()">跳过引导</button>`}
       <button class="guide-next" onclick="nextGuideStep(${n})">${step.nextText}</button>
     </div>`;
-  tooltip.style.cssText=`left:${tLeft};top:${step.pos==='bottom'?''+tBottom||'50%':step.pos==='top'?'20px':'50%'};${step.pos==='bottom'?'bottom:'+tBottom+';top:auto;':'top:'+(step.pos==='top'?'20px':'50%');}transform:${tTransform};z-index:9999;`;
-  overlay.classList.add('active');
+  const _t = step.pos;
+  const _topVal = _t==='bottom' ? tBottom : (_t==='top' ? '20px' : '50%');
+  tooltip.style.cssText=`left:${tLeft};top:${_topVal};${_t==='bottom'?'bottom:0;top:auto;':''};transform:${tTransform};z-index:9999;`;
 }
-
 function nextGuideStep(current){
   showGuideStep(current+1);
 }

@@ -941,6 +941,8 @@ function showGuideStep(n){
   const _t = step.pos;
   const _topVal = _t==='bottom' ? tBottom : (_t==='top' ? '20px' : '50%');
   tooltip.style.cssText=`left:${tLeft};top:${_topVal};${_t==='bottom'?'bottom:0;top:auto;':''};transform:${tTransform};z-index:9999;`;
+  tooltip.classList.add('show');
+  overlay.classList.add('active');
 }
 function nextGuideStep(current){
   showGuideStep(current+1);

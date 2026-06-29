@@ -310,6 +310,7 @@ function renderGrid(){
     cell.style.borderRadius='12px';
     cell.style.border='1.5px solid rgba(255,255,255,.06)';
     cell.style.background='rgba(255,255,255,.02)';
+    cell.style.cursor='pointer';
     cell.dataset.idx=i;
     const d=G.dragons.find(d=>d.idx===i);
     if(d){
@@ -324,10 +325,42 @@ function renderGrid(){
       card.innerHTML=`<span class="d-icon" style="filter:drop-shadow(0 0 8px ${bd.replace(',.3)',',.4)').replace('rgba(','rgba(').replace(',.4)','40)')}">${LICON[d.level]||'?'}</span><span class="d-lv" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;">Lv${d.level}</span><span class="d-gold" style="font-size:9px;color:rgba(255,215,0,.6);">+${COIN_S[d.level]}/s</span>`;
       setupDrag(card,d);
       cell.appendChild(card);
+    } else {
+      const empty=document.createElement('div');
+      empty.style.cssText='display:flex;align-items:center;justify-content:center;width:100%;height:100%;opacity:.18;cursor:pointer;';
+      empty.innerHTML='<span style="font-size:clamp(16px,4vw,22px);line-height:1;filter:grayscale(1);">?</span>';
+      empty.onclick=e=>{e.stopPropagation();showCellHint(i,cell);};
+      cell.appendChild(empty);
     }
     grid.appendChild(cell);
   }
   markMergeable();
+}
+
+// 空格子提示
+let _cellHintEl=null;
+function showCellHint(idx,cellEl){
+  if(_cellHintEl)_cellHintEl.remove();
+  const lvl=idx+1;
+  const icon=LICON[lvl]||'?';
+  const name=LNAME[lvl]||'灵兽';
+  const rarities=['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
+  const r=rarities[lvl-1]||'普通';
+  const rarColors={普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
+  const color=rarColors[r];
+  const owned=G.dragons.some(d=>d.level===lvl);
+  const tip=owned?'已拥有该等级，等待召唤归来':'通过召唤获得 · 两张同等级可合成升级';
+  const rect=cellEl.getBoundingClientRect();
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;left:${Math.min(rect.left,window.innerWidth-200)}px;top:${rect.bottom+6}px;background:rgba(10,10,30,.96);border:1px solid ${color}44;border-radius:12px;padding:10px 14px;z-index:9999;font-size:11px;color:#888;line-height:1.6;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.5);`;
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="font-size:18px;filter:drop-shadow(0 0 6px ${color}66);">${icon}</span><span style="font-weight:700;color:${color};">Lv${lvl} · ${name}</span></div><div style="font-size:10px;color:#555;">${tip}</div>`;
+  el.onclick=e=>e.stopPropagation();
+  _cellHintEl=el;
+  document.body.appendChild(el);
+  setTimeout(()=>{
+    const close=ev=>{if(!el.contains(ev.target)){el.remove();document.removeEventListener('click',close);}};
+    document.addEventListener('click',close);
+  },50);
 }
 
 // 渲染到灵兽网格内层（4列，按等级从高到低排序）

@@ -776,11 +776,8 @@ function doStart(){
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
             <span>🎵 背景音乐</span>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
-              <input type="checkbox" id="bgmToggle
-  <div id="guideOverlay"></div>
-  <div id="guideTooltip"></div>
-
-" checked onchange="onBgmToggle(this.checked)"><span id="bgmLabel">开启</span>
+              <input type="checkbox" id="bgmToggle" checked onchange="onBgmToggle(this.checked)">
+              <span id="bgmLabel">开启</span>
             </label>
           </div>
           <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
@@ -803,6 +800,8 @@ function doStart(){
     <div id="mergeText" style="font-size:96px;filter:drop-shadow(0 0 32px rgba(255,215,0,.8));"></div>
   </div>
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
+  <div id="guideOverlay"></div>
+  <div id="guideTooltip"></div>
   <script src="js/config.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/game.js"></script>

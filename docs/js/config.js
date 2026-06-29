@@ -989,34 +989,18 @@ function updateHeroSection(){
     const ni = LICON[nextLvl]  || '?';
     const nextNew = nextLvl > bestLvl;
     const nextCps = COIN_S[nextLvl] || 0;
-    // === 动态渲染所有已拥有灵兽缩略图 ===
-    const lvlCounts = {};
-    G.dragons.forEach(d => { lvlCounts[d.level] = (lvlCounts[d.level]||0) + 1; });
-    const ownedLvls = Object.keys(lvlCounts).map(Number).sort((a,b) => b - a); // 等级从高到低
-    const rarList = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
-    const rarColors2 = {'普通':'#aaa','稀有':'#7eb8ff','珍稀':'#42a5f5','传说':'#9c27b0','史诗':'#ff9800','神话':'#ffd700'};
-    let thumbsHtml = '';
-    ownedLvls.forEach((lvl, i) => {
-      const count = lvlCounts[lvl];
-      const r = rarList[lvl-1] || '普通';
-      const rc = rarColors2[r];
-      const icon = LICON[lvl] || '?';
-      const countBadge = count > 1 ? `<div style="position:absolute;top:-4px;right:-4px;background:${rc};color:#000;font-size:8px;font-weight:800;border-radius:8px;padding:1px 4px;line-height:1;">${count}</div>` : '';
-      thumbsHtml += `<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 5px;border-radius:10px;" onclick="showDragonDetail(${lvl})" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'" title="Lv${lvl}·${r}">
-        <span style="font-size:22px;filter:drop-shadow(0 0 6px ${rc}55);">${icon}</span>
-        <span style="font-size:8px;color:${rc};font-weight:600;">Lv${lvl}${count>1?'×'+count:''}</span>
-        ${countBadge}
-      </div>`;
-      if (i < ownedLvls.length - 1) thumbsHtml += `<div style="font-size:9px;color:rgba(255,255,255,.1);align-self:center;padding:0 1px;">|</div>`;
-    });
-    // 升级箭头 + 下一级预览
-    thumbsHtml += `<div style="font-size:11px;color:rgba(255,255,255,.12);align-self:center;padding:0 4px;">→</div>
-      <div onclick="previewNextLevel(${nextLvl},${nextCps},'${ni}')" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 5px;border-radius:10px;opacity:${nextNew?0.75:0.2};" onmouseover="if(${nextNew}){this.style.background='rgba(126,184,255,.08)';this.style.opacity='1'}" onmouseout="this.style.background='transparent';this.style.opacity='${nextNew?0.75:0.2}'" title="${nextNew?'升级预览':'已达最高'}:Lv${nextLvl}">
-        <span style="font-size:20px;filter:${nextNew?'none':'grayscale(1)'}">${ni}</span>
-        <span style="font-size:8px;color:${nextNew?'rgba(126,184,255,.7)':'#444'};font-weight:600;">Lv${nextLvl}</span>
+    heroThumbs.innerHTML = `
+      <div class="ht" onclick="showDragonDetail(${bestLvl})" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'" title="点击查看灵兽详情">
+        <span>${ci}</span>
+        <span style="font-size:9px;color:rgba(255,215,0,.65);font-weight:600;">Lv${bestLvl}</span>
+      </div>
+      <div style="display:flex;align-items:center;font-size:11px;color:rgba(255,255,255,.15);align-self:center;margin:0 4px;">→</div>
+      <div onclick="previewNextLevel(${nextLvl},${nextCps},'${ni}')" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;opacity:${nextNew?0.7:0.25};font-size:24px;line-height:1;" onmouseover="if(${nextNew}){this.style.background='rgba(126,184,255,.08)';this.style.opacity='0.9'}" onmouseout="this.style.background='transparent';this.style.opacity='${nextNew?0.7:0.25}'">
+        <span style="filter:${nextNew?'none':'grayscale(1)'}">${ni}</span>
+        <span style="font-size:9px;color:${nextNew?'rgba(126,184,255,.7)':'#444'};font-weight:600;">Lv${nextLvl}</span>
         ${nextNew?'<span style="font-size:8px;color:rgba(126,184,255,.4);">+'+nextCps+'/s</span>':''}
-      </div>`;
-    heroThumbs.innerHTML = thumbsHtml;
+      </div>
+    `;
   }
 }
 

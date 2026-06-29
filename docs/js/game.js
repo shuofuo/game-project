@@ -2,7 +2,7 @@
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;
-  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.currentFate=3;
+  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.lastFreeDate=today();G.currentFate=3;
   if(G.lastFateDate!==today()){rollFate();}G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
   saveGame();
   var el;
@@ -30,8 +30,9 @@ function resetGame(){
   location.reload();
 }
 
-function initGame(){ initAch(); checkFateDaily();
+function initGame(){ initAch();
   loadGame();
+  checkFateDaily();
   try{loadSettings();}catch(e){}
   if(G.created){
     var el;
@@ -236,7 +237,10 @@ function checkFateDaily(){
   if(!G.created)return;
   if(G.lastFateDate!==today()){
     rollFate();
-    showNotif('warning','⏰ 新的一天！天机已变，运势已刷新');
+    G.freeLeft=3; // 重置免费召唤次数
+    G.lastFreeDate=today();
+    saveGame();
+    showNotif('warning','⏰ 新的一天！天机已变，运势已刷新，免费召唤已重置');
   }
 }
 function showFateDetail(){

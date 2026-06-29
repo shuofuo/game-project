@@ -197,7 +197,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
@@ -208,6 +208,8 @@ function loadGame(){
   const s = localStorage.getItem(SAVE_KEY);
   if(s){try{Object.assign(G,JSON.parse(s));}catch(e){}}
   if(G.dragons.length) nextId = Math.max(...G.dragons.map(d=>parseInt(d.id)))+1;
+  // 兼容旧存档：没有 lastFreeDate 则设为今天（防止每日重置失效）
+  if(!G.lastFreeDate) G.lastFreeDate = today();
 }
 function fmtNum(n){
   if(n>=1e9)return(n/1e9).toFixed(1)+'B';
@@ -232,9 +234,65 @@ function updateHud(){
   document.getElementById('coinCost').textContent=cost;
   document.getElementById('btnCoin').disabled=G.coins<cost;
   document.getElementById('btnQi').disabled=G.qi<500;
-  if(G.fate===2){
-    document.getElementById('btnFree').style.display=G.freeLeft>0?'flex':'none';
-    document.getElementById('freeCount').textContent=G.freeLeft;
+  if(G.fate===2) updateFreeBtn();
+}
+
+// 免费召唤按钮状态 + 倒计时
+let _freeTimer = null;
+function updateFreeBtn(){
+  const btn = document.getElementById('btnFree');
+  const countEl = document.getElementById('freeCount');
+  if(!btn || !countEl) return;
+  if(G.fate!==2){ btn.style.display='none'; return; }
+
+  clearInterval(_freeTimer);
+
+  if(G.freeLeft > 0){
+    // 有剩余次数：显示次数
+    btn.style.display='flex';
+    btn.disabled=false;
+    btn.style.opacity='1';
+    btn.style.background='linear-gradient(135deg,#2d7a2d,#1a5a1a)';
+    countEl.textContent='×'+G.freeLeft;
+    countEl.style.color='rgba(76,175,80,.9)';
+    countEl.style.fontSize='10px';
+  } else {
+    // 次数用完：显示倒计时
+    btn.style.display='flex';
+    btn.disabled=true;
+    btn.style.opacity='0.5';
+    btn.style.background='linear-gradient(135deg,#1a3a1a,#0d1f0d)';
+    countEl.textContent='明日00:00';
+    countEl.style.color='rgba(100,100,100,.7)';
+    countEl.style.fontSize='9px';
+    // 每分钟更新一次倒计时
+    _freeTimer = setInterval(()=>{
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate()+1);
+      tomorrow.setHours(0,0,0,0);
+      const ms = tomorrow - now;
+      const h = String(Math.floor(ms/3600000)).padStart(2,'0');
+      const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
+      if(countEl) countEl.textContent = h+':'+m+'后重置';
+    }, 60000);
+    // 立即更新一次
+    const ev = new Event(''); // 触发一次
+    clearInterval(_freeTimer);
+    const now = new Date();
+    const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(0,0,0,0);
+    const ms = tomorrow - now;
+    const h = String(Math.floor(ms/3600000)).padStart(2,'0');
+    const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
+    countEl.textContent = h+':'+m+'后重置';
+    _freeTimer = setInterval(()=>{
+      const now = new Date();
+      const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(0,0,0,0);
+      const ms = tomorrow - now;
+      const h = String(Math.floor(ms/3600000)).padStart(2,'0');
+      const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
+      if(countEl) countEl.textContent = h+':'+m+'后重置';
+    }, 60000);
   }
 }
 const COLS=5, TOTAL=25;
@@ -395,9 +453,11 @@ function summonQi(){
   doSummon(getSummonLevel([{level:4,weight:30},{level:5,weight:18},{level:6,weight:10}]));
 }
 function summonFree(){
-  if(G.freeLeft<=0){showNotif('error','今日免费次数已用完！');return;}
+  if(G.freeLeft<=0){showNotif('error','今日免费次数已用完！明天 00:00 自动重置');return;}
   G.freeLeft--;
+  saveGame();
   doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+  try{updateFreeBtn();}catch(e){}
 }
 
 

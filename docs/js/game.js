@@ -641,17 +641,23 @@ function renderTaskPanel(){
   const panel=document.getElementById('taskPanel');
   if(!panel) return;
   const doneCount=TASKS.filter(t=>taskDone(t.id)).length;
+  // 计算距次日0点的秒数
+  const now=new Date(),midnight=new Date(now);midnight.setDate(midnight.getDate()+1);midnight.setHours(0,0,0,0);
+  const secs=Math.max(1,Math.round((midnight-now)/1000));
+  const h=String(Math.floor(secs/3600)).padStart(2,'0');
+  const m=String(Math.floor((secs%3600)/60)).padStart(2,'0');
+  const s=String(secs%60).padStart(2,'0');
   panel.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:700;">📋 每日任务</div>
       <div style="font-size:12px;color:#ffd700;">${doneCount}/${TASKS.length} 完成</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeTaskPanel()">✕ 关闭</div>
     </div>
-    <div style="font-size:11px;color:#555;margin-bottom:14px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
-      🎯 所有任务自动追踪，达成后点击「领取」<br>
-      ⏰ 每日 00:00 重置进度
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;font-size:11px;color:#ffd700;">
+      <span>🎯 达成后点击「领取」</span>
+      <span id="taskCountdown">⏰ 重置: ${h}:${m}:${s}</span>
     </div>
-    ${TASKS.map(t=>{
+    <div id="taskListArea">${TASKS.map(t=>{
       const prog=Math.min(getTaskProgress(t),t.target);
       const pct=Math.round(prog/t.target*100);
       const done=taskDone(t.id);
@@ -661,7 +667,7 @@ function renderTaskPanel(){
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="font-size:20px;">${t.icon}</span>
             <div>
-              <div style="font-size:13px;font-weight:700;color:${done?'#4caf50':completed?'#ffd700':'#ccc'};">${t.title}</div>
+              <div style="font-size:13px;font-weight:700;color:${done?'#4caf50':completed?'#ffd700':'#ccc'};${t.title}</div>
               <div style="font-size:11px;color:#666;margin-top:2px;">${t.desc}</div>
             </div>
           </div>
@@ -677,7 +683,21 @@ function renderTaskPanel(){
           <span style="font-size:10px;color:#ffd700;">💰${t.reward.coin>=1000?t.reward.coin/1000+'K':t.reward.coin} ✨+${t.reward.qi}${t.reward.free?' 🆓+'+t.reward.free+'次':''}</span>
         </div>
       </div>`;}).join('')}
+    </div>
   </div>`;
+  // 倒计时每秒更新
+  let _remaining=secs;
+  const _cdTimer=setInterval(()=>{
+    const el=document.getElementById('taskCountdown');
+    if(!el||!document.getElementById('taskListArea')){clearInterval(_cdTimer);return;}
+    _remaining--;
+    if(_remaining<=0){clearInterval(_cdTimer);location.reload();return;}
+    const h=String(Math.floor(_remaining/3600)).padStart(2,'0');
+    const m=String(Math.floor((_remaining%3600)/60)).padStart(2,'0');
+    const s=String(_remaining%60).padStart(2,'0');
+    el.textContent='⏰ 重置: '+h+':'+m+':'+s;
+  },1000);
+  panel.classList.add('open');
   panel.classList.add('open');
 }
 
@@ -745,15 +765,34 @@ function openActivityPanel(){
         </div>
         ${isActive?'<div style="background:linear-gradient(135deg,'+a.color+'22,transparent);border:1px solid '+a.color+'33;border-radius:8px;padding:8px 12px;text-align:center;font-size:13px;color:'+a.color+';font-weight:700;">'+a.tip+'</div>':''}
       </div>`;}).join('')}
-    <div style="margin-top:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;">
-      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">📅 活动时间</div>
-      <div style="font-size:11px;color:#666;line-height:2;">
-        🎁 <b style="color:#ff9800;">周末双倍</b>：周六 00:00 - 周日 24:00<br>
-        🌙 <b style="color:#7c4dff;">晚间金币</b>：每日 20:00 - 22:00
-      </div>
+    <div id="actCountdown" style="margin-top:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;text-align:center;">
+      <div style="font-size:11px;color:#ffd700;font-weight:600;margin-bottom:6px;">⏰ 活动倒计时</div>
+      <div id="actCdLines" style="font-size:11px;color:#666;line-height:2;"></div>
     </div>
   </div>`;
   panel.classList.add('open');
+  // 动态倒计时
+  const _actTimer=setInterval(()=>{
+    const el=document.getElementById('actCdLines');
+    if(!el||!document.getElementById('activityPanel')){clearInterval(_actTimer);return;}
+    const now=new Date(),dow=now.getDay(); // 0=周日
+    const isWeekend=dow===0||dow===6;
+    const isNight=now.getHours()>=20&&now.getHours()<22;
+    let lines='';
+    if(isWeekend){lines+='<div>🎁 周末双倍 <span style="color:#ff9800;">进行中 🎉</span></div>';}else{
+      const sat=new Date(now);sat.setDate(now.getDate()+(6-dow+7)%7);sat.setHours(0,0,0,0);
+      const diff=Math.max(0,sat-now);const h=String(Math.floor(diff/3600000)).padStart(2,'0');
+      const m=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+      lines+='<div>🎁 周末双倍 <span style="color:#555;">'+h+':'+m+' 后开启</span></div>';
+    }
+    if(isNight){lines+='<div>🌙 晚间金币 <span style="color:#7c4dff;">进行中 🎉</span></div>';}else{
+      const ns=new Date(now);ns.setHours(20,0,0,0);if(ns<=now)ns.setDate(ns.getDate()+1);
+      const diff=Math.max(0,ns-now);const h=String(Math.floor(diff/3600000)).padStart(2,'0');
+      const m=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+      lines+='<div>🌙 晚间金币 <span style="color:#555;">'+h+':'+m+' 后开启</span></div>';
+    }
+    el.innerHTML=lines;
+  },1000);
 }
 
 function closeActivityPanel(){

@@ -892,6 +892,11 @@ function doStart(){
           </div>
           <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
         </div>
+        <div style="margin-bottom:24px;">
+          <div style="margin-bottom:8px;font-size:14px;">☁️ 服务器地址（天机榜）</div>
+          <input type="text" id="backendUrlInput" placeholder="例：http://你的服务器IP:3001" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;box-sizing:border-box;">
+          <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;">填入服务器地址后，打开天机榜即可上榜<br>离线模式下游戏不受影响</div>
+        </div>
         <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
       </div>
     </div>

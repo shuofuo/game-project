@@ -122,6 +122,9 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .sign-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#07071a;z-index:302;display:none;overflow-y:auto;}
 .sign-panel.open{display:block;}
 .sign-panel::-webkit-scrollbar{width:0;}
+.stats-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#07071a;z-index:304;display:none;overflow-y:auto;}
+.stats-panel.open{display:block;}
+.stats-panel::-webkit-scrollbar{width:0;}
 .task-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#07071a;z-index:303;display:none;overflow-y:auto;}
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
@@ -449,7 +452,11 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .side-btn[data-fn="handbook"]{color:rgba(180,100,255,.6);}
 .side-btn[data-fn="handbook"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 12px rgba(180,100,255,.2);}
 /* 排行-奖杯 */
+.side-btn[data-fn="stats"]{color:rgba(80,180,255,.55);}
+.side-btn[data-fn="stats"]:hover{background:rgba(80,180,255,.1);border-color:rgba(80,180,255,.35);color:#64b5f6;box-shadow:0 0 12px rgba(80,180,255,.2);}
 .side-btn[data-fn="rank"]{color:rgba(255,200,80,.65);}
+.side-btn[data-fn="stats"]{color:rgba(80,180,255,.55);}
+.side-btn[data-fn="stats"]:hover{background:rgba(80,180,255,.1);border-color:rgba(80,180,255,.35);color:#64b5f6;box-shadow:0 0 12px rgba(80,180,255,.2);}
 .side-btn[data-fn="rank"]:hover{background:rgba(255,200,80,.1);border-color:rgba(255,200,80,.35);color:#ffd700;box-shadow:0 0 12px rgba(255,200,80,.2);}
 /* 成就-徽章 */
 .side-btn[data-fn="ach"]{color:rgba(80,220,120,.6);}
@@ -657,13 +664,23 @@ function doStart(){
 
   <!-- ===== 第一行：顶部HUD（顶部留出刘海屏安全区） ===== -->
   <div id="topHud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(7,7,26,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">
-    <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
-    <div style="display:flex;align-items:center;gap:16px;">
-      <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
-      <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span>
-      <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
+    <!-- 左：段位+生肖 -->
+    <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+      <span id="hudRank" style="font-size:16px;display:none;" title="段位等级"></span>
+      <span id="hudZodiac" style="font-size:12px;color:#ffd700;opacity:.65;white-space:nowrap;"></span>
     </div>
-    <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
+    <!-- 中：经济数据 -->
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span title="金币" style="font-size:14px;">💰</span><span id="hudCoins" style="font-size:17px;font-weight:700;color:#ffd700;">0</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span>
+      <span id="hudCombo" style="display:none;font-size:11px;font-weight:700;color:#ff9800;background:rgba(255,152,0,.12);border:1px solid rgba(255,152,0,.3);border-radius:10px;padding:1px 6px;margin-left:4px;"></span>
+      <span title="龙气" style="font-size:14px;margin-left:4px;">✨</span><span id="hudQi" style="font-size:15px;font-weight:700;color:#a0d8ef;">0</span>
+    </div>
+    <!-- 右：运势星级 -->
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span id="hudYunStar" style="display:none;"></span>
+      <span id="hudYunshi" style="font-size:11px;color:rgba(255,255,255,.4);min-width:30px;text-align:right;"></span>
+    </div>
   </div>
 
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
@@ -671,6 +688,7 @@ function doStart(){
     <!-- 左侧功能按钮（竖排） -->
     <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:56px;padding-bottom:88px;background:linear-gradient(to bottom,rgba(0,0,0,.25) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.2) 100%);">
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      <button onclick="openStatsPanel()" class="side-btn" data-fn="stats" title="游戏统计"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
@@ -733,6 +751,7 @@ function doStart(){
 </div>
 <div id="rankPanel" class="rank-panel"></div>
   <div id="signPanel" class="sign-panel"></div>
+  <div id="statsPanel" class="stats-panel"></div>
   <div id="taskPanel" class="task-panel"></div>
   <div id="activityPanel" class="activity-panel"></div>
   <div id="handbookPanel" class="handbook-panel"></div>

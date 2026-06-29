@@ -28,6 +28,7 @@ const ZOD_E  = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','
 const ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
 const YUN_COIN   = [-.5,-.2,0,.3,.5];
+const RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#aaa'},{icon:'🥉',title:'小成',min:6,color:'#cd7f32'},{icon:'🥈',title:'大成',min:10,color:'#c0c0c0'},{icon:'🏆',title:'天师',min:14,color:'#ffd700'}];
 
 let _audioCtx = null;
 let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8, bgmLast: 0.35, sfxLast: 0.8 };
@@ -197,7 +198,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 const TASKS = [
@@ -277,14 +278,30 @@ function calcCps(){
   const yc=1+(YUN_COIN[G.currentFate]||0);
   let base=G.dragons.reduce((s,d)=>s+(COIN_S[d.level]||0),0);
   const cultBonus=(getCultBonus().coinBonus||0);
-  const actBonus=(calcCoinBonus()-1);  // 活动加成（返回的是总倍率，-1得到增量）
-  return Math.floor(base*fc*yc*1.3*(1+cultBonus+actBonus));
+  const actBonus=(calcCoinBonus()-1);  // 活动加成
+  const comboBonus=(G.combo>=5?1:G.combo>=2?.5:0);  // combo加成（返回的是总倍率，-1得到增量）
+  return Math.floor(base*fc*yc*1.3*(1+cultBonus+actBonus+comboBonus));
 }
 function updateHud(){
   if(!G.created)return;
   document.getElementById('hudCoins').textContent=fmtNum(G.coins);
   document.getElementById('hudCps').textContent=fmtNum(calcCps())+'/s';
   document.getElementById('hudQi').textContent=fmtNum(G.qi);
+  // 段位HUD
+  const cnt=new Set(G.dragons.map(d=>d.level)).size;
+  let rank=RANKS_HUD[0];
+  RANKS_HUD.forEach(r=>{if(cnt>=r.min)rank=r;});
+  const rh=document.getElementById('hudRank');
+  if(rh){rh.textContent=rank.icon;rh.title=rank.title;rh.style.display='inline';}
+  // 运势星级
+  const star=document.getElementById('hudYunStar');
+  if(star){star.style.display='inline';star.textContent='★'.repeat(G.currentFate||1);}
+  // combo 显示
+  const ch=document.getElementById('hudCombo');
+  if(ch){
+    ch.style.display=G.combo>=2?'inline':'none';
+    ch.textContent='x'+G.combo+' COMBO';
+  }
   const cost=G.summonCount<100?100:G.summonCount<500?150:G.summonCount<2000?200:250;
   document.getElementById('coinCost').textContent=cost;
   document.getElementById('btnCoin').disabled=G.coins<cost;
@@ -502,8 +519,14 @@ function doDrop(src,dst){
       showMergeFlash(LICON[s.level+1]);
       showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
       if(G.zodiac>=0) playSound('merge_z'+G.zodiac);
-      saveGame();renderGrid();updateHud();try{updateHeroSection();}catch(e){}
+      // combo 检测（2.5秒内连续合成）
+      const now=Date.now();
+      if(G.lastMergeTime&&now-G.lastMergeTime<2500){G.combo=Math.min((G.combo||0)+1,10);}else{G.combo=1;}
+      G.lastMergeTime=now;saveGame();renderGrid();updateHud();try{updateHeroSection();}catch(e){}
       checkAch();
+      if(G.combo>=2){
+        showNotif(G.combo>=5?'#ff9800':'#ffd700','⚡ 连击 x'+G.combo+'！'+(G.combo>=5?'金币产出×2！':'金币产出×1.5！'));
+      }
     }else{s.idx=dst;t.idx=src;saveGame();renderGrid();}
   }else{s.idx=dst;saveGame();renderGrid();}
 }
@@ -633,8 +656,10 @@ function startCps(){
   stopCps();
   cpsTimer=setInterval(()=>{
     const cps=calcCps();
-    if(cps>0){G.coins+=cps;updateHud();spawnCoinFloat(cps);if(Math.random()<.01)saveGame();}
+    if(cps>0){G.coins+=cps;G.totalCoins=(G.totalCoins||0)+cps;updateHud();spawnCoinFloat(cps);if(G.totalCoins%3600<cps)saveGame();}
   },1000);
+  // combo 衰减（500ms检测，2.5秒无合成归零）
+  setInterval(()=>{if(G.created&&G.combo>0&&Date.now()-G.lastMergeTime>2500){G.combo=0;updateHud();}},500);
   // 龙气回复（每分钟）
   qiTimer=setInterval(()=>{
     if(!G.created)return;

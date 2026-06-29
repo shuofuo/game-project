@@ -752,3 +752,65 @@ function closeActivityPanel(){
   if(p)p.classList.remove('open');
 }
 
+
+// ===== 游戏统计面板 =====
+function getPlayDays(){
+  if(!G.created||!G.created)return 1;
+  return Math.max(1,Math.floor((Date.now()-new Date(G.created).getTime())/86400000)+1);
+}
+function openStatsPanel(){
+  const panel=document.getElementById('statsPanel');
+  if(!panel) return;
+  const pdays=getPlayDays();
+  const cps=calcCps();
+  const totalCoins=G.totalCoins||0;
+  const uniqueTypes=new Set(G.dragons.map(d=>d.level)).size;
+  const unlockedAch=[..._unlocked].length;
+  panel.innerHTML=`<div style="padding:20px 16px 80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">📊 游戏统计</div>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeStatsPanel()">✕ 关闭</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      ${[
+        ['📅','游玩天数',pdays+' 天'],
+        ['🐣','累计召唤',(G.summonCount||0)+' 次'],
+        ['⚡','累计合成',(G.mergeCount||0)+' 次'],
+        ['🐾','灵兽数量',G.dragons.length+' 只'],
+        ['🎨','灵兽种类',uniqueTypes+'/15 种'],
+        ['🏅','成就解锁',unlockedAch+'/'+ACHIEVEMENTS.length],
+        ['💰','历史总产出',fmtNum(totalCoins)],
+        ['⏱️','当前CPS',fmtNum(cps)+'/s'],
+      ].map(([icon,label,val])=>`<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:18px;margin-bottom:4px;">${icon}</div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px;">${label}</div>
+        <div style="font-size:15px;font-weight:700;color:#ffd700;">${val}</div>
+      </div>`).join('')}
+    </div>
+    <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;">
+      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">🎯 命格修炼进度</div>
+      ${['木','火','土','金','水'].map((e,i)=>{
+        const keys=['mu','huo','tu','kin','shui'];
+        const icons=['🌿','🔥','🪨','⚪','💧'];
+        const lv=G.cultivation?.[keys[i]]||0;
+        const pct=Math.round(lv/3*100);
+        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:14px;">${icons[i]}</span>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span style="font-size:11px;color:#888;">${e} · ${lv}/3层</span>
+              <span style="font-size:10px;color:#ffd700;">${pct}%</span>
+            </div>
+            <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:${icons[i]==='🌿'?'#4caf50':icons[i]==='🔥'?'#f44336':icons[i]==='🪨'?'#795548':icons[i]==='⚪'?'#9e9e9e':'#2196f3'};border-radius:2px;"></div>
+            </div>
+          </div>
+        </div>`;}).join('')}
+    </div>
+  </div>`;
+  panel.classList.add('open');
+}
+function closeStatsPanel(){
+  const p=document.getElementById('statsPanel');
+  if(p)p.classList.remove('open');
+}

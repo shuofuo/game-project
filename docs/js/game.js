@@ -34,6 +34,7 @@ function initGame(){ initAch();
   loadGame();
   checkFateDaily();
   checkSignDaily();
+  checkTaskDaily();
   try{loadSettings();}catch(e){}
   if(G.created){
     var el;
@@ -589,11 +590,107 @@ function checkSignDaily(){
 }
 
 
-// ===== 底部栏新功能 =====
-function openTaskPanel(){
-  showNotif('📋 每日任务 · 功能开发中',3000);
+
+// ===== 每日任务 =====
+function getTaskProgress(task){
+  if(!G.created)return 0;
+  switch(task.id){
+    case 'summon10': case 'summon30': return G.summonCount||0;
+    case 'merge10':  case 'merge30':  return G.mergeCount||0;
+    case 'login': return 1; // 每日登录任务，只要当天就算登录
+    default: return 0;
+  }
+}
+function taskDone(id){
+  const ts=G.tasks||{};
+  return !!(ts[id]&&ts[id].claimed);
+}
+function renderTaskPanel(){
+  if(!G.tasks) G.tasks={};
+  TASKS.forEach(t=>{
+    if(!G.tasks[t.id]) G.tasks[t.id]={progress:0,claimed:false};
+    G.tasks[t.id].progress=getTaskProgress(t);
+  });
+  saveGame();
+  const panel=document.getElementById('taskPanel');
+  if(!panel) return;
+  const doneCount=TASKS.filter(t=>taskDone(t.id)).length;
+  panel.innerHTML=`<div style="padding:20px 16px 80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:16px;font-weight:700;">📋 每日任务</div>
+      <div style="font-size:12px;color:#ffd700;">${doneCount}/${TASKS.length} 完成</div>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeTaskPanel()">✕ 关闭</div>
+    </div>
+    <div style="font-size:11px;color:#555;margin-bottom:14px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
+      🎯 所有任务自动追踪，达成后点击「领取」<br>
+      ⏰ 每日 00:00 重置进度
+    </div>
+    ${TASKS.map(t=>{
+      const prog=Math.min(getTaskProgress(t),t.target);
+      const pct=Math.round(prog/t.target*100);
+      const done=taskDone(t.id);
+      const completed=prog>=t.target&&!done;
+      return `<div style="margin-bottom:12px;background:rgba(255,255,255,.025);border:1px solid ${done?'rgba(76,175,80,.2)':completed?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)'};border-radius:12px;padding:12px 14px;${done?'opacity:.6;':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:20px;">${t.icon}</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:${done?'#4caf50':completed?'#ffd700':'#ccc'};">${t.title}</div>
+              <div style="font-size:11px;color:#666;margin-top:2px;">${t.desc}</div>
+            </div>
+          </div>
+          ${done?`<div style="font-size:12px;color:#4caf50;font-weight:700;">✅ 已领取</div>`:
+            completed?`<button onclick="claimTask('${t.id}')" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;color:#1a0a00;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer;">🎁 领取</button>`:
+            `<div style="font-size:11px;color:#666;">进行中</div>`}
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${done?'#4caf50':completed?'#ffd700':'#a0d8ef'};border-radius:3px;transition:width .4s ease;${completed?'box-shadow:0 0 8px rgba(255,215,0,.3);':''}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <span style="font-size:10px;color:#555;">${completed?'':'进度: '+prog+'/'+t.target}</span>
+          <span style="font-size:10px;color:#ffd700;">💰${t.reward.coin>=1000?t.reward.coin/1000+'K':t.reward.coin} ✨+${t.reward.qi}${t.reward.free?' 🆓+'+t.reward.free+'次':''}</span>
+        </div>
+      </div>`;}).join('')}
+  </div>`;
+  panel.classList.add('open');
 }
 
-function openActivityPanel(){
-  showNotif('🎯 限时活动 · 功能开发中',3000);
+function openTaskPanel(){renderTaskPanel();}
+function closeTaskPanel(){const p=document.getElementById('taskPanel');if(p)p.classList.remove('open');}
+
+function claimTask(id){
+  if(!G.created)return;
+  const t=TASKS.find(t=>t.id===id);
+  if(!t)return;
+  const ts=G.tasks||{};
+  if(!ts[id])ts[id]={progress:0,claimed:false};
+  if(ts[id].claimed){showNotif('info','已领取');return;}
+  if(getTaskProgress(t)<t.target){showNotif('info','任务未完成');return;}
+  G.coins+=t.reward.coin;
+  G.qi+=t.reward.qi;
+  G.freeLeft+=t.reward.free;
+  ts[id].claimed=true;
+  G.tasks=ts;
+  saveGame();
+  updateHud();
+  if(playSound) playSound('achieve');
+  showNotif('success','✅ 领取成功！💰+'+fmtNum(t.reward.coin)+' ✨+'+t.reward.qi+(t.reward.free?' 🆓+'+t.reward.free+'召唤':''));
+  renderTaskPanel();
 }
+
+function checkTaskDaily(){
+  if(!G.created)return;
+  if(G.lastTaskDate!==today()){
+    G.tasks={};
+    G.lastTaskDate=today();
+    if(!G.tasks.login) G.tasks.login={progress:0,claimed:false};
+    G.tasks.login={progress:1,claimed:false};
+    saveGame();
+  }
+}
+
+// ===== 限时活动（占位）=====
+function openActivityPanel(){
+  showNotif('🎯 限时活动 · 敬请期待',3000);
+}
+

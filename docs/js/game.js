@@ -48,6 +48,8 @@ function initGame(){ initAch();
     requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
     requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
     el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
+    // 新手引导（首次进入游戏）
+    if(!G.guideDone){requestAnimationFrame(()=>{setTimeout(()=>startGuide(),600);});}
   }
 }
 
@@ -813,4 +815,135 @@ function openStatsPanel(){
 function closeStatsPanel(){
   const p=document.getElementById('statsPanel');
   if(p)p.classList.remove('open');
+}
+
+// ===== 新手引导系统 =====
+const GUIDE_STEPS = [
+  {
+    step:1,
+    title:'欢迎来到生肖天机！',
+    body:'在这里，你将通过召唤与合成，一步步打造属于自己的天命神兽。让我们一起开始吧！',
+    target:null,
+    pos:'center',
+    nextText:'开始探索 →',
+  },
+  {
+    step:2,
+    title:'召唤你的第一只灵兽',
+    body:'点击底部中央的「💰 金币召唤」，消耗金币召唤一只灵兽。\n\n金币会自动累积，无需手动操作。',
+    target:'#btnCoin',
+    pos:'top',
+    highlight:'rect',
+    nextText:'明白了！',
+  },
+  {
+    step:3,
+    title:'三种召唤方式',
+    body:'💰 金币召唤：消耗累积金币\n✨ 龙气召唤：使用龙气，获得更高品阶\n🆓 免费召唤：每天重置，适合微氪玩家',
+    target:'#summonBar',
+    pos:'bottom',
+    nextText:'继续 →',
+  },
+  {
+    step:4,
+    title:'合成升阶，灵兽进化',
+    body:'拖动一只灵兽到另一只相同品阶的灵兽上，即可合成升阶！\n\n合成等级越高，产出金币越多！',
+    target:'#gridContainer',
+    pos:'center',
+    nextText:'我学会了！',
+  },
+  {
+    step:5,
+    title:'自动产金，积累资源',
+    body:'灵兽会自动每秒产出金币 💰\n\n点击左上角的「📊 统计」可以查看详细数据。提升灵兽等级可大幅增加产出！',
+    target:'#topHud',
+    pos:'bottom',
+    nextText:'继续 →',
+  },
+  {
+    step:6,
+    title:'每日活动，不要错过',
+    body:'📋 每日签到：坚持签到，奖励递增\n📋 每日任务：自动追踪进度，完成领取奖励\n🎁 限时活动：周末双倍召唤、晚间金币时段！',
+    target:'[data-fn="sign"]',
+    pos:'right',
+    nextText:'太好了！',
+  },
+  {
+    step:7,
+    title:'恭喜你，探索完成！',
+    body:'你已掌握核心玩法。现在去召唤你的第一只灵兽，开启生肖天机之旅吧 🐉\n\n提示：图鉴、排行榜、命格修炼都在侧边栏~',
+    target:null,
+    pos:'center',
+    nextText:'进入游戏 →',
+  },
+];
+
+function startGuide(){
+  G.guideDone = false;
+  G.guideStep = 1;
+  saveGame();
+  showGuideStep(1);
+}
+
+function showGuideStep(n){
+  const steps = GUIDE_STEPS;
+  if(n > steps.length){closeGuide();return;}
+  const step = steps[n-1];
+  const overlay = document.getElementById('guideOverlay');
+  const tooltip = document.getElementById('guideTooltip');
+  if(!overlay || !tooltip) return;
+
+  // 清除旧cutout
+  overlay.querySelectorAll('.guide-cutout').forEach(e=>e.remove());
+
+  if(step.target){
+    // 定位目标元素
+    const target = document.querySelector(step.target);
+    if(target){
+      const r = target.getBoundingClientRect();
+      const cutout = document.createElement('div');
+      cutout.className = 'guide-cutout';
+      cutout.style.cssText = `left:${r.left-6}px;top:${r.top-6}px;width:${r.width+12}px;height:${r.height+12}px;`;
+      overlay.appendChild(cutout);
+    }
+  }
+
+  // 进度点
+  const dots = steps.map((_,i)=>`<div class="dot${i+1<n?' done':i+1===n?' active':''}"></div>`).join('');
+  // 计算tooltip位置
+  let tLeft='50%',tTop='50%',tTransform='translate(-50%,-50%)';
+  if(step.pos==='center'){
+    tLeft='50%';tTop='50%';tTransform='translate(-50%,-50%)';
+  } else if(step.pos==='bottom'){
+    tLeft='50%';tTop='auto';tTransform='translate(-50%,0)';
+    tBottom=step.target?Math.max(20, window.innerHeight - (document.querySelector(step.target)?.getBoundingClientRect().top||0) + 80)+'px':'20%';
+  } else if(step.pos==='top'){
+    tLeft='50%';tTop='20px';tTransform='translate(-50%,0)';
+  } else if(step.pos==='right'){
+    tLeft='50%';tTop='50%';tTransform='translate(-50%,-50%)';
+  }
+
+  tooltip.innerHTML=`<div id="guideDots">${dots}</div>
+    <div class="guide-step-num">第 ${n} / ${steps.length} 步</div>
+    <div class="guide-title">${step.title}</div>
+    <div class="guide-body">${step.body.replace(/\n/g,'<br>')}</div>
+    <div class="guide-btns">
+      ${n>1?'':`<button class="guide-skip" onclick="closeGuide()">跳过引导</button>`}
+      <button class="guide-next" onclick="nextGuideStep(${n})">${step.nextText}</button>
+    </div>`;
+  tooltip.style.cssText=`left:${tLeft};top:${step.pos==='bottom'?''+tBottom||'50%':step.pos==='top'?'20px':'50%'};${step.pos==='bottom'?'bottom:'+tBottom+';top:auto;':'top:'+(step.pos==='top'?'20px':'50%');}transform:${tTransform};z-index:9999;`;
+  overlay.classList.add('active');
+}
+
+function nextGuideStep(current){
+  showGuideStep(current+1);
+}
+
+function closeGuide(){
+  const overlay=document.getElementById('guideOverlay');
+  const tooltip=document.getElementById('guideTooltip');
+  if(overlay){overlay.classList.remove('active');overlay.querySelectorAll('.guide-cutout').forEach(e=>e.remove());}
+  G.guideDone=true;
+  G.guideStep=GUIDE_STEPS.length+1;
+  saveGame();
 }

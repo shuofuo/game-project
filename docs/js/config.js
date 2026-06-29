@@ -13,18 +13,10 @@ const LANIM_NAMES = [
   '天命','天命',                    // Lv11-12 神话
   '永恒','永恒','永恒'             // Lv13-15 终极
 ];
-// 点击主页灵兽 → 切换动作
+// 点击主页灵兽 → 显示详情弹窗
 function cycleHeroAnim(){
-  // 点击灵兽显示品阶介绍（替代动作切换）
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
-  const lv = best.level || 1;
-  const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
-  const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
-  const colors = {普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
-  const desc = {普通:'初生的灵兽之灵，蕴含无限可能',稀有:'逐渐觉醒血脉之力',珍稀:'灵性显露，威能初现',传说:'龙魂觉醒，天地为之动容',史诗:'超越凡俗，接近神境',神话:'天命所归，永恒不灭'};
-  const color = colors[rarities[lv-1]];
-  const r = rarities[lv-1];
-  showNotif('info', names[lv-1] + ' · ' + r + ' · ' + desc[r]);
+  if(best.id) showDragonDetail(best.id);
 }
 const LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
 const COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
@@ -93,6 +85,91 @@ function playSound(type) {
     case 'merge_z11': mk(100, .2, .7); mk(130, .2, .5, .08); break;
     case 'achieve_z11': mk(294, .3, .8); mk(370, .3, .6, .18); mk(440, .4, .5, .36); break;
   }
+}
+
+// 灵兽详情弹窗
+function showDragonDetail(dragonId){
+  const dragon = G.dragons.find(d => d.id === String(dragonId));
+  if(!dragon){ // 传level时走降级逻辑（缩略图旧数据）
+    const lvl = parseInt(dragonId);
+    if(lvl < 1 || lvl > 15) return;
+    const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
+    const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
+    const colors = {普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
+    const skills = {
+      普通:'被动：每分钟自动产出少量金币',
+      稀有:'被动：金币产出+50%，有几率触发双倍收益',
+      珍稀:'被动：召唤所需龙气-10%，产出+100%',
+      传说:'被动：每5分钟免费召唤一次（需空格）',
+      史诗:'被动：合并成功率+20%，金币产出翻2倍',
+      神话:'被动：全属性+300%，每级召唤必得珍稀以上',
+    };
+    const r = rarities[lvl-1]||'普通';
+    const color = colors[r];
+    const icon = LICON[lvl]||'🐣';
+    const cps = COIN_S[lvl]||0;
+    const desc = skills[r];
+    showDetailModal({level:lvl, icon, cps, r, color, names:names[lvl-1], desc});
+    return;
+  }
+  const lvl = dragon.level||1;
+  const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
+  const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
+  const colors = {普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
+  const skills = {
+    普通:'被动：每分钟自动产出少量金币',
+    稀有:'被动：金币产出+50%，有几率触发双倍收益',
+    珍稀:'被动：召唤所需龙气-10%，产出+100%',
+    传说:'被动：每5分钟免费召唤一次（需空格）',
+    史诗:'被动：合并成功率+20%，金币产出翻2倍',
+    神话:'被动：全属性+300%，每级召唤必得珍稀以上',
+  };
+  const r = rarities[lvl-1]||'普通';
+  const color = colors[r];
+  const icon = LICON[dragon.idx]||LICON[lvl]||'🐣';
+  const cps = COIN_S[lvl]||0;
+  const desc = skills[r];
+  showDetailModal({level:lvl, icon, cps, r, color, names:names[lvl-1], desc, dragon});
+}
+
+function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
+  // 判断是最高级灵兽还是普通预览
+  const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
+  const isBest = dragon && dragon.id === best.id;
+  const header = isBest ? '当前最强灵兽' : (dragon ? '灵兽详情' : 'Lv.' + level + ' · ' + (LNAME[level]||'灵兽'));
+  const tag = isBest ? '<span style="background:#ffd700;color:#1a0a00;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:2px;display:inline-block;margin-bottom:8px;">★ 当前最强</span>' : '';
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(6px);';
+  el.innerHTML = `<div style="background:linear-gradient(160deg,#0d0d2a 0%,#1a1a3a 100%);border:1.5px solid ${color}44;border-radius:28px;padding:36px 32px;width:min(340px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 40px ${color}22;">
+    ${tag}
+    <div style="font-size:11px;letter-spacing:4px;color:${color};opacity:.8;margin-bottom:4px;">${header}</div>
+    <div style="font-size:80px;margin:12px 0;filter:drop-shadow(0 0 30px ${color}66);">${icon}</div>
+    <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:2px;">${LNAME[level]||'灵兽'}</div>
+    <div style="font-size:12px;color:${color};letter-spacing:3px;margin-bottom:8px;">${r}</div>
+    <div style="font-size:36px;font-weight:900;color:${color};margin:8px 0;">+${cps}/s</div>
+    <div style="font-size:12px;color:#888;margin-bottom:16px;">每秒产出 <span style="color:#ffd700;">${cps}</span> 金币</div>
+    <div style="background:rgba(255,255,255,.04);border-radius:16px;padding:16px;margin-bottom:16px;text-align:left;font-size:13px;color:#999;line-height:1.9;">
+      <div style="color:${color};font-weight:700;margin-bottom:8px;font-size:14px;">⚡ ${names}</div>
+      <div>${desc}</div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
+      <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
+        <div style="font-size:18px;">${isBest ? G.dragons.length : (dragon ? 1 : '?')}</div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;">${isBest ? '灵兽总数' : '该等级'}</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
+        <div style="font-size:18px;">Lv.${level}</div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;">当前等级</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
+        <div style="font-size:18px;color:${color};">${r}</div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:4px;">点击任意处关闭</div>
+  </div>`;
+  el.onclick = e => { if(e.target===el) el.remove(); };
+  document.body.appendChild(el);
 }
 
 // 点击下一级缩略图 → 弹出升级预览弹窗
@@ -641,7 +718,7 @@ function updateHeroSection(){
     const nextNew = nextLvl > bestLvl;
     const nextCps = COIN_S[nextLvl] || 0;
     heroThumbs.innerHTML = `
-      <div class="ht" onclick="if(!_inGridMode)enterGridMode()" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'">
+      <div class="ht" onclick="showDragonDetail(${bestLvl})" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'" title="点击查看灵兽详情">
         <span>${ci}</span>
         <span style="font-size:9px;color:rgba(255,215,0,.65);font-weight:600;">Lv${bestLvl}</span>
       </div>

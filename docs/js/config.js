@@ -616,6 +616,7 @@ function updateHeroSection(){
   heroIcon.className = animClass;
   // 动作名称（按等级显示）
   const animNames = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
+  const animHints = ['啾啾雀跃','振翅欲飞','翩翩起舞','盘龙腾云','灵蛇灵马','帝王神威','天命永恒'];
   let hint = document.getElementById('heroAnimHint');
   if(!hint){
     hint = document.createElement('div');
@@ -623,7 +624,7 @@ function updateHeroSection(){
     hint.className = 'hero-anim-hint';
     heroIcon.parentElement.appendChild(hint);
   }
-  hint.textContent = animHints[G.heroAnimIdx || 0];
+  hint.textContent = animHints[G.heroAnimIdx || 0] || '';
   heroLv.textContent = 'Lv.' + best.level;
   heroCps.textContent = '+' + cps + '/s';
   if(heroFate){

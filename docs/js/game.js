@@ -44,11 +44,11 @@ function initGame(){ initAch(); checkFateDaily();
 
 // ===== 召唤翻牌动画 =====
 const RARITY=[
-  {name:'普通',color:'#aaa',tag:'NORMAL'},
-  {name:'稀有',color:'#7eb8ff',tag:'RARE'},
-  {name:'史诗',color:'#b57edc',tag:'EPIC'},
-  {name:'传说',color:'#ffd700',tag:'LEGEND'},
-  {name:'神话',color:'#ff6b35',tag:'MYTH'},
+  {name:'普通',color:'#aaa',tag:'普通'},
+  {name:'稀有',color:'#7eb8ff',tag:'稀有'},
+  {name:'史诗',color:'#b57edc',tag:'史诗'},
+  {name:'传说',color:'#ffd700',tag:'传说'},
+  {name:'神话',color:'#ff6b35',tag:'神话'},
 ];
 function getRarity(lvl){
   if(lvl<=3)return 0;
@@ -59,6 +59,21 @@ function getRarity(lvl){
 }
 let pendingSummonLevel=1;
 let summonRevealed=false;
+
+// ── 召唤音效（按稀有度）────────────────────────────────
+function playSummonSound(r){initAudio();if(!_audioCtx||_audioState.muted)return;const t=_audioCtx.currentTime;const[o,g]=[_audioCtx.createOscillator(),_audioCtx.createGain()];o.connect(g);g.connect(_audioCtx.destination);const f=[220,330,440,660,880][r];const d=[.4,.5,.6,.8,1][r];o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.5,t+.15);g.gain.setValueAtTime(.2,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.05);}
+
+// ── 粒子爆炸 ─────────────────────────────────────────────
+function spawnSummonParticles(r){
+  const pw=document.getElementById('sraPw');if(!pw)return;pw.innerHTML='';const c=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'][r];const n=[8,12,18,24,32][r];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='sra-p';const ang=Math.random()*Math.PI*2,dist=30+Math.random()*60;const dx=Math.cos(ang)*dist,dy=Math.sin(ang)*dist;const sz=4+Math.random()*8;p.style.cssText=`left:50%;top:40%;width:${sz}px;height:${sz}px;background:${c};--dx:${dx}px;--dy:${dy}px;animation-delay:${Math.random()*.3}s;box-shadow:0 0 ${sz}px ${c}`;pw.appendChild(p);}
+}
+
+// ── 稀有度进度条 ────────────────────────────────────────
+function animateRarityBar(r){
+  const fill=document.getElementById('sraFill');const bar=document.querySelector('.sra-bar');if(!fill||!bar)return;const colors=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];fill.style.background=colors[r];fill.style.width='0%';setTimeout(()=>fill.style.width=(20+r*20)+'%',50);}
+
+// ── 新灵兽检测 ──────────────────────────────────────────
+function checkNewDragon(lvl){const owned=new Set(G.dragons.map(d=>d.level));return !owned.has(lvl);}
 
 function revealSummon(){
   if(summonRevealed)return;
@@ -74,16 +89,32 @@ function revealSummon(){
   document.getElementById('scard').classList.add('flipped');
   // 1.4秒后显示结果
   setTimeout(()=>{
-    document.getElementById('summonResultAnim').classList.add('show');
-    document.getElementById('sraEmoji').textContent=LICON[lvl]||'?';
-    document.getElementById('sraName').textContent=LNAME[lvl]||'灵兽';
-    document.getElementById('sraDesc').textContent='Lv'+lvl+' · 每秒产金 '+COIN_S[lvl];
-    document.getElementById('sraTag').textContent=rar.tag;
-    document.getElementById('sraTag').style.color=rar.color;
-    document.getElementById('sraBtn').style.display='block';
-    // 关闭提示
+    // 关闭翻牌区域
     document.querySelector('.summon-tip').style.display='none';
     document.querySelector('.scard-wrap').style.display='none';
+    // 稀有度背景
+    const anim=document.getElementById('summonResultAnim');
+    anim.className='summon-result-anim sra-r'+rar;
+    // 填充内容
+    document.getElementById('sraEmoji').textContent=LICON[lvl]||'?';
+    document.getElementById('sraName').textContent=LNAME[lvl]||'灵兽';
+    document.getElementById('sraDesc').textContent='Lv'+lvl+' · 每秒产金 +'+COIN_S[lvl];
+    const tag=document.getElementById('sraTag');
+    tag.textContent=rar.tag;
+    tag.style.color=rar.color;
+    document.getElementById('sraCps').textContent='+'+COIN_S[lvl]+'/s 金币产出';
+    // 新灵兽提示
+    const newEl=document.getElementById('sraNew');
+    newEl.style.display=checkNewDragon(lvl)?'block':'none';
+    // 进度条
+    animateRarityBar(rar);
+    // 粒子
+    spawnSummonParticles(rar);
+    // 显示
+    anim.classList.add('show');
+    document.getElementById('sraBtn').style.display='block';
+    // 音效
+    playSummonSound(rar);
   },1400);
 }
 function closeSummonAnim(){

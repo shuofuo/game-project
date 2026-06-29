@@ -499,12 +499,59 @@ function showMergeFlash(emoji){
   document.getElementById('mergeText').textContent=emoji;
   el.classList.add('show');setTimeout(()=>el.classList.remove('show'),500);
 }
-function showNotif(type,msg){
+// showNotif 升级版：支持 emoji 前缀消息 + 稀有度颜色
+// showNotif：兼容旧调用 showNotif(type, msg) 和新调用 showNotif(msg)
+function showNotif(msg, colorOrOpts){
   const el=document.getElementById('notif');
-  const colors={success:'rgba(76,175,80,.9)',error:'rgba(244,67,54,.9)',info:'rgba(33,150,243,.9)',warning:'rgba(255,152,0,.9)'};
-  el.style.background=colors[type]||colors.info;
-  el.textContent=msg;el.style.display='block';
-  setTimeout(()=>el.style.display='none',2500);
+  if(!el)return;
+  clearTimeout(el._timer);
+  const COLORS={
+    success:'rgba(76,175,80,.92)',
+    error:'rgba(244,67,54,.92)',
+    info:'rgba(33,150,243,.92)',
+    warning:'rgba(255,152,0,.92)',
+    gold:'rgba(255,215,0,.92)',
+  };
+  // 旧调用：showNotif('error', 'message') — colorOrOpts 是消息字符串
+  let bg, text;
+  if(typeof colorOrOpts === 'string'){
+    bg = COLORS[msg] || COLORS.info;
+    text = colorOrOpts;
+  } else {
+    // 新调用：showNotif('完整消息', {color:'...'})
+    bg = (colorOrOpts&&colorOrOpts.color) || COLORS.info;
+    text = msg;
+  }
+  el.style.background = bg;
+  el.textContent = text;
+  el.style.display = 'block';
+  el.style.opacity = '1';
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  el._timer = setTimeout(()=>{
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(-10px)';
+    setTimeout(()=>{el.style.display='none';},300);
+  }, 2800);
+}
+
+// 召唤结果通知
+function notifSummon(lvl){
+  // 稀有度定义（内联，不依赖 game.js）
+  const rarDef = lvl<=2?{tag:'🐣 普通·',r:170,g:170,b:170}:lvl<=4?{tag:'🌟 稀有·',r:126,g:184,b:255}:lvl<=7?{tag:'⭐ 珍稀·',r:66,g:165,b:245}:lvl<=10?{tag:'💜 传说·',r:156,g:39,b:176}:lvl<=13?{tag:'🔥 史诗·',r:255,g:152,b:0}:{tag:'🌈 神话·',r:255,g:215,b:0};
+  const name=LNAME[lvl]||'灵兽';
+  const el=document.getElementById('notif');
+  if(!el)return;
+  clearTimeout(el._timer);
+  el.style.background=`rgba(${rarDef.r},${rarDef.g},${rarDef.b},.92)`;
+  el.textContent=rarDef.tag+' 获得 '+name+'！';
+  el.style.display='block';
+  el.style.opacity='1';
+  el.style.transform='translateX(-50%) translateY(0)';
+  el._timer=setTimeout(()=>{
+    el.style.opacity='0';
+    el.style.transform='translateX(-50%) translateY(-10px)';
+    setTimeout(()=>{el.style.display='none';},300);
+  },3200);
 }
 function startCps(){
   stopCps();

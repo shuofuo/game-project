@@ -120,6 +120,8 @@ function revealSummon(){
     document.getElementById('sraBtn').style.display='block';
     // 音效
     playSummonSound(rar);
+    // 通知气泡
+    notifSummon(lvl);
   },1400);
 }
 function closeSummonAnim(){

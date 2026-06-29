@@ -87,3 +87,32 @@
 
 **下一步：**
 用户按 docs/BUILD_GUIDE.md 搭建界面，然后测试运行
+
+---
+
+## 2026-06-29 功能完善日
+
+### 今日完成
+
+| 功能 | 文件 | 状态 |
+|------|------|------|
+| **每日签到** | config.js+game.js+index.html | ✅ 完成 |
+| **每日任务** | config.js+game.js+index.html | ✅ 完成 |
+| **限时活动** | config.js+game.js+index.html | ✅ 完成 |
+| **金币飘字动画** | config.js+index.html | ✅ 完成 |
+| **成就弹窗升级** | game.js+index.html | ✅ 完成 |
+| **README 重写** | README.md | ✅ 完成 |
+| **功能状态表** | docs/GAME_STATUS.md | ✅ 完成 |
+| **Cocos 废弃文件清理** | legacy/cocos/ | ✅ 移动完成 |
+
+### 架构调整
+- 删除 `html/` `assets/` `cocos-project.json` `v1.0.0.zip` `package.json`（移至 legacy/cocos/）
+- 游戏引擎：纯 HTML5 + Web Audio API
+- 托管：GitHub Pages（docs/ 即部署目录）
+- 开发进度：Phase 1~3 全部完成，Phase 4 下一步（微信小程序）
+
+### 下一步
+1. 微信小程序 A2 嵌入（需域名 + 备案）
+2. 合成连击特效
+3. 游戏统计面板
+4. 抖音/快手小程序（需企业资质）

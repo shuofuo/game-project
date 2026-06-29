@@ -586,13 +586,13 @@ function updateHeroSection(){
   const heroCps = document.getElementById('heroCps');
   const heroFate = document.getElementById('heroFateTag');
   const heroThumbs = document.getElementById('heroThumbs');
-  if(!heroIcon) return;
-  // 无灵兽时：初始化两只 + 提示召唤
+  if(!heroIcon) return; // game page 还没显示，等下次调用
+  // 确保有灵兽（防止首次启动 dragons 为空）
   if(!G.dragons || G.dragons.length === 0){
     G.dragons = [{id:String(nextId++),level:1,idx:12},{id:String(nextId++),level:1,idx:13}];
     saveGame();
     renderGrid();
-    // 没有灵兽时显示引导提示
+    updateHud();
     if(heroThumbs){
       heroThumbs.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:rgba(255,215,0,.4);padding:4px 12px;letter-spacing:1px;">
@@ -601,6 +601,7 @@ function updateHeroSection(){
           <span style="font-size:9px;opacity:.6;">点击下方召唤按钮</span>
         </div>`;
     }
+    return; // 刚初始化，召唤后 updateHeroSection 会再被调用
   }
   const best = G.dragons.reduce((a,b) => (a.level||0) >= (b.level||0) ? a : b);
   const icon = LICON[best.level] || '🐣';

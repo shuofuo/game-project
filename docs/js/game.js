@@ -126,6 +126,7 @@ function closeSummonAnim(){
   document.getElementById('scard').classList.remove('flipped');
   document.getElementById('summonResultAnim').classList.remove('show');
   summonRevealed=false;
+  try{updateHeroSection();}catch(e){}
 }
 
 // 改造 doSummon：触发翻牌动画而不是直接弹窗
@@ -139,8 +140,8 @@ function doSummon(level){
   const idx=spots[Math.floor(Math.random()*spots.length)];
   G.dragons.push({id:String(nextId++),level,idx});
   G.summonCount++;
-  saveGame();renderGrid();updateHud();
-  checkAch();
+  saveGame();renderGrid();updateHud();checkAch();
+  try{updateHeroSection();}catch(e){}
   // 改为触发翻牌动画
   pendingSummonLevel=level;
   summonRevealed=false;

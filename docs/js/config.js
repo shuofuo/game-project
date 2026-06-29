@@ -573,11 +573,29 @@ function notifSummon(lvl){
     setTimeout(()=>{el.style.display='none';},300);
   },3200);
 }
+
+// 金币产出飘字（每秒随机位置冒出）
+const _floatPool=[];
+function spawnCoinFloat(amt){
+  if(!G.created||amt<=0)return;
+  const el=document.createElement('div');
+  el.className='coin-float';
+  el.textContent='+'+fmtNum(amt);
+  // 随机落在屏幕下半部分偏左，避免遮挡召唤按钮
+  const baseX=document.body.clientWidth*.35;
+  const baseY=document.body.clientHeight*.65;
+  const jx=(Math.random()-.5)*120;
+  const jy=(Math.random()-.5)*50;
+  el.style.left=(baseX+jx)+'px';
+  el.style.top=(baseY+jy)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1250);
+}
 function startCps(){
   stopCps();
   cpsTimer=setInterval(()=>{
     const cps=calcCps();
-    if(cps>0){G.coins+=cps;updateHud();if(Math.random()<.01)saveGame();}
+    if(cps>0){G.coins+=cps;updateHud();spawnCoinFloat(cps);if(Math.random()<.01)saveGame();}
   },1000);
   // 龙气回复（每分钟）
   qiTimer=setInterval(()=>{

@@ -33,6 +33,7 @@ function resetGame(){
 function initGame(){ initAch();
   loadGame();
   checkFateDaily();
+  checkSignDaily();
   try{loadSettings();}catch(e){}
   if(G.created){
     var el;
@@ -497,6 +498,96 @@ function renderHandbook(){
     </div>
   </div>`;
 }
+
+
+// ===== 每日签到 =====
+function getSignDay(){return ((G.signStreak||0)%7)||7;}
+function canSignToday(){
+  if(!G.signDate)return true;
+  return G.signDate!==today();
+}
+
+function renderSignPanel(){
+  const p=document.getElementById('signPanel');
+  const todayDone=!canSignToday();
+  const streak=G.signStreak||0;
+  p.innerHTML=`<div style="padding:20px 16px 80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:16px;font-weight:700;">🎁 每日签到</div>
+      <div style="font-size:12px;color:#ffd700;">🔥 连续 ${streak} 天</div>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeSignPanel()">✕ 关闭</div>
+    </div>
+    ${todayDone?`<div style="text-align:center;padding:12px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:12px;margin-bottom:14px;">
+      <div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 今日已签到</div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">明天再来领取更多奖励</div>
+    </div>`:`<div style="text-align:center;padding:14px;background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,140,0,.08));border:1.5px solid rgba(255,215,0,.4);border-radius:14px;margin-bottom:14px;cursor:pointer;" onclick="doSign()" id="signBtn">
+      <div style="font-size:15px;color:#ffd700;font-weight:700;">🎉 立即签到</div>
+      <div style="font-size:11px;color:#aaa;margin-top:4px;">点击领取今日奖励</div>
+    </div>`}
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:16px;">
+      ${SIGN_REWARDS.map((r,i)=>{
+        const day=i+1;
+        const past=day<getSignDay()||(day===getSignDay()&&todayDone);
+        const current=day===getSignDay()&&!todayDone;
+        return `<div style="text-align:center;padding:7px 3px;background:${past?'rgba(76,175,80,.12)':current?'rgba(255,215,0,.12)':'rgba(255,255,255,.03)'};border:1.5px solid ${past?'rgba(76,175,80,.3)':current?'rgba(255,215,0,.5)':'rgba(255,255,255,.05)'};border-radius:10px;${current?'box-shadow:0 0 12px rgba(255,215,0,.25);':''}">
+          <div style="font-size:9px;color:${past?'#4caf50':current?'#ffd700':'#555'};font-weight:600;margin-bottom:3px;">Day${day}</div>
+          <div style="font-size:14px;line-height:1;">${past?'✅':current?'📍':'⬛'}</div>
+          <div style="font-size:8px;color:#666;margin-top:2px;">💰${r.coin>=1000?r.coin/1000+'K':r.coin}</div>
+          ${r.free>0?`<div style="font-size:8px;color:#ff9800;">🆓${r.free}</div>`:''}
+        </div>`;}).join('')}
+    </div>
+    <div style="font-size:11px;color:#555;background:rgba(255,255,255,.02);padding:8px 12px;border-radius:8px;line-height:1.8;">
+      🎁 连续签到累计奖励，断签重置<br>
+      ⏰ 每天 00:00 重置签到状态
+    </div>
+    <div style="margin-top:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;">
+      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">📋 7天签到奖励表</div>
+      ${SIGN_REWARDS.map((r,i)=>{const day=i+1;const active=day===getSignDay();return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);${active?'opacity:1;':'opacity:.5;'}">
+        <span style="font-size:11px;color:${active?'#ffd700':'#666'};">${r.label}</span>
+        <span style="font-size:11px;color:${active?'#ffd700':'#666'};">💰+${fmtNum(r.coin)} ✨+${r.qi}${r.free>0?' 🆓+'+r.free+'召唤':''}</span>
+      </div>`;}).join('')}
+    </div>
+  </div>`;
+  p.classList.add('open');
+}
+
+function openSignPanel(){renderSignPanel();}
+function closeSignPanel(){const p=document.getElementById('signPanel');if(p)p.classList.remove('open');}
+
+function doSign(){
+  if(!G.created)return;
+  if(!canSignToday()){showNotif('info','今日已签到');return;}
+  const day=getSignDay();
+  const reward=SIGN_REWARDS[day-1]||SIGN_REWARDS[0];
+  G.coins+=reward.coin;
+  G.qi+=reward.qi;
+  G.freeLeft+=reward.free;
+  G.signDate=today();
+  G.signStreak=(G.signStreak||0)+1;
+  saveGame();
+  updateHud();
+  if(playSound) playSound('achieve');
+  const btn=document.getElementById('signBtn');
+  if(btn){
+    btn.style.background='rgba(76,175,80,.15)';
+    btn.style.border='1.5px solid rgba(76,175,80,.4)';
+    btn.innerHTML='<div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 签到成功！</div><div style="font-size:11px;color:#aaa;margin-top:4px;">💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'次召唤':'')+'</div>';
+    btn.style.cursor='default';
+    btn.onclick=null;
+  }
+  showNotif('success','🎉 连续签到第'+G.signStreak+'天 · 💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'召唤':''));
+}
+
+function yesterday(){
+  const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);
+}
+function checkSignDaily(){
+  if(!G.created||!G.signDate)return;
+  if(G.signDate!==today()){
+    if(G.signDate!==yesterday()){G.signStreak=0;saveGame();}
+  }
+}
+
 
 // ===== 底部栏新功能 =====
 function openTaskPanel(){

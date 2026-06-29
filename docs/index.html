@@ -119,6 +119,9 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .cult-panel.open,.ach-panel.open{display:block;transform:translateX(0);}
 .cult-panel::-webkit-scrollbar,.ach-panel::-webkit-scrollbar{width:0;}
 @keyframes achSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.sign-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#07071a;z-index:302;display:none;overflow-y:auto;}
+.sign-panel.open{display:block;}
+.sign-panel::-webkit-scrollbar{width:0;}
 @keyframes achFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes achToast{0%{transform:translateX(120%);opacity:0}15%{transform:translateX(0);opacity:1}85%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
 
@@ -444,6 +447,9 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 /* 成就-徽章 */
 .side-btn[data-fn="ach"]{color:rgba(80,220,120,.6);}
 .side-btn[data-fn="ach"]:hover{background:rgba(80,220,120,.1);border-color:rgba(80,220,120,.35);color:#5fdc78;box-shadow:0 0 12px rgba(80,220,120,.2);}
+/* 签到 */
+.side-btn[data-fn="sign"]{color:rgba(255,215,0,.6);}
+.side-btn[data-fn="sign"]:hover{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.35);color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.2);}
 /* 设置-齿轮 */
 .side-btn[data-fn="settings"]{color:rgba(150,150,180,.55);}
 .side-btn[data-fn="settings"]:hover{background:rgba(150,150,180,.1);border-color:rgba(150,150,180,.3);color:#ccc;box-shadow:0 0 12px rgba(150,150,180,.15);}
@@ -640,6 +646,7 @@ function doStart(){
   <div id="middleRow" style="flex:1;display:flex;align-items:center;min-height:0;overflow:hidden;position:relative;margin:0;box-shadow:inset 0 0 80px 40px rgba(0,0,0,.35);">
     <!-- 左侧功能按钮（竖排） -->
     <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:56px;padding-bottom:88px;background:linear-gradient(to bottom,rgba(0,0,0,.25) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.2) 100%);">
+      <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
@@ -701,6 +708,7 @@ function doStart(){
 
 </div>
 <div id="rankPanel" class="rank-panel"></div>
+  <div id="signPanel" class="sign-panel"></div>
   <div id="handbookPanel" class="handbook-panel"></div>
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>

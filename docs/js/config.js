@@ -197,7 +197,18 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now()};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0};
+
+// 7天签到配置
+const SIGN_REWARDS = [
+  {coin:500,  qi:10,  free:0, label:'第1天'},
+  {coin:1000, qi:20,  free:0, label:'第2天'},
+  {coin:2000, qi:30,  free:0, label:'第3天'},
+  {coin:5000, qi:50,  free:1, label:'第4天'},
+  {coin:8000, qi:80,  free:1, label:'第5天'},
+  {coin:15000, qi:150, free:1, label:'第6天'},
+  {coin:30000, qi:300, free:2, label:'第7天'},
+];
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 

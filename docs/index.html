@@ -452,6 +452,8 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .side-btn[data-fn="rank"]{color:rgba(255,200,80,.65);}
 .side-btn[data-fn="rank"]:hover{background:rgba(255,200,80,.1);border-color:rgba(255,200,80,.35);color:#ffd700;box-shadow:0 0 12px rgba(255,200,80,.2);}
 /* 成就-徽章 */
+.side-btn[data-fn="guide"]{background:linear-gradient(135deg,#4a2d80,#2a1a50);border-color:rgba(180,130,255,.25);}
+.side-btn[data-fn="guide"]:hover{background:linear-gradient(135deg,#6a3da0,#4a2a70);border-color:rgba(180,130,255,.5);}
 .side-btn[data-fn="ach"]{color:rgba(80,220,120,.6);}
 .side-btn[data-fn="ach"]:hover{background:rgba(80,220,120,.1);border-color:rgba(80,220,120,.35);color:#5fdc78;box-shadow:0 0 12px rgba(80,220,120,.2);}
 /* 签到 */
@@ -680,7 +682,7 @@ function doStart(){
     <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
     <div style="display:flex;align-items:center;gap:16px;">
       <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
-      <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span>
+      <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
       <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
     </div>
     <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
@@ -693,6 +695,7 @@ function doStart(){
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
+      <button onclick="replayGuide();this.blur();" class="side-btn" data-fn="guide" title="重看引导">📖 重播</button>
       <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
     </div>
 
@@ -741,6 +744,7 @@ function doStart(){
       <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
     </button>
     <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:90px;padding:10px 16px;" title="龙气召唤">
+      <span id="qiCost" style="font-size:9px;display:block;margin-bottom:1px;color:rgba(255,255,255,.5);">✨ 500</span>
       <span style="font-size:18px;">✨</span>
       <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
     </button>

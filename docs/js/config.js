@@ -198,7 +198,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 const TASKS = [
@@ -257,6 +257,7 @@ let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
 function saveGame(){
+  G.lastOnline=Date.now();
   localStorage.setItem(SAVE_KEY, JSON.stringify(G));
 }
 function loadGame(){
@@ -265,6 +266,22 @@ function loadGame(){
   if(G.dragons.length) nextId = Math.max(...G.dragons.map(d=>parseInt(d.id)))+1;
   // 兼容旧存档：没有 lastFreeDate 则设为今天（防止每日重置失效）
   if(!G.lastFreeDate) G.lastFreeDate = today();
+  if(!G.lastOnline) G.lastOnline = Date.now();
+  // 离线收益（最多补算8小时）
+  if(G.created && G.lastOnline){
+    const elapsed=Math.min((Date.now()-G.lastOnline)/1000, 8*3600);
+    const cps=calcCps();
+    if(cps>0 && elapsed>60){
+      const offlineCoins=Math.floor(cps*elapsed*0.5); // 离线只有50%效率
+      if(offlineCoins>0){
+        G.coins+=offlineCoins;
+        G.totalCoins=(G.totalCoins||0)+offlineCoins;
+        setTimeout(()=>{
+          showOfflinePopup(offlineCoins, elapsed);
+        },800);
+      }
+    }
+  }
 }
 function fmtNum(n){
   if(n>=1e9)return(n/1e9).toFixed(1)+'B';
@@ -302,10 +319,12 @@ function updateHud(){
     ch.style.display=G.combo>=2?'inline':'none';
     ch.textContent='x'+G.combo+' COMBO';
   }
-  const cost=G.summonCount<100?100:G.summonCount<500?150:G.summonCount<2000?200:250;
-  document.getElementById('coinCost').textContent=cost;
-  document.getElementById('btnCoin').disabled=G.coins<cost;
-  document.getElementById('btnQi').disabled=G.qi<500;
+  const coinCost=Math.floor(100*Math.pow(1.2,Math.floor(G.summonCount/10)));
+  const qiCost=Math.floor(500*Math.pow(1.1,Math.floor(G.summonCount/15)));
+  document.getElementById('coinCost').textContent=coinCost;
+  document.getElementById('btnCoin').disabled=G.coins<coinCost;
+  document.getElementById('btnQi').disabled=G.qi<qiCost;
+  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent='✨ '+qiCost;
   if(G.fate===2) updateFreeBtn();
 }
 
@@ -337,33 +356,19 @@ function updateFreeBtn(){
     countEl.textContent='明日00:00';
     countEl.style.color='rgba(100,100,100,.7)';
     countEl.style.fontSize='9px';
-    // 每分钟更新一次倒计时
-    _freeTimer = setInterval(()=>{
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate()+1);
-      tomorrow.setHours(0,0,0,0);
-      const ms = tomorrow - now;
-      const h = String(Math.floor(ms/3600000)).padStart(2,'0');
-      const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
-      if(countEl) countEl.textContent = h+':'+m+'后重置';
-    }, 60000);
-    // 立即更新一次
-    const ev = new Event(''); // 触发一次
-    clearInterval(_freeTimer);
-    const now = new Date();
-    const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(0,0,0,0);
-    const ms = tomorrow - now;
-    const h = String(Math.floor(ms/3600000)).padStart(2,'0');
-    const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
-    countEl.textContent = h+':'+m+'后重置';
-    _freeTimer = setInterval(()=>{
+    // 立即计算一次倒计时
+    const _calcLeft = () => {
       const now = new Date();
       const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(0,0,0,0);
       const ms = tomorrow - now;
       const h = String(Math.floor(ms/3600000)).padStart(2,'0');
       const m = String(Math.floor((ms%3600000)/60000)).padStart(2,'0');
-      if(countEl) countEl.textContent = h+':'+m+'后重置';
+      return h+':'+m+'后重置';
+    };
+    if(countEl) countEl.textContent = _calcLeft();
+    // 每分钟更新
+    _freeTimer = setInterval(()=>{
+      if(countEl) countEl.textContent = _calcLeft();
     }, 60000);
   }
 }
@@ -514,6 +519,17 @@ function doDrop(src,dst){
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
       G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst});
       G.mergeCount++;
+      // 命格修炼加成：土行额外金币、金行额外龙气
+      try{
+        const cult=getCultBonus();
+        if(cult.coinBonus>0){
+          const bonus=Math.floor((COIN_S[s.level+1]||10)*cult.coinBonus*.5);
+          if(bonus>0){G.coins=Math.min(999999999,G.coins+bonus);G.totalCoins=(G.totalCoins||0)+bonus;updateHud();}
+        }
+        if(cult.qiRate>0&&Math.random()<.3){
+          G.qi=Math.min(99999,G.qi+1);updateHud();
+        }
+      }catch(e){}
       const qiGain=Math.floor(Math.random()*2);
       if(qiGain>0){G.qi=Math.min(99999,G.qi+qiGain);updateHud();}
       showMergeFlash(LICON[s.level+1]);
@@ -547,27 +563,41 @@ function markMergeable(){
   }
 }
 function getSummonLevel(pool){
-  // 周末活动加成：高品阶权重翻倍
+  // 1) 天机召唤吉时加成（3次机会，提升高阶概率）
+  let adjusted = pool.map(p=>{
+    if((G._summonBoost||0)>0 && p.level>=3) return {level:p.level, weight:Math.floor(p.weight*2.5)};
+    return p;
+  });
+  // 2) 周末活动加成
   const weekend=ACTIVITIES.find(a=>a.id==='weekend2x'&&a.active());
-  const boosted=weekend?pool.map(p=>({...p,weight:p.level>=2?p.weight*2:p.weight})):pool;
-  let total=boosted.reduce((s,p)=>s+p.weight,0),r=Math.random()*total,acc=0;
-  for(const p of boosted){acc+=p.weight;if(r<=acc)return p.level;}
+  if(weekend) adjusted=adjusted.map(p=>({...p,weight:p.level>=2?p.weight*2:p.weight}));
+  let total=adjusted.reduce((s,p)=>s+p.weight,0),r=Math.random()*total,acc=0;
+  for(const p of adjusted){acc+=p.weight;if(r<=acc){
+    if((G._summonBoost||0)>0) G._summonBoost--;
+    return p.level;
+  }}
+  if((G._summonBoost||0)>0) G._summonBoost--;
   return pool[pool.length-1].level;
 }
 
 function summonCoin(){
-  const cost=G.summonCount<100?100:G.summonCount<500?150:G.summonCount<2000?200:250;
+  const n=G.summonCount;
+  // 指数增长：100 → 120 → 145 → 174 → ...（每50次翻倍）
+  const cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)));
   if(G.coins<cost){showNotif('error','金币不足！');return;}
   G.coins-=cost;
   doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
 }
 function summonQi(){
-  if(G.qi<500){showNotif('error','龙气不足！');return;}
-  G.qi-=500;
+  // 龙气消耗也指数增长，防止龙气溢出
+  const n=G.summonCount;
+  const cost=Math.floor(500*Math.pow(1.1,Math.floor(n/15)));
+  if(G.qi<cost){showNotif('error','龙气不足！');return;}
+  G.qi-=cost;
   doSummon(getSummonLevel([{level:4,weight:30},{level:5,weight:18},{level:6,weight:10}]));
 }
 function summonFree(){
-  if(G.freeLeft<=0){showNotif('error','今日免费次数已用完！明天 00:00 自动重置');return;}
+  if(G.freeLeft<=0){showNotif('error','今日免费次数已用完！');return;}
   G.freeLeft--;
   saveGame();
   doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));

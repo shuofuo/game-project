@@ -30,7 +30,7 @@ function resetGame(){
   location.reload();
 }
 
-function initGame(){ initAch();
+function initGame(){ initAch(); startSkyEvents();
   loadGame();
   checkFateDaily();
   checkSignDaily();
@@ -226,25 +226,33 @@ window.addEventListener('DOMContentLoaded',initGame);
 
 // ===== 成就系统 =====
 const ACHIEVEMENTS=[
-  {id:'r1',type:'rank',title:'初窥',desc:'拥有3种不同灵兽',icon:'🔰',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=3},
-  {id:'r2',type:'rank',title:'小成',desc:'拥有6种不同灵兽',icon:'🥉',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=6},
-  {id:'r3',type:'rank',title:'大成',desc:'拥有10种不同灵兽',icon:'🥈',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
-  {id:'r4',type:'rank',title:'天师',desc:'拥有14种不同灵兽',icon:'🏆',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
+  // 召唤类（召唤次数上限约50次，成本递增）
   {id:'s1',type:'summon',title:'初出茅庐',desc:'召唤1次',icon:'🐣',cond:g=>g.summonCount>=1},
   {id:'s2',type:'summon',title:'小试牛刀',desc:'召唤10次',icon:'🐥',cond:g=>g.summonCount>=10},
-  {id:'s3',type:'summon',title:'渐入佳境',desc:'召唤50次',icon:'🐤',cond:g=>g.summonCount>=50},
-  {id:'s4',type:'summon',title:'龙腾四海',desc:'召唤200次',icon:'🐉',cond:g=>g.summonCount>=200},
-  {id:'s5',type:'summon',title:'凤鸣九天',desc:'召唤1000次',icon:'🔥',cond:g=>g.summonCount>=1000},
+  {id:'s3',type:'summon',title:'渐入佳境',desc:'召唤30次',icon:'🐤',cond:g=>g.summonCount>=30},
+  {id:'s4',type:'summon',title:'龙腾四海',desc:'召唤60次',icon:'🐉',cond:g=>g.summonCount>=60},
+  // 合成类（网格上限约37次有效合成）
   {id:'m1',type:'merge',title:'初次融合',desc:'合成1次',icon:'⚡',cond:g=>g.mergeCount>=1},
-  {id:'m2',type:'merge',title:'融合达人',desc:'合成50次',icon:'⚡⚡',cond:g=>g.mergeCount>=50},
-  {id:'m3',type:'merge',title:'融合宗师',desc:'合成200次',icon:'⚡⚡⚡',cond:g=>g.mergeCount>=200},
-  {id:'c1',type:'coin',title:'日进斗金',desc:'累计获得10K金币',icon:'💰',cond:g=>g.coins>=10000},
-  {id:'c2',type:'coin',title:'富甲一方',desc:'累计获得100K金币',icon:'💎',cond:g=>g.coins>=100000},
-  {id:'c3',type:'coin',title:'富可敌国',desc:'累计获得1M金币',icon:'👑',cond:g=>g.coins>=1000000},
-  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计获得1B金币',icon:'🌌',cond:g=>g.coins>=1000000000},
-  {id:'v1',type:'collect',title:'灵兽收藏家',desc:'拥有5种等级',icon:'📖',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=5},
-  {id:'v2',type:'collect',title:'灵兽大师',desc:'拥有10种等级',icon:'📚',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
-  {id:'v3',type:'collect',title:'灵兽宗师',desc:'拥有14种等级',icon:'📜',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
+  {id:'m2',type:'merge',title:'融合达人',desc:'合成15次',icon:'⚡⚡',cond:g=>g.mergeCount>=15},
+  {id:'m3',type:'merge',title:'融合宗师',desc:'合成25次',icon:'⚡⚡⚡',cond:g=>g.mergeCount>=25},
+  // 产出类（用历史总产出，不受金币花销影响）
+  {id:'c1',type:'coin',title:'日进斗金',desc:'累计产出10K金币',icon:'💰',cond:g=>(g.totalCoins||0)>=10000},
+  {id:'c2',type:'coin',title:'富甲一方',desc:'累计产出100K金币',icon:'💎',cond:g=>(g.totalCoins||0)>=100000},
+  {id:'c3',type:'coin',title:'富可敌国',desc:'累计产出1M金币',icon:'👑',cond:g=>(g.totalCoins||0)>=1000000},
+  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计产出10M金币',icon:'🌌',cond:g=>(g.totalCoins||0)>=10000000},
+  // 收集/段位类（拥有不同等级灵兽的数量）
+  {id:'r1',type:'rank',title:'初窥门径',desc:'拥有3种等级灵兽',icon:'🔰',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=3},
+  {id:'r2',type:'rank',title:'小有所成',desc:'拥有6种等级灵兽',icon:'🥉',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=6},
+  {id:'r3',type:'rank',title:'大有可观',desc:'拥有10种等级灵兽',icon:'🥈',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
+  {id:'r4',type:'rank',title:'天师之境',desc:'拥有14种等级灵兽',icon:'🏆',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
+  // 最高灵兽等级
+  {id:'l1',type:'level',title:'灵通初显',desc:'最高灵兽达到Lv5',icon:'⭐',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=5},
+  {id:'l2',type:'level',title:'通灵之境',desc:'最高灵兽达到Lv8',icon:'⭐⭐',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=8},
+  {id:'l3',type:'level',title:'神兽觉醒',desc:'最高灵兽达到Lv10',icon:'🌟',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=10},
+  {id:'l4',type:'level',title:'天命所归',desc:'最高灵兽达到Lv15',icon:'💫',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=15},
+  // 连击
+  {id:'b1',type:'combo',title:'连击新星',desc:'达成5连击',icon:'🔥',cond:g=>g.combo>=5},
+  {id:'b2',type:'combo',title:'连击达人',desc:'达成10连击',icon:'🔥🔥',cond:g=>g.combo>=10},
 ];
 const RANKS=[
   {title:'初窥',icon:'🔰',min:3,color:'#aaa'},
@@ -355,15 +363,14 @@ const CULTivation=[
   {key:'shui',name:'水', icon:'💧', color:'#2196f3', desc:'水润万物',       node:[{cost:100,  title:'涓涓细流',desc:'龙气回复+20%/min'},{cost:500,  title:'江河奔涌',desc:'龙气回复+50%/min'},{cost:2000, title:'汪洋大海',desc:'龙气回复+100%/min'}]},
 ];
 const QI_RATE=[0,0,0,0,0,20,50,100]; // 每级每分钟龙气回复量
-
 function getCultBonus(){
   const c=G.cultivation||{mu:0,huo:0,tu:0,kin:0,shui:0};
   return{
-    summonLowRate:(c.mu===1?.1:c.mu===2?.25:.35)*(c.mu===0?0:1),
-    mergeBonus:(c.huo===1?.05:c.huo===2?.15:.3)*(c.huo===0?0:1),
-    coinBonus:(c.tu===1?.1:c.tu===2?.25:.5)*(c.tu===0?0:1),
-    highRate:(c.kin===1?.1:c.kin===2?.25:.5)*(c.kin===0?0:1),
-    qiRate:QI_RATE[Object.values(c).reduce((a,b)=>a+b,0)]||0,
+    summonLowRate: c.mu>0 ? [0,.1,.25,.5][c.mu] : 0,
+    mergeBonus:   c.huo>0 ? [0,.05,.15,.3][c.huo] : 0,
+    coinBonus:    c.tu>0 ? [0,.1,.25,.5][c.tu] : 0,
+    highRate:     c.kin>0 ? [0,.1,.25,.5][c.kin] : 0,
+    qiRate:        QI_RATE[Math.min(Object.values(c).reduce((a,b)=>a+b,0),7)]||0,
   };
 }
 function calcCultQi(){
@@ -946,4 +953,140 @@ function closeGuide(){
   G.guideDone=true;
   G.guideStep=GUIDE_STEPS.length+1;
   saveGame();
+}
+
+// ===== 离线收益弹窗 =====
+function showOfflinePopup(coins, seconds){
+  const h = Math.floor(seconds/3600);
+  const m = Math.floor((seconds%3600)/60);
+  const timeStr = h>0 ? h+'小时'+m+'分钟' : m+'分钟';
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  el.innerHTML=`<div style="background:linear-gradient(160deg,#1a1030,#0d0a20);border:1.5px solid rgba(255,215,0,.35);border-radius:24px;padding:36px 32px;width:min(340px,90vw);text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);max-width:340px;">
+    <div style="font-size:36px;margin-bottom:12px;animation:floatUp 2s ease-in-out infinite;">💤</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:3px;margin-bottom:12px;">离线收益</div>
+    <div style="font-size:14px;color:#aaa;margin-bottom:6px;">离线 ${timeStr}</div>
+    <div style="font-size:32px;font-weight:900;color:#ffd700;margin:8px 0 16px;">+${fmtNum(coins)} 💰</div>
+    <div style="font-size:11px;color:#555;margin-bottom:20px;">离线期间产出 50% 效率（最多8小时）</div>
+    <button onclick="this.closest('div').parentElement.remove()" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:20px;color:#1a0a00;font-size:14px;font-weight:700;padding:10px 32px;cursor:pointer;">收下！</button>
+  </div>`;
+  document.body.appendChild(el);
+}
+
+// ===== 引导重播（不受guideDone限制）=====
+function replayGuide(){
+  G.guideDone = false;
+  localStorage.setItem(SAVE_KEY+'_guide','false');
+  G.guideDone = true;
+  showGuideStep(1);
+}
+
+// ===== 天机随机事件系统 =====
+const SKY_EVENTS = [
+  {
+    id:'coin_rain', icon:'💰', title:'财运亨通',
+    desc:'天降横财！所有灵兽产金速度翻倍！',
+    duration:45,
+    apply(){ this._origCps=typeof calcCps==='function'?calcCps():0; },
+    revert(){ G.coins=Math.min(999999999,G.coins+(this._origCps||0)*45); },
+    toast:'💰 财运翻倍中！（45秒）',
+  },
+  {
+    id:'summon_luck', icon:'⭐', title:'召唤吉时',
+    desc:'灵兽降临！接下来3次召唤概率大幅提升！',
+    duration:0,
+    apply(){ G._summonBoost=3; },
+    revert(){ G._summonBoost=0; },
+    toast:'⭐ 召唤吉时！接下来3次必出高阶灵兽！',
+  },
+  {
+    id:'qi_surge', icon:'💎', title:'龙气涌动',
+    desc:'龙气大潮！龙气自动回复速度翻3倍！',
+    duration:90,
+    apply(){ G._qiBoost=true; },
+    revert(){ G._qiBoost=false; },
+    toast:'💎 龙气涌动！（90秒）',
+  },
+  {
+    id:'coin_bonus', icon:'🌟', title:'天赐宝箱',
+    desc:'天赐之礼！直接获得大量金币！',
+    duration:0,
+    apply(){ const bonus=Math.floor(calcCps()*30);G.coins+=bonus;G.totalCoins=(G.totalCoins||0)+bonus;return bonus;},
+    revert(){},
+    toast:'🌟 宝箱开启！',
+  },
+  {
+    id:'free_summon', icon:'🎁', title:'免费召唤',
+    desc:'天命所归！免费召唤一次！',
+    duration:0,
+    apply(){ G.freeLeft=(G.freeLeft||0)+1; try{updateFreeBtn();}catch(e){} return 1; },
+    revert(){},
+    toast:'🎁 免费召唤+1！',
+  },
+  {
+    id:'combo_flash', icon:'🔥', title:'连击风暴',
+    desc:'合成成功率大幅提升！',
+    duration:60,
+    apply(){ G._mergeBoost=true; },
+    revert(){ G._mergeBoost=false; },
+    toast:'🔥 连击风暴！（60秒）合成成功率+30%',
+  },
+];
+
+let _skyTimer = null;
+let _activeEvent = null;
+let _eventTimeout = null;
+
+function checkSkyEvent(force){
+  if(!G.created || _activeEvent) return;
+  const trigger = force || (Math.random() < 0.15);
+  if(!trigger) return;
+  const ev = SKY_EVENTS[Math.floor(Math.random()*SKY_EVENTS.length)];
+  showSkyEvent(ev);
+}
+
+function showSkyEvent(ev){
+  _activeEvent = ev;
+  const extra = ev.apply()||'';
+  if(ev.toast) showNotif('success', ev.toast);
+  // 弹窗
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:9998;';
+  el.id = '_skyEventPanel';
+  el.innerHTML = `<div style="background:linear-gradient(160deg,#1a1030,#0d0a20);border:1.5px solid rgba(255,215,0,.4);border-radius:24px;padding:36px 32px;width:min(340px,90vw);text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);max-width:340px;">
+    <div style="font-size:44px;margin-bottom:14px;animation:floatUp 2s ease-in-out infinite;">${ev.icon}</div>
+    <div style="font-size:11px;color:rgba(255,215,0,.5);letter-spacing:4px;margin-bottom:10px;">天机降临</div>
+    <div style="font-size:20px;font-weight:700;color:#ffd700;margin-bottom:10px;">${ev.title}</div>
+    <div style="font-size:13px;color:#aaa;line-height:1.7;margin-bottom:20px;">${ev.desc}</div>
+    ${ev.duration>0 ? `<div style="font-size:11px;color:#555;margin-bottom:16px;">持续 ${ev.duration} 秒</div>` : ''}
+    <button onclick="dismissSkyEvent()" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:20px;color:#1a0a00;font-size:14px;font-weight:700;padding:10px 32px;cursor:pointer;">${ev.duration>0?'收下':'领取'}</button>
+  </div>`;
+  document.body.appendChild(el);
+  if(ev.duration>0){
+    _eventTimeout = setTimeout(()=>dismissSkyEvent(true), ev.duration*1000);
+  }
+}
+
+function dismissSkyEvent(completed){
+  const panel = document.getElementById('_skyEventPanel');
+  if(panel) panel.remove();
+  if(!completed && _activeEvent){
+    try{ _activeEvent.revert(); }catch(e){}
+  }
+  _activeEvent = null;
+  if(_eventTimeout){ clearTimeout(_eventTimeout);_eventTimeout=null; }
+  // 再次设置随机触发
+  scheduleNextEvent();
+}
+
+function scheduleNextEvent(){
+  if(_skyTimer) clearTimeout(_skyTimer);
+  const delay = (3*60 + Math.random()*2*60)*1000; // 3-5分钟
+  _skyTimer = setTimeout(checkSkyEvent, delay);
+}
+
+function startSkyEvents(){
+  scheduleNextEvent();
+  // 开服时也检查一次离线事件
+  setTimeout(()=>checkSkyEvent(Math.random()<0.15), 5000);
 }

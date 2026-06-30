@@ -262,15 +262,16 @@ function getActivityBonus(){return getActiveActivities();}
 function calcSummonBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.summonBonus,0));}
 function calcCoinBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.coinBonus,0));}
 function fmtActivityCountdown(){const a=getActiveActivities()[0];if(!a)return'';if(a.id==='night1_5x'){const m=new Date();const end=new Date(m);end.setHours(22,0,0,0);if(m.getHours()>=20)return'剩余 '+(Math.max(0,Math.round((end-m)/60000)))+'min';}return'进行中';}
+const SAVE_KEY = 'sxgame_v2';
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
 function saveGame(){
   G.lastOnline=Date.now();
-  localStorage.setItem(SAVE_KEY, JSON.stringify(G));
+  localStorage.setItem(SAVE_KEY || 'sxgame_v2', JSON.stringify(G));
 }
 function loadGame(){
-  const s = localStorage.getItem(SAVE_KEY);
+  const s = localStorage.getItem(SAVE_KEY || 'sxgame_v2');
   if(s){try{Object.assign(G,JSON.parse(s));}catch(e){}}
   if(G.dragons.length) nextId = Math.max(...G.dragons.map(d=>parseInt(d.id)))+1;
   // 兼容旧存档：没有 unlockedAtlas 则自动解锁自己属相

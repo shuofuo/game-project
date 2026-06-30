@@ -2,6 +2,7 @@
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;
+  G.unlockedAtlas=[sz];
   G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.lastFreeDate=today();G.currentFate=3;
   if(G.lastFateDate!==today()){rollFate();}G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
   saveGame();
@@ -34,7 +35,7 @@ function resetGame(){
   location.reload();
 }
 
-function initGame(){ startSkyEvents();
+function initGame(){ startSkyEvents();try{initWeekly();}catch(e){}
   loadGame();
   checkFateDaily();
   checkSignDaily();
@@ -377,6 +378,7 @@ function doSummon(level){
   G.dragons.push({id:String(nextId++),level,idx,star:1});
   G.summonCount++;
   saveGame();renderGrid();updateHud();checkAch();
+  _onWeeklyEvent("summon");
   try{updateHeroSection();}catch(e){}
   // 改为触发翻牌动画
   pendingSummonLevel=level;
@@ -683,39 +685,97 @@ function renderCultPanel(){
 
 
 function renderHandbook(){
-  const p=document.getElementById('handbookPanel');
-  const owned=new Set(G.dragons.map(d=>d.level));
-  const total=15;
-  const done=owned.size;
-  const pct=Math.round(done/total*100);
-  const rate=Object.values(COIN_S).slice(1);
-  p.innerHTML=`<div style="padding:20px 16px 60px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">📖 灵兽图鉴</div>
-      <div style="font-size:12px;color:#888;">${done}/${total} 种</div>
-      <div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeHandbook()">✕</div>
-    </div>
-    <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center;">
-      <div style="font-size:13px;color:#ffd700;margin-bottom:8px;">收集进度</div>
-      <div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:4px;transition:width .5s;"></div>
-      </div>
-      <div style="font-size:11px;color:#888;">${pct}% 完成 · 已解锁 ${done} 种灵兽</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-      ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(lv=>{
-        const isDone=owned.has(lv);
-        const rarity=lv<=2?'普通':lv<=4?'稀有':lv<=7?'珍稀':lv<=10?'传说':lv<=13?'史诗':'神话';
-        const rcolors={'普通':'#888','稀有':'#4caf50','珍稀':'#2196f3','传说':'#9c27b0','史诗':'#ff9800','神话':'#ffd700'};
-        return `<div style="background:${isDone?'rgba(255,215,0,.06)':'rgba(255,255,255,.02)'};border:1.5px solid ${isDone?'rgba(255,215,0,.3)':'rgba(255,255,255,.06)'};border-radius:14px;padding:14px 6px;text-align:center;${isDone?'':'opacity:.4'}">
-          <div style="font-size:32px;margin-bottom:4px;">${LICON[lv]||'❓'}</div>
-          <div style="font-size:11px;font-weight:700;color:${isDone?'#ffd700':'#666'};">${LNAME[lv]||'?'}</div>
-          <div style="font-size:10px;color:${rcolors[rarity]};margin:3px 0;">${rarity}</div>
-          <div style="font-size:10px;color:${isDone?'#ffd700':'#555'};">Lv${lv} · +${rate[lv-1]||0}/s</div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
+  var p=document.getElementById('handbookPanel');
+  if(!p)return;
+  if(!window._handTab)window._handTab='level';
+  var tab=window._handTab;
+  if(tab==='level'){
+    var owned={};
+    G.dragons.forEach(function(d){owned[d.level]=true;});
+    var total=15;
+    var done=Object.keys(owned).length;
+    var pct=Math.round(done/total*100);
+    var rate=Object.values(COIN_S).slice(1);
+    var rcolors={'普通':'#888','稀有':'#4caf50','珍稀':'#2196f3','传说':'#9c27b0','史诗':'#ff9800','神话':'#ffd700'};
+    var items='';
+    for(var lv=1;lv<=15;lv++){
+      var isDone=!!owned[lv];
+      var rarity=lv<=2?'普通':lv<=4?'稀有':lv<=7?'珍稀':lv<=10?'传说':lv<=13?'史诗':'神话';
+      items+='<div style="background:'+(isDone?'rgba(255,215,0,.06)':'rgba(255,255,255,.02)')+';border:1.5px solid '+(isDone?'rgba(255,215,0,.3)':'rgba(255,255,255,.06)')+';border-radius:14px;padding:14px 6px;text-align:center;'+(isDone?'':'opacity:.4')+'">'
+        +'<div style="font-size:32px;margin-bottom:4px;">'+(LICON[lv]||'?')+'</div>'
+        +'<div style="font-size:11px;font-weight:700;color:'+(isDone?'#ffd700':'#666')+';">'+(LNAME[lv]||'?')+'</div>'
+        +'<div style="font-size:10px;color:'+rcolors[rarity]+';margin:3px 0;">'+rarity+'</div>'
+        +'<div style="font-size:10px;color:'+(isDone?'#ffd700':'#555')+';">Lv'+lv+' &middot; +'+(rate[lv-1]||0)+'/s</div>'
+        +'</div>';
+    }
+    var tabBar='<div style="display:flex;gap:8px;margin-bottom:16px;">'
+      +'<button onclick="window._handTab=\'level\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='level'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='level'?'#ffd700':'#888')+';">📊 等级</button>'
+      +'<button onclick="window._handTab=\'zodiac\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='zodiac'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='zodiac'?'#ffd700':'#888')+';">🏆 属相</button>'
+      +'</div>';
+    p.innerHTML='<div style="padding:20px 16px 60px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+      +'<div style="font-size:16px;font-weight:700;">📖 灵兽图鉴</div>'
+      +'<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeHandbook()">✕</div>'
+      +'</div>'
+      +tabBar
+      +'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center;">'
+      +'<div style="font-size:13px;color:#ffd700;margin-bottom:8px;">收集进度</div>'
+      +'<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">'
+      +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:4px;transition:width .5s;"></div>'
+      +'</div>'
+      +'<div style="font-size:11px;color:#888;">'+pct+'% 完成 &middot; 已解锁 '+done+' 种灵兽</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">'+items+'</div>'
+      +'</div>';
+  } else {
+    // 属相图鉴
+    var atlas=G.unlockedAtlas||(G.zodiac>=0?[G.zodiac]:[]);
+    var atlasDone=atlas.length;
+    var atlasPct=Math.round(atlasDone/12*100);
+    var zNames=['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+    var zitems='';
+    for(var zi=0;zi<12;zi++){
+      var unlocked=atlas.indexOf(zi)>=0;
+      var isSelf=zi===G.zodiac;
+      var lore=ZOD_LORE[zi]||'';
+      var zstyle='border-radius:14px;padding:14px 10px;text-align:center;'
+        +(unlocked?'background:rgba(255,215,0,.06);border:1.5px solid rgba(255,215,0,.3);':'background:rgba(0,0,0,.2);border:1.5px solid rgba(255,255,255,.06);opacity:.55;');
+      var loreText=unlocked?('<div style="font-size:10px;color:#999;line-height:1.5;margin-top:6px;text-align:left;">'+lore+'</div>'):'';
+      var unlockBtn='';
+      if(!unlocked){
+        var canAfford=G.qi>=ZOD_UNLOCK_COST;
+        unlockBtn='<button onclick="unlockZodiac('+zi+')" style="margin-top:8px;padding:5px 8px;font-size:11px;border-radius:8px;border:none;cursor:pointer;background:'+(canAfford?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)')+';color:'+(canAfford?'#ffd700':'#555')+';">'+(isSelf?'初始':'✨ '+ZOD_UNLOCK_COST+' 解锁')+'</button>';
+      } else if(isSelf){
+        unlockBtn='<div style="margin-top:8px;font-size:10px;color:#ffd700;">初始解锁</div>';
+      } else {
+        unlockBtn='<div style="margin-top:8px;font-size:10px;color:#4caf50;">已解锁 ✓</div>';
+      }
+      zitems+='<div style="'+zstyle+'">'
+        +'<div style="font-size:30px;margin-bottom:4px;">'+(unlocked?ZOD_E[zi]:'🔒')+'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:'+(unlocked?'#ffd700':'#555')+';">'+zNames[zi]+'</div>'
+        +loreText+unlockBtn
+        +'</div>';
+    }
+    var tabBar='<div style="display:flex;gap:8px;margin-bottom:16px;">'
+      +'<button onclick="window._handTab=\'level\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='level'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='level'?'#ffd700':'#888')+';">📊 等级</button>'
+      +'<button onclick="window._handTab=\'zodiac\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='zodiac'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='zodiac'?'#ffd700':'#888')+';">🏆 属相</button>'
+      +'</div>';
+    p.innerHTML='<div style="padding:20px 16px 60px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+      +'<div style="font-size:16px;font-weight:700;">📖 灵兽图鉴</div>'
+      +'<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeHandbook()">✕</div>'
+      +'</div>'
+      +tabBar
+      +'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center;">'
+      +'<div style="font-size:13px;color:#ffd700;margin-bottom:8px;">🏆 属相收藏</div>'
+      +'<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">'
+      +'<div style="height:100%;width:'+atlasPct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:4px;transition:width .5s;"></div>'
+      +'</div>'
+      +'<div style="font-size:11px;color:#888;">'+atlasPct+'% 已解锁 '+atlasDone+'/12 属相</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">'+zitems+'</div>'
+      +'</div>';
+  }
 }
 
 
@@ -724,6 +784,207 @@ function getSignDay(){return ((G.signStreak||0)%7)||7;}
 function canSignToday(){
   if(!G.signDate)return true;
   return G.signDate!==today();
+}
+
+
+// ===== 每周挑战系统 =====
+const WEEKLY_CHALLENGES = [
+  {id:'w_summon', icon:'🐣', title:'召唤大业', desc:'本周累计召唤80次', target:80,
+   reward:{coin:20000, qi:200},
+   getter:g => g.summonCount||0},
+  {id:'w_merge',  icon:'⚡', title:'融合大师', desc:'本周累计合成40次', target:40,
+   reward:{coin:25000, qi:250},
+   getter:g => g.mergeCount||0},
+  {id:'w_coins',  icon:'💰', title:'财运亨通', desc:'本周累计产出1M金币', target:1000000,
+   reward:{coin:30000, qi:300},
+   getter:g => g._weeklyCoins||0},
+  {id:'w_collect',icon:'🐉', title:'收集达人', desc:'拥有10种等级灵兽', target:10,
+   reward:{coin:25000, qi:250},
+   getter:g => new Set(g.dragons.map(d=>d.level)).size},
+  {id:'w_maxlv',  icon:'🏆', title:'天师之境', desc:'最高灵兽达到Lv10', target:10,
+   reward:{coin:40000, qi:400},
+   getter:g => Math.max(0, ...(g.dragons.map(d=>d.level||0)))},
+  {id:'w_sign',   icon:'🔥', title:'全勤周',   desc:'本周7天每天都签到', target:7,
+   reward:{coin:50000, qi:500},
+   getter:g => g._weeklySignDays||0},
+  {id:'w_combo',  icon:'💫', title:'连击宗师', desc:'累计达成30次combo', target:30,
+   reward:{coin:60000, qi:600},
+   getter:g => g._weeklyCombo||0},
+];
+
+function getWeekId(){
+  const d = new Date();
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return monday.toISOString().slice(0,10); // "2026-06-30"
+}
+
+function initWeekly(){
+  if(!G.weekly) G.weekly = { weekId:null, challenges:{}, totalCoins:0, signDays:0, combo:0 };
+  const wid = getWeekId();
+  if(G.weekly.weekId !== wid){
+    // 新的一周，重置挑战进度（保留已领取状态用于展示）
+    G.weekly = { weekId:wid, challenges:{}, totalCoins:0, signDays:0, combo:0 };
+    saveGame();
+  }
+  // 同步全局计数器到周计数器
+  G._weeklyCoins  = G.weekly.totalCoins;
+  G._weeklySignDays = G.weekly.signDays;
+  G._weeklyCombo  = G.weekly.combo;
+}
+
+function _onWeeklyEvent(type){
+  if(!G.weekly || !G.created) return;
+  const wid = getWeekId();
+  if(G.weekly.weekId !== wid) return; // 不同周不累加
+  if(type === 'summon'){
+    // summonCount 本身累计，挑战用 getter 直接读全局
+  }
+  if(type === 'sign'){
+    G.weekly.signDays = Math.min(7, (G.weekly.signDays||0)+1);
+    G._weeklySignDays = G.weekly.signDays;
+    saveGame();
+  }
+  if(type === 'combo'){
+    G.weekly.combo = (G.weekly.combo||0) + 1;
+    G._weeklyCombo = G.weekly.combo;
+    saveGame();
+  }
+  if(type === 'merge'){
+    // mergeCount 本身累计
+  }
+  if(type === 'coins'){
+    // calcCps 时自动更新
+  }
+}
+
+// 在 calcCps 或 updateHud 中调用，更新周金币计数
+function _trackWeeklyCoins(){
+  if(!G.weekly || !G.created) return;
+  const wid = getWeekId();
+  if(G.weekly.weekId !== wid) return;
+  const cps = calcCps();
+  G.weekly.totalCoins = (G.weekly.totalCoins||0) + cps;
+  G._weeklyCoins = G.weekly.totalCoins;
+  saveGame();
+}
+
+function getWeeklyChallengeState(id){
+  const ch = WEEKLY_CHALLENGES.find(c=>c.id===id);
+  if(!ch) return {progress:0, claimed:false, done:false};
+  const claimed = G.weekly && G.weekly.challenges && G.weekly.challenges[id];
+  const progress = ch.getter(G);
+  return {progress, claimed:!!claimed, done:progress>=ch.target};
+}
+
+function claimWeeklyChallenge(id){
+  if(!G.created) return;
+  const state = getWeeklyChallengeState(id);
+  if(state.claimed){ showNotif('info','已领取'); return; }
+  if(!state.done){ showNotif('info','挑战未完成'); return; }
+  const ch = WEEKLY_CHALLENGES.find(c=>c.id===id);
+  G.coins += ch.reward.coin;
+  G.qi    += ch.reward.qi;
+  if(!G.weekly) G.weekly = {weekId:getWeekId(), challenges:{}, totalCoins:0, signDays:0, combo:0};
+  G.weekly.challenges[id] = true;
+  saveGame();
+  updateHud();
+  if(playSound) playSound('achieve');
+  showNotif('success','🏆 '+ch.title+' 领取成功！💰+'+fmtNum(ch.reward.coin)+' ✨+'+ch.reward.qi);
+  openWeeklyPanel(); // 刷新面板
+
+  // 检查是否全部完成 → 额外奖励
+  const allDone = WEEKLY_CHALLENGES.every(c => {
+    const s = getWeeklyChallengeState(c.id);
+    return s.done && s.claimed;
+  });
+  if(allDone){
+    const extraItem = G.items && G.items.find(i=>i.id==='i2');
+    const extraTicket = G.items && G.items.find(i=>i.id==='i3');
+    if(extraItem)  extraItem.count++;
+    if(extraTicket) extraTicket.count++;
+    saveGame();
+    showNotif('gold','🎉 本周挑战全完成！🛡保护符+🛡召唤券各×1');
+  }
+}
+
+// 渲染每周挑战面板（暴露给 ui.js 调用）
+function renderWeeklyPanel(){
+  const p = document.getElementById('weeklyPanel');
+  if(!p) return;
+
+  const wid = getWeekId();
+  const monday = new Date(wid);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  const fmt = d => (d.getMonth()+1)+'/'+d.getDate();
+  const weekRange = fmt(monday)+' - '+fmt(sunday);
+
+  const rows = WEEKLY_CHALLENGES.map(ch => {
+    const {progress, claimed, done} = getWeeklyChallengeState(ch.id);
+    const pct = Math.min(100, Math.round(progress/ch.target*100));
+    const canClaim = done && !claimed;
+    const color = claimed ? '#4caf50' : done ? '#ffd700' : '#666';
+    const borderColor = canClaim ? 'rgba(255,215,0,.4)' : claimed ? 'rgba(76,175,80,.2)' : 'rgba(255,255,255,.05)';
+    const bg = canClaim ? 'rgba(255,215,0,.06)' : claimed ? 'rgba(76,175,80,.04)' : 'rgba(255,255,255,.025)';
+    return `<div style="margin-bottom:12px;background:${bg};border:1px solid ${borderColor};border-radius:12px;padding:12px 14px;${claimed?'opacity:.65;':''}${canClaim?'box-shadow:0 0 12px rgba(255,215,0,.2);':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px;">${ch.icon}</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:${color};">${ch.title}</div>
+            <div style="font-size:11px;color:#666;margin-top:2px;">${ch.desc}</div>
+          </div>
+        </div>
+        ${claimed ? `<div style="font-size:12px;color:#4caf50;font-weight:700;">✅ 已领取</div>` :
+          canClaim ? `<button onclick="claimWeeklyChallenge('${ch.id}')" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;color:#1a0a00;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;">🎁 领取</button>` :
+          `<div style="font-size:11px;color:#555;padding-top:4px;">进行中</div>`}
+      </div>
+      <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:6px;">
+        <div style="height:100%;width:${pct}%;background:${done?'#ffd700':'#a0d8ef'};border-radius:3px;transition:width .4s ease;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:10px;color:#555;">${done?'':'进度: '+progress+'/'+ch.target}</span>
+        <span style="font-size:10px;color:#ffd700;">💰${fmtNum(ch.reward.coin)} ✨+${ch.reward.qi}</span>
+      </div>
+    </div>`;
+  });
+
+  const doneCount = WEEKLY_CHALLENGES.filter(c => {
+    const s = getWeeklyChallengeState(c.id);
+    return s.claimed;
+  }).length;
+
+  const allDone = WEEKLY_CHALLENGES.every(c => {
+    const s = getWeeklyChallengeState(c.id);
+    return s.done && s.claimed;
+  });
+
+  p.innerHTML = `<div style="padding:20px 16px 80px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:16px;font-weight:700;">🏆 本周挑战</div>
+      <div style="font-size:12px;color:#ffd700;">${doneCount}/${WEEKLY_CHALLENGES.length} 已领</div>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeWeeklyPanel()">✕ 关闭</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;font-size:11px;color:#ffd700;">
+      <span>📅 ${weekRange}</span>
+      <span style="color:#555;">每周一00:00重置</span>
+    </div>
+    ${allDone ? `<div style="background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,140,0,.08));border:1px solid rgba(255,215,0,.3);border-radius:12px;padding:12px 14px;text-align:center;margin-bottom:14px;box-shadow:0 0 20px rgba(255,215,0,.15);">
+      <div style="font-size:14px;color:#ffd700;font-weight:700;">🎉 本周挑战全部完成！</div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">🛡保护符+🛡召唤券各×1 已发放</div>
+    </div>` : ''}
+    ${rows.join('')}
+  </div>`;
+  p.classList.add('open');
+}
+
+function openWeeklyPanel(){
+  initWeekly();
+  renderWeeklyPanel();
+}
+function closeWeeklyPanel(){
+  const p = document.getElementById('weeklyPanel');
+  if(p) p.classList.remove('open');
 }
 
 function renderSignPanel(){
@@ -831,6 +1092,7 @@ function doSign(){
     btn.style.cursor='default';
     btn.onclick=null;
   }
+  _onWeeklyEvent('sign');
   showNotif('success','🎉 连续签到第'+G.signStreak+'天 · 💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'召唤':''));
 }
 
@@ -971,7 +1233,11 @@ function openActivityPanel(){
   const active=getActiveActivities();
   panel.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">🎯 限时活动</div>
+      <div style="font-size:16px;font-weight:700;">🏆 本周挑战</div>
+      <button onclick="closeActivityPanel();setTimeout(openWeeklyPanel,320);" style="flex:1;margin:0 10px;padding:9px 12px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:12px;font-size:12px;color:#ffd700;cursor:pointer;text-align:center;">查看挑战 &rarr;</button>
+      <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeActivityPanel()">✕</div>
+    </div>
+    <div style="font-size:16px;font-weight:700;margin-top:14px;margin-bottom:16px;">🎯 限时活动</div>
       <div style="font-size:12px;color:#ffd700;">${active.length} 个进行中</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeActivityPanel()">✕ 关闭</div>
     </div>
@@ -1359,4 +1625,23 @@ function startSkyEvents(){
   scheduleNextEvent();
   // 开服时也检查一次离线事件
   setTimeout(()=>checkSkyEvent(Math.random()<0.15), 5000);
+}
+
+// ===== 属相图鉴解锁 =====
+function unlockZodiac(zidx){
+  if(G.qi < ZOD_UNLOCK_COST){
+    showNotif('warning','龙气不足！需要 '+ZOD_UNLOCK_COST+' ✨，当前只有 '+Math.floor(G.qi)+' ✨');
+    return;
+  }
+  if(!G.unlockedAtlas) G.unlockedAtlas = [];
+  if(G.unlockedAtlas.includes(zidx)){
+    showNotif('info','该属相已经解锁啦~');
+    return;
+  }
+  G.qi -= ZOD_UNLOCK_COST;
+  G.unlockedAtlas.push(zidx);
+  saveGame();
+  showNotif('success',ZOD_E[zidx]+'属相图鉴解锁成功！');
+  renderHandbook();
+  updateHud();
 }

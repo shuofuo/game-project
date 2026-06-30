@@ -1,19 +1,3 @@
-// ===== CONFIG.js - 生肖天机 =====
-
-
-// ===== 游戏数据 =====
-const SAVE_KEY = 'sx_sg_v1';
-const LICON = ['🐣','🐥','🐤','🦅','🐦','🕊','🦋','🐉','🦅','🐲','🐍','🐎','🐉','🐲','🐉🔥'];
-// 每个等级灵兽的动画名（中英文+效果描述）
-const LANIM_NAMES = [
-  '呼吸','呼吸','呼吸','呼吸',      // Lv1-4 基础
-  '漂浮','漂浮',                    // Lv5-6 轻飘
-  '御风','御风',                    // Lv7-8 飞行
-  '龙吟','龙吟',                    // Lv9-10 神龙
-  '天命','天命',                    // Lv11-12 神话
-  '永恒','永恒','永恒'             // Lv13-15 终极
-];
-// 点击主页灵兽 → 显示详情弹窗
 function cycleHeroAnim(){
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
   if(best.id) showDragonDetail(best.id);
@@ -25,6 +9,21 @@ const FATE_C = [1,1.5,1,1,1];
 const FATE_Q = [1,1,1,1,1.5];
 const FATE_N = ['木','火','土','金','水'];
 const ZOD_E  = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
+const ZOD_UNLOCK_COST = 10000;
+const ZOD_LORE = [
+  '鼠：十二生肖之首，机敏多智，夜行不怠。《说文》称"鼠，穴虫之总名"。',
+  '牛：勤劳忠实，脚踏实地。农耕之本，春耕秋收，无怨无悔。',
+  '虎：百兽之王，威震山林。《说文》记"虎，山兽之君"，镇宅辟邪。',
+  '兔：月宫仙灵，温顺灵巧。"玉兔捣药"典故，月光之使。',
+  '龙：华夏图腾，权贵祥瑞。"龙者鳞虫之长"，呼风唤雨，中华象征。',
+  '蛇：小龙，灵性非凡。"长蛰深穴，含灵待时"，智慧与神秘之象。',
+  '马：刚健骏逸，驰骋千里。"马者，兵甲之大马"，立下汗马功劳。',
+  '羊：温顺和善，合群之德。"羊，祥也"，古以羊为吉祥之兆。',
+  '猴：聪明伶俐，灵活善变。"猴，侯也"，古时封侯拜相之兆。',
+  '鸡：知时守信，勇敢好斗。"鸡，知时兽也"，日出而鸣。',
+  '狗：忠诚守护，义犬救主。"狗，叩也"，叩头摇尾，忠于主人。',
+  '猪：厚福安详，随遇而安。"猪者，诸也"，诸事顺遂，圆满之象。'
+];
 const ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
 const YUN_COIN   = [-.5,-.2,0,.3,.5];
@@ -204,11 +203,11 @@ function previewNextLevel(lvl, cps, icon){
     <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:16px;">点击任意处关闭</div>
   </div>`;
   // 点击任意处或按任意键关闭，关闭后退出网格模式返回主页面
-  el.onclick = e => { el.remove(); if(_inGridMode) exitGridMode(); };
-  el.addEventListener('keydown', ()=>{ el.remove(); if(_inGridMode) exitGridMode(); }, {once:true});
+  el.onclick = e => { el.remove(); };
+  el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0};
+let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 const TASKS = [
@@ -274,6 +273,8 @@ function loadGame(){
   const s = localStorage.getItem(SAVE_KEY);
   if(s){try{Object.assign(G,JSON.parse(s));}catch(e){}}
   if(G.dragons.length) nextId = Math.max(...G.dragons.map(d=>parseInt(d.id)))+1;
+  // 兼容旧存档：没有 unlockedAtlas 则自动解锁自己属相
+  if(!G.unlockedAtlas) G.unlockedAtlas = [G.zodiac].filter(z => z >= 0);
   // 兼容旧存档：没有 lastFreeDate 则设为今天（防止每日重置失效）
   if(!G.lastFreeDate) G.lastFreeDate = today();
   if(!G.lastOnline) G.lastOnline = Date.now();
@@ -327,12 +328,13 @@ function updateHud(){
   // 运势星级
   const star=document.getElementById('hudYunStar');
   if(star){star.style.display='inline';star.textContent='★'.repeat(G.currentFate||1);}
-  // combo 显示
+  // combo 显示 + feat[8] 连击条同步
   const ch=document.getElementById('hudCombo');
   if(ch){
     ch.style.display=G.combo>=2?'inline':'none';
     ch.textContent='x'+G.combo+' COMBO';
   }
+  updateComboBar(false); // 同步 combo 条（active=false，只更新不退条）
   const coinCost=Math.floor(100*Math.pow(1.2,Math.floor(G.summonCount/10)));
   const qiCost=Math.floor(500*Math.pow(1.1,Math.floor(G.summonCount/15)));
   document.getElementById('coinCost').textContent=coinCost;
@@ -536,6 +538,7 @@ function doDrop(src,dst){
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
       G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst,star:1});
       G.mergeCount++;
+      _onWeeklyEvent("merge");
       // 命格修炼加成：土行额外金币、金行额外龙气
       try{
         const cult=getCultBonus();
@@ -555,10 +558,19 @@ function doDrop(src,dst){
       // combo 检测（2.5秒内连续合成）
       const now=Date.now();
       if(G.lastMergeTime&&now-G.lastMergeTime<2500){G.combo=Math.min((G.combo||0)+1,10);}else{G.combo=1;}
-      G.lastMergeTime=now;saveGame();renderGrid();updateHud();try{updateHeroSection();}catch(e){}
+      G.maxCombo=Math.max(G.maxCombo||0,G.combo);G.lastMergeTime=now;saveGame();renderGrid();updateHud();try{updateHeroSection();}catch(e){}
+      _onWeeklyEvent('combo');
       checkAch();
       if(G.combo>=2){
-        showNotif(G.combo>=5?'#ff9800':'#ffd700','⚡ 连击 x'+G.combo+'！'+(G.combo>=5?'金币产出×2！':'金币产出×1.5！'));
+        // === feat[8] 连击特效 ===
+        updateComboBar(true); // 激活 combo 条
+        spawnComboParticles(s.level+1);
+        showComboScore(s.level+1);
+        const milestones=[3,5,7,10];
+        if(milestones.includes(G.combo)){
+          showComboMilestone(G.combo);
+          shakeScreen();
+        }
       }
     }else{s.idx=dst;t.idx=src;saveGame();renderGrid();}
   }else{s.idx=dst;saveGame();renderGrid();}
@@ -626,6 +638,99 @@ function showMergeFlash(emoji){
   const el=document.getElementById('mergeFlash');
   document.getElementById('mergeText').textContent=emoji;
   el.classList.add('show');setTimeout(()=>el.classList.remove('show'),500);
+}
+
+// === feat[8] 连击特效系统 ===
+// combo 条计时器（全局唯一，2.5s 内持续回落）
+let _comboTimer = null;
+
+function updateComboBar(active){
+  const bar=document.getElementById('comboBar');
+  if(!bar)return;
+  const fill=document.getElementById('comboFill');
+  const badge=document.getElementById('comboBadge');
+  if(!fill||!badge)return;
+  if(!G.created||G.combo<2){
+    bar.style.display='none';
+    clearTimeout(_comboTimer);
+    _comboTimer=null;
+    return;
+  }
+  bar.style.display='flex';
+  badge.textContent='×'+G.combo;
+  // 颜色按 combo 阶段：2绿→3黄绿→4橙→5红→6紫→7+金
+  const ci=Math.min(G.combo-2,5);
+  fill.className='combo-fill c'+ci;
+  // 活跃时重置计时（倒计时从 100% 开始线性回落）
+  if(active){
+    clearTimeout(_comboTimer);
+    _comboTimer=null;
+    const start=Date.now();
+    const tick=()=>{
+      const elapsed=Date.now()-start;
+      const pct=Math.max(0,1-elapsed/2500)*100;
+      fill.style.height=pct+'%';
+      if(pct>0){ _comboTimer=setTimeout(tick,50); }
+      else{
+        // 超时归零时也关闭 HUD combo
+        G.combo=0;
+        updateHud();
+        bar.style.display='none';
+      }
+    };
+    tick();
+  }
+}
+
+function spawnComboParticles(level){
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div');
+    p.className='combo-particle';
+    const angle=(Math.PI*2*i/8)+(Math.random()-.5)*.4;
+    const dist=90+Math.random()*70;
+    p.style.cssText=`left:${cx}px;top:${cy}px;width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;background:rgba(255,${150+Math.floor(Math.random()*105)},0,.85);--dx:${Math.round(Math.cos(angle)*dist)}px;--dy:${Math.round(Math.sin(angle)*dist)}px;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),950);
+  }
+}
+
+function showComboScore(level){
+  const el=document.createElement('div');
+  const bonus=COIN_S[level]||10;
+  const mult=G.combo>=5?2:G.combo>=2?1.5:1;
+  const text='+'+fmtNum(Math.floor(bonus*mult))+' ⚡';
+  el.className='combo-score';
+  if(G.combo>=10)el.classList.add('x10');
+  else if(G.combo>=7)el.classList.add('x7');
+  else if(G.combo>=5)el.classList.add('x5');
+  else if(G.combo>=3)el.classList.add('x3');
+  el.textContent=text;
+  const cx=window.innerWidth/2, cy=window.innerHeight*0.38;
+  el.style.left=(cx+(Math.random()-.5)*60)+'px';
+  el.style.top=(cy+(Math.random()-.5)*20)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1450);
+}
+
+function showComboMilestone(combo){
+  const el=document.createElement('div');
+  el.className='combo-milestone';
+  const colors={3:'#8BC34A',5:'#FF9800',7:'#e040fb',10:'#ffd700'};
+  const labels={3:'GOOD!',5:'GREAT!',7:'AMAZING!',10:'LEGENDARY!'};
+  const c=colors[combo]||'#ffd700';
+  el.style.color=c;
+  el.style.textShadow="0 0 30px "+c+",0 0 60px "+c;
+  el.innerHTML="⚡<br>"+combo+"× COMBO<br><span style=\"font-size:.45em;letter-spacing:2px;\">"+(labels[combo]||"")+"<\/span>";
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1550);
+}
+
+function shakeScreen(){
+  document.querySelector('#gamePage').classList.remove('combo-shake');
+  void document.querySelector('#gamePage').offsetWidth; // reflow
+  document.querySelector('#gamePage').classList.add('combo-shake');
+  setTimeout(()=>document.querySelector('#gamePage').classList.remove('combo-shake'),550);
 }
 // showNotif 升级版：支持 emoji 前缀消息 + 稀有度颜色
 // showNotif：兼容旧调用 showNotif(type, msg) 和新调用 showNotif(msg)
@@ -704,6 +809,8 @@ function startCps(){
   cpsTimer=setInterval(()=>{
     const cps=calcCps();
     if(cps>0){G.coins+=cps;G.totalCoins=(G.totalCoins||0)+cps;updateHud();spawnCoinFloat(cps);if(G.totalCoins%3600<cps)saveGame();}
+    // 周金币追踪
+    try{if(typeof _trackWeeklyCoins==='function')_trackWeeklyCoins();}catch(e){}
   },1000);
   // combo 衰减（500ms检测，2.5秒无合成归零）
   setInterval(()=>{if(G.created&&G.combo>0&&Date.now()-G.lastMergeTime>2500){G.combo=0;updateHud();}},500);
@@ -873,34 +980,17 @@ function startBgm(){initAudio();playFullBgm(G.zodiac);}
 
 
 // ===== 主页滑动切换 =====
-let _inGridMode = false;
-let _touchStartY = 0;
+let // grid mode disabled
+var _tStartY = 0;
 
+// initHomeGesture - swipe disabled since grid is always visible now
 function initHomeGesture(){
-  const hero = document.getElementById('heroSection');
-  if(!hero) return;
-  hero.addEventListener('touchstart', e => {
-    _touchStartY = e.touches[0].clientY;
-  }, {passive: true});
-  hero.addEventListener('touchend', e => {
-    const dy = _touchStartY - e.changedTouches[0].clientY;
-    if(Math.abs(dy) < 30) return;
-    if(dy > 0 && !_inGridMode) enterGridMode();
-    else if(dy < 0 && _inGridMode) exitGridMode();
-  }, {passive: true});
-  // 主页点击缩略图 → 进入网格（不改影响灵兽点击事件）
-  hero.addEventListener('click', e => {
-    const t = e.target;
-    // 点击缩略图图标区，进入网格
-    if(t.classList.contains('ht') || (t.parentElement && t.parentElement.classList.contains('ht'))) {
-      if(!_inGridMode) enterGridMode();
-    }
-  });
+  // Grid is permanently visible. Swipe gestures on heroSection are disabled.
 }
 
 function enterGridMode(){
-  if(_inGridMode) return;
-  _inGridMode = true;
+  // grid mode disabled
+  // grid mode disabled
   const hero = document.getElementById('heroSection');
   const grid = document.getElementById('dragonGrid');
   const gridInner = document.getElementById('dragonGridInner');
@@ -923,8 +1013,7 @@ function enterGridMode(){
 }
 
 function exitGridMode(){
-  if(!_inGridMode) return;
-  _inGridMode = false;
+  // grid always visible - exitGridMode is a no-op now
   const hero = document.getElementById('heroSection');
   const grid = document.getElementById('dragonGrid');
   const gridInner = document.getElementById('dragonGridInner');
@@ -932,7 +1021,7 @@ function exitGridMode(){
   grid.style.transition = 'opacity .3s';
   grid.style.opacity = '0';
   setTimeout(() => {
-    grid.style.display = 'none';
+    grid.style.opacity = '0';
     if(gridInner) gridInner.innerHTML = '';
     hero.style.display = 'flex';
     hero.style.opacity = '0';

@@ -142,12 +142,12 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 #hudCps{color:#aaa;}
 #hudQi{font-size:16px;font-weight:600;color:#7eb8ff;}
 .hud-bottom{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-top:4px;}
-#dragonGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:4px;}
-.d-cell{aspect-ratio:1;background:rgba(255,255,255,.025);border:1.5px solid rgba(255,255,255,.05);border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;transition:all .2s;overflow:hidden;}
+#dragonGrid{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.d-cell{aspect-ratio:1;width:100%;height:100%;background:rgba(255,255,255,.025);border:1.5px solid rgba(255,255,255,.05);border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;transition:all .2s;overflow:hidden;}
 .d-cell:hover:not(:has(.d-card)){border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04);}
 .d-cell.mergeable{border-color:rgba(255,215,0,.6)!important;box-shadow:0 0 16px rgba(255,215,0,.35),inset 0 0 20px rgba(255,215,0,.05)!important;}
 .d-cell.drop-target{border-color:#ffd700!important;box-shadow:0 0 20px rgba(255,215,0,.5),inset 0 0 24px rgba(255,215,0,.08)!important;background:rgba(255,215,0,.06)!important;}
-.d-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;user-select:none;border-radius:10px;transition:transform .15s;}
+.d-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;user-select:none;border-radius:10px;transition:transform .15s;overflow:visible;}
 .d-card:active{cursor:grabbing;}
 .d-icon{font-size:clamp(20px,5vw,32px);line-height:1;}
 .d-lv{position:absolute;bottom:2px;right:4px;font-size:9px;color:rgba(255,255,255,.5);}
@@ -531,6 +531,77 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .screen-shake{animation:shake .3s ease forwards;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
+/* === feat[8]: 连击特效系统 === */
+#comboBar{position:fixed;bottom:90px;left:14px;z-index:200;display:none;flex-direction:column;align-items:center;gap:6px;pointer-events:none;}
+.combo-track{width:6px;height:72px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;position:relative;}
+.combo-fill{position:absolute;bottom:0;left:0;width:100%;height:100%;border-radius:3px;transition:height .08s linear,background .2s;}
+.combo-fill.c0{background:linear-gradient(to top,#4CAF50,#81C784);}
+.combo-fill.c1{background:linear-gradient(to top,#8BC34A,#CDDC39);}
+.combo-fill.c2{background:linear-gradient(to top,#FF9800,#FFC107);}
+.combo-fill.c3{background:linear-gradient(to top,#FF5722,#FF7043);}
+.combo-fill.c4{background:linear-gradient(to top,#e040fb,#CE93D8);box-shadow:0 0 6px rgba(224,64,251,.5);}
+.combo-fill.c5{background:linear-gradient(to top,#ffd700,#FFA000);box-shadow:0 0 8px rgba(255,215,0,.6);}
+.combo-badge{font-size:12px;font-weight:900;color:#ffd700;letter-spacing:1px;background:rgba(255,215,0,.1);border:1.5px solid rgba(255,215,0,.35);border-radius:8px;padding:3px 7px;text-align:center;box-shadow:0 0 10px rgba(255,215,0,.12);}
+.combo-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:8888;animation:comboP .9s ease-out forwards;}
+@keyframes comboP{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--dx),var(--dy)) scale(.15);opacity:0}}
+.combo-milestone{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;font-size:clamp(38px,11vw,68px);font-weight:900;letter-spacing:4px;text-align:center;animation:cMileAnim 1.5s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes cMileAnim{0%{transform:translate(-50%,-50%) scale(.25);opacity:0}12%{transform:translate(-50%,-50%) scale(1.18);opacity:1}25%{transform:translate(-50%,-50%) scale(.94);opacity:1}62%{transform:translate(-50%,-50%) scale(1);opacity:1}78%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0}}
+@keyframes comboScoreF{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;transform:translateY(-55px) scale(1.15);}100%{opacity:0;transform:translateY(-100px) scale(.7);}}
+.combo-score{position:fixed;pointer-events:none;z-index:8900;font-size:15px;font-weight:800;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,.8),0 1px 2px rgba(0,0,0,.8);animation:comboScoreF 1.4s ease-out forwards;white-space:nowrap;}
+.combo-score.x3{color:#ff9800;text-shadow:0 0 10px rgba(255,152,0,.9);}
+.combo-score.x5{color:#ff5722;text-shadow:0 0 12px rgba(255,87,34,.9);}
+.combo-score.x7{color:#e040fb;text-shadow:0 0 14px rgba(224,64,251,.9);}
+.combo-score.x10{color:#ffd700;text-shadow:0 0 18px rgba(255,215,0,1);font-size:20px;}
+@keyframes cShakeX{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}35%{transform:translateX(5px)}55%{transform:translateX(-4px)}75%{transform:translateX(3px)}88%{transform:translateX(-2px)}}
+.combo-shake{animation:cShakeX .5s ease forwards;}
+
+/* === feat[9]: 游戏统计面板 === */
+.stat-item{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+.stat-item:last-child{border-bottom:none;}
+.stat-label{color:#888;display:flex;align-items:center;gap:6px;}
+.stat-label span{font-size:16px;}
+.stat-value{font-weight:700;color:#ffd700;font-size:14px;}
+
+/* === feat[10]: 周挑战 === */
+.weekly-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.weekly-reset{font-size:11px;color:#888;background:rgba(255,255,255,.04);border-radius:8px;padding:4px 10px;}
+.wt-item{display:flex;align-items:center;gap:10px;padding:12px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:8px;transition:all .2s;}
+.wt-item.done{background:rgba(76,175,80,.06);border-color:rgba(76,175,80,.2);}
+.wt-item.rewarded{opacity:.4;}
+.wt-icon{font-size:24px;flex-shrink:0;}
+.wt-info{flex:1;min-width:0;}
+.wt-title{font-size:13px;font-weight:600;color:#ddd;margin-bottom:3px;}
+.wt-desc{font-size:11px;color:#555;}
+.wt-bar-wrap{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px;}
+.wt-bar{height:100%;background:linear-gradient(90deg,#ffd700,#ff9800);border-radius:2px;transition:width .3s ease;}
+.wt-reward-area{flex-shrink:0;min-width:52px;text-align:right;}
+.wt-claim-btn{background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;color:#1a0a00;cursor:pointer;}
+.wt-claim-btn:disabled{background:rgba(255,255,255,.06);color:#555;cursor:not-allowed;}
+
+/* === feat[11]: 图鉴属相解锁 === */
+.handbook-tabs{display:flex;gap:6px;margin-bottom:14px;padding:0 4px;}
+.htab{flex:1;padding:8px 4px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:11px;color:#888;cursor:pointer;text-align:center;transition:all .2s;}
+.htab.on{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.35);color:#ffd700;}
+.atlas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 8px 80px;}
+.atlas-z-card{background:rgba(255,255,255,.03);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 4px;text-align:center;transition:all .25s;cursor:pointer;}
+.atlas-z-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);}
+.atlas-z-card.owned{border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.04);}
+.atlas-z-card.locked{border-color:rgba(255,255,255,.04);opacity:.42;}
+.atlas-z-card.locked:hover{opacity:.55;}
+.atlas-z-card.locked.affordable{border-color:rgba(255,215,0,.25);opacity:.65;}
+.az-emoji{font-size:36px;line-height:1;margin-bottom:5px;}
+.atlas-z-card.locked .az-emoji{filter:grayscale(1);opacity:.4;}
+.atlas-z-card:not(.locked) .az-emoji{filter:drop-shadow(0 0 8px rgba(255,215,0,.3));}
+.az-name{font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px;}
+.az-cost{font-size:10px;color:#888;}
+.az-cost.affordable{color:#ffd700;}
+.az-cost.expensive{color:#555;}
+.az-desc{font-size:9px;color:#444;margin-top:3px;line-height:1.5;}
+@keyframes azUnlockAnim{0%{transform:scale(1)}20%{transform:scale(1.2)}40%{transform:scale(.96)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+.az-unlocking{animation:azUnlockAnim .7s ease forwards;}
+.az-unlock-pulse{animation:azUnlockAnim .7s ease forwards,azUnlockPulse 1.8s ease-in-out infinite 0.7s;}
+@keyframes azUnlockPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.15)}50%{box-shadow:0 0 14px 5px rgba(255,215,0,.12)}}
+
 /* === feat[1]: 技能条样式 === */
 #skillBar::-webkit-scrollbar{display:none;}
 .skill-item{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;min-width:56px;cursor:pointer;user-select:none;touch-action:manipulation;flex-shrink:0;transition:all .2s;}
@@ -788,52 +859,55 @@ function doStart(){
     <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
   </div>
 
+  <!-- ===== 技能条顶栏（新增）===== -->
+  <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
+    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
+  </div>
+
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
-  <div id="middleRow" style="flex:1;display:flex;align-items:center;min-height:0;overflow:hidden;position:relative;margin:0;box-shadow:inset 0 0 80px 40px rgba(0,0,0,.35);">
-    <!-- 左侧功能按钮（竖排） -->
-    <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:56px;padding-bottom:88px;background:linear-gradient(to bottom,rgba(0,0,0,.25) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.2) 100%);">
+    <div id="middleRow" style="flex:1;display:grid;grid-template-columns:52px 200px 1fr 52px;align-items:stretch;min-height:0;overflow:hidden;margin:0;">
+
+<!-- 左侧功能按钮（竖排） -->
+    <div style="grid-area:1;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
     </div>
 
-    <!-- 灵兽中央区域 -->
-    <div id="heroSection" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;padding:clamp(20px,5vh,50px) 12px 0;">
+<!-- 灵兽网格（显示，覆盖在中间，5×5格子） -->
+    <div id="dragonGrid" style="grid-area:3;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0;">
+      <div style="display:flex;align-items:center;gap:8px;padding:clamp(8px,1.5vh,14px) 12px clamp(6px,1vh,10px);border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;">
+        <span style="font-size:13px;color:#ffd700;letter-spacing:2px;font-weight:600;">🐾 灵兽</span>
+        <span id="gridCount" style="font-size:11px;color:rgba(255,255,255,.3);"></span>
+      </div>
+      <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
+    </div>
+
+<!-- 灵兽展示卡（紧凑，右边） -->
+    <div id="heroSection" style="grid-area:2;flex:0 0 200px;min-width:160px;max-width:200px;width:200px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;gap:2px;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
       <!-- 命格标签 -->
-      <div id="heroFateTag" style="font-size:10px;color:rgba(255,215,0,.45);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-weight:500;opacity:.85;">木命 · 大吉</div>
-      <!-- 光环 -->
-      <div class="hero-glow" style="width:220px;height:220px;position:relative;">
-  <div style="position:absolute;inset:-30px;background:radial-gradient(circle,rgba(100,60,200,.12) 0%,transparent 70%);border-radius:50%;"></div>
-</div>
-      <!-- 环绕属性容器 -->
-      <div style="position:relative;width:min(200px,54vw);height:min(200px,54vw);margin:4px auto;">
-        <div class="attr-ring ring-1"><span class="attr-pill" id="heroCps">+1/s</span></div>
-        <div class="attr-ring ring-2"><span class="attr-pill" id="heroLv">Lv.1</span></div>
-        <div class="attr-ring ring-3"><span class="attr-pill" id="attrQi">✨0</span></div>
-        <div class="attr-ring ring-4"><span class="attr-pill" id="attrFate">木命</span></div>
-        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(100px,28vw,150px);line-height:1;filter:drop-shadow(0 0 24px rgba(255,215,0,.6));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;">🐣</div>
+      <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">木命 · 大吉</div>
+      <!-- 灵兽emoji + 光环 -->
+      <div style="position:relative;width:clamp(80px,12vw,120px);height:clamp(80px,12vw,120px);">
+        <div style="position:absolute;inset:-12px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
+        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(60px,9vw,90px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
       </div>
-      <!-- 灵兽图谱mini：进化链预览，点击进入灵兽网格 -->
-      <div id="heroThumbs" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:240px;margin-top:8px;padding:2px;"></div>
-      <!-- 主动技能条 -->
-      <div id="skillBar" style="display:flex;gap:6px;overflow-x:auto;padding:6px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;max-width:100%;margin-top:4px;"></div>
+      <!-- 等级+产金 -->
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
+        <span style="color:rgba(255,215,0,.3);font-size:9px;">·</span>
+        <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
+      </div>
+      <!-- 进化链预览 -->
+      <div id="heroThumbs" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:clamp(150px,18vw,210px);font-size:clamp(14px,2.5vw,22px);opacity:.5;margin-top:2px;"></div>
     </div>
 
-    <!-- 灵兽网格（隐藏，覆盖在中间，5×5格子） -->
-    <div id="dragonGrid" style="display:none;position:absolute;left:52px;right:52px;top:0;bottom:0;background:rgba(7,7,26,.97);z-index:60;overflow-y:auto;padding:0;">
-      <div style="display:flex;align-items:center;gap:8px;padding:14px 16px 12px;border-bottom:1px solid rgba(255,215,0,.1);position:sticky;top:0;background:rgba(7,7,26,.97);z-index:1;flex-shrink:0;">
-        <button onclick="exitGridMode()" style="font-size:28px;color:rgba(255,215,0,.8);background:transparent;border:none;cursor:pointer;line-height:1;padding:0;flex-shrink:0;width:32px;">‹</button>
-        <span style="font-size:14px;color:#ffd700;letter-spacing:2px;font-weight:600;">灵兽网格</span>
-        <span id="gridCount" style="font-size:11px;color:#888;margin-left:4px;"></span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:10px 14px 16px;align-content:start;" id="dragonGridInner"></div>
-    </div>
-
-    <!-- 右侧功能按钮（竖排） -->
-    <div style="width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:56px;padding-bottom:88px;background:linear-gradient(to bottom,rgba(0,0,0,.25) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.2) 100%);">
+<!-- 右侧功能按钮（竖排） -->
+    <div style="grid-area:4;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
       <button onclick="openRankPanel()" class="side-btn" data-fn="rank" title="排行榜"><svg viewBox="0 0 24 24"><path d="M8 21h8m-4-4v4m-5-8l2.5-6.5L12 12l3.5-5.5L20 13H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 4h10l-1.5 4-3 2-3-2L7 4z" fill="currentColor" opacity=".5"/><circle cx="12" cy="6" r="1.5" fill="currentColor"/></svg></button>
       <button onclick="openAchPanel()" class="side-btn" data-fn="ach" title="成就"><svg viewBox="0 0 24 24"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button onclick="openStatsPanel()" class="side-btn" data-fn="stat" title="游戏统计" style="color:rgba(100,180,255,.6);"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg></button>
       <button onclick="openSettings()" class="side-btn" data-fn="settings" title="设置"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
     </div>
   </div><!-- /中间行 -->
@@ -856,13 +930,26 @@ function doStart(){
   </div>
 
 </div>
+    </div>
 <div id="rankPanel" class="rank-panel"></div>
   <div id="signPanel" class="sign-panel"></div>
   <div id="taskPanel" class="task-panel"></div>
   <div id="activityPanel" class="activity-panel"></div>
   <div id="handbookPanel" class="handbook-panel"></div>
+
+  <!-- === feat[8]: 连击计时条 === -->
+  <div id="comboBar">
+    <div class="combo-track">
+      <div class="combo-fill c0" id="comboFill" style="height:100%"></div>
+    </div>
+    <div class="combo-badge" id="comboBadge">×1</div>
+  </div>
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>
+  <div id="weeklyPanel" class="ach-panel"></div>
+
+  <!-- === feat[9]: 游戏统计面板 === -->
+  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
   <div id="settingsPanel" class="panel-overlay">
     <div class="panel-box">
       <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
@@ -910,7 +997,105 @@ function doStart(){
   <div id="guideTooltip"></div>
   <script src="js/config.js"></script>
 <script src="js/audio.js"></script>
-<script src="js/game.js"></script>
+<script src="js/game.min.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html
+    </div>
+
+  <!-- ===== 第三行：底部召唤栏 ===== -->
+  <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
+    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
+      <span style="font-size:18px;">💰</span>
+      <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
+    </button>
+    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:90px;padding:10px 16px;" title="龙气召唤">
+      <span id="qiCost" style="font-size:9px;display:block;margin-bottom:1px;color:rgba(255,255,255,.5);">✨ 500</span>
+      <span style="font-size:18px;">✨</span>
+      <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
+    </button>
+    <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
+      <span style="font-size:18px;">🌿</span>
+      <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
+    </button>
+  </div>
+
+</div>
+<div id="rankPanel" class="rank-panel"></div>
+  <div id="signPanel" class="sign-panel"></div>
+  <div id="taskPanel" class="task-panel"></div>
+  <div id="activityPanel" class="activity-panel"></div>
+  <div id="handbookPanel" class="handbook-panel"></div>
+
+  <!-- === feat[8]: 连击计时条 === -->
+  <div id="comboBar">
+    <div class="combo-track">
+      <div class="combo-fill c0" id="comboFill" style="height:100%"></div>
+    </div>
+    <div class="combo-badge" id="comboBadge">×1</div>
+  </div>
+  <div id="cultPanel" class="cult-panel"></div>
+  <div id="achPanel" class="ach-panel"></div>
+  <div id="weeklyPanel" class="ach-panel"></div>
+
+  <!-- === feat[9]: 游戏统计面板 === -->
+  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
+  <div id="settingsPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
+      <div style="padding:20px 20px 24px;">
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🔊 总音量</span><span id="volVal">70%</span>
+          </div>
+          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#ffd700;" oninput="onVolChange(this.value)">
+        </div>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🎵 背景音乐</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
+              <input type="checkbox" id="bgmToggle" checked onchange="onBgmToggle(this.checked)">
+              <span id="bgmLabel">开启</span>
+            </label>
+          </div>
+          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
+        </div>
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🔔 游戏音效</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
+              <input type="checkbox" id="sfxToggle" checked onchange="onSfxToggle(this.checked)"><span id="sfxLabel">开启</span>
+            </label>
+          </div>
+          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
+        </div>
+        <div style="margin-bottom:24px;">
+          <div style="margin-bottom:8px;font-size:14px;">☁️ 服务器地址（天机榜）</div>
+          <input type="text" id="backendUrlInput" placeholder="例：http://你的服务器IP:3001" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;box-sizing:border-box;">
+          <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;">填入服务器地址后，打开天机榜即可上榜<br>离线模式下游戏不受影响</div>
+        </div>
+        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
+      </div>
+    </div>
+  </div>
+  <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
+    <div id="mergeFlash" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;pointer-events:none;z-index:500;">
+    <div id="mergeText" style="font-size:96px;filter:drop-shadow(0 0 32px rgba(255,215,0,.8));"></div>
+  </div>
+  <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
+  <div id="guideOverlay"></div>
+  <div id="guideTooltip"></div>
+  <script src="js/config.js"></script>
+<script>
+if(sessionStorage.getItem('aps_auto_login')==='1'){
+  sz=4;sf=1;nextId=3;
+  document.getElementById('gamePage').style.cssText='display:flex;visibility:visible;opacity:1';
+  document.getElementById('loginWrap').style.display='none';
+  G={zodiac:4,fate:1,coins:2000,qi:200,dragons:[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}],mergeCount:5,summonCount:3,maxCombo:2,unlockedAtlas:[4],signStreak:1,totalCoins:2000,created:true};
+}
+</script>
+<script src="js/audio.js"></script>
+<script src="js/game.min.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>生肖天机 · 定稿：水墨丹青</title>
+<style>
+/* ===== 水墨丹青定稿版 ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100dvh;
+  background:#e0d8c8;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+.game{
+  display:flex;flex-direction:column;
+  height:100dvh;max-width:500px;width:100%;margin:0 auto;
+  background:#f4ede0;
+  overflow:hidden;position:relative;
+}
+
+/* 水墨纹理层 */
+.game::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 90% 55% at 15% 92%,rgba(90,65,40,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 65% 40% at 85% 85%,rgba(70,55,30,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 35% 22% at 50% 65%,rgba(85,60,35,.04) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 30% at 70% 10%,rgba(100,80,50,.03) 0%,transparent 50%),
+    radial-gradient(ellipse 40% 25% at 30% 20%,rgba(80,60,35,.03) 0%,transparent 50%);
+}
+
+/* ===== 顶栏 ===== */
+.top-hud{
+  flex-shrink:0;height:48px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;
+  background:rgba(244,237,224,.95);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(90,65,40,.14);
+  position:relative;z-index:2;
+}
+.hud-zodiac{font-size:22px;}
+.hud-center{display:flex;align-items:center;gap:14px;}
+.hud-stat{display:flex;align-items:center;gap:4px;}
+.hud-stat .icon{font-size:14px;}
+.hud-stat .val{font-size:15px;font-weight:700;color:#3a2a1a;}
+.hud-stat .cps{font-size:11px;color:rgba(90,65,40,.4);}
+.hud-stat .qi{color:#8b6914;}
+.hud-yunshi{font-size:12px;color:rgba(90,65,40,.22);letter-spacing:3px;}
+
+/* ===== 技能条 ===== */
+.skill-row{
+  flex-shrink:0;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 12px;gap:6px;
+  background:rgba(244,237,224,.85);
+  border-bottom:1px solid rgba(90,65,40,.08);
+  position:relative;z-index:2;
+}
+.sk-pill{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  padding:3px 10px;min-width:50px;
+  background:rgba(90,65,40,.05);border:1px solid rgba(90,65,40,.13);
+  border-radius:6px;cursor:pointer;transition:all .2s;
+  position:relative;
+}
+.sk-pill:hover{background:rgba(90,65,40,.11);border-color:rgba(90,65,40,.3);}
+.sk-pill .n{font-size:10px;font-weight:600;color:#3a2a1a;}
+.sk-pill .d{font-size:9px;color:rgba(90,65,40,.4);}
+.sk-dot{position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:#c0392b;}
+
+/* ===== 主区域 ===== */
+.mid-row{flex:1;display:flex;min-height:0;overflow:hidden;position:relative;z-index:2;}
+
+/* ===== 左栏（图标竖排）===== */
+.sidebar{
+  width:44px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:26px 0 72px;
+  background:rgba(244,237,224,.72);
+}
+.sd-btn{
+  width:32px;height:32px;margin:2px 0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(90,65,40,.05);border:1px solid rgba(90,65,40,.09);
+  border-radius:6px;cursor:pointer;font-size:13px;
+  transition:all .2s;
+}
+.sd-btn:hover{background:rgba(90,65,40,.12);border-color:rgba(90,65,40,.28);}
+
+/* ===== 灵兽网格 ===== */
+.dragon-sec{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.dragon-hd{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px 6px;
+  border-bottom:1px solid rgba(90,65,40,.09);
+}
+.dragon-hd span{font-size:12px;color:#3a2a1a;font-weight:600;letter-spacing:2px;}
+.dragon-hd small{color:rgba(90,65,40,.3);font-size:11px;}
+.dragon-grid{
+  flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
+  padding:9px;align-content:start;overflow:hidden;
+}
+.dg{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  background:rgba(90,65,40,.04);border:1px solid rgba(90,65,40,.11);
+  border-radius:6px;position:relative;
+  font-size:clamp(22px,5vw,32px);cursor:pointer;
+  transition:all .2s;
+}
+.dg:hover{transform:scale(1.07);background:rgba(90,65,40,.1);}
+.dg .lv{
+  position:absolute;top:2px;left:4px;font-size:9px;font-weight:600;color:rgba(90,65,40,.5);
+}
+/* 主角高亮 */
+.dg.hi{border-color:rgba(139,90,43,.45);background:rgba(139,90,43,.09);}
+.dg.hi:hover{background:rgba(139,90,43,.16);}
+/* 特殊/稀有 */
+.dg.sp{border-color:rgba(100,70,35,.45);background:rgba(100,70,35,.08);}
+.dg.le{border-color:rgba(120,80,50,.5);background:rgba(120,80,50,.07);}
+/* 空位 */
+.dg.emp{opacity:.15;cursor:default;}
+.dg.emp:hover{transform:none;background:rgba(90,65,40,.04);}
+
+/* ===== 右侧主角卡 ===== */
+.hero-card{
+  width:110px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 7px;gap:2px;
+  background:rgba(244,237,224,.72);
+  border-left:1px solid rgba(90,65,40,.09);
+}
+.hero-fate{font-size:9px;color:rgba(90,65,40,.32);letter-spacing:2px;}
+.hero-ring{
+  width:72px;height:72px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.hero-ring::before{
+  content:'';position:absolute;inset:-12px;
+  border:2px solid rgba(90,65,40,.14);border-radius:50%;
+}
+.hero-ring::after{
+  content:'';position:absolute;inset:-24px;
+  border:1px solid rgba(90,65,40,.07);border-radius:50%;
+}
+.hero-icon{font-size:56px;line-height:1;z-index:2;}
+.hero-evo{
+  display:flex;gap:1px;font-size:12px;opacity:.28;align-items:center;letter-spacing:-1px;
+}
+.hero-lv{font-size:11px;font-weight:700;color:#3a2a1a;}
+.hero-cps{font-size:10px;color:rgba(90,65,40,.35);}
+.hero-btns{display:flex;gap:4px;margin-top:2px;}
+.hero-btn{
+  font-size:11px;padding:4px 8px;border-radius:6px;
+  border:1px solid rgba(90,65,40,.18);background:rgba(90,65,40,.05);
+  color:#5a4030;cursor:pointer;transition:all .2s;font-weight:600;
+}
+.hero-btn:hover{background:rgba(90,65,40,.12);border-color:rgba(90,65,40,.32);}
+.hero-btn.pk{background:rgba(139,90,43,.12);border-color:rgba(139,90,43,.4);color:#7a5a28;}
+
+/* ===== 底栏 ===== */
+.bot-bar{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,6px));
+  background:rgba(244,237,224,.97);
+  border-top:1px solid rgba(90,65,40,.12);
+  position:relative;z-index:2;
+}
+.sm-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:9px 16px;border-radius:6px;border:none;cursor:pointer;
+  font-size:14px;font-weight:600;transition:all .18s;
+}
+.sm-btn:hover{transform:scale(1.05);}
+.sm-btn:active{transform:scale(.97);}
+.sm-btn.coin{
+  background:rgba(139,100,40,.13);color:#8b6914;
+  border:1px solid rgba(139,100,40,.32);
+}
+.sm-btn.qi{
+  background:rgba(90,70,40,.1);color:#6b5030;
+  border:1px solid rgba(90,70,40,.28);
+}
+.sm-btn.free{
+  background:rgba(80,100,60,.1);color:#4a6030;
+  border:1px solid rgba(74,96,48,.28);
+}
+
+/* ===== 响应式 ===== */
+@media(max-width:400px){
+  .hero-card{width:94px;padding:8px 5px;}
+  .hero-ring{width:58px;height:58px;}
+  .hero-icon{font-size:46px;}
+  .sidebar{width:38px;}
+}
+</style>
+</head>
+<body style="margin:0;padding:0;">
+<div class="game">
+
+  <!-- 顶栏 -->
+  <div class="top-hud">
+    <span class="hud-zodiac">🐉</span>
+    <div class="hud-center">
+      <div class="hud-stat">
+        <span class="icon">💰</span>
+        <span class="val">12,847</span>
+        <span class="cps">+86/s</span>
+      </div>
+      <div class="hud-stat">
+        <span class="icon">✨</span>
+        <span class="val qi">520</span>
+      </div>
+    </div>
+    <span class="hud-yunshi">◇◇◇</span>
+  </div>
+
+  <!-- 技能条 -->
+  <div class="skill-row">
+    <div class="sk-pill">
+      <span class="n">签到</span><span class="d">未签到</span>
+    </div>
+    <div class="sk-pill" style="position:relative">
+      <span class="n">任务</span><span class="d">3/5</span>
+      <span class="sk-dot"></span>
+    </div>
+    <div class="sk-pill">
+      <span class="n">活动</span><span class="d">进行中</span>
+    </div>
+    <div class="sk-pill">
+      <span class="n">挑战</span><span class="d">4天</span>
+    </div>
+  </div>
+
+  <!-- 主区域 -->
+  <div class="mid-row">
+
+    <!-- 左栏 -->
+    <div class="sidebar">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="sd-btn" title="签到">📋</div>
+        <div class="sd-btn" title="任务">📝</div>
+        <div class="sd-btn" title="活动">⚡</div>
+        <div class="sd-btn" title="图鉴">📖</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="sd-btn" title="排行">🏆</div>
+        <div class="sd-btn" title="成就">🎖️</div>
+        <div class="sd-btn" title="统计">📊</div>
+        <div class="sd-btn" title="设置">⚙️</div>
+      </div>
+    </div>
+
+    <!-- 灵兽网格 -->
+    <div class="dragon-sec">
+      <div class="dragon-hd">
+        <span>灵 兽</span>
+        <small>12只 · +86/s</small>
+      </div>
+      <div class="dragon-grid">
+        <div class="dg hi"><span class="lv">5</span>🐉</div>
+        <div class="dg"><span class="lv">3</span>🐍</div>
+        <div class="dg"><span class="lv">2</span>🐴</div>
+        <div class="dg"><span class="lv">1</span>🐏</div>
+        <div class="dg"><span class="lv">4</span>🐅</div>
+        <div class="dg"><span class="lv">3</span>🐂</div>
+        <div class="dg"><span class="lv">2</span>🐇</div>
+        <div class="dg"><span class="lv">1</span>🐀</div>
+        <div class="dg"><span class="lv">3</span>🐎</div>
+        <div class="dg"><span class="lv">2</span>🐒</div>
+        <div class="dg sp"><span class="lv">6</span>🐓</div>
+        <div class="dg"><span class="lv">1</span>🐕</div>
+        <div class="dg"><span class="lv">2</span>🐖</div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+        <div class="dg emp"></div>
+      </div>
+    </div>
+
+    <!-- 右侧主角卡 -->
+    <div class="hero-card">
+      <div class="hero-fate">木命 · 大吉</div>
+      <div class="hero-evo">🐣→🐥→🐦→🐓</div>
+      <div class="hero-ring">
+        <div class="hero-icon">🐉</div>
+      </div>
+      <div>
+        <span class="hero-lv">Lv.5</span>
+        <span class="hero-cps"> +55/s</span>
+      </div>
+      <div class="hero-btns">
+        <button class="hero-btn pk">升星</button>
+        <button class="hero-btn">详情</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底栏 -->
+  <div class="bot-bar">
+    <button class="sm-btn coin">💰<span>100</span></button>
+    <button class="sm-btn qi">✨<span>500</span></button>
+    <button class="sm-btn free">🌿<span>免费×3</span></button>
+  </div>
+
+</div>
+</body></html>

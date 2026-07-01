@@ -973,26 +973,28 @@ function doStart(){
     <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
   </div>
 
-  <div id="heroSection" class="hero-card" style="width:140px;"
-
-      <!-- 命格标签 -->
-      <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">木命 · 大吉</div>
-      <!-- 灵兽emoji + 光环（缩小，给下方留空间） -->
-      <div style="position:relative;width:clamp(90px,13vw,120px);height:clamp(90px,13vw,120px);">
-        <div style="position:absolute;inset:-12px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
-        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(52px,8vw,76px);line-height:1;filter:drop-shadow(0 0 14px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
+  <!-- ===== 右侧竖向容器：灵兽卡片 + 技能条 ===== -->
+  <div id="heroColumn" style="width:clamp(100px,15vw,140px);display:flex;flex-direction:column;align-items:center;overflow:hidden;padding:0 4px;">
+    <!-- 灵兽卡片（紧凑，只显示 icon + 等级） -->
+    <div id="heroSection" class="hero-card" style="width:100%;">
+      <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;display:none;">木命 · 大吉</div>
+      <!-- 灵兽icon（居中，足够大） -->
+      <div style="position:relative;width:clamp(80px,12vw,110px);height:clamp(80px,12vw,110px);">
+        <div style="position:absolute;inset:-10px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
+        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(46px,7vw,70px);line-height:1;filter:drop-shadow(0 0 14px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
       </div>
-      <!-- 等级+产金（加大上方间距，不被icon挡住） -->
-      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
+      <!-- 等级+产金 -->
+      <div style="display:flex;align-items:center;gap:6px;margin-top:14px;">
         <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
         <span style="color:rgba(255,215,0,.3);font-size:9px;">·</span>
         <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
       </div>
-      <!-- 技能条（移至灵兽卡片内，2行3列紧凑排列） -->
-      <div id="skillBar" style="display:flex;gap:3px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:8px;"></div>
-      <!-- 进化链预览（技能条下方，字号更大） -->
-      <div id="heroThumbs" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:140px;font-size:clamp(12px,2vw,18px);opacity:.45;margin-top:4px;"></div>
-    </div></div>
+      <!-- 进化链预览 -->
+      <div id="heroThumbs" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:100%;font-size:clamp(12px,1.8vw,16px);opacity:.4;margin-top:3px;"></div>
+    </div>
+    <!-- 技能条（灵兽下方，2行3列横排） -->
+    <div id="skillBar" style="display:flex;gap:3px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px;padding:4px 2px;"></div>
+  </div>
 
 <div id="gameBottomBar" class="bot-bar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
   <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">

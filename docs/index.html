@@ -151,7 +151,7 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .d-card:active{cursor:grabbing;}
 .d-icon{font-size:clamp(20px,5vw,32px);line-height:1;}
 .d-lv{position:absolute;bottom:2px;right:4px;font-size:9px;color:rgba(90,65,40,.45);}
-.d-gold{position:absolute;top:2px;left:4px;font-size:9px;color:#8b6914;}
+.d-gold{position:absolute;top:2px;left:4px;font-size:9px;color:#ffd700;}
 .dragging{position:fixed!important;z-index:999;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 16px 48px rgba(255,215,0,.5),0 0 0 3px rgba(255,215,0,.4);opacity:.95;background:rgba(30,20,70,.97);border-radius:50%;padding:0;width:64px!important;height:64px!important;display:flex!important;align-items:center;justify-content:center;border:2px solid rgba(255,215,0,.3);}
 #summonBar{display:flex;gap:10px;padding:10px 16px 16px;}
 .sbtn{flex:1;min-width:0;padding:10px 4px 8px;border-radius:14px;border:1.5px solid;cursor:pointer;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(90,65,40,.06);backdrop-filter:blur(4px);transition:all .2s;color:#3a2a1a;}
@@ -505,29 +505,29 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 }
 
 /* ===== 新手引导 ===== */
-#guideOverlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;display:none;overflow:hidden;}
+#guideOverlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:998;display:none;overflow:hidden;}
 #guideOverlay.active{display:block;}
-.guide-cutout{position:absolute;background:transparent;box-shadow:0 0 0 9999px rgba(0,0,0,.45);border-radius:12px;border:2.5px solid #8b6914;animation:guidePulse 1.5s ease-in-out infinite;}
-@keyframes guidePulse{0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,.45),0 0 8px rgba(139,105,20,.4);}50%{box-shadow:0 0 0 9999px rgba(0,0,0,.45),0 0 20px rgba(139,105,20,.6);}}
-#guideTooltip{position:fixed;z-index:9999;background:linear-gradient(160deg,#f0e8d8,#e8dcc8);border:1px solid rgba(139,105,20,.35);border-radius:16px;padding:20px;max-width:min(340px,88vw);box-shadow:0 8px 40px rgba(0,0,0,.25);animation:guideFadeIn .25s ease;display:none;}
+.guide-cutout{position:absolute;background:transparent;box-shadow:0 0 0 9999px rgba(0,0,0,.6);border-radius:12px;border:2.5px solid #8b6914;animation:guidePulse 1.5s ease-in-out infinite;}
+@keyframes guidePulse{0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,.6),0 0 8px rgba(139,105,20,.4);}50%{box-shadow:0 0 0 9999px rgba(0,0,0,.6),0 0 20px rgba(139,105,20,.6);}}
+#guideTooltip{position:fixed;z-index:9999;background:linear-gradient(160deg,#1a1a3a,#0a0a2a);border:1px solid rgba(255,215,0,.3);border-radius:16px;padding:20px;max-width:min(340px,88vw);box-shadow:0 8px 40px rgba(0,0,0,.8);animation:guideFadeIn .25s ease;display:none;}
 #guideTooltip.show{display:block;}
 @keyframes guideFadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.gt-step-num{font-size:11px;color:#8b6914;opacity:.6;margin-bottom:6px;letter-spacing:1px;}
+.gt-step-num{font-size:11px;color:#ffd700;opacity:.6;margin-bottom:6px;letter-spacing:1px;}
 .gt-title{font-size:15px;font-weight:700;color:#3a2a1a;margin-bottom:8px;}
-.gt-body{font-size:13px;color:#5a4a3a;line-height:1.7;margin-bottom:16px;}
+.gt-body{font-size:13px;color:#aaa;line-height:1.7;margin-bottom:16px;}
 .gt-btns{display:flex;gap:8px;justify-content:flex-end;align-items:center;}
-.gt-next{background:linear-gradient(135deg,#8b6914,#6b4a28);border:none;border-radius:20px;color:#f4ede0;font-size:13px;font-weight:700;padding:8px 20px;cursor:pointer;}
-.gt-skip{background:transparent;border:1px solid rgba(139,105,20,.2);border-radius:20px;color:#8b6914;font-size:11px;padding:7px 14px;cursor:pointer;}
+.gt-next{background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:20px;color:#1a0a00;font-size:13px;font-weight:700;padding:8px 20px;cursor:pointer;}
+.gt-skip{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:20px;color:#666;font-size:11px;padding:7px 14px;cursor:pointer;}
 #guideDots{display:flex;gap:5px;margin-bottom:12px;}
 #guideDots .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .2s;}
-#guideDots .dot.done{background:#8b6914;}
+#guideDots .dot.done{background:#ffd700;}
 #guideDots .dot.active{background:#fff;width:18px;border-radius:3px;}
 
 /* === feat[5]: 召唤动画视觉增强 === */
 .summon-particle{position:fixed;border-radius:50%;pointer-events:none;animation:spFly .8s ease-out forwards;z-index:9000;}
 @keyframes spFly{to{transform:translate(var(--dx,100px),var(--dy,100px)) scale(0);opacity:0;}}
 .hero-flash{animation:heroFlashAnim .3s ease forwards;}
-@keyframes heroFlashAnim{0%,100%{filter:brightness(1)}50%{filter:brightness(2) drop-shadow(0 0 20px #8b6914);}}
+@keyframes heroFlashAnim{0%,100%{filter:brightness(1)}50%{filter:brightness(2) drop-shadow(0 0 20px #ffd700);}}
 .screen-shake{animation:shake .3s ease forwards;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
@@ -540,18 +540,18 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .combo-fill.c2{background:linear-gradient(to top,#FF9800,#FFC107);}
 .combo-fill.c3{background:linear-gradient(to top,#FF5722,#FF7043);}
 .combo-fill.c4{background:linear-gradient(to top,#e040fb,#CE93D8);box-shadow:0 0 6px rgba(224,64,251,.5);}
-.combo-fill.c5{background:linear-gradient(to top,#8b6914,#6b4a28);box-shadow:0 0 8px rgba(139,105,20,.5);}
-.combo-badge{font-size:12px;font-weight:900;color:#8b6914;letter-spacing:1px;background:rgba(139,105,20,.12);border:1.5px solid rgba(139,105,20,.35);border-radius:8px;padding:3px 7px;text-align:center;box-shadow:0 0 10px rgba(255,215,0,.12);}
+.combo-fill.c5{background:linear-gradient(to top,#ffd700,#FFA000);box-shadow:0 0 8px rgba(255,215,0,.6);}
+.combo-badge{font-size:12px;font-weight:900;color:#ffd700;letter-spacing:1px;background:rgba(255,215,0,.1);border:1.5px solid rgba(255,215,0,.35);border-radius:8px;padding:3px 7px;text-align:center;box-shadow:0 0 10px rgba(255,215,0,.12);}
 .combo-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:8888;animation:comboP .9s ease-out forwards;}
 @keyframes comboP{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--dx),var(--dy)) scale(.15);opacity:0}}
 .combo-milestone{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;font-size:clamp(38px,11vw,68px);font-weight:900;letter-spacing:4px;text-align:center;animation:cMileAnim 1.5s cubic-bezier(.4,0,.2,1) forwards;}
 @keyframes cMileAnim{0%{transform:translate(-50%,-50%) scale(.25);opacity:0}12%{transform:translate(-50%,-50%) scale(1.18);opacity:1}25%{transform:translate(-50%,-50%) scale(.94);opacity:1}62%{transform:translate(-50%,-50%) scale(1);opacity:1}78%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0}}
 @keyframes comboScoreF{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;transform:translateY(-55px) scale(1.15);}100%{opacity:0;transform:translateY(-100px) scale(.7);}}
-.combo-score{position:fixed;pointer-events:none;z-index:8900;font-size:15px;font-weight:800;color:#8b6914;text-shadow:0 0 8px rgba(139,105,20,.4),0 1px 2px rgba(0,0,0,.2);animation:comboScoreF 1.4s ease-out forwards;white-space:nowrap;}
-.combo-score.x3{color:#a0522d;text-shadow:0 0 10px rgba(160,82,45,.5);}
+.combo-score{position:fixed;pointer-events:none;z-index:8900;font-size:15px;font-weight:800;color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,.8),0 1px 2px rgba(0,0,0,.8);animation:comboScoreF 1.4s ease-out forwards;white-space:nowrap;}
+.combo-score.x3{color:#ff9800;text-shadow:0 0 10px rgba(255,152,0,.9);}
 .combo-score.x5{color:#ff5722;text-shadow:0 0 12px rgba(255,87,34,.9);}
 .combo-score.x7{color:#e040fb;text-shadow:0 0 14px rgba(224,64,251,.9);}
-.combo-score.x10{color:#8b6914;text-shadow:0 0 18px rgba(255,215,0,1);font-size:20px;}
+.combo-score.x10{color:#ffd700;text-shadow:0 0 18px rgba(255,215,0,1);font-size:20px;}
 @keyframes cShakeX{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}35%{transform:translateX(5px)}55%{transform:translateX(-4px)}75%{transform:translateX(3px)}88%{transform:translateX(-2px)}}
 .combo-shake{animation:cShakeX .5s ease forwards;}
 
@@ -560,7 +560,7 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .stat-item:last-child{border-bottom:none;}
 .stat-label{color:#888;display:flex;align-items:center;gap:6px;}
 .stat-label span{font-size:16px;}
-.stat-value{font-weight:700;color:#8b6914;font-size:14px;}
+.stat-value{font-weight:700;color:#ffd700;font-size:14px;}
 
 /* === feat[10]: 周挑战 === */
 .weekly-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
@@ -573,15 +573,15 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .wt-title{font-size:13px;font-weight:600;color:#ddd;margin-bottom:3px;}
 .wt-desc{font-size:11px;color:#555;}
 .wt-bar-wrap{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:4px;}
-.wt-bar{height:100%;background:linear-gradient(90deg,#8b6914,#6b4a28);border-radius:2px;transition:width .3s ease;}
+.wt-bar{height:100%;background:linear-gradient(90deg,#ffd700,#ff9800);border-radius:2px;transition:width .3s ease;}
 .wt-reward-area{flex-shrink:0;min-width:52px;text-align:right;}
-.wt-claim-btn{background:linear-gradient(135deg,#8b6914,#6b4a28);border:none;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;color:#f4ede0;cursor:pointer;}
+.wt-claim-btn{background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;color:#1a0a00;cursor:pointer;}
 .wt-claim-btn:disabled{background:rgba(255,255,255,.06);color:#555;cursor:not-allowed;}
 
 /* === feat[11]: 图鉴属相解锁 === */
 .handbook-tabs{display:flex;gap:6px;margin-bottom:14px;padding:0 4px;}
 .htab{flex:1;padding:8px 4px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:11px;color:#888;cursor:pointer;text-align:center;transition:all .2s;}
-.htab.on{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.35);color:#8b6914;}
+.htab.on{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.35);color:#ffd700;}
 .atlas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 8px 80px;}
 .atlas-z-card{background:rgba(255,255,255,.03);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 4px;text-align:center;transition:all .25s;cursor:pointer;}
 .atlas-z-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);}
@@ -594,7 +594,7 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .atlas-z-card:not(.locked) .az-emoji{filter:drop-shadow(0 0 8px rgba(139,90,43,.25));}
 .az-name{font-size:12px;font-weight:600;color:#ccc;margin-bottom:3px;}
 .az-cost{font-size:10px;color:#888;}
-.az-cost.affordable{color:#8b6914;}
+.az-cost.affordable{color:#ffd700;}
 .az-cost.expensive{color:#555;}
 .az-desc{font-size:9px;color:#444;margin-top:3px;line-height:1.5;}
 @keyframes azUnlockAnim{0%{transform:scale(1)}20%{transform:scale(1.2)}40%{transform:scale(.96)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
@@ -610,13 +610,13 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .skill-item.can-afford{opacity:.9;}
 .skill-item .sk-icon{font-size:22px;line-height:1;}
 .skill-item .sk-name{font-size:9px;color:rgba(255,215,0,.7);font-weight:600;white-space:nowrap;letter-spacing:.5px;}
-.skill-item .sk-cd-bar{position:absolute;bottom:0;left:0;height:3px;background:#8b6914;border-radius:0 0 14px 14px;transition:width .1s linear;}
-.skill-item .sk-active-ring{position:absolute;inset:-2px;border:2px solid #8b6914;border-radius:16px;animation:skillPulse .6s ease infinite;pointer-events:none;}
+.skill-item .sk-cd-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffd700;border-radius:0 0 14px 14px;transition:width .1s linear;}
+.skill-item .sk-active-ring{position:absolute;inset:-2px;border:2px solid #ffd700;border-radius:16px;animation:skillPulse .6s ease infinite;pointer-events:none;}
 @keyframes skillPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.05);}}
 
 /* === feat[2]: 星级显示 === */
 .star-display{display:inline-flex;gap:1px;margin-left:3px;vertical-align:middle;}
-.star-full{color:#8b6914;font-size:8px;}
+.star-full{color:#ffd700;font-size:8px;}
 .star-empty{color:rgba(255,215,0,.2);font-size:8px;}
 
 /* === feat[4]: 成就顶部弹出通知 === */
@@ -626,11 +626,11 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .ach-pop-icon{font-size:28px;}
 .ach-pop-text{text-align:left;}
 .ach-pop-title{font-size:13px;font-weight:700;color:#3a2a1a;}
-.ach-pop-desc{font-size:11px;color:#8b6914;}
+.ach-pop-desc{font-size:11px;color:#ffd700;}
 
 /* === feat[7]: 签到日历 === */
 .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.cal-nav{background:transparent;border:none;color:#8b6914;font-size:18px;cursor:pointer;padding:4px 8px;}
+.cal-nav{background:transparent;border:none;color:#ffd700;font-size:18px;cursor:pointer;padding:4px 8px;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px;}
 .cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;padding:2px;background:rgba(90,65,40,.05);border:1px solid rgba(90,65,40,.1);color:#3a2a1a;}
 .cal-cell.empty{background:transparent;opacity:.3;}
@@ -644,7 +644,7 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .leaderboard-submit input::placeholder{color:#555;}
 .leaderboard-submit .lb-btn{display:flex;gap:8px;}
 .leaderboard-submit button{flex:1;padding:8px;border-radius:10px;border:none;font-size:12px;font-weight:600;cursor:pointer;}
-.leaderboard-submit .lb-submit-btn{background:linear-gradient(135deg,#8b6914,#6b4a28);color:#f4ede0;}
+.leaderboard-submit .lb-submit-btn{background:linear-gradient(135deg,#ffd700,#ff9800);color:#1a0a00;}
 .leaderboard-submit .lb-reset-btn{background:rgba(90,65,40,.05);color:#7a5a3a;}
 .lb-last-submit{font-size:10px;color:#8a7a6a;margin-top:6px;text-align:center;}
 .lb-badge{background:linear-gradient(135deg,#8b6914,#6b4a28);color:#f4ede0;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700;display:inline-block;margin-bottom:8px;}
@@ -673,7 +673,7 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .screen-shake{animation:sshake .35s ease}.sra-p{position:absolute;border-radius:50%;pointer-events:none;animation:spFly .9s cubic-bezier(.25,.46,.45,.94) forwards;opacity:0}
 @keyframes sshake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px) rotate(-.5deg)}35%{transform:translateX(5px) rotate(.5deg)}55%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes spFly{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
-.hero-icon-flash{animation:hflash .4s ease}@keyframes hflash{0%,100%{filter:brightness(1) drop-shadow(0 0 0 transparent)}40%{filter:brightness(2.5) drop-shadow(0 0 30px #8b6914)}70%{filter:brightness(1.3) drop-shadow(0 0 15px #8b6914)}}
+.hero-icon-flash{animation:hflash .4s ease}@keyframes hflash{0%,100%{filter:brightness(1) drop-shadow(0 0 0 transparent)}40%{filter:brightness(2.5) drop-shadow(0 0 30px #ffd700)}70%{filter:brightness(1.3) drop-shadow(0 0 15px #fff)}}
 .sra-result-pop{animation:srpPop .45s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes srpPop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}60%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 
 /* ===== 成就通知动画 ===== */
@@ -683,14 +683,14 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 #skillBar{display:flex;gap:8px;overflow-x:auto;padding:6px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 8px;background:rgba(90,65,40,.04);border:1px solid rgba(90,65,40,.1);border-radius:10px;cursor:pointer;min-width:52px;transition:all .2s;position:relative;color:#3a2a1a}.skill-btn:hover{background:rgba(139,90,43,.08);border-color:rgba(139,90,43,.3)}.skill-btn.disabled{opacity:.4;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(90,65,40,.55);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#f4ede0;font-weight:700}
 
 /* ===== 星级显示 ===== */
-.star-pip{display:inline-block;font-size:10px;color:#8b6914;letter-spacing:-1px}.star-pip-empty{color:#333}
+.star-pip{display:inline-block;font-size:10px;color:#ffd700;letter-spacing:-1px}.star-pip-empty{color:#333}
 
 /* ===== 升星按钮 ===== */
-.star-up-btn{background:linear-gradient(135deg,#8b6914,#6b4a28);border:none;border-radius:8px;padding:6px 14px;color:#f4ede0;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px}
+.star-up-btn{background:linear-gradient(135deg,#ffd700,#ff8c00);border:none;border-radius:8px;padding:6px 14px;color:#1a0a00;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px}
 
 /* ===== 日历签到 ===== */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:12px}.cal-cell{text-align:center;padding:5px 2px;font-size:11px;border-radius:6px;background:rgba(139,105,20,.06);border:1px solid rgba(139,105,20,.12)}.cal-cell.signed{background:rgba(139,105,20,.1);border-color:rgba(139,105,20,.3);color:#8b6914}.cal-cell.today{border-color:#8b6914;box-shadow:0 0 6px rgba(139,105,20,.3)}.cal-cell.future{opacity:.3}
-.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cal-nav-btn{background:transparent;border:1px solid rgba(255,255,255,.1);color:#888;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px}.cal-nav-btn:hover{border-color:#8b6914;color:#8b6914}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:12px}.cal-cell{text-align:center;padding:5px 2px;font-size:11px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}.cal-cell.signed{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.3);color:#ffd700}.cal-cell.today{border-color:#ffd700;box-shadow:0 0 6px rgba(255,215,0,.3)}.cal-cell.future{opacity:.3}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.cal-nav-btn{background:transparent;border:1px solid rgba(255,255,255,.1);color:#888;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px}.cal-nav-btn:hover{border-color:#ffd700;color:#ffd700}
 
 /* ===== 手机小屏优化 ===== */
 @media(max-width:480px){.hero-glow{width:160px!important;height:160px!important}#heroIcon{font-size:clamp(80px,24vw,120px)!important}#heroThumbs{max-width:180px!important}.hud-row{display:none!important}#skillBar{padding:5px 8px;gap:6px}.summon-btn{padding:8px 12px!important;font-size:13px!important}.side-btn{padding:8px 7px!important}#heroFateTag{display:none!important}.sra-result-anim{min-width:260px!important;padding:16px 12px!important}#gameBottomBar{gap:clamp(6px,2vw,12px)!important}}@media(max-width:360px){.hero-glow{width:120px!important;height:120px!important}#heroIcon{font-size:clamp(65px,20vw,90px)!important}#skillBar{padding:4px 6px;gap:4px}.skill-btn{min-width:44px;padding:4px 5px}}
@@ -711,16 +711,16 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
   </div>
 
   <div class="login-label">选择属相</div>
-  <div class="zodiac-grid" id="zGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 auto 14px;max-width:400px;padding:0 12px;"></div>
+  <div class="zodiac-grid" id="zGrid"></div>
 
   <div class="login-label" style="margin-top:14px">选择命格</div>
-  <div class="fate-row" id="fGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:0 auto;max-width:400px;padding:0 12px;"></div>
+  <div class="fate-row" id="fGrid"></div>
   <div class="bonus" id="bonus"></div>
 
   <button class="start-btn" id="sBtn" onclick="doStart()">请先选择属相与命格</button>
 </div>
 
-<div class="modal" id="modal" style="display:none;">
+<div class="modal" id="modal">
   <div class="modal-box">
     <div class="modal-badge">命运已定</div>
     <div class="modal-chars">
@@ -788,7 +788,7 @@ for(let i=0;i<60;i++){
   s.style.left=Math.random()*100+'%';
   s.style.top=Math.random()*100+'%';
   s.style.animationDelay=Math.random()*3+'s';
-  s.style.width=s.style.height=(1+Math.random()*2)+'px';s.style.background='rgba(139,105,20,.2)';
+  s.style.width=s.style.height=(1+Math.random()*2)+'px';
   stars.appendChild(s);
 }
 
@@ -814,7 +814,7 @@ FDATA.forEach((f,i)=>{
     document.querySelectorAll('.fate-card').forEach(x=>x.classList.remove('on'));
     c.classList.add('on');
     sf=i;
-    var bd=document.getElementById('bonus');bd.innerHTML='<span class="bonus-name" style="color:#8b6914;font-weight:700">'+f.e+' '+f.n+'命</span><span class="bonus-desc"> · 产金×'+f.c+' · 龙气×'+f.q+' · 经验×'+f.exp+'</span>';
+    var bd=document.getElementById('bonus');bd.innerHTML='<span class="bonus-name" style="color:#ffd700;font-weight:700">'+f.e+' '+f.n+'命</span><span class="bonus-desc"> · 产金×'+f.c+' · 龙气×'+f.q+' · 经验×'+f.exp+'</span>';
     upd();
   };
   fg.appendChild(c);
@@ -846,11 +846,11 @@ function doStart(){
 </script>
 
 
-<div id="gamePage" style="display:none;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;"background:radial-gradient(ellipse 80% 70% at 50% 38%,rgba(200,160,80,.2) 0%,rgba(180,140,80,.12) 45%,#e8dcc8 100%);">
+<div id="gamePage" style="display:none;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;background:radial-gradient(ellipse 80% 70% at 50% 38%,rgba(80,30,150,.28) 0%,rgba(20,8,80,.2) 45%,#07071a 100%);">
 
   <!-- ===== 第一行：顶部HUD（顶部留出刘海屏安全区） ===== -->
   <div id="topHud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(7,7,26,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">
-    <span id="hudZodiac" style="font-size:13px;color:#8b6914;opacity:.7;min-width:40px;"></span>
+    <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
     <div style="display:flex;align-items:center;gap:16px;">
       <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
       <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
@@ -878,7 +878,7 @@ function doStart(){
 <!-- 灵兽网格（显示，覆盖在中间，5×5格子） -->
     <div id="dragonGrid" style="grid-area:3;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0;">
       <div style="display:flex;align-items:center;gap:8px;padding:clamp(8px,1.5vh,14px) 12px clamp(6px,1vh,10px);border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;">
-        <span style="font-size:13px;color:#8b6914;letter-spacing:2px;font-weight:600;">🐾 灵兽</span>
+        <span style="font-size:13px;color:#ffd700;letter-spacing:2px;font-weight:600;">🐾 灵兽</span>
         <span id="gridCount" style="font-size:11px;color:rgba(255,255,255,.3);"></span>
       </div>
       <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
@@ -895,7 +895,7 @@ function doStart(){
       </div>
       <!-- 等级+产金 -->
       <div style="display:flex;align-items:center;gap:6px;">
-        <span id="heroLv" style="font-size:11px;font-weight:700;color:#8b6914;letter-spacing:1px;">Lv.1</span>
+        <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
         <span style="color:rgba(255,215,0,.3);font-size:9px;">·</span>
         <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
       </div>
@@ -958,7 +958,7 @@ function doStart(){
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
             <span>🔊 总音量</span><span id="volVal">70%</span>
           </div>
-          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#8b6914;" oninput="onVolChange(this.value)">
+          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#ffd700;" oninput="onVolChange(this.value)">
         </div>
         <div style="margin-bottom:18px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
@@ -968,7 +968,7 @@ function doStart(){
               <span id="bgmLabel">开启</span>
             </label>
           </div>
-          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#8b6914;" oninput="onBgmChange(this.value)">
+          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
         </div>
         <div style="margin-bottom:24px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
@@ -977,14 +977,14 @@ function doStart(){
               <input type="checkbox" id="sfxToggle" checked onchange="onSfxToggle(this.checked)"><span id="sfxLabel">开启</span>
             </label>
           </div>
-          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#8b6914;" oninput="onSfxChange(this.value)">
+          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
         </div>
         <div style="margin-bottom:24px;">
           <div style="margin-bottom:8px;font-size:14px;">☁️ 服务器地址（天机榜）</div>
           <input type="text" id="backendUrlInput" placeholder="例：http://你的服务器IP:3001" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;box-sizing:border-box;">
           <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;">填入服务器地址后，打开天机榜即可上榜<br>离线模式下游戏不受影响</div>
         </div>
-        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#8b6914;border:none;color:#f4ede0;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
+        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
       </div>
     </div>
   </div>
@@ -992,7 +992,7 @@ function doStart(){
     <div id="mergeFlash" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;pointer-events:none;z-index:500;">
     <div id="mergeText" style="font-size:96px;filter:drop-shadow(0 0 32px rgba(139,90,43,.5));"></div>
   </div>
-  <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;visibility:hidden;"></div>
+  <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
   <div id="guideOverlay"></div>
   <div id="guideTooltip"></div>
   <script src="js/config.js"></script>
@@ -1000,5 +1000,102 @@ function doStart(){
 <script src="js/game.min.js"></script>
 <script src="js/ui.js"></script>
 </body>
+</html
+    </div>
 
+  <!-- ===== 第三行：底部召唤栏 ===== -->
+  <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
+    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
+      <span style="font-size:18px;">💰</span>
+      <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
+    </button>
+    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:90px;padding:10px 16px;" title="龙气召唤">
+      <span id="qiCost" style="font-size:9px;display:block;margin-bottom:1px;color:rgba(255,255,255,.5);">✨ 500</span>
+      <span style="font-size:18px;">✨</span>
+      <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
+    </button>
+    <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
+      <span style="font-size:18px;">🌿</span>
+      <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
+    </button>
+  </div>
+
+</div>
+<div id="rankPanel" class="rank-panel"></div>
+  <div id="signPanel" class="sign-panel"></div>
+  <div id="taskPanel" class="task-panel"></div>
+  <div id="activityPanel" class="activity-panel"></div>
+  <div id="handbookPanel" class="handbook-panel"></div>
+
+  <!-- === feat[8]: 连击计时条 === -->
+  <div id="comboBar">
+    <div class="combo-track">
+      <div class="combo-fill c0" id="comboFill" style="height:100%"></div>
+    </div>
+    <div class="combo-badge" id="comboBadge">×1</div>
+  </div>
+  <div id="cultPanel" class="cult-panel"></div>
+  <div id="achPanel" class="ach-panel"></div>
+  <div id="weeklyPanel" class="ach-panel"></div>
+
+  <!-- === feat[9]: 游戏统计面板 === -->
+  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
+  <div id="settingsPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
+      <div style="padding:20px 20px 24px;">
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🔊 总音量</span><span id="volVal">70%</span>
+          </div>
+          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#ffd700;" oninput="onVolChange(this.value)">
+        </div>
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🎵 背景音乐</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
+              <input type="checkbox" id="bgmToggle" checked onchange="onBgmToggle(this.checked)">
+              <span id="bgmLabel">开启</span>
+            </label>
+          </div>
+          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
+        </div>
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+            <span>🔔 游戏音效</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
+              <input type="checkbox" id="sfxToggle" checked onchange="onSfxToggle(this.checked)"><span id="sfxLabel">开启</span>
+            </label>
+          </div>
+          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
+        </div>
+        <div style="margin-bottom:24px;">
+          <div style="margin-bottom:8px;font-size:14px;">☁️ 服务器地址（天机榜）</div>
+          <input type="text" id="backendUrlInput" placeholder="例：http://你的服务器IP:3001" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;box-sizing:border-box;">
+          <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;">填入服务器地址后，打开天机榜即可上榜<br>离线模式下游戏不受影响</div>
+        </div>
+        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
+      </div>
+    </div>
+  </div>
+  <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
+    <div id="mergeFlash" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;pointer-events:none;z-index:500;">
+    <div id="mergeText" style="font-size:96px;filter:drop-shadow(0 0 32px rgba(139,90,43,.5));"></div>
+  </div>
+  <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
+  <div id="guideOverlay"></div>
+  <div id="guideTooltip"></div>
+  <script src="js/config.js"></script>
+<script>
+if(sessionStorage.getItem('aps_auto_login')==='1'){
+  sz=4;sf=1;nextId=3;
+  document.getElementById('gamePage').style.cssText='display:flex;visibility:visible;opacity:1';
+  document.getElementById('loginWrap').style.display='none';
+  G={zodiac:4,fate:1,coins:2000,qi:200,dragons:[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}],mergeCount:5,summonCount:3,maxCombo:2,unlockedAtlas:[4],signStreak:1,totalCoins:2000,created:true};
+}
+</script>
+<script src="js/audio.js"></script>
+<script src="js/game.min.js"></script>
+<script src="js/ui.js"></script>
+</body>
 </html>

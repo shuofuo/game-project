@@ -971,12 +971,12 @@ function doStart(){
     <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
   </div>
 
-  <div id="heroSection" class="hero-card">
+  <div id="heroSection" class="hero-card" style="width:140px;">
 
       <!-- 命格标签 -->
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">木命 · 大吉</div>
       <!-- 灵兽emoji + 光环 -->
-      <div style="position:relative;width:clamp(80px,12vw,120px);height:clamp(80px,12vw,120px);">
+      <div style="position:relative;width:clamp(100px,14vw,140px);height:clamp(100px,14vw,140px);">
         <div style="position:absolute;inset:-12px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
         <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(60px,9vw,90px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
       </div>

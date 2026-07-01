@@ -713,16 +713,16 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
   </div>
 
   <div class="login-label">选择属相</div>
-  <div class="zx-grid" id="zGrid"></div>
+  <div class="zx-grid" id="zGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 auto 14px;max-width:400px;padding:0 12px;"></div>
 
   <div class="login-label" style="margin-top:14px">选择命格</div>
-  <div class="fate-row" id="fGrid"></div>
+  <div class="fate-row" id="fGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:0 auto;max-width:400px;padding:0 12px;"></div>
   <div class="bonus" id="bonus"></div>
 
   <button class="start-btn" id="sBtn" onclick="doStart()">请先选择属相与命格</button>
 </div>
 
-<div class="modal" id="modal">
+<div class="modal" id="modal" style="display:none;">
   <div class="modal-box">
     <div class="modal-badge">命运已定</div>
     <div class="modal-chars">
@@ -848,7 +848,7 @@ function doStart(){
 </script>
 
 
-<div id="gamePage" style="display:flex;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;visibility:hidden;opacity:0;background:radial-gradient(ellipse 80% 70% at 50% 38%,rgba(200,160,80,.2) 0%,rgba(180,140,80,.12) 45%,#e8dcc8 100%);">
+<div id="gamePage" style="display:none;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;visibility:hidden;opacity:0;background:radial-gradient(ellipse 80% 70% at 50% 38%,rgba(200,160,80,.2) 0%,rgba(180,140,80,.12) 45%,#e8dcc8 100%);">
 
   <!-- ===== 第一行：顶部HUD（顶部留出刘海屏安全区） ===== -->
   <div id="topHud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(7,7,26,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">

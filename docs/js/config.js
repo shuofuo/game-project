@@ -826,10 +826,6 @@ function startCps(){
 }
 function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}if(qiTimer){clearInterval(qiTimer);qiTimer=null;}if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
 
-  tick();
-}
-
-}
 
 function enterGridMode(){
   // grid mode disabled

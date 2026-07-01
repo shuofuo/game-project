@@ -664,9 +664,13 @@ body{background:#0c0c22;display:flex;align-items:stretch;justify-content:center;
   .skill-item .sk-icon{font-size:18px;}
   .skill-item .sk-name{font-size:8px;}
 }
+#heroSection .skill-item{min-width:34px;padding:4px 5px;border-radius:10px;}
+#heroSection .skill-item .sk-icon{font-size:15px;line-height:1;}
+#heroSection .skill-item .sk-name{font-size:7px;letter-spacing:.3px;}
+#heroSection .skill-item .sk-cd-bar{height:2px;border-radius:0 0 10px 10px;}
 @media (max-width:360px){
-  #heroIcon{font-size:clamp(70px,22vw,100px)!important;}
-  .hero-glow{width:130px!important;height:130px!important;}
+  #heroIcon{font-size:clamp(52px,16vw,76px)!important;}
+  .hero-glow{width:100px!important;height:100px!important;}
 }
 
 /* ===== 召唤增强动画 ===== */
@@ -940,10 +944,8 @@ function doStart(){
   <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
 </div>
 
-  <!-- ===== 技能条顶栏（新增）===== -->
-  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(15,15,40,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
-  <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
-</div>
+  <!-- ===== 技能条（已移至灵兽卡片内，顶部仅保留1px分割线）===== -->
+  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;height:1px;background:rgba(255,215,0,.06);"></div>
 
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
     <div id="middleRow" class="mid-row" style="flex:1;display:flex;min-height:0;overflow:hidden;margin:0;">
@@ -975,19 +977,21 @@ function doStart(){
 
       <!-- 命格标签 -->
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">木命 · 大吉</div>
-      <!-- 灵兽emoji + 光环 -->
-      <div style="position:relative;width:clamp(100px,14vw,140px);height:clamp(100px,14vw,140px);">
+      <!-- 灵兽emoji + 光环（缩小，给下方留空间） -->
+      <div style="position:relative;width:clamp(90px,13vw,120px);height:clamp(90px,13vw,120px);">
         <div style="position:absolute;inset:-12px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
-        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(60px,9vw,90px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
+        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(52px,8vw,76px);line-height:1;filter:drop-shadow(0 0 14px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
       </div>
-      <!-- 等级+产金 -->
-      <div style="display:flex;align-items:center;gap:6px;">
+      <!-- 等级+产金（加大上方间距，不被icon挡住） -->
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;">
         <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
         <span style="color:rgba(255,215,0,.3);font-size:9px;">·</span>
         <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
       </div>
-      <!-- 进化链预览 -->
-      <div id="heroThumbs" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:clamp(150px,18vw,210px);font-size:clamp(14px,2.5vw,22px);opacity:.5;margin-top:2px;"></div>
+      <!-- 技能条（移至灵兽卡片内，2行3列紧凑排列） -->
+      <div id="skillBar" style="display:flex;gap:3px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:8px;"></div>
+      <!-- 进化链预览（技能条下方，字号更大） -->
+      <div id="heroThumbs" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:140px;font-size:clamp(12px,2vw,18px);opacity:.45;margin-top:4px;"></div>
     </div></div>
 
 <div id="gameBottomBar" class="bot-bar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">

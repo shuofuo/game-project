@@ -916,20 +916,20 @@ function doStart(){
 <div id="gamePage" style="display:none;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;background:radial-gradient(ellipse 80% 70% at 50% 38%,rgba(80,30,150,.28) 0%,rgba(20,8,80,.2) 45%,#07071a 100%);">
 
   <!-- ===== 第一行：顶部HUD（顶部留出刘海屏安全区） ===== -->
-  <div id="topHud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(7,7,26,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">
-    <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
-    <div style="display:flex;align-items:center;gap:16px;">
-      <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
-      <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
-      <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
-    </div>
-    <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
+  <div id="topHud" class="top-hud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(7,7,26,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">
+  <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span style="font-size:16px;">&#128176;</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
+    <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
+    <span style="font-size:16px;margin-left:8px;">&#10024;</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
   </div>
+  <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
+</div>
 
   <!-- ===== 技能条顶栏（新增）===== -->
-  <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
-    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
-  </div>
+  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
+  <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
+</div>
 
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
     <div id="middleRow" class="mid-row" style="flex:1;display:flex;min-height:0;overflow:hidden;margin:0;">
@@ -978,21 +978,21 @@ function doStart(){
 
 <!-- 右侧功能按钮（竖排） -->
   </div>
-</div><div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
-    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
-      <span style="font-size:18px;">💰</span>
-      <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
-    </button>
-    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:90px;padding:10px 16px;" title="龙气召唤">
-      <span id="qiCost" style="font-size:9px;display:block;margin-bottom:1px;color:rgba(255,255,255,.5);">✨ 500</span>
-      <span style="font-size:18px;">✨</span>
-      <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
-    </button>
-    <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
-      <span style="font-size:18px;">🌿</span>
-      <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
-    </button>
-  </div>
+</div><div id="gameBottomBar" class="bot-bar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
+  <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
+    <span style="font-size:18px;">&#128176;</span>
+    <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
+  </button>
+  <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:90px;padding:10px 16px;" title="龙气召唤">
+    <span id="qiCost" style="font-size:9px;display:block;margin-bottom:1px;color:rgba(255,255,255,.5);">&#10024; 500</span>
+    <span style="font-size:18px;">&#10024;</span>
+    <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
+  </button>
+  <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
+    <span style="font-size:18px;">&#127793;</span>
+    <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
+  </button>
+</div>
 
 </div>
     </div>

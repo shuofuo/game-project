@@ -756,7 +756,7 @@ body{background:#0c0c22;display:flex;align-items:stretch;justify-content:center;
 .hero-btn:hover{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.32);}
 .hero-btn.pk{background:rgba(255,180,0,.12);border-color:rgba(255,180,0,.4);color:#ffd700;}
 /* 底栏 */
-.bot-bar{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,6px));background:rgba(10,10,30,.95);border-top:1px solid rgba(255,215,0,.07);position:relative;z-index:2;}
+.bot-bar{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,6px));background:rgba(10,10,30,.95);border-top:1px solid rgba(255,215,0,.07);position:relative;z-index:2;align-self:flex-end;}
 .sm-btn{display:flex;align-items:center;gap:5px;padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:all .18s;}
 .sm-btn:hover{transform:scale(1.05);}
 .sm-btn:active{transform:scale(.97);}
@@ -974,7 +974,7 @@ function doStart(){
   </div>
 
   <!-- ===== 右侧竖向容器：灵兽卡片 + 技能条 ===== -->
-  <div id="heroColumn" style="width:clamp(100px,15vw,140px);display:flex;flex-direction:column;align-items:center;overflow:hidden;padding:0 4px;">
+  <div id="heroColumn" style="width:clamp(100px,15vw,140px);display:flex;flex-direction:column;align-items:center;overflow:hidden;padding:0 4px;align-self:flex-start;">
     <!-- 灵兽卡片（紧凑，只显示 icon + 等级） -->
     <div id="heroSection" class="hero-card" style="width:100%;">
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;display:none;">木命 · 大吉</div>

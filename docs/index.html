@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 html,body{height:100%;height:100dvh;overflow:hidden;}
-body{background:#e0d8c8;display:flex;align-items:stretch;justify-content:center;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#fff;padding:0;margin:0;min-height:100dvh;touch-action:manipulation;-webkit-text-size-adjust:100%;}
+body{background:#0c0c22;display:flex;align-items:stretch;justify-content:center;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#fff;padding:0;margin:0;min-height:100dvh;touch-action:manipulation;-webkit-text-size-adjust:100%;}
 
 .bg{position:fixed;inset:0;pointer-events:none;z-index:0;}
 .bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 15% 92%,rgba(90,65,40,.07) 0%,transparent 60%),radial-gradient(ellipse 65% 40% at 85% 85%,rgba(70,55,30,.05) 0%,transparent 60%),radial-gradient(ellipse 35% 22% at 50% 65%,rgba(85,60,35,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 70% 10%,rgba(100,80,50,.03) 0%,transparent 50%),radial-gradient(ellipse 40% 25% at 30% 20%,rgba(80,60,35,.03) 0%,transparent 50%);}
@@ -15,7 +15,7 @@ body{background:#e0d8c8;display:flex;align-items:stretch;justify-content:center;
 .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.6;animation:twinkle 3s ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
 
-.wrap{position:fixed;z-index:100;width:min(500px,96vw);max-width:96vw;padding:0 0 calc(16px + env(safe-area-inset-bottom)) 0;margin:0 auto;overflow-x:hidden;top:0;left:0;right:0;bottom:0;overflow-y:auto;background:rgba(244,237,224,.97);}
+.wrap{...background:rgba(10,10,30,.97);}
 
 /* ===== 标题区：书法印章风格 ===== */
 .logo{text-align:center;margin-bottom:8px;position:relative;}
@@ -113,26 +113,26 @@ body{background:#e0d8c8;display:flex;align-items:stretch;justify-content:center;
 
 /* ===== 游戏主界面 ===== */
 #gamePage{width:100%;height:100dvh;overflow:hidden;touch-action:none;flex-direction:column;padding-bottom:0;display:flex;visibility:hidden;opacity:0;}
-.rank-panel{position:fixed;top:0;right:0;width:min(380px,92vw);height:100%;height:100dvh;background:#f4ede0;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
-.rank-panel.open{display:block;transform:translateX(0);}.rank-panel::-webkit-scrollbar{width:0;}.handbook-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#f4ede0;z-index:301;display:none;overflow-y:auto;}
-.handbook-panel.open{display:block;}.handbook-panel::-webkit-scrollbar{width:0;}.cult-panel,.ach-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#f4ede0;z-index:302;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.rank-panel{position:fixed;top:0;right:0;width:min(380px,92vw);height:100%;height:100dvh;background:#0c0c22;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.rank-panel.open{display:block;transform:translateX(0);}.rank-panel::-webkit-scrollbar{width:0;}.handbook-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#0c0c22;z-index:301;display:none;overflow-y:auto;}
+.handbook-panel.open{display:block;}.handbook-panel::-webkit-scrollbar{width:0;}.cult-panel,.ach-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0c0c22;z-index:302;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
 .cult-panel.open,.ach-panel.open{display:block;transform:translateX(0);}
 .cult-panel::-webkit-scrollbar,.ach-panel::-webkit-scrollbar{width:0;}
 @keyframes achSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
-.sign-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#f4ede0;z-index:302;display:none;overflow-y:auto;}
+.sign-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#0c0c22;z-index:302;display:none;overflow-y:auto;}
 .sign-panel.open{display:block;}
 .sign-panel::-webkit-scrollbar{width:0;}
-.task-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#f4ede0;z-index:303;display:none;overflow-y:auto;}
+.task-panel{position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:#0c0c22;z-index:303;display:none;overflow-y:auto;}
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
-.activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#f4ede0;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0c0c22;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
 .activity-panel.open{display:block;transform:translateX(0);}
 .activity-panel::-webkit-scrollbar{width:0;}
 @keyframes achFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes achToast{0%{transform:translateX(120%);opacity:0}15%{transform:translateX(0);opacity:1}85%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
 @keyframes achPopIn{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
 
-#topHud{position:static;background:rgba(244,237,224,0.88);padding:10px 14px 8px;border-bottom:1px solid rgba(255,215,0,.15);}
+#topHud{position:static;background:rgba(15,15,40,.92);padding:10px 14px 8px;border-bottom:1px solid rgba(255,215,0,.15);}
 .hud-top{display:flex;align-items:center;justify-content:space-between;}
 .hud-left,.hud-right{display:flex;align-items:center;gap:4px;font-size:18px;}
 .hud-center{text-align:center;}
@@ -738,8 +738,8 @@ body{background:#e0d8c8;display:flex;align-items:stretch;justify-content:center;
 .dg.emp{opacity:.15;cursor:default;}
 .dg.emp:hover{transform:none;background:rgba(100,80,180,.06);}
 /* 右侧主角卡 */
-.hero-card{width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 7px;gap:2px;background:rgba(244,237,224,.88);border-left:1px solid rgba(255,215,0,.06);}
-.hero-fate{font-size:9px;color:rgba(255,215,0,.32);letter-spacing:2px;}
+.hero-card{width:110px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 7px;gap:2px;background:rgba(15,15,40,.92);border-left:1px solid rgba(255,215,0,.06);}
+.hero-fate{font-size:9px;color:rgba(255,215,0,.55);letter-spacing:2px;}
 .hero-ring{width:72px;height:72px;position:relative;display:flex;align-items:center;justify-content:center;}
 .hero-ring::before{content:'';position:absolute;inset:-12px;border:2px solid rgba(100,80,180,.2);border-radius:50%;}
 .hero-ring::after{content:'';position:absolute;inset:-24px;border:1px solid rgba(100,80,180,.12);border-radius:50%;}
@@ -763,18 +763,18 @@ body{background:#e0d8c8;display:flex;align-items:stretch;justify-content:center;
 @media(max-width:400px){.hero-card{width:94px;padding:8px 5px;}.hero-ring{width:58px;height:58px;}.hero-icon{font-size:46px;}.sidebar{width:38px;}}
 
 /* ===== 水墨丹青配色：文字颜色适配 ===== */
-.top-hud *{color:#3a2a1a;}
-.top-hud #hudCoins,.top-hud #hudCps,.top-hud #hudQi,.top-hud #hudZodiac,.top-hud #hudYunshi,.top-hud span[style*='font-size:16px']{color:#3a2a1a;}
-.skill-row *{color:#3a2a1a;}
-.bot-bar *{color:#3a2a1a;}
-.mid-row *{color:#3a2a1a;}
-.sidebar *{color:#3a2a1a;}
-.dragon-sec *{color:#3a2a1a;}
-.hero-card *{color:#3a2a1a;}
-.hero-card #heroLv{color:#8b5e14;}
-.hero-card #heroCps{color:rgba(90,65,40,.4);}
-.hero-card #heroIcon{color:#3a2a1a;filter:drop-shadow(0 0 12px rgba(139,90,43,.35));}
-.sidebar .side-btn svg{color:#3a2a1a;}
+.top-hud *{color:#ffe4a0;}
+.top-hud #hudCoins,.top-hud #hudCps,.top-hud #hudQi,.top-hud #hudZodiac,.top-hud #hudYunshi,.top-hud span[style*='font-size:16px']{color:#ffe4a0;}
+.skill-row *{color:#ffe4a0;}
+.bot-bar *{color:#ffe4a0;}
+.mid-row *{color:#ffe4a0;}
+.sidebar *{color:#ffe4a0;}
+.dragon-sec *{color:#ffe4a0;}
+.hero-card *{color:rgba(255,255,255,.85);}
+.hero-card #heroLv{color:#ffd700;}
+.hero-card #heroCps{color:rgba(255,255,255,.45);}
+.hero-card #heroIcon{color:rgba(255,255,255,.9);filter:drop-shadow(0 0 12px rgba(255,215,0,.4));}
+.sidebar .side-btn svg{color:#ffe4a0;}
 </style>
 </head>
 <body>
@@ -927,10 +927,10 @@ function doStart(){
 </script>
 
 
-<div id="gamePage" style="display:none;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;background:radial-gradient(ellipse 90% 55% at 15% 92%,rgba(90,65,40,.07) 0%,transparent 60%),radial-gradient(ellipse 65% 40% at 85% 85%,rgba(70,55,30,.05) 0%,transparent 60%),radial-gradient(ellipse 35% 22% at 50% 65%,rgba(85,60,35,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 70% 10%,rgba(100,80,50,.03) 0%,transparent 50%),radial-gradient(ellipse 40% 25% at 30% 20%,rgba(80,60,35,.03) 0%,transparent 50%),#f4ede0;">
+<div id="gamePage" style="display:none;flex-direction:column;min-height:100dvh;overflow:hidden;touch-action:none;background:radial-gradient(ellipse 90% 55% at 15% 92%,rgba(90,65,40,.07) 0%,transparent 60%),radial-gradient(ellipse 65% 40% at 85% 85%,rgba(70,55,30,.05) 0%,transparent 60%),radial-gradient(ellipse 35% 22% at 50% 65%,rgba(85,60,35,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 70% 10%,rgba(100,80,50,.03) 0%,transparent 50%),radial-gradient(ellipse 40% 25% at 30% 20%,rgba(80,60,35,.03) 0%,transparent 50%),#0c0c22;">
 
   <!-- ===== 第一行：顶部HUD（顶部留出刘海屏安全区） ===== -->
-  <div id="topHud" class="top-hud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(244,237,224,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">
+  <div id="topHud" class="top-hud" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(15,15,40,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,.06);height:calc(env(safe-area-inset-top) + 40px);min-height:calc(8px + 40px);">
   <span id="hudZodiac" style="font-size:13px;color:#ffd700;opacity:.7;min-width:40px;"></span>
   <div style="display:flex;align-items:center;gap:16px;">
     <span style="font-size:16px;">&#128176;</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
@@ -941,14 +941,14 @@ function doStart(){
 </div>
 
   <!-- ===== 技能条顶栏（新增）===== -->
-  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(244,237,224,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
+  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(15,15,40,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
   <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
 </div>
 
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
     <div id="middleRow" class="mid-row" style="flex:1;display:flex;min-height:0;overflow:hidden;margin:0;">
 
-  <div class="sidebar" style="width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:rgba(244,237,224,.72);">
+  <div class="sidebar" style="width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:rgba(15,15,40,.88);">
     <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>

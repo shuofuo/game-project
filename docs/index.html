@@ -57,7 +57,7 @@ body{background:#e8dcc8;display:flex;align-items:stretch;justify-content:center;
 .section{display:none;}
 
 /* 属相网格 4x3 */
-.zodiac-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 auto 14px;max-width:400px;padding:0 12px;box-sizing:border-box;}
+.zx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 auto 14px;max-width:400px;padding:0 12px;box-sizing:border-box;}
 .zodiac-card{background:rgba(90,65,40,.06);border:1.5px solid rgba(90,65,40,.12);border-radius:12px;padding:10px 4px 8px;cursor:pointer;transition:all .2s;text-align:center;user-select:none;}
 .zodiac-card:hover{background:rgba(90,65,40,.1);border-color:rgba(90,65,40,.25);}
 .zodiac-card:active{transform:scale(.94);transition:transform .05s;}
@@ -711,7 +711,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
   </div>
 
   <div class="login-label">选择属相</div>
-  <div class="zodiac-grid" id="zGrid"></div>
+  <div class="zx-grid" id="zGrid"></div>
 
   <div class="login-label" style="margin-top:14px">选择命格</div>
   <div class="fate-row" id="fGrid"></div>

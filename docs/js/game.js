@@ -14,7 +14,7 @@ function startGame(){
   el=document.getElementById('gamePage');if(el){el.style.display='flex';el.style.visibility='visible';el.style.opacity='1';}
   G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
   nextId=3;
-  saveGame();renderGrid();updateHud();startCps();startBgm();initHomeGesture();
+  saveGame();renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G&&G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
   requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
   requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
   setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);
@@ -49,7 +49,7 @@ function initGame(){ startSkyEvents();try{initWeekly();}catch(e){}
     el=document.getElementById('hudZodiac');if(el)el.textContent=ZOD_E[G.zodiac]||'';
     el=document.getElementById('hudYunshi');if(el)el.textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
     el=document.getElementById('gamePage');if(el){el.style.display='flex';el.style.visibility='visible';el.style.opacity='1';}
-    renderGrid();updateHud();startCps();startBgm();initHomeGesture();
+    renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G&&G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
     requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
     requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
     setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);

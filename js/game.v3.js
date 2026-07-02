@@ -1,4 +1,6 @@
 // ===== GAME.js - 生肖天机 =====
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+window._today=today;
 function initHomeGesture(){}
 
 function startGame(){
@@ -1678,7 +1680,7 @@ function closeActiveCenter(){
 function renderActiveCenter(){
   var c=document.getElementById('activeCenterItems');
   if(!c)return;
-  var today=todayStr();
+  var td=today();
   // 签到状态
   var signed=G.signDate===today;
   // 任务进度
@@ -1728,8 +1730,8 @@ function updateActiveBadge(){
   // 更新侧边栏按钮红点
   var badge=document.getElementById('hudActiveBadge');
   if(!badge)return;
-  var today=todayStr();
-  var signed=G.signDate===today;
+  var td=today();
+  var signed=G.signDate===td;
   var taskDone=0;
   try{if(G.tasks)for(var k in G.tasks)if(G.tasks[k])taskDone++;}catch(e){}
   var unread=(!signed?1:0)+(taskDone<5?1:0);

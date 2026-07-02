@@ -126,7 +126,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
 .activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
-.active-center-panel{position:fixed;bottom:0;left:0;width:100%;max-height:88vh;background:#07071aee;z-index:303;display:block;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,215,0,.15);overflow:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.active-center-panel{position:fixed;bottom:0;left:0;width:100%;max-height:88vh;background:#07071aee;z-index:303;display:none;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,215,0,.15);overflow:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}.active-center-panel.open{display:block;transform:translateY(0);}
 .active-center-panel.open{transform:translateY(0);}
 .ac-card{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
 .ac-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,215,0,.2);}
@@ -734,7 +734,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
       天生 <b id="mFn">木</b> 命<br><br>
       <span id="mDesc">产金×1 · 龙气×1 · 经验×1.5</span>
     </div>
-    <button class="modal-btn modal-btn-start" onclick="startGame()">开启天机之旅 ✦</button>
+    <button class="modal-btn modal-btn-start" onclick="startGame(sz,sf)">开启天机之旅 ✦</button>
     <button class="modal-btn modal-btn-cancel" onclick="reselect()">重新选择</button>
   </div>
 </div>
@@ -1036,7 +1036,7 @@ function doStart(){
   <div id="guideTooltip"></div>
   <script src="js/config.js"></script>
 <script src="js/audio.v2.js"></script>
-<script src="js/game.v3.js"></script>
+<script src="js/game.v3.js?v=3"></script>
 <script src="js/ui.v2.js"></script>
 </body>
 </html>

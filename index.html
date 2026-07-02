@@ -196,10 +196,6 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .scard-back{
   background:linear-gradient(160deg,#1a1a3a,#2a1a4a);
   box-shadow:0 0 40px rgba(255,215,0,.2);
-  display:flex;align-items:center;justify-content:center;
-}
-.scard-back::before{
-  content:'？';font-size:64px;color:rgba(255,215,0,.3);display:block;line-height:1;
 }
 /* 金边框高级感 */
 .scard-front{
@@ -218,12 +214,14 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 /* 结果揭晓区 */
 .summon-result-anim{
   display:none;position:fixed;text-align:center;
-  left:50%;top:50%;transform:translate(-50%,-50%);
+  left:50%;bottom:80px;transform:translateX(-50%);
   padding:12px 20px 8px;border-radius:20px;
   z-index:510;
+  min-height:200px;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
   animation:sraIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
 }
-.summon-result-anim.show{display:block;}
+.summon-result-anim.show{display:flex;}
 @keyframes sraIn{
   from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}
 }
@@ -747,7 +745,9 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
   <div class="summon-tip">点击卡牌揭晓命运</div>
   <div class="scard-wrap" onclick="revealSummon()">
     <div class="scard" id="scard">
-      <div class="scard-face scard-back"></div>
+      <div class="scard-face scard-back" style="position:relative;">
+      <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;color:rgba(255,215,0,.3);line-height:1;pointer-events:none;user-select:none;">？</span>
+    </div>
       <div class="scard-face scard-front">
         <div class="sf-emoji" id="sfEmoji"></div>
         <div class="sf-name"  id="sfName"></div>
@@ -766,7 +766,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
     <div class="sra-bar"><div class="sra-fill" id="sraFill"></div></div>
     <div class="sra-new" id="sraNew" style="display:none">✨ 新灵兽解锁！</div>
   </div>
-  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="margin-top:16px;min-width:120px;max-width:180px;width:auto;display:none;">收下 ✦</button>
+  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);min-width:240px;max-width:320px;width:auto;display:none;z-index:520;">收下 ✦</button>
 </div>
 
 

@@ -881,7 +881,7 @@ function doStart(){
     </div>
 
 <!-- 灵兽展示卡（紧凑，右边） -->
-    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px 8px 8px;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
+    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 8px 8px;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
       <!-- 命格标签（最上方） -->
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;white-space:nowrap;">木命 · 大吉</div>
       <!-- 灵兽emoji + 光环 -->
@@ -890,10 +890,10 @@ function doStart(){
         <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(56px,8vw,90px);line-height:1;filter:drop-shadow(0 0 12px rgba(255,215,0,.4));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;overflow:visible;" onclick="cycleHeroAnim()">🐣</div>
       </div>
       <!-- 等级+每秒金币（icon正下方，紧凑） -->
-      <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
-        <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
-        <span style="color:rgba(255,215,0,.25);font-size:9px;">·</span>
-        <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
+      <div style="display:flex;align-items:center;gap:4px;margin-top:8px;min-height:28px;overflow:visible;">
+        <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;line-height:1.4;">Lv.1</span>
+        <span style="color:rgba(255,215,0,.25);font-size:9px;line-height:1.4;">·</span>
+        <span id="heroCps" style="font-size:10px;color:#aaa;line-height:1.4;">+1/s</span>
       </div>
       <!-- 进化链预览（最下方，固定留位） -->
       <div id="heroThumbs" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:6px;width:100%;"></div>
@@ -910,7 +910,7 @@ function doStart(){
 
   <!-- ===== 技能条（召唤栏上方）===== -->
   <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
-    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
+    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
   </div>
 
   <!-- ===== 第三行：底部召唤栏 ===== -->

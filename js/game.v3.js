@@ -409,6 +409,13 @@ function doSummon(level){
   document.getElementById('summonOverlay').classList.add('show');
   document.getElementById('summonResultAnim').classList.remove('show','sra-result-pop');
   document.getElementById('sraBtn').style.display='none';
+  // 召唤记录
+  if(!G.summonLog) G.summonLog=[];
+  G.summonLog.unshift({level,lvl:level>=6?'传说':level>=4?'稀有':'普通',t:new Date().toLocaleTimeString()});
+  if(G.summonLog.length>20) G.summonLog.length=20;
+  saveGame();
+  // 1.5秒后自动翻牌
+  setTimeout(()=>{try{revealSummon();}catch(e){}},1500);
 }
 
 // ── 升星系统 ───────────────────────────────────────────
@@ -884,12 +891,12 @@ function _onWeeklyEvent(type){
   }
 }
 
-// 在 calcCps 或 updateHud 中调用，更新周金币计数
+// 在 updateHud 中调用（每2秒一次），用 G.cps 缓存值避免重复计算
 function _trackWeeklyCoins(){
   if(!G.weekly || !G.created) return;
   const wid = getWeekId();
   if(G.weekly.weekId !== wid) return;
-  const cps = calcCps();
+  const cps = G.cps||0;
   G.weekly.totalCoins = (G.weekly.totalCoins||0) + cps;
   G._weeklyCoins = G.weekly.totalCoins;
   saveGame();
@@ -1674,6 +1681,50 @@ function unlockZodiac(zidx){
   updateHud();
 }
 
+function claimActiveReward(){
+  if(!G.created)return;
+  var td=today();
+  if(G.activeClaimedDate===td){showNotif('info','今日已领取！');return;}
+  // 计算活跃分（与renderActiveCenter同步逻辑）
+  var score=0;
+  if(G.signDate===td)score+=20;
+  var td2=0;try{if(G.tasks)for(var k in G.tasks)if(G.tasks[k])td2++;}catch(e){}
+  score+=Math.floor(td2/5*40);
+  if(getActiveActivities().length>0)score+=40;
+  if(score<100){showNotif('info','活跃度不足100分（当前'+score+'分）');return;}
+  G.activeClaimedDate=td;
+  G.coins+=5000;G.qi+=100;
+  saveGame();updateHud();
+  showNotif('success','🎁 活跃奖励领取成功！💰+5000 ✨+100');
+}
+
+
+
+function getTaskState(){
+  var ts={};
+  TASKS.forEach(function(t){
+    var progress=0;var claimed=false;
+    try{
+      if(t.type==='static'){
+        if(t.id==='summon10'||t.id==='summon30') progress=G.summonCount||0;
+        else if(t.id==='merge10'||t.id==='merge30') progress=G.mergeCount||0;
+      } else if(t.type==='spend_qi'){
+        progress=G._qiSpentDaily||0;
+      } else if(t.type==='login'){
+        progress=(G.tasks.login&&G.tasks.login.progress)||0;
+      }
+      claimed=(G.tasks[t.id]&&G.tasks[t.id].claimed)||false;
+    }catch(e){}
+    ts[t.id]={progress,claimed};
+  });
+  return ts;
+}
+
+
+function getActiveActivities(){
+  return ACTIVITIES.filter(function(a){return a.active();});
+}
+
 // ── 活跃中心 ─────────────────────────────────────────────
 function openActiveCenter(){
   var p=document.getElementById('activeCenterPanel');
@@ -1735,6 +1786,33 @@ function renderActiveCenter(){
       '<div class="ac-tag" style="background:'+barColor+'22;color:'+barColor+';border:1px solid '+barColor+'44;">'+(item.done?'✓':item.pending?'进行中':'未开始')+'</div>'+
     '</div>';
   }).join('');
+  // 活跃奖励领取（满分100分可领）
+  var claimed=G.activeClaimedDate===td;
+  var claimEl=document.getElementById('acClaimBtn');
+  if(claimEl){
+    if(claimed){
+      claimEl.textContent='✅ 今日已领取';
+      claimEl.style.background='rgba(76,175,80,.15)';
+      claimEl.style.border='1.5px solid rgba(76,175,80,.3)';
+      claimEl.style.color='#4caf50';
+      claimEl.style.cursor='default';
+      claimEl.onclick=null;
+    } else if(score>=100){
+      claimEl.textContent='🎁 领取活跃奖励';
+      claimEl.style.background='linear-gradient(135deg,#ffd700,#ff9800)';
+      claimEl.style.border='none';
+      claimEl.style.color='#1a0a00';
+      claimEl.style.cursor='pointer';
+      claimEl.onclick=function(){claimActiveReward();};
+    } else {
+      claimEl.textContent='📋 '+score+'/100 分（满100分领取）';
+      claimEl.style.background='rgba(255,255,255,.06)';
+      claimEl.style.border='1.5px solid rgba(255,255,255,.15)';
+      claimEl.style.color='rgba(255,255,255,.4)';
+      claimEl.style.cursor='not-allowed';
+      claimEl.onclick=null;
+    }
+  }
 }
 
 function updateActiveBadge(){
@@ -1745,7 +1823,9 @@ function updateActiveBadge(){
   var signed=G.signDate===td;
   var taskDone=0;
   try{if(G.tasks)for(var k in G.tasks)if(G.tasks[k])taskDone++;}catch(e){}
-  var unread=(!signed?1:0)+(taskDone<5?1:0);
+  var unread=(!signed?1:0)+(taskDone<5&&!G.tasks.login?1:0);
+  // 额外：召唤次数少或活跃奖励未领也提示
+  if(G.summonCount>0&&G.summonCount<10) unread++;
   if(unread>0){
     badge.textContent=unread>9?'9+':unread;
     badge.style.display='flex';
@@ -1756,6 +1836,8 @@ function updateActiveBadge(){
 
 function updateHud(){
   if(!G.created)return;
+  // 更新本周金币计数（每秒触发一次）
+  try{_trackWeeklyCoins();}catch(e){}
   document.getElementById('hudCoins').textContent=fmtNum(G.coins);
   document.getElementById('hudCps').textContent='+'+fmtNum(Math.floor(G.cps||0))+'/s';
   document.getElementById('hudQi').textContent=fmtNum(G.qi);
@@ -1774,6 +1856,19 @@ function updateHud(){
     document.getElementById('hudWeeklyNum').textContent=wCount+'/7';
   }
   updateActiveBadge();
+  // 同步召唤按钮状态（从 config.js updateHud 合并过来）
+  if(document.getElementById('coinCost')){
+    var coinCost=Math.floor(100*Math.pow(1.2,Math.floor((G.summonCount||0)/10)));
+    document.getElementById('coinCost').textContent=coinCost;
+    var btnCoin=document.getElementById('btnCoin');
+    if(btnCoin)btnCoin.disabled=(G.coins||0)<coinCost;
+  }
+  if(document.getElementById('qiCost')){
+    var qiCost=Math.floor(500*Math.pow(1.1,Math.floor((G.summonCount||0)/15)));
+    document.getElementById('qiCost').textContent='✨ '+qiCost;
+    var btnQi=document.getElementById('btnQi');
+    if(btnQi)btnQi.disabled=(G.qi||0)<qiCost;
+  }
 }
 
 // ── 命格修炼面板开关（新增UI入口）──────────────────────

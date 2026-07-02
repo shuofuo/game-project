@@ -591,6 +591,7 @@ function markMergeable(){
   }
 }
 function getSummonLevel(pool){
+  if(!pool||!Array.isArray(pool)||pool.length===0) pool=[{level:1,weight:100}];
   // 1) 天机召唤吉时加成（3次机会，提升高阶概率）
   let adjusted = pool.map(p=>{
     if((G._summonBoost||0)>0 && p.level>=3) return {level:p.level, weight:Math.floor(p.weight*2.5)};
@@ -813,11 +814,18 @@ function spawnCoinFloat(amt){
 }
 function startCps(){
   stopCps();
+  // 周金币追踪计数（每60秒更新一次，避免频繁写存储）
+  let _weeklyCoinTimer=0;
   cpsTimer=setInterval(()=>{
     const cps=calcCps();
+    G.cps=cps;  // 缓存，供 _trackWeeklyCoins 使用
     if(cps>0){G.coins+=cps;G.totalCoins=(G.totalCoins||0)+cps;updateHud();spawnCoinFloat(cps);if(G.totalCoins%3600<cps)saveGame();}
-    // 周金币追踪
-    try{if(typeof _trackWeeklyCoins==='function')_trackWeeklyCoins();}catch(e){}
+    // 每60秒更新周金币计数（每次累加60秒产出）
+    _weeklyCoinTimer+=1000;
+    if(_weeklyCoinTimer>=60000){
+      _weeklyCoinTimer=0;
+      try{if(typeof _trackWeeklyCoins==='function')_trackWeeklyCoins();}catch(e){}
+    }
   },1000);
   // combo 衰减（500ms检测，2.5秒无合成归零）
   setInterval(()=>{if(G.created&&G.combo>0&&Date.now()-G.lastMergeTime>2500){G.combo=0;updateHud();}},500);

@@ -1,4 +1,5 @@
 // ===== GAME.js - 生肖天机 =====
+function initHomeGesture(){}
 
 function startGame(){
   G.zodiac=sz;G.fate=sf;G.created=true;

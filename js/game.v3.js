@@ -388,8 +388,16 @@ function doSummon(level){
   // 改为触发翻牌动画
   pendingSummonLevel=level;
   summonRevealed=false;
+  // 重置卡牌状态（第二次召唤时清除翻牌残留）
+  const scard=document.getElementById('scard');
+  if(scard) scard.classList.remove('flipped');
+  const scardWrap=document.querySelector('.scard-wrap');
+  if(scardWrap) scardWrap.style.display='';
+  const summonTip=document.querySelector('.summon-tip');
+  if(summonTip) summonTip.style.display='';
+  // 重置 overlay 内容
   document.getElementById('summonOverlay').classList.add('show');
-  document.getElementById('summonResultAnim').classList.remove('show');
+  document.getElementById('summonResultAnim').classList.remove('show','sra-result-pop');
   document.getElementById('sraBtn').style.display='none';
 }
 

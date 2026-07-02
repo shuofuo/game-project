@@ -658,7 +658,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
   .side-btn{width:36px!important;height:36px!important;}
   .summon-btn{min-width:60px!important;padding:8px 12px!important;font-size:11px!important;}
   #gameBottomBar{gap:8px!important;padding:6px 8px!important;}
-  .hero-anim-hint{display:none!important;}
+  .hero-anim-hint{display:none!important;visibility:hidden!important;}
   .hero-glow>div{width:140px!important;height:140px!important;}
   .skill-item{min-width:48px;padding:6px 8px;}
   .skill-item .sk-icon{font-size:18px;}
@@ -880,22 +880,22 @@ function doStart(){
     </div>
 
 <!-- 灵兽展示卡（紧凑，右边） -->
-    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;gap:2px;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
-      <!-- 命格标签 -->
-      <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">木命 · 大吉</div>
+    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:10px 8px 8px;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
+      <!-- 命格标签（最上方） -->
+      <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;white-space:nowrap;">木命 · 大吉</div>
       <!-- 灵兽emoji + 光环 -->
-      <div style="position:relative;width:clamp(80px,12vw,120px);height:clamp(80px,12vw,120px);">
-        <div style="position:absolute;inset:-12px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
-        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(60px,9vw,90px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
+      <div style="position:relative;width:clamp(70px,10vw,110px);height:clamp(70px,10vw,110px);flex-shrink:0;">
+        <div id="heroGlow" style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(100,60,200,.18) 0%,transparent 70%);"></div>
+        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(56px,8vw,90px);line-height:1;filter:drop-shadow(0 0 12px rgba(255,215,0,.4));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;overflow:visible;" onclick="cycleHeroAnim()">🐣</div>
       </div>
-      <!-- 等级+产金 -->
-      <div style="display:flex;align-items:center;gap:6px;">
+      <!-- 等级+每秒金币（icon正下方，紧凑） -->
+      <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
         <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
-        <span style="color:rgba(255,215,0,.3);font-size:9px;">·</span>
+        <span style="color:rgba(255,215,0,.25);font-size:9px;">·</span>
         <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
       </div>
-      <!-- 进化链预览 -->
-      <div id="heroThumbs" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:clamp(150px,18vw,210px);font-size:clamp(14px,2.5vw,22px);opacity:.5;margin-top:2px;"></div>
+      <!-- 进化链预览（最下方，固定留位） -->
+      <div id="heroThumbs" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:6px;width:100%;"></div>
     </div>
 
 <!-- 右侧功能按钮（竖排） -->

@@ -116,3 +116,46 @@
 2. 合成连击特效
 3. 游戏统计面板
 4. 抖音/快手小程序（需企业资质）
+
+---
+
+## 2026-07-02 技能条修复 + 目录重构日
+
+### 今日完成
+
+| 功能 | 文件 | 状态 |
+|------|------|------|
+| **6个灵兽技能按钮** | game.v3.js renderSkillBar×7 | ✅ 完成 |
+| **技能按钮点击特效** | game.v3.js skillClick() | ✅ 完成 |
+| **手机模拟器入口** | phone-sim.html | ✅ 完成 |
+| **GitHub Pages 部署修复** | gh-pages 根目录同步 | ✅ 完成 |
+| **目录结构清理** | 删除 docs/废弃游戏副本+旧版本js | ✅ 完成 |
+
+### 重要教训
+
+| 问题 | 根因 | 修复 |
+|------|------|------|
+| 技能条不显示 | audio.js 无 startBgm 函数导致 startGame 静默失败 | 内联 playFullBgm 到 game.js，不依赖 audio.js |
+| GitHub Pages 看不到更新 | Pages 部署的是 gh-pages 分支，不是 main 分支 | 统一往 gh-pages push |
+| CDN 顽固缓存 | game.js / game.min.js 被缓存 | 改名 game.v3.js / audio.v2.js / ui.v2.js |
+| docs/ 游戏副本混乱 | 早期 README 说游戏在 docs/，后来改到根目录 | 删除 docs/ 下的游戏代码，只留文档 |
+
+### 最终目录结构
+
+```
+game-project/
+├── index.html          ← 游戏主入口（gh-pages 分支根目录，GitHub Pages 部署）
+├── phone-sim.html      ← 手机模拟器
+├── js/
+│   ├── config.js       被 index.html 引用
+│   ├── audio.v2.js     被 index.html 引用（含 startBgm）
+│   ├── game.v3.js      被 index.html 引用（含 7次 renderSkillBar）
+│   └── ui.v2.js        被 index.html 引用（含内联 playFullBgm）
+├── docs/               纯文档，Pages 不读取
+└── legacy/             废弃的 Cocos 代码
+```
+
+### 下一步
+1. 技能条 UI 美化（图标、颜色、动画）
+2. 各技能实际效果落地
+3. 手机模拟器完善

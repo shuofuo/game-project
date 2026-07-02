@@ -5,6 +5,7 @@
 > 最终目标：抖音小程序 / 快手小程序 / 微信小程序
 
 **🎮 在线体验：** https://shuofuo.github.io/game-project/  
+**📱 手机模拟器：** https://shuofuo.github.io/game-project/phone-sim.html  
 **👤 开发者：** shuofuo + AI（基建带师 🛠️）
 
 ---
@@ -96,23 +97,36 @@
 
 ```
 game-project/
-├── docs/
-│   ├── index.html          ← 游戏入口（完整 HTML5 游戏）
-│   └── js/
-│       ├── config.js       ← 全局配置/音效/拖拽/存档
-│       ├── game.js         ← 游戏逻辑/召唤/成就/签到/任务
-│       ├── audio.js        ← 音效生成（Web Audio API）
-│       └── ui.js           ← 辅助 UI
-├── SPEC.md                 ← 游戏设计规格说明书
-├── SETUP_GUIDE.md          ← 快速启动指南
-└── docs/
-    ├── TECH_ARCH.md        ← 技术架构
-    ├── GAME_DESIGN.md      ← 玩法设计
-    ├── DEV_GUIDE.md         ← 开发指南
-    ├── DEV_RULES.md         ← 代码规范
-    ├── DAILY_LOG.md         ← 开发日志
-    └── GAME_STATUS.md       ← 功能状态追踪
+├── index.html              ← 游戏主入口（桌面端，GitHub Pages 部署）
+├── phone-sim.html          ← 手机模拟器入口（预览移动端布局）
+├── js/
+│   ├── config.js          ← 全局配置/音效/拖拽/存档
+│   ├── game.v3.js         ← 游戏逻辑/召唤/合成/技能条
+│   ├── audio.v2.js        ← 音效（Web Audio API）
+│   └── ui.v2.js           ← 辅助 UI
+├── css/                    ← 样式文件
+├── audio/                  ← 音效资源
+├── imgs/                   ← 图片资源
+├── docs/                   ← 开发文档（Pages 不读取）
+│   ├── TECH_ARCH.md       ← 技术架构
+│   ├── GAME_DESIGN.md     ← 玩法设计
+│   ├── DEV_GUIDE.md       ← 开发指南
+│   ├── DEV_RULES.md       ← 代码规范
+│   ├── DAILY_LOG.md       ← 开发日志
+│   ├── GAME_STATUS.md     ← 功能状态追踪
+│   └── *.html             ← 各版本布局设计预览
+├── legacy/                 ← 历史废弃代码（Cocos Creator）
+├── SPEC.md                ← 游戏设计规格说明书
+└── SETUP_GUIDE.md         ← 快速启动指南
 ```
+
+### 🖥️ 入口说明
+
+| 地址 | 用途 |
+|------|------|
+| `/index.html` | 游戏主入口（桌面端），**日常访问用这个** |
+| `/phone-sim.html` | 手机模拟器，模拟移动端竖屏布局 |
+| `/docs/*.html` | 布局设计预览文件，勿用于生产 |
 
 ---
 

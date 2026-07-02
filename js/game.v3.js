@@ -237,7 +237,7 @@ function renderSkillBar(){
 // ── 召唤音效（按稀有度）────────────────────────────────
 // 召唤结果音效：按稀有度分级（普通单音→神话四音和弦+泛音）
 function playSummonSound(r){
-  initAudio();
+  try{initAudio();}catch(e){}
   if(!_audioCtx||_audioState.muted)return;
   const t=_audioCtx.currentTime;
   const vol=.18;
@@ -297,7 +297,7 @@ function revealSummon(){
   if(summonRevealed)return;
   summonRevealed=true;
   // 翻牌音效
-  initAudio();
+  try{initAudio();}catch(e){}
   try{
     const t=_audioCtx.currentTime;
     const o=_audioCtx.createOscillator();
@@ -373,7 +373,7 @@ function closeSummonAnim(){
 
 // 改造 doSummon：触发翻牌动画而不是直接弹窗
 function doSummon(level){
-  initAudio();
+  try{initAudio();}catch(e){}
   if(G.zodiac>=0) playSound('summon_z'+G.zodiac);
   const used=new Set(G.dragons.map(d=>d.idx));
   const spots=[];

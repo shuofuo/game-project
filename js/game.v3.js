@@ -296,10 +296,8 @@ function checkNewDragon(lvl){const owned=new Set(G.dragons.map(d=>d.level));retu
 function revealSummon(){
   if(summonRevealed)return;
   summonRevealed=true;
-  // 立即隐藏翻牌区域，避免与结果卡片重叠
   document.querySelector('.summon-tip').style.display='none';
   document.querySelector('.scard-wrap').style.display='none';
-  // 翻牌音效
   try{initAudio();}catch(e){}
   try{
     const t=_audioCtx.currentTime;
@@ -314,19 +312,15 @@ function revealSummon(){
   }catch(e){}
   const lvl=pendingSummonLevel;
   const rar=getRarity(lvl);
-  // 填充翻牌正面内容
   document.getElementById('sfEmoji').textContent=LICON[lvl]||'?';
   document.getElementById('sfName').textContent=LNAME[lvl]||'灵兽';
   document.getElementById('sfCps').textContent='+'+COIN_S[lvl]+'/s';
   document.querySelector('.scard-front').style.borderColor=rar.color;
-  // 翻牌动画（卡牌本身不动，只做动画视觉）
   document.getElementById('scard').classList.add('flipped');
-  // 1.4秒后显示结果（此时翻牌区已隐藏，不会有重复）
-  setTimeout(()=>{
-    // 稀有度背景
+  // 0.6秒后显示结果（动画缩短一半）
+  setTimeout(function(){
     const anim=document.getElementById('summonResultAnim');
     anim.className='summon-result-anim sra-r'+rar;
-    // 填充内容
     document.getElementById('sraEmoji').textContent=LICON[lvl]||'?';
     document.getElementById('sraName').textContent=LNAME[lvl]||'灵兽';
     document.getElementById('sraDesc').textContent='Lv'+lvl+' · 每秒产金 +'+COIN_S[lvl];
@@ -334,27 +328,18 @@ function revealSummon(){
     tag.textContent=rar.tag;
     tag.style.color=rar.color;
     document.getElementById('sraCps').textContent='+'+COIN_S[lvl]+'/s 金币产出';
-    // 新灵兽提示
-    const newEl=document.getElementById('sraNew');
-    newEl.style.display=checkNewDragon(lvl)?'block':'none';
-    // 进度条
+    document.getElementById('sraNew').style.display=checkNewDragon(lvl)?'block':'none';
     animateRarityBar(rar);
-    // 粒子
     spawnSummonParticles(rar);
-    // 屏幕震动
     const gp=document.getElementById('gamePage');
-    if(gp){gp.classList.add('screen-shake');setTimeout(()=>gp.classList.remove('screen-shake'),400);}
-    // 结果弹出动画
+    if(gp){gp.classList.add('screen-shake');setTimeout(function(){gp.classList.remove('screen-shake');},400);}
     const sraEl=document.getElementById('summonResultAnim');
     if(sraEl){sraEl.classList.remove('sra-result-pop');void sraEl.offsetWidth;sraEl.classList.add('sra-result-pop');}
-    // 显示
     anim.classList.add('show');
     document.getElementById('sraBtn').style.display='block';
-    // 音效
     playSummonSound(rar);
-    // 通知气泡
     notifSummon(lvl);
-  },1200);
+  },600);
 }
 function closeSummonAnim(){
   // heroIcon 闪光

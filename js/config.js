@@ -918,6 +918,7 @@ function updateHeroSection(){
     heroIcon.parentElement.appendChild(hint);
   }
   hint.textContent = animHints[G.heroAnimIdx || 0] || '';
+  hint.style.cssText = 'display:none !important;visibility:hidden !important;';
   heroLv.textContent = 'Lv.' + best.level;
   heroCps.textContent = '+' + cps + '/s';
   if(heroFate){

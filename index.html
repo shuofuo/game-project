@@ -859,11 +859,6 @@ function doStart(){
     <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
   </div>
 
-  <!-- ===== 技能条顶栏（新增）===== -->
-  <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
-    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
-  </div>
-
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
     <div id="middleRow" style="flex:1;display:grid;grid-template-columns:52px 1fr 140px 52px;grid-template-rows:1fr;align-items:stretch;min-height:0;overflow:hidden;margin:0;">
 
@@ -911,6 +906,11 @@ function doStart(){
       <button onclick="openSettings()" class="side-btn" data-fn="settings" title="设置"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
     </div>
   </div><!-- /中间行 -->
+
+  <!-- ===== 技能条（召唤栏上方）===== -->
+  <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
+    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
+  </div>
 
   <!-- ===== 第三行：底部召唤栏 ===== -->
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">

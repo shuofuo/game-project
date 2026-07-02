@@ -184,28 +184,21 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
   transition:transform 1.2s cubic-bezier(.4,0,.2,1);
   cursor:pointer;
 }
-.scard.flipped{transform:rotateY(180deg);}
-.scard-face{
-  position:absolute;inset:0;
-  backface-visibility:hidden;
-  border-radius:20px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:48px;
-  border:2px solid rgba(255,215,0,.4);
-}
+.scard-face{position:absolute;inset:0;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:48px;border:2px solid rgba(255,215,0,.4);}
 .scard-back{
   background:linear-gradient(160deg,#1a1a3a,#2a1a4a);
   box-shadow:0 0 40px rgba(255,215,0,.2);
   display:flex;align-items:center;justify-content:center;
 }
 /* 金边框高级感 */
-.scard-front{
-  background:linear-gradient(160deg,#2a1a3a,#1a1a4a);
-  transform:rotateY(180deg);
-  border-color:#ffd700;
-  box-shadow:0 0 30px rgba(255,215,0,.3);
-  flex-direction:column;gap:8px;
-}
+.scard-front{background:linear-gradient(160deg,#2a1a3a,#1a1a4a);border-color:#ffd700;box-shadow:0 0 30px rgba(255,215,0,.3);flex-direction:column;gap:8px;visibility:hidden;opacity:0;}
+/* 默认：背面可见，正面隐藏 */
+.scard-back{visibility:visible;opacity:1;}
+/* 翻转：背面隐藏，正面可见 */
+.scard.flipped .scard-back{visibility:hidden;opacity:0;}
+.scard.flipped .scard-front{visibility:visible;opacity:1;}
+.scard{transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(.4,0,.2,1);cursor:pointer;}
+.scard.flipped{transform:rotateY(180deg);}
 .scard-front .sf-emoji{font-size:72px;line-height:1;}
 .scard-front .sf-name{font-size:18px;color:#ffd700;font-weight:700;}
 .scard-front .sf-cps{font-size:11px;color:#888;}
@@ -217,9 +210,8 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
   display:none;position:fixed;text-align:center;
   left:50%;bottom:80px;transform:translateX(-50%);
   padding:12px 20px 8px;border-radius:20px;
-  z-index:510;
-  min-height:200px;
-  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  z-index:510;min-height:200px;
+  flex-direction:column;align-items:center;justify-content:space-between;
   animation:sraIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
 }
 .summon-result-anim.show{display:flex;}

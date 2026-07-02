@@ -212,6 +212,7 @@ const TASKS = [
   {id:'summon30',  icon:'🐥', title:'召唤达人',  desc:'累计召唤30次', target:30,  reward:{coin:3000,qi:60,free:1},  type:'static'},
   {id:'merge10',   icon:'⚡', title:'合成进阶',  desc:'累计合成10次', target:10,  reward:{coin:2000,qi:40,free:0},  type:'static'},
   {id:'merge30',   icon:'🌟', title:'合成大师',  desc:'累计合成30次', target:30,  reward:{coin:8000,qi:120,free:2}, type:'static'},
+  {id:'spendQi',  icon:'⚗️', title:'命格修炼',   desc:'消耗龙气修炼节点', target:1,   reward:{coin:800, qi:0, free:0},  type:'spend_qi'},
   {id:'login',     icon:'🎮', title:'每日登录',  desc:'登录游戏即可', target:1,   reward:{coin:500, qi:10, free:0},  type:'login'},
 ];
 
@@ -593,9 +594,17 @@ function getSummonLevel(pool){
   // 1) 天机召唤吉时加成（3次机会，提升高阶概率）
   let adjusted = pool.map(p=>{
     if((G._summonBoost||0)>0 && p.level>=3) return {level:p.level, weight:Math.floor(p.weight*2.5)};
+    // 2) 属相加成：龙(4)/虎(2)/牛(1)高等级概率+30%；鼠(0)低等级概率+40%；兔(3)/蛇(4)适中+20%
+    if(G.zodiac>=0){
+      const z=G.zodiac;
+      const zBonusHigh=[.4,.2,.3,0,0,.2,0,0,0,0,0,0][z]||0; // 高等级加成
+      const zBonusLow=[0,0,0,.4,0,.2,0,0,0,0,0,0][z]||0;  // 低等级加成
+      if(p.level>=3 && zBonusHigh>0) return {level:p.level, weight:Math.floor(p.weight*(1+zBonusHigh))};
+      if(p.level<=2 && zBonusLow>0) return {level:p.level, weight:Math.floor(p.weight*(1+zBonusLow))};
+    }
     return p;
   });
-  // 2) 周末活动加成
+  // 3) 周末活动加成
   const weekend=ACTIVITIES.find(a=>a.id==='weekend2x'&&a.active());
   if(weekend) adjusted=adjusted.map(p=>({...p,weight:p.level>=2?p.weight*2:p.weight}));
   let total=adjusted.reduce((s,p)=>s+p.weight,0),r=Math.random()*total,acc=0;

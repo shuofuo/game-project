@@ -126,6 +126,19 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
 .activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.active-center-panel{position:fixed;bottom:0;left:0;width:100%;max-height:88vh;background:#07071aee;z-index:303;display:block;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,215,0,.15);overflow:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.active-center-panel.open{transform:translateY(0);}
+.ac-card{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.ac-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,215,0,.2);}
+.ac-card.done{opacity:.55;border-color:rgba(76,175,80,.2);}
+.ac-card.pending{border-color:rgba(255,215,0,.2);background:rgba(255,215,0,.04);}
+.ac-icon{font-size:26px;flex-shrink:0;}
+.ac-info{flex:1;min-width:0;}
+.ac-title{font-size:14px;font-weight:600;color:#ddd;margin-bottom:2px;}
+.ac-desc{font-size:11px;color:#777;}
+.ac-progress{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-top:5px;}
+.ac-bar{height:100%;border-radius:2px;transition:width .4s ease;}
+.ac-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;}
 .activity-panel.open{display:block;transform:translateX(0);}
 .activity-panel::-webkit-scrollbar{width:0;}
 @keyframes achFadeOut{from{opacity:1}to{opacity:0}}
@@ -845,6 +858,7 @@ function doStart(){
       <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
       <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
       <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
+      <span id="hudWeekly" style="font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;margin-left:6px;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,255,255,.1);display:none;" onclick="openWeeklyPanel()" title="本周挑战">📅 <span id="hudWeeklyNum">0/7</span></span>
     </div>
     <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
   </div>
@@ -857,6 +871,7 @@ function doStart(){
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
+      <button onclick="openCultPanel()" class="side-btn" data-fn="cult" title="命格修炼"><svg viewBox="0 0 24 24"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7v2h2v-2h-2zm0-8v5h2V7h-2z" fill="currentColor" opacity=".5"/></svg></button>
       <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
     </div>
 
@@ -890,6 +905,7 @@ function doStart(){
 
 <!-- 右侧功能按钮（竖排） -->
     <div style="grid-column:4;grid-row:1 / span 2;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
+      <button onclick="openActiveCenter()" class="side-btn" data-fn="active" id="hudActiveBtn" title="今日活跃" style="position:relative;"><svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg><span id="hudActiveBadge" style="position:absolute;top:4px;right:4px;width:12px;height:12px;background:#ff4444;border-radius:50%;font-size:8px;color:#fff;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1;z-index:2;">0</span></button>
       <button onclick="openRankPanel()" class="side-btn" data-fn="rank" title="排行榜"><svg viewBox="0 0 24 24"><path d="M8 21h8m-4-4v4m-5-8l2.5-6.5L12 12l3.5-5.5L20 13H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 4h10l-1.5 4-3 2-3-2L7 4z" fill="currentColor" opacity=".5"/><circle cx="12" cy="6" r="1.5" fill="currentColor"/></svg></button>
       <button onclick="openAchPanel()" class="side-btn" data-fn="ach" title="成就"><svg viewBox="0 0 24 24"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button onclick="openStatsPanel()" class="side-btn" data-fn="stat" title="游戏统计" style="color:rgba(100,180,255,.6);"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg></button>
@@ -921,6 +937,39 @@ function doStart(){
 
 </div>
     </div>
+<div id="activeCenterPanel" class="active-center-panel">
+  <div style="padding:16px 20px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);">
+    <div style="font-size:16px;font-weight:700;color:#ffd700;letter-spacing:1px;">📋 今日活跃</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="acScore" style="font-size:12px;color:#ffd700;font-weight:700;background:rgba(255,215,0,.08);padding:3px 10px;border-radius:12px;border:1px solid rgba(255,215,0,.15);">0分</span>
+      <span onclick="closeActiveCenter()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;">×</span>
+    </div>
+  </div>
+  <div style="padding:14px 14px 100px;">
+    <div id="activeCenterItems"></div>
+    <div style="margin-top:14px;">
+      <div style="font-size:10px;color:#555;letter-spacing:2px;margin-bottom:10px;padding-left:2px;">快捷入口</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="closeActiveCenter();openSignPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">📅</span>每日签到</button>
+        <button onclick="closeActiveCenter();openTaskPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">📝</span>每日任务</button>
+        <button onclick="closeActiveCenter();openActivityPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">⚡</span>限时活动</button>
+        <button onclick="closeActiveCenter();openCultPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">⚗️</span>命格修炼</button>
+      </div>
+    </div>
+    <div style="margin-top:14px;">
+      <div style="font-size:10px;color:#555;letter-spacing:2px;margin-bottom:10px;padding-left:2px;">本周挑战</div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;" onclick="closeActiveCenter();openWeeklyPanel();">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px;color:#ddd;font-weight:600;">📅 本周完成进度</span>
+          <span id="acWeeklyNum" style="font-size:12px;color:#ffd700;font-weight:700;">0/7</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;">
+          <div id="acWeeklyBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd700,#ff9800);border-radius:2px;transition:width .5s ease;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="rankPanel" class="rank-panel"></div>
   <div id="signPanel" class="sign-panel"></div>
   <div id="taskPanel" class="task-panel"></div>
@@ -986,83 +1035,6 @@ function doStart(){
   <div id="guideOverlay"></div>
   <div id="guideTooltip"></div>
   <script src="js/config.js"></script>
-<script src="js/audio.v2.js"></script>
-<script src="js/game.v3.js"></script>
-<script src="js/ui.v2.js"></script>
-</body>
-</html>
-<div id="rankPanel" class="rank-panel"></div>
-  <div id="taskPanel" class="task-panel"></div>
-  <div id="activityPanel" class="activity-panel"></div>
-  <div id="handbookPanel" class="handbook-panel"></div>
-
-  <!-- === feat[8]: 连击计时条 === -->
-  <div id="comboBar">
-    <div class="combo-track">
-      <div class="combo-fill c0" id="comboFill" style="height:100%"></div>
-    </div>
-    <div class="combo-badge" id="comboBadge">×1</div>
-  </div>
-  <div id="cultPanel" class="cult-panel"></div>
-  <div id="achPanel" class="ach-panel"></div>
-  <div id="weeklyPanel" class="ach-panel"></div>
-
-  <!-- === feat[9]: 游戏统计面板 === -->
-  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
-  <div id="settingsPanel" class="panel-overlay">
-    <div class="panel-box">
-      <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
-      <div style="padding:20px 20px 24px;">
-        <div style="margin-bottom:18px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
-            <span>🔊 总音量</span><span id="volVal">70%</span>
-          </div>
-          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#ffd700;" oninput="onVolChange(this.value)">
-        </div>
-        <div style="margin-bottom:18px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
-            <span>🎵 背景音乐</span>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
-              <input type="checkbox" id="bgmToggle" checked onchange="onBgmToggle(this.checked)">
-              <span id="bgmLabel">开启</span>
-            </label>
-          </div>
-          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
-        </div>
-        <div style="margin-bottom:24px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
-            <span>🔔 游戏音效</span>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
-              <input type="checkbox" id="sfxToggle" checked onchange="onSfxToggle(this.checked)"><span id="sfxLabel">开启</span>
-            </label>
-          </div>
-          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
-        </div>
-        <div style="margin-bottom:24px;">
-          <div style="margin-bottom:8px;font-size:14px;">☁️ 服务器地址（天机榜）</div>
-          <input type="text" id="backendUrlInput" placeholder="例：http://你的服务器IP:3001" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;box-sizing:border-box;">
-          <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;">填入服务器地址后，打开天机榜即可上榜<br>离线模式下游戏不受影响</div>
-        </div>
-        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
-      </div>
-    </div>
-  </div>
-  <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
-    <div id="mergeFlash" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;pointer-events:none;z-index:500;">
-    <div id="mergeText" style="font-size:96px;filter:drop-shadow(0 0 32px rgba(255,215,0,.8));"></div>
-  </div>
-  <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
-  <div id="guideOverlay"></div>
-  <div id="guideTooltip"></div>
-  <script src="js/config.js"></script>
-<script>
-if(sessionStorage.getItem('aps_auto_login')==='1'){
-  sz=4;sf=1;nextId=3;
-  document.getElementById('gamePage').style.cssText='display:flex;visibility:visible;opacity:1';
-  document.getElementById('loginWrap').style.display='none';
-  G={zodiac:4,fate:1,coins:2000,qi:200,dragons:[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}],mergeCount:5,summonCount:3,maxCombo:2,unlockedAtlas:[4],signStreak:1,totalCoins:2000,created:true};
-}
-</script>
 <script src="js/audio.v2.js"></script>
 <script src="js/game.v3.js"></script>
 <script src="js/ui.v2.js"></script>

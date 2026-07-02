@@ -599,6 +599,9 @@ function doCultNode(cultKey,nodeIdx){
   renderCultPanel();
   updateHud();
   setTimeout(()=>_cultNodePulse(cultKey,nodeIdx),80);
+  // 追踪每日龙气消耗任务进度
+  if(!G._qiSpentDaily) G._qiSpentDaily=0;
+  G._qiSpentDaily+=node.cost;
   calcCps();
   showNotif('success','⚗️ '+cfg.icon+' '+cfg.name+'修炼：'+node.title);
 }
@@ -1125,6 +1128,7 @@ function getTaskProgress(task){
     case 'summon10': case 'summon30': return G.summonCount||0;
     case 'merge10':  case 'merge30':  return G.mergeCount||0;
     case 'login': return 1; // 每日登录任务，只要当天就算登录
+    case 'spend_qi': return G._qiSpentDaily||0; // 每日消耗龙气
     default: return 0;
   }
 }
@@ -1230,6 +1234,7 @@ function checkTaskDaily(){
   if(G.lastTaskDate!==today()){
     G.tasks={};
     G.lastTaskDate=today();
+    G._qiSpentDaily=0; // 每日龙气消耗重置
     if(!G.tasks.login) G.tasks.login={progress:0,claimed:false};
     G.tasks.login={progress:1,claimed:false};
     saveGame();
@@ -1654,4 +1659,118 @@ function unlockZodiac(zidx){
   showNotif('success',ZOD_E[zidx]+'属相图鉴解锁成功！');
   renderHandbook();
   updateHud();
+}
+
+// ── 活跃中心 ─────────────────────────────────────────────
+function openActiveCenter(){
+  var p=document.getElementById('activeCenterPanel');
+  if(!p)return;
+  renderActiveCenter();
+  p.classList.add('open');
+  updateActiveBadge();
+}
+
+function closeActiveCenter(){
+  var p=document.getElementById('activeCenterPanel');
+  if(p)p.classList.remove('open');
+}
+
+function renderActiveCenter(){
+  var c=document.getElementById('activeCenterItems');
+  if(!c)return;
+  var today=todayStr();
+  // 签到状态
+  var signed=G.signDate===today;
+  // 任务进度
+  var tasksDone=0;
+  try{
+    if(G.tasks)for(var tid in G.tasks)if(G.tasks[tid])tasksDone++;
+  }catch(e){}
+  var taskTotal=5;
+  // 活跃度得分（固定100分上限）
+  var score=0;
+  if(signed)score+=20;
+  score+=Math.floor(tasksDone/taskTotal*40);
+  // 活跃项列表
+  var items=[];
+  var activeActs=getActiveActivities();
+  items.push({icon:'📅',title:'每日签到',desc:signed?'已签到 · +'+SIGN_REWARDS[G.signStreak%7].coin+'金币':'点击签到领取奖励',done:signed,pending:!signed,color:signed?'#4caf50':'#ffd700',pct:signed?100:0});
+  items.push({icon:'📝',title:'每日任务',desc:tasksDone+'/'+taskTotal+' 个任务完成',done:tasksDone>=taskTotal,pending:tasksDone>0,color:tasksDone>=taskTotal?'#4caf50':'#7eb8ff',pct:Math.round(tasksDone/taskTotal*100)});
+  items.push({icon:'⚡',title:'限时活动',desc:activeActs.length>0?activeActs.map(a=>a.icon+' '+a.name).join('  '):'当前无活动',done:activeActs.length>0,pending:activeActs.length>0,color:activeActs.length>0?'#ff9800':'#555',pct:activeActs.length>0?100:0});
+  items.push({icon:'🐣',title:'召唤灵兽',desc:'今日已召唤 '+G.summonCount+' 次',done:G.summonCount>=10,pending:G.summonCount>0,color:G.summonCount>=10?'#4caf50':'#b57edc',pct:Math.min(100,Math.round(G.summonCount/10*100))});
+  // 本周挑战进度
+  var wCount=0;
+  if(G.weekly&&G.weekly.challenges){
+    for(var k in G.weekly.challenges)if(G.weekly.challenges[k])wCount++;
+  }
+  var wTotal=WEEKLY_CHALLENGES.length||7;
+  var wPct=Math.round(wCount/wTotal*100);
+  document.getElementById('acWeeklyNum').textContent=wCount+'/'+wTotal;
+  document.getElementById('acWeeklyBar').style.width=wPct+'%';
+  // 渲染
+  document.getElementById('acScore').textContent=score+'分';
+  c.innerHTML=items.map(function(item){
+    var cls='ac-card'+(item.done?' done':(item.pending?' pending':''));
+    var barColor=item.color;
+    return '<div class="'+cls+'" '+(item.pending&&!item.done?'onclick="closeActiveCenter();openTaskPanel();"':' ')+'>'+
+      '<div class="ac-icon">'+item.icon+'</div>'+
+      '<div class="ac-info">'+
+        '<div class="ac-title">'+item.title+'</div>'+
+        '<div class="ac-desc">'+item.desc+'</div>'+
+        '<div class="ac-progress"><div class="ac-bar" style="width:'+item.pct+'%;background:'+barColor+';"></div></div>'+
+      '</div>'+
+      '<div class="ac-tag" style="background:'+barColor+'22;color:'+barColor+';border:1px solid '+barColor+'44;">'+(item.done?'✓':item.pending?'进行中':'未开始')+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function updateActiveBadge(){
+  // 更新侧边栏按钮红点
+  var badge=document.getElementById('hudActiveBadge');
+  if(!badge)return;
+  var today=todayStr();
+  var signed=G.signDate===today;
+  var taskDone=0;
+  try{if(G.tasks)for(var k in G.tasks)if(G.tasks[k])taskDone++;}catch(e){}
+  var unread=(!signed?1:0)+(taskDone<5?1:0);
+  if(unread>0){
+    badge.textContent=unread>9?'9+':unread;
+    badge.style.display='flex';
+  } else {
+    badge.style.display='none';
+  }
+}
+
+function updateHud(){
+  if(!G.created)return;
+  document.getElementById('hudCoins').textContent=fmtNum(G.coins);
+  document.getElementById('hudCps').textContent='+'+fmtNum(Math.floor(G.cps||0))+'/s';
+  document.getElementById('hudQi').textContent=fmtNum(G.qi);
+  if(G.zodiac>=0)document.getElementById('hudZodiac').textContent=ZOD_E[G.zodiac];
+  // 运势
+  var yun=YUN_NAMES[Math.max(0,Math.min(4,G.currentFate-1))];
+  document.getElementById('hudYunshi').textContent=yun;
+  // 本周挑战进度
+  var wCount=0;
+  if(G.weekly&&G.weekly.challenges){
+    for(var k in G.weekly.challenges)if(G.weekly.challenges[k])wCount++;
+  }
+  var wEl=document.getElementById('hudWeekly');
+  if(wEl){
+    wEl.style.display=G.created?'inline-flex':'none';
+    document.getElementById('hudWeeklyNum').textContent=wCount+'/7';
+  }
+  updateActiveBadge();
+}
+
+// ── 命格修炼面板开关（新增UI入口）──────────────────────
+function openCultPanel(){
+  renderCultPanel();
+  var p=document.getElementById('cultPanel');
+  if(p)p.classList.add('open');
+}
+
+function closeCultPanel(){
+  var p=document.getElementById('cultPanel');
+  if(p)p.classList.remove('open');
 }

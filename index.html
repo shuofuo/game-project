@@ -186,7 +186,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 }
 .scard-face{position:absolute;top:0;left:0;width:160px;height:200px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:48px;border:2px solid rgba(255,215,0,.4);box-sizing:border-box;}
 .scard-back{background:linear-gradient(160deg,#1a1a3a,#2a1a4a);box-shadow:0 0 40px rgba(255,215,0,.2);display:flex;align-items:center;justify-content:center;position:absolute;top:0;left:0;width:160px;height:200px;visibility:visible;opacity:1;overflow:hidden;}
-.scard-back .q-mark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;color:rgba(255,215,0,.3);line-height:1;pointer-events:none;user-select:none;}
+.scard-back .q-mark{font-size:64px;color:rgba(255,215,0,.3);line-height:1;pointer-events:none;user-select:none;}
 .scard-front{background:linear-gradient(160deg,#2a1a3a,#1a1a4a);border-color:#ffd700;box-shadow:0 0 30px rgba(255,215,0,.3);flex-direction:column;gap:8px;visibility:hidden;opacity:0;position:absolute;top:0;left:0;width:160px;height:200px;box-sizing:border-box;}
 .scard.flipped .scard-back{visibility:hidden;opacity:0;}
 .scard.flipped .scard-front{visibility:visible;opacity:1;}
@@ -732,7 +732,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
   <div class="scard-wrap" onclick="revealSummon()" style="display:flex;align-items:center;justify-content:center;">
     <div class="scard" id="scard">
       <div class="scard-face scard-back" style="position:absolute;top:0;left:0;width:160px;height:200px;">
-      <span class="q-mark" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;color:rgba(255,215,0,.3);line-height:1;pointer-events:none;user-select:none;">？</span>
+      <span class="q-mark">？</span>
     </div>
       <div class="scard-face scard-front" style="position:absolute;top:0;left:0;width:160px;height:200px;">
         <div class="sf-emoji" id="sfEmoji"></div>

@@ -3,30 +3,36 @@ function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+
 window._today=today;
 function initHomeGesture(){}
 
-function startGame(){
-  G.zodiac=sz;G.fate=sf;G.created=true;
-  G.unlockedAtlas=[sz];
-  G.coins=0;G.qi=0;G.dragons=[];G.mergeCount=0;G.summonCount=0;G.freeLeft=3;G.lastFreeDate=today();G.currentFate=3;
-  if(G.lastFateDate!==today()){rollFate();}G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0};G.lastQiTime=Date.now();
+function startGame(zz,ff){
+  zz=zz??sz??-1; ff=ff??sf??1;
+  G.zodiac=zz; G.fate=ff; G.created=true;
+  G.unlockedAtlas=[zz];
+  G.coins=0; G.qi=0; G.dragons=[]; G.mergeCount=0; G.summonCount=0;
+  G.freeLeft=3; G.lastFreeDate=today(); G.currentFate=3;
+  if(G.lastFateDate!==today()){rollFate();}
+  G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0}; G.lastQiTime=Date.now();
+  G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}]; nextId=3;
+  if(G.lastTaskDate!==today()){G.tasks={};G.lastTaskDate=today();G._qiSpentDaily=0;G.tasks.login={progress:1,claimed:false};}
   saveGame();
+  // UI 切换
   var el;
   el=document.getElementById('modal');if(el)el.classList.remove('show');
   el=document.getElementById('loginWrap');if(el)el.style.display='none';
-  el=document.getElementById('hudZodiac');if(el)el.textContent=ZOD_E[sz]||'';
+  el=document.getElementById('hudZodiac');if(el)el.textContent=ZOD_E[zz]||'';
   el=document.getElementById('hudYunshi');if(el)el.textContent=YUN_NAMES[G.currentFate-1]+' '+YUN_COIN[G.currentFate-1].toFixed(1);
   el=document.getElementById('gamePage');if(el){el.style.display='flex';el.style.visibility='visible';el.style.opacity='1';}
-  G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
-  nextId=3;
-  saveGame();renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G&&G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
+  el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
+  saveGame();renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
   requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
   requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
   setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);
   if(!window._skillBarInterval){
     window._skillBarInterval=setInterval(()=>{try{renderSkillBar();}catch(e){}},2000);
   }
-  el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
   window.addEventListener('beforeunload',saveGame);
 }
+
+
 function resetGame(){
   if(!confirm('确定要重新开始吗？所有数据将被清除！'))return;
   localStorage.removeItem(SAVE_KEY || 'sxgame_v2');
@@ -62,6 +68,11 @@ function initGame(){ startSkyEvents();try{initWeekly();}catch(e){}
     el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
     // 新手引导（首次进入游戏）
     if(!G.guideDone){requestAnimationFrame(()=>{setTimeout(()=>startGuide(),600);});}
+    // 首次加载时同步龙数据
+    if(!G.dragons||G.dragons.length===0){
+      G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
+      nextId=3;saveGame();renderGrid();
+    }
   }
 }
 

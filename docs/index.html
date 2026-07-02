@@ -684,7 +684,7 @@ body{background:#0c0c22;display:flex;align-items:stretch;justify-content:center;
 .ach-pop{animation:achPopSlide .4s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes achPopSlide{0%{transform:translate(-50%,-80px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 
 /* ===== 技能按钮 ===== */
-#skillBar{display:flex;gap:5px;overflow-x:auto;padding:0;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center;justify-content:center;flex-wrap:nowrap}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;transition:all .2s;position:relative;min-width:44px;max-width:52px;width:52px}.skill-btn:hover{background:rgba(255,215,0,.07);border-color:rgba(255,215,0,.28)}.skill-btn.disabled{opacity:.45;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700}
+#skillBar{display:flex;gap:4px;overflow-x:auto;padding:0;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center;justify-content:center;flex-wrap:wrap}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0;padding:3px 4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;transition:all .2s;position:relative;min-width:38px;max-width:46px;width:46px}.skill-btn:hover{background:rgba(255,215,0,.07);border-color:rgba(255,215,0,.28)}.skill-btn.disabled{opacity:.45;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700}
 
 /* ===== 星级显示 ===== */
 .star-pip{display:inline-block;font-size:10px;color:#ffd700;letter-spacing:-1px}.star-pip-empty{color:#333}
@@ -944,10 +944,8 @@ function doStart(){
   <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
 </div>
 
-  <!-- ===== 技能条（顶部中间）===== -->
-  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;height:54px;background:rgba(15,15,40,.88);display:flex;align-items:center;justify-content:center;padding:0 12px;gap:5px;overflow-x:auto;scrollbar-width:none;">
-    <div id="skillBar" style="display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap;flex-shrink:0;"></div>
-  </div>
+  <!-- ===== 技能条（顶部，仅1px分割线）===== -->
+  <div id="skillBarRow" class="skill-row" style="flex-shrink:0;height:1px;background:rgba(255,215,0,.06);"></div>
 
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
     <div id="middleRow" class="mid-row" style="flex:1;display:flex;min-height:0;overflow:hidden;margin:0;">
@@ -975,10 +973,10 @@ function doStart(){
     <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
   </div>
 
-  <!-- ===== 右侧竖向容器：灵兽卡片 ===== -->
-  <div id="heroColumn" style="width:clamp(100px,15vw,140px);display:flex;flex-direction:column;align-items:center;overflow:hidden;padding:0 4px;align-self:flex-start;">
-    <!-- 灵兽卡片（紧凑，只显示 icon + 等级） -->
-    <div id="heroSection" class="hero-card" style="width:100%;">
+  <!-- ===== 右侧竖向容器：灵兽卡片 + 技能条 ===== -->
+  <div id="heroColumn" style="width:clamp(100px,15vw,140px);display:flex;flex-direction:column;align-items:center;overflow:hidden;padding:0 4px;">
+    <!-- 灵兽卡片（紧凑，只显示 icon + 等级，上方留白给技能条） -->
+    <div id="heroSection" class="hero-card" style="width:100%;padding-top:8px;">
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;display:none;">木命 · 大吉</div>
       <!-- 灵兽icon（居中，足够大） -->
       <div style="position:relative;width:clamp(80px,12vw,110px);height:clamp(80px,12vw,110px);">
@@ -994,6 +992,8 @@ function doStart(){
       <!-- 进化链预览 -->
       <div id="heroThumbs" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:100%;font-size:clamp(12px,1.8vw,16px);opacity:.4;margin-top:3px;"></div>
     </div>
+    <!-- 技能条（灵兽正下方） -->
+    <div id="skillBar" style="display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:wrap;padding:6px 2px 4px;flex-shrink:0;width:100%;"></div>
   </div>
 
 <div id="gameBottomBar" class="bot-bar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">

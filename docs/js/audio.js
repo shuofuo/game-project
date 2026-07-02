@@ -147,5 +147,4 @@ function stopBgm(){
   if(_bgmTimer){clearTimeout(_bgmTimer);_bgmTimer=null;}
   _bgmIdx=0;_bgmZ=-1;
 }
-function startBgm(){try{playFullBgm(G&&G.zodiac>-1?G.zodiac:0);}catch(e){try{playFullBgm(0);}catch(e2){}}}
 

@@ -214,7 +214,7 @@ function onBgmToggle(on){
   document.getElementById('bgmSlider').disabled=!on;
   if(on){
     _audioState.bgmVolume=_audioState.bgmLast||0.35;
-    try{playFullBgm&&playFullBgm(G.zodiac>-1?G.zodiac:0);}catch(e){try{playFullBgm&&playFullBgm(0);}catch(e2){}}
+    startBgm();
     document.getElementById('bgmSlider').value=Math.round(_audioState.bgmVolume*100);
   }else{
     _audioState.bgmLast=_audioState.bgmVolume||0.35;

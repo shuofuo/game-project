@@ -196,9 +196,10 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .scard-back{
   background:linear-gradient(160deg,#1a1a3a,#2a1a4a);
   box-shadow:0 0 40px rgba(255,215,0,.2);
+  display:flex;align-items:center;justify-content:center;
 }
 .scard-back::before{
-  content:'？';font-size:64px;color:rgba(255,215,0,.3);
+  content:'？';font-size:64px;color:rgba(255,215,0,.3);display:block;line-height:1;
 }
 /* 金边框高级感 */
 .scard-front{
@@ -216,8 +217,10 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.7}}
 /* 结果揭晓区 */
 .summon-result-anim{
-  display:none;position:relative;text-align:center;
+  display:none;position:fixed;text-align:center;
+  left:50%;top:50%;transform:translate(-50%,-50%);
   padding:12px 20px 8px;border-radius:20px;
+  z-index:510;
   animation:sraIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
 }
 .summon-result-anim.show{display:block;}
@@ -675,7 +678,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 @keyframes sshake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px) rotate(-.5deg)}35%{transform:translateX(5px) rotate(.5deg)}55%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes spFly{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
 .hero-icon-flash{animation:hflash .4s ease}@keyframes hflash{0%,100%{filter:brightness(1) drop-shadow(0 0 0 transparent)}40%{filter:brightness(2.5) drop-shadow(0 0 30px #ffd700)}70%{filter:brightness(1.3) drop-shadow(0 0 15px #fff)}}
-.sra-result-pop{animation:srpPop .45s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes srpPop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}60%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.sra-result-pop{animation:srpPop .45s cubic-bezier(.34,1.56,.64,1) forwards;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);}@keyframes srpPop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}60%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 
 /* ===== 成就通知动画 ===== */
 .ach-pop{animation:achPopSlide .4s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes achPopSlide{0%{transform:translate(-50%,-80px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
@@ -763,7 +766,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
     <div class="sra-bar"><div class="sra-fill" id="sraFill"></div></div>
     <div class="sra-new" id="sraNew" style="display:none">✨ 新灵兽解锁！</div>
   </div>
-  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="margin-top:20px;display:none;">收下 ✦</button>
+  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="margin-top:16px;min-width:120px;max-width:180px;width:auto;display:none;">收下 ✦</button>
 </div>
 
 

@@ -296,6 +296,9 @@ function checkNewDragon(lvl){const owned=new Set(G.dragons.map(d=>d.level));retu
 function revealSummon(){
   if(summonRevealed)return;
   summonRevealed=true;
+  // 立即隐藏翻牌区域，避免与结果卡片重叠
+  document.querySelector('.summon-tip').style.display='none';
+  document.querySelector('.scard-wrap').style.display='none';
   // 翻牌音效
   try{initAudio();}catch(e){}
   try{
@@ -316,13 +319,10 @@ function revealSummon(){
   document.getElementById('sfName').textContent=LNAME[lvl]||'灵兽';
   document.getElementById('sfCps').textContent='+'+COIN_S[lvl]+'/s';
   document.querySelector('.scard-front').style.borderColor=rar.color;
-  // 翻牌
+  // 翻牌动画（卡牌本身不动，只做动画视觉）
   document.getElementById('scard').classList.add('flipped');
-  // 1.4秒后显示结果
+  // 1.4秒后显示结果（此时翻牌区已隐藏，不会有重复）
   setTimeout(()=>{
-    // 关闭翻牌区域
-    document.querySelector('.summon-tip').style.display='none';
-    document.querySelector('.scard-wrap').style.display='none';
     // 稀有度背景
     const anim=document.getElementById('summonResultAnim');
     anim.className='summon-result-anim sra-r'+rar;
@@ -344,7 +344,7 @@ function revealSummon(){
     // 屏幕震动
     const gp=document.getElementById('gamePage');
     if(gp){gp.classList.add('screen-shake');setTimeout(()=>gp.classList.remove('screen-shake'),400);}
-    // 结果放大弹出
+    // 结果弹出动画
     const sraEl=document.getElementById('summonResultAnim');
     if(sraEl){sraEl.classList.remove('sra-result-pop');void sraEl.offsetWidth;sraEl.classList.add('sra-result-pop');}
     // 显示
@@ -354,7 +354,7 @@ function revealSummon(){
     playSummonSound(rar);
     // 通知气泡
     notifSummon(lvl);
-  },1400);
+  },1200);
 }
 function closeSummonAnim(){
   // heroIcon 闪光

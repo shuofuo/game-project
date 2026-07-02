@@ -729,12 +729,12 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
 <!-- 召唤翻牌动画遮罩 -->
 <div id="summonOverlay">
   <div class="summon-tip">点击卡牌揭晓命运</div>
-  <div class="scard-wrap" onclick="revealSummon()">
+  <div class="scard-wrap" onclick="revealSummon()" style="display:flex;align-items:center;justify-content:center;">
     <div class="scard" id="scard">
-      <div class="scard-face scard-back">
+      <div class="scard-face scard-back" style="position:absolute;top:0;left:0;width:160px;height:200px;">
       <span class="q-mark" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;color:rgba(255,215,0,.3);line-height:1;pointer-events:none;user-select:none;">？</span>
     </div>
-      <div class="scard-face scard-front">
+      <div class="scard-face scard-front" style="position:absolute;top:0;left:0;width:160px;height:200px;">
         <div class="sf-emoji" id="sfEmoji"></div>
         <div class="sf-name"  id="sfName"></div>
         <div class="sf-cps"   id="sfCps"></div>

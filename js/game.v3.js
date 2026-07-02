@@ -374,6 +374,18 @@ function doSummon(level){
   pendingSummonLevel=level;
   summonRevealed=false;
   // 重置卡牌状态（第二次召唤时清除翻牌残留）
+  // 强制注入最新 flip CSS（绕过浏览器 CSS 缓存）
+  if(!document.getElementById('_flip_css')){
+    var s=document.createElement('style');s.id='_flip_css';s.textContent=
+      '.scard-face{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;}'+
+      '.scard-back{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;visibility:visible!important;opacity:1!important;}'+
+      '.scard-front{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;visibility:hidden!important;opacity:0!important;}'+
+      '.scard.flipped .scard-back{visibility:hidden!important;opacity:0!important;}'+
+      '.scard.flipped .scard-front{visibility:visible!important;opacity:1!important;}'+
+      '.scard{width:160px!important;height:200px!important;position:relative!important;transform-style:preserve-3d!important;transition:transform .6s cubic-bezier(.4,0,.2,1)!important;cursor:pointer!important;}'+
+      '.scard.flipped{transform:rotateY(180deg)!important;}';
+    document.head.appendChild(s);
+  }
   const scard=document.getElementById('scard');
   if(scard) scard.classList.remove('flipped');
   const scardWrap=document.querySelector('.scard-wrap');

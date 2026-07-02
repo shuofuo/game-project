@@ -215,9 +215,9 @@ function renderSkillBar(){
     const rarityColor=['','#aaa','#7eb8ff','#42a5f5','#ffd700'][sk.rar]||'#aaa';
     const itemCount=G.items&&G.items.find(i=>i.id==='i'+sk.id[1])?(G.items.find(i=>i.id==='i'+sk.id[1]).count):0;
     return `<button class="skill-btn ${disabled?'disabled':''}" onclick="${disabled?'':'activateSkill(\''+sk.id+'\')'}" title="${sk.desc}\n龙气消耗:${sk.qiCost} 冷却:${sk.cd}秒\n品阶:${rarityLabel}">
-      <span style="font-size:16px;line-height:1;">${sk.icon}</span>
-      <span style="font-size:7px;color:${rarityColor};font-weight:600;line-height:1;">${sk.name}</span>
-      <span style="font-size:7px;color:rgba(160,216,239,.7);line-height:1;">✨${sk.qiCost}</span>
+      <span style="font-size:18px;line-height:1;">${sk.icon}</span>
+      <span style="font-size:9px;color:${rarityColor};font-weight:600;line-height:1;">${sk.name}</span>
+      <span style="font-size:9px;color:rgba(160,216,239,.7);line-height:1;">✨${sk.qiCost}</span>
       ${onCooldown?'<div class="skill-cd"><div style="width:'+cdPct+'%;height:100%;background:rgba(0,0,0,.6);position:absolute;left:0;top:0;transition:width 1s linear;"></div>'+cd+'s</div>':''}
     </button>`;
   }).join('');

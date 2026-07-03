@@ -728,6 +728,44 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .tower-ms-locked{opacity:.4}
 .tower-ms-claimed{background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.2)}
 </style>
+
+/* ══ P1-2 炼宝阁样式 ══ */
+.forge-title{font-size:1.1em;font-weight:700;color:#fbbf24;margin-bottom:10px;text-align:center}
+.forge-materials{display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:10px}
+.mat-chip{background:rgba(255,255,255,.08);padding:3px 8px;border-radius:12px;font-size:12px}
+.suit-banner{background:linear-gradient(135deg,#ff8c00,#ff3333);color:#fff;padding:8px 12px;border-radius:8px;text-align:center;font-weight:700;margin-bottom:10px;font-size:13px}
+.suit-banner.suit-2{background:linear-gradient(135deg,#555,#777)}
+.suit-progress{color:#666;font-size:12px;padding:6px 0;margin-bottom:8px;text-align:center}
+.forge-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
+.forge-tab{background:transparent;border:none;color:#888;font-size:13px;padding:6px 10px;cursor:pointer;border-bottom:2px solid transparent;flex:1;text-align:center}
+.forge-tab.active{color:#fbbf24;border-bottom-color:#fbbf24}
+.forge-section-title{font-size:12px;color:#888;padding:4px 8px;margin-bottom:8px}
+.forge-recipe{background:rgba(255,255,255,.04);padding:8px;margin-bottom:8px;border-radius:8px;opacity:.65}
+.forge-recipe.can-craft{opacity:1;background:rgba(255,255,255,.07)}
+.recipe-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.recipe-cost{font-size:11px;color:#888;margin-bottom:3px}
+.recipe-desc{font-size:11px;color:#666;margin-bottom:5px}
+.forge-btn{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;width:100%}
+.forge-btn.active{background:#fbbf24;color:#111;font-weight:700}
+.forge-btn.disabled{background:rgba(255,255,255,.05);border-color:#333;color:#555;cursor:not-allowed}
+.forge-items-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:20px}
+.forge-item{background:rgba(255,255,255,.04);border:1px solid #555;border-radius:8px;padding:8px;text-align:center;transition:transform .15s}
+.forge-item:hover{transform:scale(1.05)}
+.forge-item.equipped{border-color:#fbbf24!important;background:rgba(251,191,36,.1)}
+.fi-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.fi-info{font-size:11px;color:#888;margin-bottom:4px}
+.fi-type{font-size:11px;color:#666;margin-bottom:6px}
+.fi-btns{display:flex;gap:4px}
+.fi-btn{background:rgba(255,255,255,.06);border:1px solid #444;color:#999;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;flex:1}
+.fi-btn.active{background:#fbbf24;color:#111;border-color:#fbbf24;font-weight:700}
+.forge-items-list{display:flex;flex-direction:column;gap:8px;padding-bottom:20px}
+.forge-list-item{background:rgba(255,255,255,.04);padding:8px;border-radius:8px}
+.li-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.li-cost{font-size:11px;color:#888;margin-bottom:6px}
+.li-btns{display:flex;gap:6px}
+.li-btns .forge-btn{width:auto;flex:1}
+.forge-empty{color:#555;text-align:center;padding:40px;font-size:14px}
+
 </head>
 <body>
 <script>// Disable bfcache to ensure fresh JS execution
@@ -1090,5 +1128,15 @@ function doStart(){
 <script src="js/audio.v2.js"></script>
 <script src="js/game.v3.js?v=5"></script>
 <script src="js/ui.v2.js"></script>
+  <!-- P1-2 炼宝阁面板 -->
+  <div id="forgePanel" class="panel-overlay">
+    <div class="panel-box">
+      <div class="panel-header">
+        <span class="panel-title-text">🔨 炼宝阁</span>
+        <button class="panel-close" onclick="closeForgePanel()">✕</button>
+      </div>
+      <div id="forgeContent"></div>
+    </div>
+  </div>
 </body>
 </html>

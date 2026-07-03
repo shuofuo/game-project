@@ -2140,7 +2140,8 @@ function injectSkinAtlasButtons(){
     wrap.innerHTML=
       '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">📖图鉴</button>'+
       '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">✨皮肤</button>'+
-      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">⚔️试炼塔</button>';
+      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">⚔️试炼塔</button>'+
+      '<button id="forgeBtn" onclick="openForgePanel()" style="background:#2e1a00;border:1px solid #fbbf24;color:#fbbf24;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">🔨炼宝阁</button>';
     document.body.appendChild(wrap);
   },500);
 }
@@ -2332,4 +2333,267 @@ if(!G.towerEnemyHp)  G.towerEnemyHp=0;  // 0表示满血，下次进入时刷新
 if(!G.towerLastAtk)  G.towerLastAtk=Date.now();
 if(!G.towerMilestones) G.towerMilestones=[];
 
+}
+
+// ═══════════════════════════════════════
+// P1-2 炼宝阁 (Forge) - 配置
+// ═══════════════════════════════════════
+
+var QUALITY_NAMES   = ['普通','稀有','史诗','传说','天命'];
+var QUALITY_COLORS  = ['#888','#4a9eff','#b44aff','#ff8c00','#ff3333'];
+var QUALITY_COST    = [0, 50, 200, 800, 3000];   // 龙气购买价格
+var QUALITY_CPS_PCT = [0, 10, 25, 50, 100];       // CPS加成百分比
+var QUALITY_QI_PCT  = [0, 5, 15, 35, 70];         // 龙气加成百分比
+
+// 装备类型
+var EQUIP_TYPE_NAME = {weapon:'⚔️武器',armor:'🛡️护甲',accessory:'💍饰品'};
+
+// 制作配方: {id, type, name, quality, iron, crystal, dragonScale, starDust, desc}
+// quality: 0=普通 1=稀有 2=史诗 3=传说 4=天命
+var FORGE_RECIPES = [
+  // 武器
+  {id:'w1',type:'weapon',name:'木剑',quality:0,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
+  {id:'w2',type:'weapon',name:'铁剑',quality:0,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
+  {id:'w3',type:'weapon',name:'钢剑',quality:1,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
+  {id:'w4',type:'weapon',name:'秘银剑',quality:2,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
+  {id:'w5',type:'weapon',name:'龙鳞剑',quality:3,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
+  {id:'w6',type:'weapon',name:'天命剑',quality:4,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
+  // 护甲
+  {id:'a1',type:'armor',name:'布衣',quality:0,iron:15,crystal:0,dragonScale:0,starDust:0,desc:'基础的防护'},
+  {id:'a2',type:'armor',name:'皮甲',quality:0,iron:40,crystal:4,dragonScale:0,starDust:0,desc:'皮革护身'},
+  {id:'a3',type:'armor',name:'锁甲',quality:1,iron:90,crystal:12,dragonScale:0,starDust:0,desc:'铁链编织'},
+  {id:'a4',type:'armor',name:'秘银甲',quality:2,iron:180,crystal:35,dragonScale:5,starDust:0,desc:'秘银铠甲'},
+  {id:'a5',type:'armor',name:'龙鳞甲',quality:3,iron:280,crystal:75,dragonScale:18,starDust:4,desc:'龙鳞护体'},
+  {id:'a6',type:'armor',name:'天命甲',quality:4,iron:450,crystal:140,dragonScale:45,starDust:18,desc:'天命战甲'},
+  // 饰品
+  {id:'j1',type:'accessory',name:'草戒',quality:0,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
+  {id:'j2',type:'accessory',name:'银戒',quality:0,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
+  {id:'j3',type:'accessory',name:'玉佩',quality:1,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
+  {id:'j4',type:'accessory',name:'秘银坠',quality:2,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
+  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
+  {id:'j6',type:'accessory',name:'天命戒',quality:4,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
+];
+
+// 强化消耗：每级需要铁锭和金
+function getForgeEnhanceCost(level) {
+  return {iron: level * 10, coin: level * level * 50};
+}
+
+// 升星消耗：当前星→目标星，需要同名装备数量+铁锭
+function getForgeStarCost(currentStar) {
+  var starReq = [0,2,2,2,2][currentStar] || 2;
+  var ironCost = [0,30,80,200,500][currentStar] || 30;
+  return {sameItem: starReq, iron: ironCost};
+}
+
+// 套装效果
+var SUIT_EFFECTS = {
+  2: {name:'初具雏形',desc:'全属相碎片掉率+20%',cpsBonus:0,qiBonus:0,shardBonus:20},
+  3: {name:'天命套装',desc:'金币+30% 龙气+50%',cpsBonus:30,qiBonus:50,shardBonus:20},
+};
+
+// 套装数量计算（每套=同品质3件类型各1个，任意等级/星）
+function countSuits(items) {
+  if(!items || !items.length) return {weapon:false,armor:false,accessory:false,total:0};
+  var equipped = {weapon:false,armor:false,accessory:false};
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    if(it.equipped) equipped[it.type] = true;
+  }
+  var total = (equipped.weapon?1:0)+(equipped.armor?1:0)+(equipped.accessory?1:0);
+  return {weapon:equipped.weapon,armor:equipped.armor,accessory:equipped.accessory,total:total};
+}
+
+// ═══════════════════════════════════════
+// P1-2 炼宝阁 - 功能函数
+// ═══════════════════════════════════════
+
+function openForgePanel(){
+  renderForgePanel();
+  var p=document.getElementById('forgePanel');
+  if(p)p.classList.add('open');
+}
+function closeForgePanel(){
+  var p=document.getElementById('forgePanel');
+  if(p)p.classList.remove('open');
+}
+
+function renderForgePanel(){
+  var c=document.getElementById('forgeContent');
+  if(!G||!G.created){if(c)c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
+  if(!c)return;
+  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
+  var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
+  var suits=countSuits(fm.items);
+  var html='<div class="forge-title">🔨 炼宝阁</div>';
+
+  // 材料栏
+  html+='<div class="forge-materials">'+
+    '<span class="mat-chip">🔩铁锭: '+mat.iron+'</span>'+
+    '<span class="mat-chip">💎水晶: '+mat.crystal+'</span>'+
+    '<span class="mat-chip">🐉龙鳞: '+mat.dragonScale+'</span>'+
+    '<span class="mat-chip">✨星尘: '+mat.starDust+'</span>'+
+    '</div>';
+
+  // 套装状态
+  var suitHtml='';
+  if(suits.total>=3) suitHtml='<div class="suit-banner">👑 天命套装已激活！'+SUIT_EFFECTS[3].desc+'</div>';
+  else if(suits.total>=2) suitHtml='<div class="suit-banner suit-2">⚙️ 初具雏形已激活（'+suits.total+'/3件）</div>';
+  else suitHtml+='<div class="suit-progress">已装备 '+suits.total+'/3 件（集齐3件激活套装）</div>';
+  html+=suitHtml;
+
+  // 标签切换
+  html+='<div class="forge-tabs" id="forgeTabs">'+
+    '<button class="forge-tab active" onclick="switchForgeTab(\'craft\')">📜 制作台</button>'+
+    '<button class="forge-tab" onclick="switchForgeTab(\'inventory\')">🎒 背包 ('+(fm.items?fm.items.length:0)+')</button>'+
+    '<button class="forge-tab" onclick="switchForgeTab(\'enhance\')">⚡ 强化</button>'+
+    '</div>';
+
+  // 内容区
+  html+='<div class="forge-body" id="forgeBody">'+renderForgeCraft(fm,mat)+'</div>';
+
+  c.innerHTML=html;
+}
+
+function renderForgeCraft(fm,mat){
+  var html='<div class="forge-section-title">📜 制作台</div>';
+  var recipes=[];
+  for(var i=0;i<FORGE_RECIPES.length;i++){
+    var r=FORGE_RECIPES[i];
+    var can=mat.iron>=r.iron&&mat.crystal>=r.crystal&&mat.dragonScale>=r.dragonScale&&mat.starDust>=r.starDust;
+    var color=QUALITY_COLORS[r.quality];
+    html+='<div class="forge-recipe '+(can?'can-craft':'')+'" style="border-left:4px solid '+color+'">'+
+      '<div class="recipe-name" style="color:'+color+'">'+r.name+' <span style="font-size:11px;color:#888">'+EQUIP_TYPE_NAME[r.type]+'</span></div>'+
+      '<div class="recipe-cost">🔩'+r.iron+' 💎'+r.crystal+' 🐉'+r.dragonScale+' ✨'+r.starDust+'</div>'+
+      '<div class="recipe-desc">'+r.desc+'</div>'+
+      '<button class="forge-btn '+(can?'active':'disabled')+'" onclick="craftForgeItem(\''+r.id+'\')">'+(can?'🔨 制作':'材料不足')+'</button>'+
+      '</div>';
+  }
+  return html;
+}
+
+function renderForgeInventory(fm){
+  var items=fm.items||[];
+  if(!items.length){
+    return '<div class="forge-empty">🎒 背包空空， 去制作装备吧！</div>';
+  }
+  var html='<div class="forge-section-title">🎒 背包 ('+items.length+'件)</div><div class="forge-items-grid">';
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    var color=QUALITY_COLORS[it.quality];
+    var maxLv=10+it.star*3;
+    html+='<div class="forge-item '+(it.equipped?'equipped':'')+'" style="border-color:'+color+'">'+
+      '<div class="fi-name" style="color:'+color+'">'+it.name+'</div>'+
+      '<div class="fi-info">⭐'+it.star+' ★Lv.'+it.level+'/'+maxLv+'</div>'+
+      '<div class="fi-type">'+EQUIP_TYPE_NAME[it.type]+'</div>'+
+      '<div class="fi-btns">'+
+        '<button class="fi-btn '+(it.equipped?'':'active')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
+        '<button class="fi-btn active" onclick="openEnhanceForItem(\''+it.id+'\')">强化</button>'+
+        '</div></div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function renderForgeEnhance(fm,mat){
+  if(!fm.items||!fm.items.length) return '<div class="forge-empty">先制作装备再来强化！</div>';
+  var html='<div class="forge-section-title">⚡ 选择装备强化</div><div class="forge-items-list">';
+  for(var i=0;i<fm.items.length;i++){
+    var it=fm.items[i];
+    var color=QUALITY_COLORS[it.quality];
+    var maxLv=10+it.star*3;
+    var cost=getForgeEnhanceCost(it.level+1);
+    var canEnhance=it.level<maxLv&&mat.iron>=cost.iron&&G.coins>=cost.coin;
+    html+='<div class="forge-list-item" style="border-left:3px solid '+color+'">'+
+      '<div class="li-name" style="color:'+color+'">'+it.name+' ⭐'+it.star+' Lv.'+it.level+'/'+maxLv+'</div>'+
+      '<div class="li-cost">强化消耗: 🔩'+cost.iron+' 💰'+cost.coin+'</div>'+
+      '<div class="li-btns">'+
+        '<button class="forge-btn '+(canEnhance?'active':'disabled')+'" onclick="enhanceForgeItem(\''+it.id+'\')">'+(canEnhance?'⚡强化':'材料不足')+'</button>'+
+        '<button class="forge-btn '+(it.star<5?'active':'disabled')+'" onclick="starUpForgeItem(\''+it.id+'\')">'+(it.star<5?'⭐升星':'已满星')+'</button>'+
+        '</div></div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function switchForgeTab(tab){
+  document.querySelectorAll('.forge-tab').forEach(function(b){b.classList.remove('active');});
+  event.target.classList.add('active');
+  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
+  var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
+  var body=document.getElementById('forgeBody');
+  if(!body)return;
+  if(tab==='craft') body.innerHTML=renderForgeCraft(fm,mat);
+  else if(tab==='inventory') body.innerHTML=renderForgeInventory(fm);
+  else if(tab==='enhance') body.innerHTML=renderForgeEnhance(fm,mat);
+}
+
+function craftForgeItem(recipeId){
+  var r=null;
+  for(var i=0;i<FORGE_RECIPES.length;i++){if(FORGE_RECIPES[i].id===recipeId){r=FORGE_RECIPES[i];break;}}
+  if(!r){showNotif('error','配方不存在');return;}
+  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
+  var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
+  if(mat.iron<r.iron||mat.crystal<r.crystal||mat.dragonScale<r.dragonScale||mat.starDust<r.starDust){
+    showNotif('warn','材料不足！');return;
+  }
+  mat.iron-=r.iron; mat.crystal-=r.crystal; mat.dragonScale-=r.dragonScale; mat.starDust-=r.starDust;
+  if(!fm.items)fm.items=[];
+  fm.items.push({id:Date.now()+'_'+r.id,itemId:r.id,name:r.name,type:r.type,quality:r.quality,star:1,level:1,equipped:false});
+  fm.totalCrafts=(fm.totalCrafts||0)+1;
+  G.forge=fm;
+  saveGame();updateHud();renderForgePanel();
+  showNotif('success','制作成功！获得 '+r.name);
+  playSound('merge');
+}
+
+function enhanceForgeItem(itemId){
+  var fm=G.forge||{items:[],materials:{}};
+  var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
+  var it=null;
+  for(var i=0;i<fm.items.length;i++){if(fm.items[i].id===itemId){it=fm.items[i];break;}}
+  if(!it){showNotif('error','装备不存在');return;}
+  var maxLv=10+it.star*3;
+  if(it.level>=maxLv){showNotif('warn','已达强化上限，请升星！');return;}
+  var cost=getForgeEnhanceCost(it.level+1);
+  if(mat.iron<cost.iron||G.coins<cost.coin){showNotif('warn','金币或材料不足！');return;}
+  G.coins-=cost.coin;
+  mat.iron-=cost.iron;
+  it.level++;
+  G.forge=fm;
+  saveGame();updateHud();renderForgePanel();
+  showNotif('success','强化成功！'+it.name+' → Lv.'+it.level);
+  playSound('merge');
+}
+
+function starUpForgeItem(itemId){
+  var fm=G.forge||{items:[],materials:{}};
+  var it=null,idx=-1;
+  for(var i=0;i<fm.items.length;i++){if(fm.items[i].id===itemId){it=fm.items[i];idx=i;break;}}
+  if(!it){showNotif('error','装备不存在');return;}
+  if(it.star>=5){showNotif('warn','已满星！');return;}
+  var cost=getForgeStarCost(it.star);
+  var mat2=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
+  if(mat2.iron<cost.iron){showNotif('warn','铁锭不足！升星需要 '+cost.iron+' 🔩');return;}
+  mat2.iron-=cost.iron;
+  it.star++;
+  G.forge=fm;
+  saveGame();updateHud();renderForgePanel();
+  showNotif('success','升星成功！⭐ '+it.star+'星');
+  playSound('summon');
+}
+
+function equipForgeItem(itemId){
+  var fm=G.forge||{items:[]};
+  for(var i=0;i<fm.items.length;i++){
+    if(fm.items[i].id===itemId){
+      fm.items[i].equipped=!fm.items[i].equipped;
+      var newState=fm.items[i].equipped;
+      showNotif(newState?'success':'info',fm.items[i].name+' '+(newState?'[已装备]':'[已卸下]'));
+    } else {
+      fm.items[i].equipped=false;
+    }
+  }
+  G.forge=fm;
+  saveGame();updateHud();renderForgePanel();
 }

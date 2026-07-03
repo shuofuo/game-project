@@ -1971,6 +1971,9 @@ function openAtlasPanel(){
   renderAtlasPanel();
   var p=document.getElementById('atlasPanel');
   if(p)p.classList.add('open');
+  // 确保面板强制打开（即使G未初始化）
+  var panel=document.getElementById('atlasPanel');
+  if(panel) panel.classList.add('open');
 }
 function closeAtlasPanel(){
   var p=document.getElementById('atlasPanel');
@@ -2076,8 +2079,8 @@ function buySkin(skinId){
 
 function openSkinPanel(){
   renderSkinPanel();
-  var p=document.getElementById('skinPanel');
-  if(p)p.classList.add('open');
+  var panel=document.getElementById('skinPanel');
+  if(panel) panel.classList.add('open');
 }
 function closeSkinPanel(){
   var p=document.getElementById('skinPanel');
@@ -2247,8 +2250,8 @@ function towerOfflineProgress(){
 }
 function openTowerPanel(){
   renderTowerPanel();
-  var p=document.getElementById('towerPanel');
-  if(p)p.classList.add('open');
+  var panel=document.getElementById('towerPanel');
+  if(panel) panel.classList.add('open');
 }
 function closeTowerPanel(){
   var p=document.getElementById('towerPanel');

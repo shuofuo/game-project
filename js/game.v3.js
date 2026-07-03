@@ -1979,6 +1979,7 @@ function closeAtlasPanel(){
 
 function renderAtlasPanel(){
   var c=document.getElementById('atlasContent');
+  if(!G||!G.created){if(c)c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   if(!c)return;
   var col=getCollectedZodiacs();
   var n=col.length;
@@ -2085,6 +2086,7 @@ function closeSkinPanel(){
 
 function renderSkinPanel(){
   var c=document.getElementById('skinContent');
+  if(!G||!G.created){if(c)c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   if(!c)return;
   var cur=G.equippedSkin||'default';
   var html='<div class="skin-title">✨ 灵兽皮肤</div>';
@@ -2254,6 +2256,7 @@ function closeTowerPanel(){
 }
 function renderTowerPanel(){
   var c=document.getElementById('towerContent');
+  if(!G||!G.created){if(c)c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   if(!c) return;
   var floor=G.towerFloor||1;
   var enemy=getTowerEnemy(floor);

@@ -1953,12 +1953,15 @@ function closeCultPanel(){
 // P0-1 灵兽图鉴 (Atlas) — 查看已收集生肖 + 收集奖励
 // ═══════════════════════════════════════════════════════
 function getCollectedZodiacs(){
-  // 从 G.dragons 提取所有灵兽的属相ID（去重）
+  // 从 G.dragons 提取所有灵兽的属相ID（去重，同时查 d.z 和 d.level）
   if(!G.dragons || !G.dragons.length) return [];
   var seen={};
   var zids=[];
   G.dragons.forEach(function(d){
-    if(d && d.z && !seen[d.z]){seen[d.z]=1;zids.push(d.z);}
+    if(d){
+      var z=d.z||d.level;          // d.z 兼容老存档，d.level 是主要来源
+      if(z && !seen[z]){seen[z]=1;zids.push(z);}
+    }
   });
   return zids.sort(function(a,b){return a-b;});
 }
@@ -1997,7 +2000,7 @@ function renderAtlasPanel(){
     var title=st.collected?('第'+st.order+'个收集 · '+lore):('未解锁 · '+lore);
     html+='<div class="'+cls+'" title="'+title+'" onclick="showZodiacDetail('+(z+1)+')" style="cursor:pointer">';
     html+='<div style="font-size:2.4em">'+emoji+'</div>';
-    html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'???')+'</div>';
+    html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'🔒')+'</div>';
     html+='<div style="font-size:0.8em">'+name+'</div>';
     html+='</div>';
   }

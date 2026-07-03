@@ -269,7 +269,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 /* 设置面板 */
 .panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(4px);}
 .panel-overlay.open,.panel-overlay.show{display:flex;align-items:center;justify-content:center;}
-.panel-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:24px;width:min(420px,92vw);max-height:88vh;overflow-y:auto;animation:popIn .3s ease;box-sizing:border-box;}
+.panel-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:24px;width:min(420px,92vw);max-height:88vh;overflow-y:auto;animation:popIn .3s ease;box-sizing:border-box;-ms-overflow-style:none;scrollbar-width:none;}.panel-box::-webkit-scrollbar{width:0;height:0;display:none;}.panel-overlay .panel-box{overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;}.panel-overlay .panel-box::-webkit-scrollbar{width:0;height:0;display:none;}.panel-overlay .panel-content{overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;}.panel-overlay .panel-content::-webkit-scrollbar{width:0;height:0;display:none;}
 .panel-header{background:linear-gradient(135deg,#1a1a3a,#0d0d2a);border-bottom:1px solid rgba(255,215,0,.2);padding:16px 20px;font-size:17px;font-weight:700;color:#ffd700;border-radius:24px 24px 0 0;}
 
 /* 英雄展示台动画 */
@@ -733,7 +733,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .forge-empty{color:#555;text-align:center;padding:40px;font-size:14px}
 
 /* 面板内容区美化 */
-#forgeContent,#towerContent,#skinContent,#atlasContent{padding:12px 16px 20px}
+#forgeContent,#towerContent,#skinContent,#atlasContent{padding:12px 16px 20px;scrollbar-width:none;-ms-overflow-style:none;overflow-y:auto}#forgeContent::-webkit-scrollbar,#towerContent::-webkit-scrollbar,#skinContent::-webkit-scrollbar,#atlasContent::-webkit-scrollbar{width:0;height:0;display:none}
 .forge-materials{margin-bottom:12px}
 .mat-chip{border:1px solid rgba(255,215,0,.15);border-radius:12px;font-size:11px;color:#ffd700;background:rgba(255,215,0,.06);padding:4px 10px;}
 .forge-body{padding:0 2px}

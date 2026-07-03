@@ -2311,73 +2311,34 @@ function closeTowerPanel(){
 }
 function renderTowerPanel(){
   var c=document.getElementById('towerContent');
-  if(!G||!G.created){if(c)c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   if(!c) return;
+  if(!G||!G.created){c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   var floor=G.towerFloor||1;
   var enemy=getTowerEnemy(floor);
-  // hp=0 表示新层（上次击败后还未刷新），直接重置为满血
-  var curHp=(G.towerEnemyHp===0||G.towerEnemyHp===undefined||G.towerEnemyHp===null)?enemy.hp:G.towerEnemyHp;
+  var curHp=(!G.towerEnemyHp||G.towerEnemyHp===0)?enemy.hp:G.towerEnemyHp;
   var hpPct=Math.max(0,Math.min(100,curHp/enemy.hp*100));
   var playerDmg=getTowerPlayerDmg();
   var maxHp=enemy.hp;
   var boss=enemy.isBoss;
-  var floorHtml=floor>=100?'<span style="color:#ffd700">巅峰(100层)</span>':'第 '+floor+' 层';
-  var bossMark=boss?' <span style="color:#ff6b35;font-size:.8em">🏆BOSS</span>':'';
-  // 攻击按钮状态
-  var atkBtn='<button id="towerAtkBtn" onclick="towerAttack()" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b35,#ff3a3a);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 16px rgba(255,80,80,.4);transition:transform .1s">'+
-    '⚔️ 发起攻击 (伤害:'+playerDmg+')</button>';
-  // 扫荡按钮
-  var sweepMax=Math.max(1,floor-1);
-  var sweepCost=Math.round(sweepMax*8);
-  var sweepBtn='<button id="towerSweepBtn" onclick="towerSweep()" style="width:100%;margin-top:6px;padding:10px 14px;border:1px solid rgba(251,191,36,.4);border-radius:10px;background:rgba(251,191,36,.08);color:#fbbf24;font-size:13px;cursor:pointer;font-weight:600;">'+
-    '🌀 扫荡 1~'+sweepMax+'层 (消耗 💰'+sweepCost+')</button>';
-  // 进度条
+  var floorTxt=floor>=100?'<span style="color:#ffd700">巅峰(100层)</span>':'第'+floor+'层';
+  var bossMark=boss?' <span style="color:#ff6b35">🏆BOSS</span>':'';
   var progPct=Math.min(100,floor/100*100);
-  // 里程碑列表
-  var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px">';
-  msHtml+='<div style="font-size:12px;color:#888;margin-bottom:6px;">📊 层数里程碑</div>';
+  var hpColor=hpPct>50?'#4ade80':hpPct>25?'#fb923c':'#f87171';
+  var atkBtn='<button id="towerAtkBtn" onclick="towerAttack()" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b35,#ff3a3a);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 16px rgba(255,80,80,.4)">⚔️ 发起攻击 (伤害:'+playerDmg+')</button>';
+  var sweepMax=Math.max(1,floor-1);
+  var sweepBtn='<button id="towerSweepBtn" onclick="towerSweep()" style="width:100%;margin-top:6px;padding:10px 14px;border:1px solid rgba(251,191,36,.4);border-radius:10px;background:rgba(251,191,36,.08);color:#fbbf24;font-size:13px;cursor:pointer;font-weight:600">🌀 扫荡 1~'+sweepMax+'层</button>';
+  var msItems='';
   TOWER_ACHIEVEMENTS.forEach(function(a,i){
     var done=G.towerFloor>=a.floor;
     var claimed=G.towerMilestones&&G.towerMilestones.includes(i);
     var cls='tower-ms-item'+(done?'':' tower-ms-locked')+(claimed?' tower-ms-claimed':'');
-    var btn=done&&!claimed
-      ?'<button onclick="towerClaimMilestone('+i+')" style="background:#ff6b35;border:none;color:#fff;border-radius:6px;padding:2px 8px;font-size:.75em;cursor:pointer">领取</button>'
-      :(claimed?'✅':'🔒');
-    msHtml+='<div class="'+cls+'">';
-    msHtml+='<span>通关第 <b>'+a.floor+'</b> 层: </span>';
-    msHtml+='<span style="color:#ffd700">'+a.coins+'💰</span>';
-    if(a.qi) msHtml+=' <span style="color:#a0d8ef">'+a.qi+'✨</span>';
-    if(a.title) msHtml+=' <span style="color:#f0abfc">★'+a.title+'</span>';
-    msHtml+=' '+btn;
-    msHtml+='</div>';
+    var btn=done&&!claimed?'<button onclick="towerClaimMilestone('+i+')" style="background:#ff6b35;border:none;color:#fff;border-radius:6px;padding:2px 8px;font-size:.75em;cursor:pointer">领取</button>':(claimed?'✅':'🔒');
+    msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="color:#ffd700">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#a0d8ef">'+a.qi+'✨</span>':'')+(a.title?' <span style="color:#f0abfc">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
   });
-  msHtml+='</div>';
-  c.innerHTML=
-    '<div style="padding:16px;">'
-      // 进度
-      '<div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px;">'+
-        '<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'+
-          '<span style="font-size:13px;">'+floorHtml+bossMark+'</span>'+
-          '<span style="font-size:11px;color:#888;">'+floor+'/100层</span>'+
-        '</div>'+
-        '<div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">'+
-          '<div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px;"></div>'+
-        '</div>'+
-      '</div>'+
-      // 敌人卡
-      '<div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px;">'+
-        '<div style="font-size:13px;color:#aaa;margin-bottom:4px;">'+enemy.name+'</div>'+
-        '<div style="font-size:26px;margin-bottom:6px;">'+(boss?'👹':'👾')+'</div>'+
-        '<div style="font-size:12px;color:#888;margin-bottom:8px;">HP: '+curHp+' / '+maxHp+'</div>'+
-        '<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">'+
-          '<div style="height:100%;width:'+hpPct+'%;background:'+(hpPct>50?'#4ade80':hpPct>25?'#fb923c':'#f87171')+';border-radius:4px;transition:width .15s;"></div>'+
-        '</div>'+
-        '<div style="font-size:11px;color:#888;">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'✨</span>':'')+'</div>'+
-      '</div>'+
-      // 攻击按钮
-      (floor>=100?('<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px;">🎉 已通关100层！<br>可领取所有里程碑奖励</div>'):(atkBtn+sweepBtn))+
-      msHtml+
-    '</div>';
+  var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px"><div style="font-size:12px;color:#888;margin-bottom:6px">📊 层数里程碑</div>'+msItems+'</div>';
+  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div><div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+maxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'✨</span>':'')+'</div></div>'+
+(floor>=100?'<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px">🎉 已通关100层！可领取所有里程碑奖励</div>':(atkBtn+sweepBtn))+msHtml+'</div>';
+  c.innerHTML=html;
 }
 
 // 存档初始化（追加到 game.v3.js 末尾）

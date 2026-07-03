@@ -1027,6 +1027,14 @@ function doStart(){
 
   <!-- === feat[9]: 游戏统计面板 === -->
   <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
+  <div id="towerPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div id="towerContent"></div>
+    </div>
+  </div>
+
+  <!-- === feat[9]: 游戏统计面板 === -->
+  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
   <div id="settingsPanel" class="panel-overlay">
     <div class="panel-box">
       <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
@@ -1072,11 +1080,22 @@ function doStart(){
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
   <div id="guideOverlay"></div>
   <div id="guideTooltip"></div>
-  <script src="js/config.js" charset="utf-8"></script>
+  <!-- P0-1 灵兽图鉴面板 -->
+  <div id="atlasPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div id="atlasContent"></div>
+    </div>
+  </div>
+  <!-- P0-2 灵兽皮肤面板 -->
+  <div id="skinPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div id="skinContent"></div>
+    </div>
+  </div>
+  <script src="js/config.js"></script>
 <script src="js/audio.v2.js"></script>
-<script src="js/game.v3.js?v=9" charset="utf-8"></script>
+<script src="js/game.v3.js?v=6"></script>
 <script src="js/ui.v2.js"></script>
-
   <!-- P1-2 炼宝阁面板 -->
   <div id="forgePanel" class="panel-overlay">
     <div class="panel-box">

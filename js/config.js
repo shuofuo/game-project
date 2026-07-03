@@ -2,16 +2,16 @@ function cycleHeroAnim(){
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
   if(best.id) showDragonDetail(best.id);
 }
-const LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
-const LICON = ['','🐣','🐥','🐤','🐦','🦅','🦆','🦉','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
-const COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
-const FATE_E = ['🪵','🔥','🟤','⚪','💧'];
-const FATE_C = [1,1.5,1,1,1];
-const FATE_Q = [1,1,1,1,1.5];
-const FATE_N = ['木','火','土','金','水'];
-const ZOD_E  = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
-const ZOD_UNLOCK_COST = 10000;
-const ZOD_LORE = [
+var LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
+var LICON = ['','🐣','🐥','🐤','🐦','🦅','🦆','🦉','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
+var COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
+var FATE_E = ['🪵','🔥','🟤','⚪','💧'];
+var FATE_C = [1,1.5,1,1,1];
+var FATE_Q = [1,1,1,1,1.5];
+var FATE_N = ['木','火','土','金','水'];
+var ZOD_E  = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
+var ZOD_UNLOCK_COST = 10000;
+var ZOD_LORE = [
   '鼠：十二生肖之首，机敏多智，夜行不怠。《说文》称"鼠，穴虫之总名"。',
   '牛：勤劳忠实，脚踏实地。农耕之本，春耕秋收，无怨无悔。',
   '虎：百兽之王，威震山林。《说文》记"虎，山兽之君"，镇宅辟邪。',
@@ -25,10 +25,10 @@ const ZOD_LORE = [
   '狗：忠诚守护，义犬救主。"狗，叩也"，叩头摇尾，忠于主人。',
   '猪：厚福安详，随遇而安。"猪者，诸也"，诸事顺遂，圆满之象。'
 ];
-const ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
-const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
-const YUN_COIN   = [-.5,-.2,0,.3,.5];
-const RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#aaa'},{icon:'🥉',title:'小成',min:6,color:'#cd7f32'},{icon:'🥈',title:'大成',min:10,color:'#c0c0c0'},{icon:'🏆',title:'天师',min:14,color:'#ffd700'}];
+var ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+var YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
+var YUN_COIN   = [-.5,-.2,0,.3,.5];
+var RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#aaa'},{icon:'🥉',title:'小成',min:6,color:'#cd7f32'},{icon:'🥈',title:'大成',min:10,color:'#c0c0c0'},{icon:'🏆',title:'天师',min:14,color:'#ffd700'}];
 
 let _audioCtx = null;
 let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8, bgmLast: 0.35, sfxLast: 0.8 };
@@ -207,7 +207,7 @@ function previewNextLevel(lvl, cps, icon){
 let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
-const TASKS = [
+var TASKS = [
   {id:'summon10',  icon:'🐣', title:'灵兽召唤',  desc:'累计召唤10次', target:10,  reward:{coin:1000,qi:20,free:0},  type:'static'},
   {id:'summon30',  icon:'🐥', title:'召唤达人',  desc:'累计召唤30次', target:30,  reward:{coin:3000,qi:60,free:1},  type:'static'},
   {id:'merge10',   icon:'⚡', title:'合成进阶',  desc:'累计合成10次', target:10,  reward:{coin:2000,qi:40,free:0},  type:'static'},
@@ -217,7 +217,7 @@ const TASKS = [
 ];
 
 // 7天签到配置
-const SIGN_REWARDS = [
+var SIGN_REWARDS = [
   {coin:500,  qi:10,  free:0, label:'第1天'},
   {coin:1000, qi:20,  free:0, label:'第2天'},
   {coin:2000, qi:30,  free:0, label:'第3天'},
@@ -229,7 +229,7 @@ const SIGN_REWARDS = [
 
 // ===== 限时活动 =====
 // 支持多活动叠加，active() 返回是否触发
-const ACTIVITIES = [
+var ACTIVITIES = [
   {
     id:'weekend2x',
     icon:'🎁',
@@ -260,7 +260,7 @@ function getActivityBonus(){return getActiveActivities();}
 function calcSummonBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.summonBonus,0));}
 function calcCoinBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.coinBonus,0));}
 function fmtActivityCountdown(){const a=getActiveActivities()[0];if(!a)return'';if(a.id==='night1_5x'){const m=new Date();const end=new Date(m);end.setHours(22,0,0,0);if(m.getHours()>=20)return'剩余 '+(Math.max(0,Math.round((end-m)/60000)))+'min';}return'进行中';}
-const SAVE_KEY = 'sxgame_v2';
+var SAVE_KEY = 'sxgame_v2';
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
@@ -387,9 +387,9 @@ function updateFreeBtn(){
     }, 60000);
   }
 }
-const COLS=5, TOTAL=25;
-const RAR_COLORS = {0:'#1a1a1a',1:'#0a1a2a',2:'#1a0a2a',3:'#2a1a00',4:'#2a0a00'}; // 0普通~4神话（暗色背景）
-const RAR_BORDER = {0:'rgba(255,255,255,.06)',1:'rgba(126,184,255,.3)',2:'rgba(181,126,220,.3)',3:'rgba(255,215,0,.4)',4:'rgba(255,107,53,.5)'};
+var COLS=5, TOTAL=25;
+var RAR_COLORS = {0:'#1a1a1a',1:'#0a1a2a',2:'#1a0a2a',3:'#2a1a00',4:'#2a0a00'}; // 0普通~4神话（暗色背景）
+var RAR_BORDER = {0:'rgba(255,255,255,.06)',1:'rgba(126,184,255,.3)',2:'rgba(181,126,220,.3)',3:'rgba(255,215,0,.4)',4:'rgba(255,107,53,.5)'};
 function rarIdx(lvl){if(lvl<=2)return 0;if(lvl<=4)return 1;if(lvl<=7)return 2;if(lvl<=10)return 3;return 4;}
 function renderGrid(){
   const grid=document.getElementById('dragonGridInner');
@@ -796,7 +796,7 @@ function notifSummon(lvl){
 }
 
 // 金币产出飘字（每秒随机位置冒出）
-const _floatPool=[];
+var _floatPool=[];
 function spawnCoinFloat(amt){
   if(!G.created||amt<=0)return;
   const el=document.createElement('div');
@@ -962,7 +962,7 @@ try{ initAudio(); }catch(e){}
 // ═══════════════════════════════════════
 // P0-2 灵兽皮肤系统
 // ═══════════════════════════════════════
-const DRAGON_SKINS = [
+var DRAGON_SKINS = [
   // 0 普通品质
   {id:'gold',     name:'金色幻彩', icon:'🐥', color:'#ffd700', cost:300,  rarity:0, rarityLabel:'普通'},
   {id:'silver',   name:'银月龙影', icon:'🐤', color:'#c0c0c0', cost:300,  rarity:0, rarityLabel:'普通'},
@@ -982,10 +982,10 @@ const DRAGON_SKINS = [
   {id:'void',     name:'虚空祖龙', icon:'🌌', color:'#9c27b0', cost:8000, rarity:4, rarityLabel:'神话'},
 ];
 // 皮肤稀有度颜色
-const SKIN_RARITY_COLORS = ['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
+var SKIN_RARITY_COLORS = ['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
 
 // 图鉴收集进度奖励
-const ATLAS_REWARDS = [
+var ATLAS_REWARDS = [
   {count:3,  coin:1000,  qi:50,  title:'初窥门径'},
   {count:5,  coin:3000,  qi:100, title:'小有所成'},
   {count:8,  coin:8000,  qi:200, title:'大有可观'},
@@ -995,9 +995,9 @@ const ATLAS_REWARDS = [
 // ═══════════════════════════════════════
 // P1-1 天命试炼塔 (Tower)
 // ═══════════════════════════════════════
-const TOWER_FLOORS = 100;
+var TOWER_FLOORS = 100;
 // 试炼塔每层敌人配置（HP/金币随层数指数增长）
-const TOWER_ENEMIES = [
+var TOWER_ENEMIES = [
   // 第1层
   {floor:1,hp:114,coins:22,qi:0,name:'小蛇妖',isBoss:false},
   // 第2层
@@ -1203,7 +1203,7 @@ const TOWER_ENEMIES = [
 // ═══════════════════════════════════════
 // P1-1 天命试炼塔 (Tower)
 // ═══════════════════════════════════════
-const TOWER_ACHIEVEMENTS = [
+var TOWER_ACHIEVEMENTS = [
   {floor:5,coins:100,qi:0,title:'初入试炼'},
   {floor:10,coins:300,qi:20,title:'小试牛刀'},
   {floor:20,coins:800,qi:50,title:'渐入佳境'},

@@ -1959,8 +1959,8 @@ function getCollectedZodiacs(){
   var zids=[];
   G.dragons.forEach(function(d){
     if(d){
-      var z=d.level;               // d.level 是主要属相ID（0-11），d.z 备用
-      if(z && !seen[z]){seen[z]=1;zids.push(z);}
+      var z=d.level;               // d.level 是主要属相ID（0=鼠 到 11=猪）
+      if(z !== undefined && z !== null && z >= 0 && z <= 11 && !seen[z]){seen[z]=1;zids.push(z);}
     }
   });
   return zids.sort(function(a,b){return a-b;});

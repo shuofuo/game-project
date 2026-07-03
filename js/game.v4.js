@@ -1959,7 +1959,7 @@ function getCollectedZodiacs(){
   var zids=[];
   G.dragons.forEach(function(d){
     if(d){
-      var z=d.z||d.level;          // d.z 兼容老存档，d.level 是主要来源
+      var z=d.level;               // d.level 是主要属相ID（0-11），d.z 备用
       if(z && !seen[z]){seen[z]=1;zids.push(z);}
     }
   });

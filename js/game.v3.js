@@ -1774,7 +1774,7 @@ function getTaskState(){
       } else if(t.type==='spend_qi'){
         progress=G._qiSpentDaily||0;
       } else if(t.type==='login'){
-        progress=(G.tasks.login&&G.tasks.login.progress)||0;
+        progress=(G.tasks&&G.tasks.login&&G.tasks.login.progress)||0;
       }
       claimed=(G.tasks[t.id]&&G.tasks[t.id].claimed)||false;
     }catch(e){}

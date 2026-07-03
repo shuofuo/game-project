@@ -23,6 +23,7 @@ function startGame(zz,ff){
   el=document.getElementById('gamePage');if(el){el.style.display='flex';el.style.visibility='visible';el.style.opacity='1';}
   el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
   saveGame();renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
+  try{showFeatureButtons();}catch(e){}
   requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
   requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
   setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);
@@ -1970,14 +1971,11 @@ function getZodiacStatus(zid){
 function openAtlasPanel(){
   renderAtlasPanel();
   var p=document.getElementById('atlasPanel');
-  if(p)p.classList.add('open');
-  // 确保面板强制打开（即使G未初始化）
-  var panel=document.getElementById('atlasPanel');
-  if(panel) panel.classList.add('open');
+  if(p)p.classList.add('show');
 }
 function closeAtlasPanel(){
   var p=document.getElementById('atlasPanel');
-  if(p)p.classList.remove('open');
+  if(p)p.classList.remove('show');
 }
 
 function renderAtlasPanel(){
@@ -2080,11 +2078,11 @@ function buySkin(skinId){
 function openSkinPanel(){
   renderSkinPanel();
   var panel=document.getElementById('skinPanel');
-  if(panel) panel.classList.add('open');
+  if(panel) panel.classList.add('show');
 }
 function closeSkinPanel(){
   var p=document.getElementById('skinPanel');
-  if(p)p.classList.remove('open');
+  if(p)p.classList.remove('show');
 }
 
 function renderSkinPanel(){
@@ -2092,7 +2090,7 @@ function renderSkinPanel(){
   if(!G||!G.created){if(c)c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   if(!c)return;
   var cur=G.equippedSkin||'default';
-  var html='<div class="skin-title">✨ 灵兽皮肤</div>';
+  var html='';
   // 当前装备预览
   var curSkin=DRAGON_SKINS.find(function(s){return s.id===cur;})||{name:'原版',icon:'🐣',color:'#ffd700'};
   html+='<div class="skin-preview" style="border-color:'+curSkin.color+';background:'+curSkin.color+'11">';
@@ -2136,14 +2134,29 @@ function injectSkinAtlasButtons(){
   setTimeout(function(){
     if(document.getElementById('atlasBtn')) return; // 避免重复注入
     var wrap=document.createElement('div');
-    wrap.style.cssText='position:fixed;top:8px;right:12px;display:flex;gap:8px;z-index:200';
+    // 大屏：右上角；手机：左上角（避免挡住HUD金币数）
+    wrap.style.cssText='position:fixed;top:8px;right:12px;display:flex;gap:8px;z-index:200;flex-wrap:wrap;max-width:160px;justify-content:flex-end';
+    // 手机小屏移到左上角，避免遮挡顶部HUD
+    var isMobile=window.innerWidth<=480;
+    if(isMobile){
+      wrap.style.cssText='position:fixed;top:50px;left:8px;display:flex;flex-direction:column;gap:5px;z-index:200;align-items:flex-start';
+    }
+    wrap.id='gameFeatureButtons';
     wrap.innerHTML=
-      '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">📖图鉴</button>'+
-      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">✨皮肤</button>'+
-      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">⚔️试炼塔</button>'+
-      '<button id="forgeBtn" onclick="openForgePanel()" style="background:#2e1a00;border:1px solid #fbbf24;color:#fbbf24;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">🔨炼宝阁</button>';
+      '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">📖图鉴</button>'+
+      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">✨皮肤</button>'+
+      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">⚔️试炼塔</button>'+
+      '<button id="forgeBtn" onclick="openForgePanel()" style="background:#2e1a00;border:1px solid #fbbf24;color:#fbbf24;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">🔨炼宝阁</button>';
     document.body.appendChild(wrap);
+    // 监听游戏启动，显示按钮
+    window._showFeatureBtns=function(){
+      var btns=document.querySelectorAll('#atlasBtn,#skinBtn,#towerBtn,#forgeBtn');
+      btns.forEach(function(b){b.style.display='block';});
+    };
   },500);
+}
+function showFeatureButtons(){
+  if(window._showFeatureBtns) window._showFeatureBtns();
 }
 
 // 存档初始化兼容
@@ -2284,11 +2297,11 @@ function towerOfflineProgress(){
 function openTowerPanel(){
   renderTowerPanel();
   var panel=document.getElementById('towerPanel');
-  if(panel) panel.classList.add('open');
+  if(panel) panel.classList.add('show');
 }
 function closeTowerPanel(){
   var p=document.getElementById('towerPanel');
-  if(p)p.classList.remove('open');
+  if(p)p.classList.remove('show');
 }
 function renderTowerPanel(){
   var c=document.getElementById('towerContent');
@@ -2333,11 +2346,7 @@ function renderTowerPanel(){
   });
   msHtml+='</div>';
   c.innerHTML=
-    '<div style="padding:16px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'+
-        '<div style="font-size:15px;font-weight:700;">⚔️ 天命试炼塔</div>'+
-        '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeTowerPanel()">✕</div>'+
-      '</div>'+
+    '<div style="padding:16px;">'
       // 进度
       '<div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px;">'+
         '<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'+
@@ -2448,11 +2457,11 @@ function countSuits(items) {
 function openForgePanel(){
   renderForgePanel();
   var p=document.getElementById('forgePanel');
-  if(p)p.classList.add('open');
+  if(p)p.classList.add('show');
 }
 function closeForgePanel(){
   var p=document.getElementById('forgePanel');
-  if(p)p.classList.remove('open');
+  if(p)p.classList.remove('show');
 }
 
 function renderForgePanel(){
@@ -2462,7 +2471,7 @@ function renderForgePanel(){
   var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
   var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
   var suits=countSuits(fm.items);
-  var html='<div class="forge-title">🔨 炼宝阁</div>';
+  var html='';
 
   // 材料栏
   html+='<div class="forge-materials">'+

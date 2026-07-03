@@ -268,7 +268,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 
 /* 设置面板 */
 .panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(4px);}
-.panel-overlay.open{display:flex;}
+.panel-overlay.open,.panel-overlay.show{display:flex;}
 .panel-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:24px;width:min(380px,90vw);animation:popIn .3s ease;}
 .panel-header{background:linear-gradient(135deg,#1a1a3a,#0d0d2a);border-bottom:1px solid rgba(255,215,0,.2);padding:16px 20px;font-size:17px;font-weight:700;color:#ffd700;border-radius:24px 24px 0 0;}
 
@@ -732,6 +732,51 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .li-btns .forge-btn{width:auto;flex:1}
 .forge-empty{color:#555;text-align:center;padding:40px;font-size:14px}
 
+/* 面板内容区美化 */
+#forgeContent,#towerContent,#skinContent,#atlasContent{padding:12px 16px 20px}
+.forge-materials{margin-bottom:12px}
+.mat-chip{border:1px solid rgba(255,215,0,.15);border-radius:12px;font-size:11px;color:#ffd700;background:rgba(255,215,0,.06);padding:4px 10px;}
+.forge-body{padding:0 2px}
+
+/* 皮肤面板 */
+.skin-preview{border:2px solid;border-radius:16px;padding:16px;text-align:center;margin-bottom:10px}
+.skin-rarity-section{margin-bottom:12px;padding-left:8px}
+.skin-rarity-label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.skin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.skin-item{border:1px solid #555;border-radius:12px;padding:8px 4px;text-align:center;transition:transform .15s;background:rgba(255,255,255,.03)}
+.skin-item:hover{transform:scale(1.06)}
+.skin-item.skin-owned{border-color:#ffd70044}
+.skin-item.skin-equipped{border-color:#ffd700!important;background:rgba(255,215,0,.1)!important}
+.close-btn{margin-top:12px;width:100%;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.05);color:#888;font-size:13px;cursor:pointer}
+.close-btn:hover{background:rgba(255,255,255,.1);color:#ccc}
+
+/* 图鉴面板 */
+.atlas-header{text-align:center;padding:8px 0 14px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:14px}
+.atlas-header .ah-unlock{font-size:13px;color:#ffd700}
+.atlas-header .ah-tip{font-size:11px;color:#666;margin-top:4px}
+.atlas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 2px}
+.atlas-item{border:1.5px solid rgba(255,255,255,.07);border-radius:12px;padding:10px 4px;text-align:center;background:rgba(255,255,255,.025);transition:all .2s}
+.atlas-item.unlocked{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.04)}
+.atlas-item .az-emoji{font-size:32px;line-height:1;margin-bottom:4px}
+.atlas-item .az-name{font-size:11px;color:#666}
+.atlas-item.unlocked .az-name{color:#ffd700;font-weight:600}
+
+/* 试炼塔面板 */
+.tower-floor-bar{background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.25);border-radius:12px;padding:12px;margin-bottom:10px}
+.tower-enemy-card{background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid #6b21a8;border-radius:14px;padding:14px;text-align:center;margin-bottom:10px}
+.tower-enemy-card.boss{border-color:#ff6b35}
+.tower-ms-item{padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.tower-ms-locked{opacity:.4}
+.tower-ms-claimed{opacity:.5}
+
+/* 手机适配 */
+@media(max-width:400px){
+  #forgeContent,#towerContent,#skinContent,#atlasContent{padding:10px 12px 16px}
+  .skin-grid{grid-template-columns:repeat(2,1fr)}
+  .atlas-grid{grid-template-columns:repeat(3,1fr)}
+  .panel-box{margin:8px}
+}
+
 
 </style>
 </head>
@@ -1028,13 +1073,14 @@ function doStart(){
   <!-- === feat[9]: 游戏统计面板 === -->
   <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
   <div id="towerPanel" class="panel-overlay">
-    <div class="panel-box">
-      <div id="towerContent"></div>
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#ff6b35;">⚔️ 天命试炼塔</span>
+        <span onclick="closeTowerPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
+      </div>
+      <div id="towerContent" style="padding:0 0 20px;"></div>
     </div>
   </div>
-
-  <!-- === feat[9]: 游戏统计面板 === -->
-  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
   <div id="settingsPanel" class="panel-overlay">
     <div class="panel-box">
       <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
@@ -1082,14 +1128,22 @@ function doStart(){
   <div id="guideTooltip"></div>
   <!-- P0-1 灵兽图鉴面板 -->
   <div id="atlasPanel" class="panel-overlay">
-    <div class="panel-box">
-      <div id="atlasContent"></div>
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#c4b5fd;">📖 灵兽图鉴</span>
+        <span onclick="closeAtlasPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
+      </div>
+      <div id="atlasContent" style="padding:0 0 20px;"></div>
     </div>
   </div>
   <!-- P0-2 灵兽皮肤面板 -->
   <div id="skinPanel" class="panel-overlay">
-    <div class="panel-box">
-      <div id="skinContent"></div>
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#93c5fd;">✨ 灵兽皮肤</span>
+        <span onclick="closeSkinPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
+      </div>
+      <div id="skinContent" style="padding:0 0 20px;"></div>
     </div>
   </div>
   <script src="js/config.js"></script>
@@ -1098,12 +1152,12 @@ function doStart(){
 <script src="js/ui.v2.js"></script>
   <!-- P1-2 炼宝阁面板 -->
   <div id="forgePanel" class="panel-overlay">
-    <div class="panel-box">
-      <div class="panel-header">
-        <span class="panel-title-text">🔨 炼宝阁</span>
-        <button class="panel-close" onclick="closeForgePanel()">✕</button>
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#fbbf24;">🔨 炼宝阁</span>
+        <span onclick="closeForgePanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
       </div>
-      <div id="forgeContent"></div>
+      <div id="forgeContent" style="padding:0 0 20px;"></div>
     </div>
   </div>
 </body>

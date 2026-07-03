@@ -450,34 +450,79 @@ window.addEventListener('DOMContentLoaded',initGame);
 
 // ===== 成就系统 =====
 const ACHIEVEMENTS=[
-  // 召唤类（召唤次数上限约50次，成本递增）
-  {id:'s1',type:'summon',title:'初出茅庐',desc:'召唤1次',icon:'🐣',cond:g=>g.summonCount>=1},
-  {id:'s2',type:'summon',title:'小试牛刀',desc:'召唤10次',icon:'🐥',cond:g=>g.summonCount>=10},
-  {id:'s3',type:'summon',title:'渐入佳境',desc:'召唤30次',icon:'🐤',cond:g=>g.summonCount>=30},
-  {id:'s4',type:'summon',title:'龙腾四海',desc:'召唤60次',icon:'🐉',cond:g=>g.summonCount>=60},
-  // 合成类（网格上限约37次有效合成）
-  {id:'m1',type:'merge',title:'初次融合',desc:'合成1次',icon:'⚡',cond:g=>g.mergeCount>=1},
-  {id:'m2',type:'merge',title:'融合达人',desc:'合成15次',icon:'⚡⚡',cond:g=>g.mergeCount>=15},
-  {id:'m3',type:'merge',title:'融合宗师',desc:'合成25次',icon:'⚡⚡⚡',cond:g=>g.mergeCount>=25},
-  // 产出类（用历史总产出，不受金币花销影响）
-  {id:'c1',type:'coin',title:'日进斗金',desc:'累计产出10K金币',icon:'💰',cond:g=>(g.totalCoins||0)>=10000},
-  {id:'c2',type:'coin',title:'富甲一方',desc:'累计产出100K金币',icon:'💎',cond:g=>(g.totalCoins||0)>=100000},
-  {id:'c3',type:'coin',title:'富可敌国',desc:'累计产出1M金币',icon:'👑',cond:g=>(g.totalCoins||0)>=1000000},
-  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计产出10M金币',icon:'🌌',cond:g=>(g.totalCoins||0)>=10000000},
-  // 收集/段位类（拥有不同等级灵兽的数量）
-  {id:'r1',type:'rank',title:'初窥门径',desc:'拥有3种等级灵兽',icon:'🔰',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=3},
-  {id:'r2',type:'rank',title:'小有所成',desc:'拥有6种等级灵兽',icon:'🥉',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=6},
-  {id:'r3',type:'rank',title:'大有可观',desc:'拥有10种等级灵兽',icon:'🥈',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
-  {id:'r4',type:'rank',title:'天师之境',desc:'拥有14种等级灵兽',icon:'🏆',cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
-  // 最高灵兽等级
-  {id:'l1',type:'level',title:'灵通初显',desc:'最高灵兽达到Lv5',icon:'⭐',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=5},
-  {id:'l2',type:'level',title:'通灵之境',desc:'最高灵兽达到Lv8',icon:'⭐⭐',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=8},
-  {id:'l3',type:'level',title:'神兽觉醒',desc:'最高灵兽达到Lv10',icon:'🌟',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=10},
-  {id:'l4',type:'level',title:'天命所归',desc:'最高灵兽达到Lv15',icon:'💫',cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=15},
-  // 连击
-  {id:'b1',type:'combo',title:'连击新星',desc:'达成5连击',icon:'🔥',cond:g=>g.combo>=5},
-  {id:'b2',type:'combo',title:'连击达人',desc:'达成10连击',icon:'🔥🔥',cond:g=>g.combo>=10},
+  // ── 召唤类 ──
+  {id:'s1',type:'summon',title:'初出茅庐',desc:'召唤1次',icon:'🐣',color:'#a78bfa',
+   reward:{coins:50,  qi:10,  title:null},
+   cond:g=>g.summonCount>=1},
+  {id:'s2',type:'summon',title:'小试牛刀',desc:'召唤10次',icon:'🐥',color:'#a78bfa',
+   reward:{coins:150, qi:30,  title:null},
+   cond:g=>g.summonCount>=10},
+  {id:'s3',type:'summon',title:'渐入佳境',desc:'召唤30次',icon:'🐤',color:'#a78bfa',
+   reward:{coins:400, qi:80,  title:null},
+   cond:g=>g.summonCount>=30},
+  {id:'s4',type:'summon',title:'龙腾四海',desc:'召唤60次',icon:'🐉',color:'#a78bfa',
+   reward:{coins:800, qi:150, title:'龙腾'},
+   cond:g=>g.summonCount>=60},
+  // ── 合成类 ──
+  {id:'m1',type:'merge',title:'初次融合',desc:'合成1次',icon:'⚡',color:'#60a5fa',
+   reward:{coins:50,  qi:10,  title:null},
+   cond:g=>g.mergeCount>=1},
+  {id:'m2',type:'merge',title:'融合达人',desc:'合成15次',icon:'⚡⚡',color:'#60a5fa',
+   reward:{coins:300, qi:60,  title:null},
+   cond:g=>g.mergeCount>=15},
+  {id:'m3',type:'merge',title:'融合宗师',desc:'合成25次',icon:'⚡⚡⚡',color:'#60a5fa',
+   reward:{coins:600, qi:120, title:'融合宗师'},
+   cond:g=>g.mergeCount>=25},
+  // ── 财富类 ──
+  {id:'c1',type:'coin',title:'日进斗金',desc:'累计产出10K金币',icon:'💰',color:'#ffd700',
+   reward:{coins:200, qi:20,  title:null},
+   cond:g=>(g.totalCoins||0)>=10000},
+  {id:'c2',type:'coin',title:'富甲一方',desc:'累计产出100K金币',icon:'💎',color:'#ffd700',
+   reward:{coins:600, qi:60,  title:null},
+   cond:g=>(g.totalCoins||0)>=100000},
+  {id:'c3',type:'coin',title:'富可敌国',desc:'累计产出1M金币',icon:'👑',color:'#ffd700',
+   reward:{coins:2000, qi:200, title:null},
+   cond:g=>(g.totalCoins||0)>=1000000},
+  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计产出10M金币',icon:'🌌',color:'#ffd700',
+   reward:{coins:8000, qi:500, title:'宇宙财阀'},
+   cond:g=>(g.totalCoins||0)>=10000000},
+  // ── 收集/段位类 ──
+  {id:'r1',type:'rank',title:'初窥门径',desc:'拥有3种等级灵兽',icon:'🔰',color:'#4ade80',
+   reward:{coins:100, qi:20,  title:null},
+   cond:g=>new Set(g.dragons.map(d=>d.level)).size>=3},
+  {id:'r2',type:'rank',title:'小有所成',desc:'拥有6种等级灵兽',icon:'🥉',color:'#4ade80',
+   reward:{coins:300, qi:50,  title:null},
+   cond:g=>new Set(g.dragons.map(d=>d.level)).size>=6},
+  {id:'r3',type:'rank',title:'大有可观',desc:'拥有10种等级灵兽',icon:'🥈',color:'#4ade80',
+   reward:{coins:800, qi:120, title:null},
+   cond:g=>new Set(g.dragons.map(d=>d.level)).size>=10},
+  {id:'r4',type:'rank',title:'天师之境',desc:'拥有14种等级灵兽',icon:'🏆',color:'#4ade80',
+   reward:{coins:3000, qi:400, title:'天师'},
+   cond:g=>new Set(g.dragons.map(d=>d.level)).size>=14},
+  // ── 等级类 ──
+  {id:'l1',type:'level',title:'灵通初显',desc:'最高灵兽达到Lv5',icon:'⭐',color:'#fb923c',
+   reward:{coins:100, qi:20,  title:null},
+   cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=5},
+  {id:'l2',type:'level',title:'通灵之境',desc:'最高灵兽达到Lv8',icon:'⭐⭐',color:'#fb923c',
+   reward:{coins:300, qi:50,  title:null},
+   cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=8},
+  {id:'l3',type:'level',title:'神兽觉醒',desc:'最高灵兽达到Lv10',icon:'🌟',color:'#fb923c',
+   reward:{coins:800, qi:150, title:null},
+   cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=10},
+  {id:'l4',type:'level',title:'天命所归',desc:'最高灵兽达到Lv15',icon:'💫',color:'#fb923c',
+   reward:{coins:5000, qi:800, title:'天命之子'},
+   cond:g=>Math.max(0,...g.dragons.map(d=>d.level||0))>=15},
+  // ── 连击类 ──
+  {id:'b1',type:'combo',title:'连击新星',desc:'达成5连击',icon:'🔥',color:'#f87171',
+   reward:{coins:100, qi:20,  title:null},
+   cond:g=>g.combo>=5},
+  {id:'b2',type:'combo',title:'连击达人',desc:'达成10连击',icon:'🔥🔥',color:'#f87171',
+   reward:{coins:300, qi:60,  title:'连击达人'},
+   cond:g=>g.combo>=10},
 ];
+// 成就奖励统计
+if(!G.achCoins) G.achCoins=0;
+if(!G.achQi)   G.achQi=0;
 const RANKS=[
   {title:'初窥',icon:'🔰',min:3,color:'#aaa'},
   {title:'小成',icon:'🥉',min:6,color:'#cd7f32'},
@@ -491,17 +536,34 @@ function checkAch(){
   ACHIEVEMENTS.forEach(a=>{
     if(!_unlocked.has(a.id)&&a.cond(G)){
       _unlocked.add(a.id);saveAch();
-      // 居中成就弹窗
+      // ── 发放成就奖励 ──
+      if(a.reward){
+        G.coins  = (G.coins||0)  + (a.reward.coins||0);
+        G.qi     = (G.qi||0)     + (a.reward.qi||0);
+        G.achCoins = (G.achCoins||0) + (a.reward.coins||0);
+        G.achQi    = (G.achQi||0)    + (a.reward.qi||0);
+        if(a.reward.title && !G.titles) G.titles=[];
+        if(a.reward.title && !G.titles.includes(a.reward.title)) G.titles.push(a.reward.title);
+        saveGame();
+      }
+      // ── 居中成就弹窗（含奖励） ──
+      const rc=a.reward||{};
+      const coinStr=rc.coins?'<span style="color:#ffd700">+'+rc.coins+'💰</span> ':'';
+      const qiStr=rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'✨</span> ':'';
+      const titleStr=rc.title?'<span style="color:#f0abfc">★ '+rc.title+'</span> ':'';
+      const rewardLine=(coinStr||qiStr||titleStr)?'<div style="font-size:13px;color:#aaa;margin-top:8px;">'+coinStr+qiStr+titleStr+'</div>':'';
+      const ac=a.color||'#ffd700';
       const mask=document.createElement('div');
       mask.id='ach_'+a.id;
       mask.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .3s ease;';
       mask.innerHTML=`<div style="text-align:center;animation:achPopIn .5s ease forwards;">
-        <div style="background:linear-gradient(160deg,#1a1a3a,#2a1a5a);border:1.5px solid #ffd700;border-radius:24px;padding:28px 32px;min-width:220px;box-shadow:0 0 60px rgba(255,215,0,.25),0 20px 60px rgba(0,0,0,.8);">
-          <div style="font-size:48px;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(255,215,0,.6));">${a.icon}</div>
-          <div style="font-size:11px;color:#ffd700;font-weight:600;letter-spacing:2px;margin-bottom:10px;">🏅 成就达成</div>
+        <div style="background:linear-gradient(160deg,#1a1a3a,#2a1a5a);border:1.5px solid ${ac};border-radius:24px;padding:28px 32px;min-width:220px;box-shadow:0 0 60px ${ac}40,0 20px 60px rgba(0,0,0,.8);">
+          <div style="font-size:48px;margin-bottom:8px;filter:drop-shadow(0 0 20px ${ac}99);">${a.icon}</div>
+          <div style="font-size:11px;color:${ac};font-weight:600;letter-spacing:2px;margin-bottom:10px;">🏅 成就达成</div>
           <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">${a.title}</div>
           <div style="font-size:12px;color:#888;margin-bottom:4px;">${a.desc}</div>
-          <div style="font-size:11px;color:#555;margin-top:12px;">自动关闭</div>
+          ${rewardLine}
+          <div style="font-size:11px;color:#555;margin-top:14px;">点击关闭</div>
         </div>
       </div>`;
       document.body.appendChild(mask);

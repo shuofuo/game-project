@@ -1,35 +1,49 @@
 // ===== UI.js - 生肖天机 =====
 
-function renderAch(){
+function renderAch(filter){
+  if(!filter) filter='all';
   const p=document.getElementById('achPanel');
   const rank=getRank();
   const done=_unlocked.size,total=ACHIEVEMENTS.length;
   const pct=Math.round(done/total*100);
   const cnt=new Set(G.dragons.map(d=>d.level)).size;
+  const ac=(G.achCoins||0), aq=(G.achQi||0);
+  const types=['all','summon','merge','coin','rank','level','combo'];
+  const labels={'all':'全部','summon':'召唤','merge':'合成','coin':'财富','rank':'收集','level':'等级','combo':'连击'};
+  const tabColors={'all':'#ffd700','summon':'#a78bfa','merge':'#60a5fa','coin':'#ffd700','rank':'#4ade80','level':'#fb923c','combo':'#f87171'};
+  let tabsHtml=types.map(t=>{
+    const active=filter===t?'background:'+tabColors[t]+'22;border-color:'+tabColors[t]+';color:'+tabColors[t]:'background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:#888';
+    const cnt2=t==='all'?done:ACHIEVEMENTS.filter(a=>a.type===t&&_unlocked.has(a.id)).length;
+    return '<button onclick="renderAch(\''+t+'\')" style="flex:1;padding:5px 4px;border-radius:8px;border:1px solid;font-size:11px;cursor:pointer;transition:all .2s;'+active+'">'+labels[t]+'('+cnt2+')</button>';
+  }).join('');
+  const filtered=filter==='all'?ACHIEVEMENTS:ACHIEVEMENTS.filter(a=>a.type===filter);
+  const achHtml=filtered.map(a=>{
+    const d=_unlocked.has(a.id);
+    const rc=a.reward||{};
+    const rLine='<div style="margin-top:4px;font-size:10px;color:#666;">'+(rc.coins?'<span style="color:#ffd700">+'+rc.coins+'💰</span> ':'')+(rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'✨</span> ':'')+(rc.title?'<span style="color:#f0abfc">★'+rc.title+'</span> ':'')+'</div>';
+    const borderCol=d?(a.color||'#ffd700'):'rgba(255,255,255,.06)';
+    return '<div style="background:'+(d?'rgba(255,215,0,.04)':'rgba(255,255,255,.02)')+';border:1px solid '+borderCol+';border-radius:12px;padding:12px 8px;text-align:center;opacity:'+(d?'1':'0.45')+';transition:opacity .2s">'+
+      '<div style="font-size:26px;margin-bottom:4px;filter:'+(d?'none':'grayscale(1)')+';">'+a.icon+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:'+(d?(a.color||'#ffd700'):'#555')+';">'+a.title+'</div>'+
+      '<div style="font-size:10px;color:#555;margin-top:3px;">'+a.desc+'</div>'+rLine+'</div>';
+  }).join('');
   p.innerHTML='<div style="padding:20px 16px 80px;">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'+
       '<div style="font-size:16px;font-weight:700;">🏅 成就</div>'+
-      '<div style="font-size:12px;color:#888;">'+done+'/'+total+'</div>'+
       '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeAchPanel()">✕</div>'+
     '</div>'+
-    '<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center;">'+
-      '<div style="font-size:40px;margin-bottom:4px;">'+rank.icon+'</div>'+
-      '<div style="font-size:18px;font-weight:700;color:'+rank.color+';">'+rank.title+'</div>'+
-      '<div style="font-size:11px;color:#888;margin-top:4px;">已集齐 '+cnt+' 种灵兽 · '+pct+'% 完成</div>'+
-      '<div style="margin-top:10px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">'+
-        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:3px;"></div>'+
-      '</div>'+
+    '<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;margin-bottom:12px;text-align:center;">'+
+      '<div style="font-size:36px;margin-bottom:4px;">'+rank.icon+'</div>'+
+      '<div style="font-size:16px;font-weight:700;color:'+rank.color+';">'+rank.title+'</div>'+
+      '<div style="font-size:11px;color:#888;margin-top:2px;">已集齐 '+cnt+' 种灵兽 · '+done+'/'+total+' 成就</div>'+
+      '<div style="margin-top:8px;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">'+
+        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:3px;"></div></div>'+
+      '<div style="margin-top:6px;font-size:11px;color:#666;">已领奖励: <span style="color:#ffd700">'+ac+'💰</span> <span style="color:#a0d8ef">'+aq+'✨</span>'+
+        (G.titles&&G.titles.length?' · <span style="color:#f0abfc">'+G.titles.map(function(t){return '★'+t;}).join('')+'</span>':'')+'</div>'+
     '</div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
-    ACHIEVEMENTS.map(a=>{
-      const d=_unlocked.has(a.id);
-      return '<div style="background:'+(d?'rgba(255,215,0,.06)':'rgba(255,255,255,.02)')+';border:1px solid '+(d?'rgba(255,215,0,.25)':'rgba(255,255,255,.06)')+';border-radius:12px;padding:12px 8px;text-align:center;'+(d?'':'opacity:.4')+'">'+
-        '<div style="font-size:26px;margin-bottom:4px;">'+a.icon+'</div>'+
-        '<div style="font-size:12px;font-weight:600;color:'+(d?'#ffd700':'#666')+';">'+a.title+'</div>'+
-        '<div style="font-size:10px;color:#555;margin-top:3px;">'+a.desc+'</div>'+
-      '</div>';
-    }).join('')+
-    '</div></div>';
+    '<div style="display:flex;gap:4px;margin-bottom:12px;">'+tabsHtml+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+achHtml+'</div>'+
+  '</div>';
 }
 function openAchPanel(){renderAch();document.getElementById('achPanel').classList.add('open');}
 function closeAchPanel(){document.getElementById('achPanel').classList.remove('open');}

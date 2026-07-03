@@ -1,5 +1,6 @@
 // ===== GAME.js - 生肖天机 =====
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+// v9-fix-tower - 2026-07-03
 window._today=today;
 function initHomeGesture(){}
 

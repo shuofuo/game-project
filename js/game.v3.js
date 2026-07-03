@@ -2201,6 +2201,38 @@ function towerAttack(){
   renderTowerPanel&&renderTowerPanel();
   updateHUD&&updateHUD();
 }
+function towerSweep(){
+  if(!G.created) return;
+  var floor=G.towerFloor||1;
+  if(floor<=1){alert('通关第1层后才能使用扫荡！');return;}
+  var sweepMax=Math.max(1,floor-1);
+  var sweepCost=Math.round(sweepMax*8);
+  if((G.coins||0)<sweepCost){alert('金币不足！扫荡需要 '+sweepCost+'💰');return;}
+  G.coins=(G.coins||0)-sweepCost;
+  if(!G.forge) G.forge={items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
+  if(!G.forge.materials) G.forge.materials={iron:0,crystal:0,dragonScale:0,starDust:0};
+  var mat=G.forge.materials;
+  var totalIron=0,totalCrystal=0,totalDragon=0;
+  for(var f=1;f<=sweepMax;f++){
+    var enemy=getTowerEnemy(f);
+    if(f%10===0||enemy.isBoss){
+      totalCrystal+=1+(enemy.isBoss?1:0);
+      totalDragon+=enemy.isBoss?1:0;
+    }
+    totalIron+=3+Math.floor(f/10)*2;
+  }
+  mat.iron=(mat.iron||0)+totalIron;
+  mat.crystal=(mat.crystal||0)+totalCrystal;
+  mat.dragonScale=(mat.dragonScale||0)+totalDragon;
+  var msg='🌀 扫荡完成！扫描了 1~'+sweepMax+' 层\n\n';
+  msg+='🔩 铁锭 +'+totalIron+'\n';
+  if(totalCrystal>0) msg+='💎 水晶 +'+totalCrystal+'\n';
+  if(totalDragon>0) msg+='🐉 龙鳞 +'+totalDragon;
+  saveGame();
+  checkAch&&checkAch();
+  alert(msg);
+  if(typeof updateHud==='function') updateHud();
+}
 function towerClaimMilestone(idx){
   if(!G.towerMilestones) G.towerMilestones=[];
   if(G.towerMilestones.includes(idx)){alert('已领取！');return;}
@@ -2274,6 +2306,11 @@ function renderTowerPanel(){
   // 攻击按钮状态
   var atkBtn='<button id="towerAtkBtn" onclick="towerAttack()" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b35,#ff3a3a);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 16px rgba(255,80,80,.4);transition:transform .1s">'+
     '⚔️ 发起攻击 (伤害:'+playerDmg+')</button>';
+  // 扫荡按钮
+  var sweepMax=Math.max(1,floor-1);
+  var sweepCost=Math.round(sweepMax*8);
+  var sweepBtn='<button id="towerSweepBtn" onclick="towerSweep()" style="width:100%;margin-top:6px;padding:10px 14px;border:1px solid rgba(251,191,36,.4);border-radius:10px;background:rgba(251,191,36,.08);color:#fbbf24;font-size:13px;cursor:pointer;font-weight:600;">'+
+    '🌀 扫荡 1~'+sweepMax+'层 (消耗 💰'+sweepCost+')</button>';
   // 进度条
   var progPct=Math.min(100,floor/100*100);
   // 里程碑列表
@@ -2322,7 +2359,7 @@ function renderTowerPanel(){
         '<div style="font-size:11px;color:#888;">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'✨</span>':'')+'</div>'+
       '</div>'+
       // 攻击按钮
-      (floor>=100?('<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px;">🎉 已通关100层！<br>可领取所有里程碑奖励</div>'):atkBtn)+
+      (floor>=100?('<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px;">🎉 已通关100层！<br>可领取所有里程碑奖励</div>'):(atkBtn+sweepBtn))+
       msHtml+
     '</div>';
 }

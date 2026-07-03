@@ -727,8 +727,6 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .tower-ms-item{font-size:12px;padding:5px 8px;border-radius:6px;margin:3px 0;background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.2)}
 .tower-ms-locked{opacity:.4}
 .tower-ms-claimed{background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.2)}
-</style>
-
 /* ══ P1-2 炼宝阁样式 ══ */
 .forge-title{font-size:1.1em;font-weight:700;color:#fbbf24;margin-bottom:10px;text-align:center}
 .forge-materials{display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:10px}
@@ -1124,15 +1122,12 @@ function doStart(){
       <div id="skinContent"></div>
     </div>
   </div>
-  <script src="js/config.js" charset="utf-8"></script>
-<script src="js/audio.v2.js" charset="utf-8"></script>
-<script src="js/game.v3.js?v=8" charset="utf-8"></script>
-<script src="js/ui.v2.js" charset="utf-8"></script>
+
   <!-- P1-2 炼宝阁面板 -->
   <div id="forgePanel" class="panel-overlay">
     <div class="panel-box">
       <div class="panel-header">
-        <span class="panel-title-text">🔨 炼宝阁</span>
+        <span class="panel-title">⚒️ 炼宝阁</span>
         <button class="panel-close" onclick="closeForgePanel()">✕</button>
       </div>
       <div id="forgeContent"></div>

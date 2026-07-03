@@ -1883,3 +1883,208 @@ function closeCultPanel(){
   var p=document.getElementById('cultPanel');
   if(p)p.classList.remove('open');
 }
+
+// ═══════════════════════════════════════════════════════
+// P0-1 灵兽图鉴 (Atlas) — 查看已收集生肖 + 收集奖励
+// ═══════════════════════════════════════════════════════
+function getCollectedZodiacs(){
+  // 从 G.dragons 提取所有灵兽的属相ID（去重）
+  if(!G.dragons || !G.dragons.length) return [];
+  var seen={};
+  var zids=[];
+  G.dragons.forEach(function(d){
+    if(d && d.z && !seen[d.z]){seen[d.z]=1;zids.push(d.z);}
+  });
+  return zids.sort(function(a,b){return a-b;});
+}
+
+function getZodiacStatus(zid){
+  var col=getCollectedZodiacs();
+  var idx=col.indexOf(zid);
+  if(idx>=0) return {collected:true, order:idx+1, total:col.length};
+  return {collected:false, order:null, total:col.length};
+}
+
+function openAtlasPanel(){
+  renderAtlasPanel();
+  var p=document.getElementById('atlasPanel');
+  if(p)p.classList.add('open');
+}
+function closeAtlasPanel(){
+  var p=document.getElementById('atlasPanel');
+  if(p)p.classList.remove('open');
+}
+
+function renderAtlasPanel(){
+  var c=document.getElementById('atlasContent');
+  if(!c)return;
+  var col=getCollectedZodiacs();
+  var n=col.length;
+  var html='<div class="atlas-title">📖 生肖图鉴 <span style="color:#ffd700">'+n+'/12</span></div>';
+  html+='<div class="atlas-grid">';
+  for(var z=1;z<=12;z++){
+    var st=getZodiacStatus(z);
+    var emoji=ZOD_E[z];
+    var name=ZOD_N[z];
+    var lore=ZOD_LORE[z-1]||'暂无记录';
+    var cls=st.collected?'atlas-item-collected':'atlas-item-locked';
+    var title=st.collected?('第'+st.order+'个收集 · '+lore):('未解锁 · '+lore);
+    html+='<div class="'+cls+'" title="'+title+'" onclick="showZodiacDetail('+z+')" style="cursor:pointer">';
+    html+='<div style="font-size:2.4em">'+emoji+'</div>';
+    html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'???')+'</div>';
+    html+='<div style="font-size:0.8em">'+name+'</div>';
+    html+='</div>';
+  }
+  html+='</div>';
+  // 收集进度奖励
+  html+='<div class="atlas-rewards">';
+  ATLAS_REWARDS.forEach(function(r){
+    var done=n>=r.count;
+    var claimBtn=done?'<button class="atlas-claim-btn" onclick="claimAtlasReward('+r.count+')">领取</button>':'';
+    var claimed=G.atlasClaimed&&G.atlasClaimed.includes(r.count)?'✅ 已领':claimBtn;
+    html+='<div class="atlas-reward-item '+(done?'':'atlas-reward-locked')+'">';
+    html+='<span>收集 <b>'+r.count+'</b> 种生肖: </span>';
+    html+='<span style="color:#ffd700">'+r.coin+'金币</span> + ';
+    html+='<span style="color:#a0d8ef">'+r.qi+'龙气</span> ';
+    html+='<b>['+r.title+']</b> '+claimed;
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<button class="close-btn" onclick="closeAtlasPanel()">关闭</button>';
+  c.innerHTML=html;
+  saveGame();
+}
+
+function showZodiacDetail(zid){
+  var st=getZodiacStatus(zid);
+  var lore=ZOD_LORE[zid-1]||'暂无记录';
+  var desc='属相: '+ZOD_N[zid-1]+' '+ZOD_E[zid-1]+' | '+lore;
+  var emoji=st.collected?ZOD_E[zid]:'❓';
+  alert(emoji+'\n'+desc+(st.collected?'\n(已收录图鉴)':'\n(尚未收集到该属相灵兽)'));
+}
+
+function claimAtlasReward(count){
+  if(!G.atlasClaimed) G.atlasClaimed=[];
+  if(G.atlasClaimed.includes(count)){alert('已领取过此奖励！');return;}
+  var reward=ATLAS_REWARDS.find(function(r){return r.count===count;});
+  if(!reward){alert('奖励配置错误');return;}
+  G.coins+=reward.coin;
+  G.qi+=reward.qi;
+  G.atlasClaimed.push(count);
+  alert('领取成功！\n+'+reward.coin+'金币  +'+reward.qi+'龙气\n称号: '+reward.title);
+  saveGame();
+  renderAtlasPanel();
+  updateHUD();
+}
+
+// ═══════════════════════════════════════════════════════
+// P0-2 灵兽皮肤系统 (Skins)
+// ═══════════════════════════════════════════════════════
+function isSkinOwned(skinId){
+  if(skinId==='default') return true;
+  return G.unlockedSkins&&G.unlockedSkins.includes(skinId);
+}
+
+function equipSkin(skinId){
+  if(!isSkinOwned(skinId)){alert('请先拥有该皮肤！');return;}
+  G.equippedSkin=skinId;
+  saveGame();
+  renderSkinPanel();
+  updateHUD();
+  playSound('click');
+}
+
+function buySkin(skinId){
+  var skin=DRAGON_SKINS.find(function(s){return s.id===skinId;});
+  if(!skin){alert('皮肤不存在');return;}
+  if(isSkinOwned(skinId)){alert('已拥有该皮肤');return;}
+  if(G.qi<skin.cost){
+    alert('龙气不足！需要 '+skin.cost+' 龙气，当前: '+G.qi);
+    return;
+  }
+  G.qi-=skin.cost;
+  G.unlockedSkins.push(skinId);
+  alert('购买成功！\n获得皮肤: '+skin.name+' '+skin.icon);
+  saveGame();
+  renderSkinPanel();
+  updateHUD();
+  playSound('draw');
+}
+
+function openSkinPanel(){
+  renderSkinPanel();
+  var p=document.getElementById('skinPanel');
+  if(p)p.classList.add('open');
+}
+function closeSkinPanel(){
+  var p=document.getElementById('skinPanel');
+  if(p)p.classList.remove('open');
+}
+
+function renderSkinPanel(){
+  var c=document.getElementById('skinContent');
+  if(!c)return;
+  var cur=G.equippedSkin||'default';
+  var html='<div class="skin-title">✨ 灵兽皮肤</div>';
+  // 当前装备预览
+  var curSkin=DRAGON_SKINS.find(function(s){return s.id===cur;})||{name:'原版',icon:'🐣',color:'#ffd700'};
+  html+='<div class="skin-preview" style="border-color:'+curSkin.color+';background:'+curSkin.color+'11">';
+  html+='<div style="font-size:3em">'+curSkin.icon+'</div>';
+  html+='<div style="color:'+curSkin.color+'">当前装备: '+curSkin.name+'</div>';
+  html+='</div>';
+  // 龙气余额
+  html+='<div style="text-align:center;margin:6px 0;color:#a0d8ef">💧 当前龙气: '+G.qi+'</div>';
+  // 皮肤列表（按稀有度分组）
+  var rarities=['普通','稀有','珍稀','传说','神话'];
+  for(var r=0;r<5;r++){
+    var skins=DRAGON_SKINS.filter(function(s){return s.rarity===r;});
+    if(!skins.length) continue;
+    var color=SKIN_RARITY_COLORS[r];
+    html+='<div class="skin-rarity-section" style="border-left:3px solid '+color+'">';
+    html+='<div class="skin-rarity-label" style="color:'+color+'">'+rarities[r]+'</div>';
+    html+='<div class="skin-grid">';
+    skins.forEach(function(s){
+      var owned=isSkinOwned(s.id);
+      var equipped=cur===s.id;
+      var cls='skin-item '+(owned?'skin-owned':'')+(equipped?' skin-equipped':'');
+      var border=equipped?('border-color:'+s.color):(owned?('#333'):('#555'));
+      var overlay=owned?(equipped?'✅ ':''):('💧'+s.cost);
+      html+='<div class="'+cls+'" style="border-color:'+border+';background:'+(owned?(s.color+'11'):'')+';cursor:pointer" ';
+      html+='onclick="'+(owned?'equipSkin(\''+s.id+'\')':'buySkin(\''+s.id+'\')')+'">';
+      html+='<div style="font-size:2em">'+s.icon+'</div>';
+      html+='<div style="font-size:0.75em;color:'+s.color+'">'+s.name+'</div>';
+      html+='<div style="font-size:0.7em;color:#888">'+overlay+'</div>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+  }
+  html+='<button class="close-btn" onclick="closeSkinPanel()">关闭</button>';
+  c.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// P0-2 入口按钮 — 插入到主界面 HUD 区域
+// ═══════════════════════════════════════════════════════
+function injectSkinAtlasButtons(){
+  setTimeout(function(){
+    if(document.getElementById('atlasBtn')) return; // 避免重复注入
+    var wrap=document.createElement('div');
+    wrap.style.cssText='position:fixed;top:8px;right:12px;display:flex;gap:8px;z-index:200';
+    wrap.innerHTML=
+      '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">📖图鉴</button>'+
+      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">✨皮肤</button>';
+    document.body.appendChild(wrap);
+  },500);
+}
+
+// 存档初始化兼容
+if(!G.unlockedSkins) G.unlockedSkins=['default'];
+if(!G.equippedSkin) G.equippedSkin='default';
+if(!G.atlasClaimed) G.atlasClaimed=[];
+
+// 主按钮注入（页面加载完成后）
+if(document.readyState==='complete'){
+  injectSkinAtlasButtons();
+} else {
+  window.addEventListener('load',injectSkinAtlasButtons);
+}

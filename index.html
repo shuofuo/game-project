@@ -695,6 +695,34 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 
 /* ===== 手机小屏优化 ===== */
 @media(max-width:480px){.hero-glow{width:160px!important;height:160px!important}#heroIcon{font-size:clamp(80px,24vw,120px)!important}#heroThumbs{max-width:180px!important}.hud-row{display:none!important}#skillBar{padding:5px 8px;gap:6px}.summon-btn{padding:8px 12px!important;font-size:13px!important}.side-btn{padding:8px 7px!important}#heroFateTag{display:none!important}.sra-result-anim{min-width:260px!important;padding:16px 12px!important}#gameBottomBar{gap:clamp(6px,2vw,12px)!important}}@media(max-width:360px){.hero-glow{width:120px!important;height:120px!important}#heroIcon{font-size:clamp(65px,20vw,90px)!important}#skillBar{padding:4px 6px;gap:4px}.skill-btn{min-width:44px;padding:4px 5px}}
+
+/* ===== 灵兽图鉴面板 ===== */
+.panel-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;justify-content:center;align-items:center}
+.panel-overlay.open{display:flex}
+.panel-box{background:#12062a;border:1px solid rgba(139,92,246,.4);border-radius:16px;padding:20px;width:min(420px,95vw);max-height:90vh;overflow-y:auto;color:#e2d9f3;font-size:14px}
+.atlas-title{font-size:1.1em;font-weight:700;color:#c4b5fd;margin-bottom:12px;text-align:center}
+.atlas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.atlas-item-collected{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);border-radius:10px;padding:8px 4px;text-align:center;transition:transform .15s}
+.atlas-item-collected:hover{transform:scale(1.05);border-color:#8b5cf6}
+.atlas-item-locked{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 4px;text-align:center;opacity:.45}
+.atlas-rewards{margin-top:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
+.atlas-reward-item{margin:4px 0;padding:6px 8px;border-radius:6px;background:rgba(255,215,0,.05)}
+.atlas-reward-locked{opacity:.5}
+.atlas-claim-btn{background:linear-gradient(135deg,#8b5cf6,#6d28d9);border:none;border-radius:6px;color:#fff;padding:2px 8px;font-size:.85em;cursor:pointer}
+.atlas-claim-btn:hover{background:linear-gradient(135deg,#7c3aed,#5b21b6)}
+.close-btn{display:block;width:100%;margin-top:12px;padding:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#aaa;border-radius:8px;cursor:pointer;font-size:.9em}
+.close-btn:hover{border-color:#8b5cf6;color:#c4b5fd}
+
+/* ===== 灵兽皮肤面板 ===== */
+.skin-title{font-size:1.1em;font-weight:700;color:#93c5fd;margin-bottom:10px;text-align:center}
+.skin-preview{text-align:center;border:2px solid #ffd700;border-radius:12px;padding:12px;margin-bottom:12px}
+.skin-rarity-section{margin-bottom:10px}
+.skin-rarity-label{font-size:.85em;font-weight:600;padding:2px 8px;margin-bottom:4px}
+.skin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.skin-item{background:rgba(255,255,255,.04);border:1px solid #555;border-radius:10px;padding:6px 3px;text-align:center;transition:transform .15s,border-color .2s}
+.skin-item:hover{transform:scale(1.05)}
+.skin-owned{border-color:#333!important}
+.skin-equipped{box-shadow:0 0 10px rgba(255,215,0,.5)}
 </style>
 </head>
 <body>
@@ -1036,6 +1064,18 @@ function doStart(){
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
   <div id="guideOverlay"></div>
   <div id="guideTooltip"></div>
+  <!-- P0-1 灵兽图鉴面板 -->
+  <div id="atlasPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div id="atlasContent"></div>
+    </div>
+  </div>
+  <!-- P0-2 灵兽皮肤面板 -->
+  <div id="skinPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div id="skinContent"></div>
+    </div>
+  </div>
   <script src="js/config.js"></script>
 <script src="js/audio.v2.js"></script>
 <script src="js/game.v3.js?v=3"></script>

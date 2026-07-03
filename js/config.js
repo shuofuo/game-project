@@ -958,3 +958,36 @@ function updateHeroSection(){
 
 // 预初始化音频上下文（选属相页就建好，召唤时不卡顿）
 try{ initAudio(); }catch(e){}
+
+// ═══════════════════════════════════════
+// P0-2 灵兽皮肤系统
+// ═══════════════════════════════════════
+const DRAGON_SKINS = [
+  // 0 普通品质
+  {id:'gold',     name:'金色幻彩', icon:'🐥', color:'#ffd700', cost:300,  rarity:0, rarityLabel:'普通'},
+  {id:'silver',   name:'银月龙影', icon:'🐤', color:'#c0c0c0', cost:300,  rarity:0, rarityLabel:'普通'},
+  // 1 稀有品质
+  {id:'ice',      name:'寒冰龙影', icon:'🐦', color:'#7eb8ff', cost:600,  rarity:1, rarityLabel:'稀有'},
+  {id:'flame',    name:'烈焰龙魂', icon:'🦅', color:'#ff6b35', cost:600,  rarity:1, rarityLabel:'稀有'},
+  {id:'nature',   name:'翠木龙吟', icon:'🌿', color:'#4caf50', cost:600,  rarity:1, rarityLabel:'稀有'},
+  // 2 珍稀品质
+  {id:'cosmic',   name:'星空龙灵', icon:'🦉', color:'#b57edc', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  {id:'jade',     name:'翡翠龙鳞', icon:'💎', color:'#80cbc4', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  {id:'crystal',  name:'水晶龙魄', icon:'🔮', color:'#ce93d8', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  // 3 传说品质
+  {id:'phoenix',  name:'凤凰涅槃', icon:'🔥', color:'#ff9800', cost:3000, rarity:3, rarityLabel:'传说'},
+  {id:'thunder',  name:'雷霆祖龙', icon:'⚡', color:'#a0d8ef', cost:3000, rarity:3, rarityLabel:'传说'},
+  // 4 神话品质（最稀有，仅龙气购买）
+  {id:'celestial',name:'天命真龙', icon:'💫', color:'#ffd700', cost:8000, rarity:4, rarityLabel:'神话'},
+  {id:'void',     name:'虚空祖龙', icon:'🌌', color:'#9c27b0', cost:8000, rarity:4, rarityLabel:'神话'},
+];
+// 皮肤稀有度颜色
+const SKIN_RARITY_COLORS = ['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
+
+// 图鉴收集进度奖励
+const ATLAS_REWARDS = [
+  {count:3,  coin:1000,  qi:50,  title:'初窥门径'},
+  {count:5,  coin:3000,  qi:100, title:'小有所成'},
+  {count:8,  coin:8000,  qi:200, title:'大有可观'},
+  {count:12, coin:30000, qi:500, title:'集齐十二生肖！'},
+];

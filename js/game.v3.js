@@ -1,5 +1,5 @@
 // ===== GAME.js - 生肖天机 =====
-function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 window._today=today;
 function initHomeGesture(){}
 
@@ -525,7 +525,7 @@ function getRankList(){
 
 function today(){
   const d=new Date();
-  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 function reselect(){
   G.created=false;
@@ -1130,7 +1130,8 @@ function doSign(){
 }
 
 function yesterday(){
-  const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);
+  const d=new Date();d.setDate(d.getDate()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 function checkSignDaily(){
   if(!G.created||!G.signDate)return;

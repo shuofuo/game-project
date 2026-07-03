@@ -1886,7 +1886,7 @@ function updateActiveBadge(){
   var signed=G.signDate===td;
   var taskDone=0;
   try{if(G.tasks)for(var k in G.tasks)if(G.tasks[k])taskDone++;}catch(e){}
-  var unread=(!signed?1:0)+(taskDone<5&&!G.tasks.login?1:0);
+  var unread=(!signed?1:0)+(taskDone<5&&(!G.tasks||!G.tasks.login)?1:0);
   // 额外：召唤次数少或活跃奖励未领也提示
   if(G.summonCount>0&&G.summonCount<10) unread++;
   if(unread>0){

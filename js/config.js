@@ -1198,7 +1198,7 @@ var TOWER_ENEMIES = [
   {floor:99,hp:102114213,coins:1491469,qi:0,name:'太初',isBoss:false},
   // 第100层 🏆BOSS
   {floor:100,hp:117431345,coins:1670445,qi:100,name:'终焉王',isBoss:true},
-];\n// 试炼塔成就\nconst TOWER_ACHIEVEMENTS=[
+];
 
 // ═══════════════════════════════════════
 // P1-1 天命试炼塔 (Tower)

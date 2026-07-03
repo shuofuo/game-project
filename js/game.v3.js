@@ -67,6 +67,7 @@ function initGame(){ startSkyEvents();try{initWeekly();}catch(e){}
       window._skillBarInterval=setInterval(()=>{try{renderSkillBar();}catch(e){}},2000);
     }
     el=document.getElementById('btnFree');if(el&&G.fate===2)el.style.display='flex';
+    try{showFeatureButtons();}catch(e){}
     // 新手引导（首次进入游戏）
     if(!G.guideDone){requestAnimationFrame(()=>{setTimeout(()=>startGuide(),600);});}
     // 首次加载时同步龙数据
@@ -2156,7 +2157,11 @@ function injectSkinAtlasButtons(){
   },500);
 }
 function showFeatureButtons(){
-  if(window._showFeatureBtns) window._showFeatureBtns();
+  // 只在游戏主界面显示，登录页隐藏（判断：loginWrap 隐藏了 = 真正在玩游戏）
+  var lw=document.getElementById('loginWrap');
+  if(lw&&lw.style.display==='none'){
+    if(window._showFeatureBtns) window._showFeatureBtns();
+  }
 }
 
 // 存档初始化兼容

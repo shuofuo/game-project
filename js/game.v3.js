@@ -1987,14 +1987,14 @@ function renderAtlasPanel(){
   var n=col.length;
   var html='<div class="atlas-title">📖 生肖图鉴 <span style="color:#ffd700">'+n+'/12</span></div>';
   html+='<div class="atlas-grid">';
-  for(var z=1;z<=12;z++){
-    var st=getZodiacStatus(z);
+  for(var z=0;z<12;z++){
+    var st=getZodiacStatus(z+1);
     var emoji=ZOD_E[z];
     var name=ZOD_N[z];
-    var lore=ZOD_LORE[z-1]||'暂无记录';
+    var lore=ZOD_LORE[z]||'暂无记录';
     var cls=st.collected?'atlas-item-collected':'atlas-item-locked';
     var title=st.collected?('第'+st.order+'个收集 · '+lore):('未解锁 · '+lore);
-    html+='<div class="'+cls+'" title="'+title+'" onclick="showZodiacDetail('+z+')" style="cursor:pointer">';
+    html+='<div class="'+cls+'" title="'+title+'" onclick="showZodiacDetail('+(z+1)+')" style="cursor:pointer">';
     html+='<div style="font-size:2.4em">'+emoji+'</div>';
     html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'???')+'</div>';
     html+='<div style="font-size:0.8em">'+name+'</div>';
@@ -2314,7 +2314,8 @@ function renderTowerPanel(){
   if(!c) return;
   var floor=G.towerFloor||1;
   var enemy=getTowerEnemy(floor);
-  var curHp=G.towerEnemyHp||enemy.hp;
+  // hp=0 表示新层（上次击败后还未刷新），直接重置为满血
+  var curHp=(G.towerEnemyHp===0||G.towerEnemyHp===undefined||G.towerEnemyHp===null)?enemy.hp:G.towerEnemyHp;
   var hpPct=Math.max(0,Math.min(100,curHp/enemy.hp*100));
   var playerDmg=getTowerPlayerDmg();
   var maxHp=enemy.hp;

@@ -723,6 +723,10 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .skin-item:hover{transform:scale(1.05)}
 .skin-owned{border-color:#333!important}
 .skin-equipped{box-shadow:0 0 10px rgba(255,215,0,.5)}
+/* ===== 试炼塔 ===== */
+.tower-ms-item{font-size:12px;padding:5px 8px;border-radius:6px;margin:3px 0;background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.2)}
+.tower-ms-locked{opacity:.4}
+.tower-ms-claimed{background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.2)}
 </style>
 </head>
 <body>
@@ -1016,6 +1020,12 @@ function doStart(){
   <div id="cultPanel" class="cult-panel"></div>
   <div id="achPanel" class="ach-panel"></div>
   <div id="weeklyPanel" class="ach-panel"></div>
+  <!-- P1-1 天命试炼塔面板 -->
+  <div id="towerPanel" class="panel-overlay">
+    <div class="panel-box">
+      <div id="towerContent"></div>
+    </div>
+  </div>
 
   <!-- === feat[9]: 游戏统计面板 === -->
   <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>

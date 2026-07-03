@@ -2134,7 +2134,8 @@ function injectSkinAtlasButtons(){
     wrap.style.cssText='position:fixed;top:8px;right:12px;display:flex;gap:8px;z-index:200';
     wrap.innerHTML=
       '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">📖图鉴</button>'+
-      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">✨皮肤</button>';
+      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">✨皮肤</button>'+
+      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer">⚔️试炼塔</button>';
     document.body.appendChild(wrap);
   },500);
 }
@@ -2149,4 +2150,180 @@ if(document.readyState==='complete'){
   injectSkinAtlasButtons();
 } else {
   window.addEventListener('load',injectSkinAtlasButtons);
+
+// ═══════════════════════════════════════════════════════
+// P1-1 天命试炼塔 (Tower)
+// ═══════════════════════════════════════════════════════
+function getTowerEnemy(floor){
+  if(floor<1||floor>100) return TOWER_ENEMIES[0];
+  return TOWER_ENEMIES[floor-1]||TOWER_ENEMIES[0];
+}
+function getTowerPlayerDmg(){
+  // 灵兽总战力 = 最高等级灵兽的 cps * 攻击系数
+  if(!G.dragons||!G.dragons.length) return 10;
+  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
+  return Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
+}
+function towerAttack(){
+  if(!G.created) return;
+  var floor=G.towerFloor||1;
+  var enemy=getTowerEnemy(floor);
+  var dmg=getTowerPlayerDmg();
+  // 扣敌人血
+  if(!G.towerEnemyHp) G.towerEnemyHp=enemy.hp;
+  G.towerEnemyHp=Math.max(0,G.towerEnemyHp-dmg);
+  // 攻击动画
+  var btn=document.getElementById('towerAtkBtn');
+  if(btn){btn.style.transform='scale(0.92)';setTimeout(function(){btn.style.transform='';},120);}
+  // 记录时间
+  G.towerLastAtk=Date.now();
+  // 击败检测
+  if(G.towerEnemyHp<=0){
+    G.coins=(G.coins||0)+enemy.coins;
+    G.qi=(G.qi||0)+(enemy.qi||0);
+    G.totalCoins=(G.totalCoins||0)+enemy.coins;
+    G.towerFloor=(floor>=100?100:floor+1);
+    G.towerEnemyHp=0;
+    saveGame();
+    checkAch&&checkAch();
+    // BOSS击败提示
+    if(enemy.isBoss){
+      alert('🏆 BOSS击败！第'+floor+'层 '+enemy.name+'\n+'+(enemy.coins||0)+'💰 '+(enemy.qi||0)+'✨');
+    }
+    playSound&&playSound('merge');
+  }
+  renderTowerPanel&&renderTowerPanel();
+  updateHUD&&updateHUD();
+}
+function towerClaimMilestone(idx){
+  if(!G.towerMilestones) G.towerMilestones=[];
+  if(G.towerMilestones.includes(idx)){alert('已领取！');return;}
+  var ach=TOWER_ACHIEVEMENTS[idx];
+  if(!ach){alert('配置错误');return;}
+  if(G.towerFloor<ach.floor){alert('需通关第'+ach.floor+'层才能领取');return;}
+  G.coins=(G.coins||0)+ach.coins;
+  G.qi=(G.qi||0)+ach.qi;
+  G.towerMilestones.push(idx);
+  var titleStr=ach.title?' · 称号['+ach.title+']':'';
+  alert('领取成功！\n+'+ach.coins+'💰 '+(ach.qi?'+'+ach.qi+'✨ ':'')+titleStr);
+  saveGame();
+  renderTowerPanel&&renderTowerPanel();
+  updateHUD&&updateHUD();
+}
+function towerOfflineProgress(){
+  // 离线时自动通关（每秒1次模拟攻击）
+  if(!G.towerLastAtk||!G.created) return 0;
+  var now=Date.now();
+  var elapsed=Math.floor((now-G.towerLastAtk)/1000);
+  if(elapsed<5) return 0;  // <5秒不算离线
+  var floor=G.towerFloor||1;
+  var dmg=getTowerPlayerDmg();
+  var enemy=getTowerEnemy(floor);
+  var hits=Math.floor(enemy.hp/dmg);
+  var totalHits=elapsed+hits;
+  var newFloor=floor;
+  var totalCoins=0,totalQi=0;
+  var f=floor;
+  while(totalHits>=hits){
+    totalHits-=hits;
+    var e=getTowerEnemy(f);
+    totalCoins+=e.coins||0;
+    totalQi+=(e.qi||0);
+    newFloor=f>=100?100:f+1;
+    f++;
+    if(f>100) break;
+    hits=Math.floor(getTowerEnemy(f).hp/dmg);
+    if(hits<=0) hits=1;
+  }
+  G.coins=(G.coins||0)+totalCoins;
+  G.qi=(G.qi||0)+totalQi;
+  G.towerFloor=newFloor;
+  G.towerLastAtk=now;
+  G.towerEnemyHp=getTowerEnemy(newFloor).hp;
+  saveGame();
+  return{tcoins:totalCoins,tqi:totalQi,nfloors:newFloor-floor};
+}
+function openTowerPanel(){
+  renderTowerPanel();
+  var p=document.getElementById('towerPanel');
+  if(p)p.classList.add('open');
+}
+function closeTowerPanel(){
+  var p=document.getElementById('towerPanel');
+  if(p)p.classList.remove('open');
+}
+function renderTowerPanel(){
+  var c=document.getElementById('towerContent');
+  if(!c) return;
+  var floor=G.towerFloor||1;
+  var enemy=getTowerEnemy(floor);
+  var curHp=G.towerEnemyHp||enemy.hp;
+  var hpPct=Math.max(0,Math.min(100,curHp/enemy.hp*100));
+  var playerDmg=getTowerPlayerDmg();
+  var maxHp=enemy.hp;
+  var boss=enemy.isBoss;
+  var floorHtml=floor>=100?'<span style="color:#ffd700">巅峰(100层)</span>':'第 '+floor+' 层';
+  var bossMark=boss?' <span style="color:#ff6b35;font-size:.8em">🏆BOSS</span>':'';
+  // 攻击按钮状态
+  var atkBtn='<button id="towerAtkBtn" onclick="towerAttack()" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b35,#ff3a3a);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 16px rgba(255,80,80,.4);transition:transform .1s">'+
+    '⚔️ 发起攻击 (伤害:'+playerDmg+')</button>';
+  // 进度条
+  var progPct=Math.min(100,floor/100*100);
+  // 里程碑列表
+  var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px">';
+  msHtml+='<div style="font-size:12px;color:#888;margin-bottom:6px;">📊 层数里程碑</div>';
+  TOWER_ACHIEVEMENTS.forEach(function(a,i){
+    var done=G.towerFloor>=a.floor;
+    var claimed=G.towerMilestones&&G.towerMilestones.includes(i);
+    var cls='tower-ms-item'+(done?'':' tower-ms-locked')+(claimed?' tower-ms-claimed':'');
+    var btn=done&&!claimed
+      ?'<button onclick="towerClaimMilestone('+i+')" style="background:#ff6b35;border:none;color:#fff;border-radius:6px;padding:2px 8px;font-size:.75em;cursor:pointer">领取</button>'
+      :(claimed?'✅':'🔒');
+    msHtml+='<div class="'+cls+'">';
+    msHtml+='<span>通关第 <b>'+a.floor+'</b> 层: </span>';
+    msHtml+='<span style="color:#ffd700">'+a.coins+'💰</span>';
+    if(a.qi) msHtml+=' <span style="color:#a0d8ef">'+a.qi+'✨</span>';
+    if(a.title) msHtml+=' <span style="color:#f0abfc">★'+a.title+'</span>';
+    msHtml+=' '+btn;
+    msHtml+='</div>';
+  });
+  msHtml+='</div>';
+  c.innerHTML=
+    '<div style="padding:16px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'+
+        '<div style="font-size:15px;font-weight:700;">⚔️ 天命试炼塔</div>'+
+        '<div style="font-size:12px;color:#888;cursor:pointer;" onclick="closeTowerPanel()">✕</div>'+
+      '</div>'+
+      // 进度
+      '<div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px;">'+
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'+
+          '<span style="font-size:13px;">'+floorHtml+bossMark+'</span>'+
+          '<span style="font-size:11px;color:#888;">'+floor+'/100层</span>'+
+        '</div>'+
+        '<div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">'+
+          '<div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px;"></div>'+
+        '</div>'+
+      '</div>'+
+      // 敌人卡
+      '<div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px;">'+
+        '<div style="font-size:13px;color:#aaa;margin-bottom:4px;">'+enemy.name+'</div>'+
+        '<div style="font-size:26px;margin-bottom:6px;">'+(boss?'👹':'👾')+'</div>'+
+        '<div style="font-size:12px;color:#888;margin-bottom:8px;">HP: '+curHp+' / '+maxHp+'</div>'+
+        '<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">'+
+          '<div style="height:100%;width:'+hpPct+'%;background:'+(hpPct>50?'#4ade80':hpPct>25?'#fb923c':'#f87171')+';border-radius:4px;transition:width .15s;"></div>'+
+        '</div>'+
+        '<div style="font-size:11px;color:#888;">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'✨</span>':'')+'</div>'+
+      '</div>'+
+      // 攻击按钮
+      (floor>=100?('<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px;">🎉 已通关100层！<br>可领取所有里程碑奖励</div>'):atkBtn)+
+      msHtml+
+    '</div>';
+}
+
+// 存档初始化（追加到 game.v3.js 末尾）
+if(!G.towerFloor)    G.towerFloor=1;
+if(!G.towerEnemyHp)  G.towerEnemyHp=0;  // 0表示满血，下次进入时刷新
+if(!G.towerLastAtk)  G.towerLastAtk=Date.now();
+if(!G.towerMilestones) G.towerMilestones=[];
+
 }

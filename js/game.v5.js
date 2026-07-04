@@ -2135,38 +2135,10 @@ function renderSkinPanel(){
 // ═══════════════════════════════════════════════════════
 // P0-2 入口按钮 — 插入到主界面 HUD 区域
 // ═══════════════════════════════════════════════════════
-function injectSkinAtlasButtons(){
-  setTimeout(function(){
-    if(document.getElementById('atlasBtn')) return; // 避免重复注入
-    var wrap=document.createElement('div');
-    // 大屏：右上角；手机：左上角（避免挡住HUD金币数）
-    wrap.style.cssText='position:fixed;top:8px;right:12px;display:flex;gap:8px;z-index:200;flex-wrap:wrap;max-width:160px;justify-content:flex-end';
-    // 手机小屏移到左上角，避免遮挡顶部HUD
-    var isMobile=window.innerWidth<=480;
-    if(isMobile){
-      wrap.style.cssText='position:fixed;top:50px;left:8px;display:flex;flex-direction:column;gap:5px;z-index:200;align-items:flex-start';
-    }
-    wrap.id='gameFeatureButtons';
-    wrap.innerHTML=
-      '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">📖图鉴</button>'+
-      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">✨皮肤</button>'+
-      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">⚔️试炼塔</button>'+
-      '<button id="forgeBtn" onclick="openForgePanel()" style="background:#2e1a00;border:1px solid #fbbf24;color:#fbbf24;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">🔨炼宝阁</button>';
-    document.body.appendChild(wrap);
-    // 监听游戏启动，显示按钮
-    window._showFeatureBtns=function(){
-      var btns=document.querySelectorAll('#atlasBtn,#skinBtn,#towerBtn,#forgeBtn');
-      btns.forEach(function(b){b.style.display='block';});
-    };
-  },500);
-}
-function showFeatureButtons(){
-  // 只在游戏主界面显示，登录页隐藏（判断：loginWrap 隐藏了 = 真正在玩游戏）
-  var lw=document.getElementById('loginWrap');
-  if(lw&&lw.style.display==='none'){
-    if(window._showFeatureBtns) window._showFeatureBtns();
-  }
-}
+// 功能按钮已迁移到 HTML 静态布局，此函数不再注入浮动按钮
+function injectSkinAtlasButtons(){}
+// 功能按钮已迁移到 HTML 静态布局，不再显示浮动按钮
+function showFeatureButtons(){}
 
 // 存档初始化兼容
 if(!G.unlockedSkins) G.unlockedSkins=['default'];

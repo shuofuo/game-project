@@ -448,6 +448,14 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 /* 图鉴-书 */
 .side-btn[data-fn="handbook"]{color:rgba(180,100,255,.6);}
 .side-btn[data-fn="handbook"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 12px rgba(180,100,255,.2);}
+.side-btn[data-fn="atlas"]{color:rgba(180,100,255,.6);justify-content:center;gap:5px;}
+.side-btn[data-fn="atlas"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 10px rgba(180,100,255,.2);}
+.side-btn[data-fn="tower"]{color:rgba(255,107,53,.7);justify-content:center;gap:5px;}
+.side-btn[data-fn="tower"]:hover{background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.35);color:#ff8855;box-shadow:0 0 10px rgba(255,107,53,.2);}
+.side-btn[data-fn="skin"]{color:rgba(147,197,253,.65);justify-content:center;gap:5px;}
+.side-btn[data-fn="skin"]:hover{background:rgba(147,197,253,.1);border-color:rgba(147,197,253,.35);color:#93c5fd;box-shadow:0 0 10px rgba(147,197,253,.2);}
+.side-btn[data-fn="forge"]{color:rgba(251,191,36,.65);justify-content:center;gap:5px;}
+.side-btn[data-fn="forge"]:hover{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35);color:#fbbf24;box-shadow:0 0 10px rgba(251,191,36,.2);}
 /* 排行-奖杯 */
 .side-btn[data-fn="rank"]{color:rgba(255,200,80,.65);}
 .side-btn[data-fn="rank"]:hover{background:rgba(255,200,80,.1);border-color:rgba(255,200,80,.35);color:#ffd700;box-shadow:0 0 12px rgba(255,200,80,.2);}
@@ -955,12 +963,28 @@ function doStart(){
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       <button onclick="openCultPanel()" class="side-btn" data-fn="cult" title="命格修炼"><svg viewBox="0 0 24 24"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7v2h2v-2h-2zm0-8v5h2V7h-2z" fill="currentColor" opacity=".5"/></svg></button>
-      <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+
     </div>
 
 <!-- 灵兽网格（居中，flex:1 占满中间列） -->
     <div id="dragonGrid" style="grid-column:2;grid-row:1;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0;">
-      <div style="display:flex;align-items:center;gap:8px;padding:clamp(8px,1.5vh,14px) 12px clamp(6px,1vh,10px);border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;">
+      <!-- 功能按钮区：图鉴+试炼塔 / 皮肤+炼宝阁 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1vw,10px);padding:clamp(6px,1.2vh,10px) clamp(8px,1.5vw,14px) 0;flex-shrink:0;">
+        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>图鉴
+        </button>
+        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);color:rgba(255,107,53,.75);">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>试炼塔
+        </button>
+        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);color:rgba(147,197,253,.7);">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-3-8h6v2H9v-2z" fill="currentColor" opacity=".7"/></svg>皮肤
+        </button>
+        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);color:rgba(251,191,36,.7);">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;flex-shrink:0;"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>炼宝阁
+        </button>
+      </div>
+      <!-- 灵兽标题行 -->
+      <div style="display:flex;align-items:center;gap:8px;padding:clamp(4px,0.8vh,8px) 12px clamp(4px,0.8vh,8px);border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;">
         <span style="font-size:13px;color:#ffd700;letter-spacing:2px;font-weight:600;">🐾 灵兽</span>
         <span id="gridCount" style="font-size:11px;color:rgba(255,255,255,.3);"></span>
       </div>

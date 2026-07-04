@@ -959,26 +959,21 @@ function doStart(){
 
 <!-- 左侧功能按钮（竖排） -->
     <div style="grid-column:1;grid-row:1 / span 2;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
+      <div style="display:flex;flex-direction:column;justify-content:space-between;width:100%;flex:1;min-height:0;">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       <button onclick="openCultPanel()" class="side-btn" data-fn="cult" title="命格修炼"><svg viewBox="0 0 24 24"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7v2h2v-2h-2zm0-8v5h2V7h-2z" fill="currentColor" opacity=".5"/></svg></button>
+        </div>
+        <!-- 灵兽图鉴：左列最底部 -->
+        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="color:rgba(180,100,255,.6);margin-top:6px;justify-content:center;padding:7px 4px;">📖</button>
+      </div>
 
     </div>
 
 <!-- 灵兽网格（居中，flex:1 占满中间列） -->
     <div id="dragonGrid" style="grid-column:2;grid-row:1;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0;">
-      <!-- 功能按钮区：图鉴+试炼塔 / 皮肤+炼宝阁 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,1vw,10px);padding:clamp(6px,1.2vh,10px) clamp(8px,1.5vw,14px) 0;flex-shrink:0;">
-        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);">📖
-        </button>
-        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);">🏔️
-        </button>
-        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);">👑
-        </button>
-        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="justify-content:center;gap:5px;font-size:11px;padding:clamp(5px,1vh,8px) clamp(6px,1vw,10px);">⚒️
-        </button>
-      </div>
       <!-- 灵兽标题行 -->
       <div style="display:flex;align-items:center;gap:8px;padding:clamp(4px,0.8vh,8px) 12px clamp(4px,0.8vh,8px);border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;">
         <span style="font-size:13px;color:#ffd700;letter-spacing:2px;font-weight:600;">🐾 灵兽</span>
@@ -988,8 +983,13 @@ function doStart(){
     </div>
 
 <!-- 灵兽展示卡（紧凑，右边） -->
-    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:250px 8px 8px;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
-      <!-- 命格标签（最上方） -->
+    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 8px;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
+      <!-- 功能按钮区：试炼塔+皮肤，顶部两格 -->
+      <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:clamp(32px,5vh,60px) 0 8px;flex-shrink:0;">
+        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="justify-content:center;gap:4px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(255,107,53,.7);">🏔️</button>
+        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="justify-content:center;gap:4px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(147,197,253,.65);">👑</button>
+      </div>
+      <!-- 命格标签 -->
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;white-space:nowrap;">木命 · 大吉</div>
       <!-- 灵兽emoji + 光环 -->
       <div style="position:relative;width:clamp(70px,10vw,110px);height:clamp(70px,10vw,110px);flex-shrink:0;">
@@ -1070,6 +1070,10 @@ function doStart(){
           <div id="acWeeklyBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd700,#ff9800);border-radius:2px;transition:width .5s ease;"></div>
         </div>
       </div>
+    </div>
+    <!-- 炼宝阁：活跃中心底部 -->
+    <div style="margin-top:10px;">
+      <button onclick="closeActiveCenter();openForgePanel();" style="width:100%;padding:11px 14px;border-radius:14px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);color:#fbbf24;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;">⚒️ 炼宝阁</button>
     </div>
   </div>
 </div>

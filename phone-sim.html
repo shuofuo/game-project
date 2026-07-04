@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>生肖天机 · 手机预览 v2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+      gap: 16px;
+    }
+    h2 {
+      color: #ffd700;
+      font-size: 14px;
+      letter-spacing: 3px;
+      font-weight: 400;
+    }
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 44px;
+      background: #111;
+      border: 3px solid #333;
+      box-shadow: 0 0 0 8px #1a1a1a, 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(139,92,246,0.15);
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 150px; height: 28px;
+      background: #111;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+    #game-container {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #game-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      transform-origin: top left;
+      transform: scale(0.8);
+    }
+    .hint {
+      color: rgba(255,255,255,0.3);
+      font-size: 11px;
+      text-align: center;
+    }
+    /* 缩放说明 */
+    .zoom-info {
+      color: rgba(255,215,0,0.4);
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📱 手机模拟预览</h2>
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div id="game-container">
+      <iframe src="index.html?v=ph1" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+  <div class="zoom-info">375×812 · iPhone 13 尺寸</div>
+  <p class="hint">iframe 加载主游戏，实际显示效果以真机为准</p>
+</body>
+</html>

@@ -983,7 +983,7 @@ function doStart(){
     </div>
 
 <!-- 灵兽展示卡（紧凑，右边） -->
-    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 8px;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
+    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(120px,20vh,220px) 8px 0;margin-top:0;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
       <!-- 功能按钮区：试炼塔+皮肤，顶部两格 -->
       <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:clamp(32px,5vh,60px) 0 8px;flex-shrink:0;">
         <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="justify-content:center;gap:4px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(255,107,53,.7);">🏔️</button>

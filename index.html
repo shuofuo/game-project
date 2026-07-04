@@ -966,8 +966,6 @@ function doStart(){
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
       <button onclick="openCultPanel()" class="side-btn" data-fn="cult" title="命格修炼"><svg viewBox="0 0 24 24"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7v2h2v-2h-2zm0-8v5h2V7h-2z" fill="currentColor" opacity=".5"/></svg></button>
         </div>
-        <!-- 灵兽图鉴：左列最底部 -->
-        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="color:rgba(180,100,255,.6);margin-top:6px;justify-content:center;padding:7px 4px;">📖</button>
       </div>
 
     </div>
@@ -983,15 +981,13 @@ function doStart(){
     </div>
 
 <!-- 灵兽展示卡（紧凑，右边） -->
-    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(120px,20vh,220px) 8px 0;margin-top:0;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
-      <!-- 功能按钮区：试炼塔+皮肤+炼宝阁，顶部三格（第三格放炼宝阁） -->
-      <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:clamp(32px,5vh,60px) 0 4px;flex-shrink:0;">
-        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="justify-content:center;gap:4px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(255,107,53,.7);">🏔️</button>
-        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="justify-content:center;gap:4px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(147,197,253,.65);">👑</button>
-      </div>
-      <!-- 炼宝阁：灵兽区底部单独一行 -->
-      <div style="width:100%;padding:0 0 8px;flex-shrink:0;">
-        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="width:100%;justify-content:center;gap:4px;font-size:10px;padding:clamp(5px,1vh,8px) 6px;color:rgba(251,191,36,.8);">⚒️</button>
+    <div id="heroSection" style="grid-column:3;grid-row:1;flex:0 0 140px;min-width:120px;max-width:140px;width:140px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(28px,5vh,55px) 8px 0;gap:0;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
+      <!-- 四个功能按钮：2x2 网格 -->
+      <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0;flex-shrink:0;">
+        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="justify-content:center;gap:3px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(255,107,53,.7);">🏔️</button>
+        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="justify-content:center;gap:3px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(147,197,253,.65);">👑</button>
+        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="justify-content:center;gap:3px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(251,191,36,.8);">⚒️</button>
+        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="justify-content:center;gap:3px;font-size:10px;padding:clamp(5px,1vh,8px) 4px;color:rgba(180,100,255,.65);">📖</button>
       </div>
       <!-- 命格标签 -->
       <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;white-space:nowrap;">木命 · 大吉</div>

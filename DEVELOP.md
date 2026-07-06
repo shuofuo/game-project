@@ -4,7 +4,10 @@
 - **GitHub**: https://github.com/shuofuo/game-project
 - **线上地址**: https://shuofuo.github.io/game-project/
 - **本地端口**: 7892（`python -m http.server 7892`）
-- **主文件**: `docs/index.html`
+- **主文件**: `index.html`（游戏入口）
+- **配置文件**: `js/config.js`
+- **游戏逻辑**: `js/game.v5.js`
+- **界面逻辑**: `js/ui.v2.js`
 
 ## 本地开发
 
@@ -14,14 +17,22 @@ git clone https://github.com/shuofuo/game-project.git
 cd game-project
 ```
 
-### 2. 启动本地服务器
+### 2. 启动本地服务器（推荐用 Python）
 ```bash
+# 进入项目目录
+cd game-project
+# 启动服务器
 python -m http.server 7892
 ```
 浏览器打开：`http://localhost:7892/`
 
+> 如果提示端口被占用，换一个端口：
+> ```bash
+> python -m http.server 8080
+> ```
+
 ### 3. 编辑代码
-用 VS Code / Cursor 打开：
+用 VS Code（或任何编辑器）打开项目目录：
 ```bash
 code .
 ```
@@ -29,95 +40,106 @@ code .
 ### 4. 推送部署
 ```bash
 git add .
-git commit -m "描述改动"
+git commit -m "描述你的改动"
 git push
 ```
 推送到 `gh-pages` 分支后，GitHub Pages 约 1-2 分钟自动上线。
 
 ---
 
-## 📐 当前布局结构
+## 📐 当前布局结构（iPhone 12 模拟, 390×664）
 
 ```
-viewport: 390×664 (iPhone 12 模拟)
+viewport: 390×664
 
 ┌─────────────────────────────────────┐
 │ topHud (全宽390, h=48)              │ ← 顶部状态栏（金龙气/金币）
 ├──────┬──────────────────────┬───────┤
-│      │ featureRow (h=68)    │       │ ← 5个功能按钮
-│ 左侧 │─────────────────────│ 右侧  │
-│ 功能 │ heroCard (h=88)      │ 功能  │ ← 灵兽详情卡（当前在调）
-│ 按钮 │                      │ 按钮  │
-│ w=52 │ dragonGrid (h=386)  │ w=52  │ ← 灵兽网格 5×5
+│ 左侧 │ featureRow (h=68)   │ 右侧  │ ← 5个功能按钮
+│ 功能 │───────────────────── │ 功能  │
+│ 按钮 │ heroCard (h=88)     │ 按钮  │ ← 灵兽详情卡（当前在调）
+│ w=52 │ 居中, 攻防速被裁断   │ w=52  │
+│      │ dragonGrid (h=386)  │       │ ← 灵兽网格 5×5
 │      │                      │       │
 ├──────┴──────────────────────┴───────┤
 │ skillBarRow (h=22)                   │ ← 技能条
 ├─────────────────────────────────────┤
 │ bottomBar (h=52)                     │ ← 召唤栏
 └─────────────────────────────────────┘
+
+内容区 contentArea: left=52, w=286
+middleRow = 左侧按钮(52) + 内容区(286) + 右侧按钮(52) = 390
 ```
 
 ## ⚠️ 当前未解决问题
 
-### P0-待修复：灵兽卡（heroCard）显示不完整
+### 灵兽卡（heroCard）显示不完整
 
-**现象**：右侧"攻击/防御/速度"属性被裁掉，显示不全
-**根因**：heroCard 内部布局问题，右侧 div 被 overflow:hidden 裁剪
-**涉及文件**：`docs/index.html`
+**现象**：右侧"攻击/防御/速度"三行字被裁掉，显示不全
 
-**当前 heroCard 状态**（Step73）：
-- heroCard 整体在 contentArea 中水平居中了（leftGap≈rightGap）
-- 但右侧属性 div 仍有部分被裁掉
-- 已尝试：flex / grid / table / position:absolute 四种布局
+**根因**：
+- `contentArea` 宽度 286px（固定，因为左右按钮各占 52px）
+- `heroCard` 宽度 = 286×92% ≈ 263px
+- 右侧 div 用 `position:absolute; right:10px` 定位，实际位置超出 heroCard 边界
+- `heroCard` 有 `overflow:hidden` 导致右 div 被裁剪
 
-**最新数据**（2026-07-06）：
+**最新测量数据**（2026-07-06 Step73）：
 ```
 heroCard: w=263, left=63, leftGap=63, rightGap=64 ✅ 居中
-右 div: left=233, w=80 → 被 heroCard 的 overflow:hidden 裁掉约 50px
+右 div: left=233, w=80 → 被 heroCard overflow:hidden 裁掉 50px
 ```
 
-**调布局最快的方式**：
-1. 修改 `docs/index.html` 里的 `#heroCard` 样式
-2. 重启本地服务器 `python -m http.server 7892`
-3. 浏览器 `http://localhost:7892/` 刷新看效果
+**已尝试但未解决的方案**：
+- ✅ flex / grid / table / position:absolute（居中都对了，但右 div 仍被裁）
+- 待尝试：去掉 overflow:hidden / 改 heroCard 宽度 / 改右 div 定位
 
-### 可选：用 CodePen 快速调布局
-复制 `docs/index.html` 中的 middleRow 部分到 https://codepen.io/pen 调，调好了告诉我哪个样式改了，我帮你合并回去。
+**调布局最快方式**：
+1. 修改 `index.html` 里 `#heroCard` 的样式
+2. 浏览器刷新 `http://localhost:7892/` 看效果
+
+**CodePen 调布局**：
+复制 `index.html` 中 middleRow 部分到 https://codepen.io/pen 调，调好了告诉 AI 助手合并。
 
 ---
 
-## 📁 核心文件说明
-
-| 文件 | 用途 |
-|------|------|
-| `docs/index.html` | 游戏主入口 + 所有 HTML/CSS/JS |
-| `docs/js/config.js` | 灵兽/皮肤/成就/试炼塔配置数据 |
-| `docs/js/game.v5.js` | 游戏核心逻辑（召唤/合成/战斗等）|
-| `docs/js/ui.v2.js` | 界面逻辑（面板开关/动画等）|
-| `docs/js/audio.v2.js` | 音频管理 |
-
 ## 🎮 当前已完成功能
 
-- P0-1: 灵兽图鉴 ✅
-- P0-2: 灵兽皮肤 + 金龙气 ✅
-- P0-3: 成就系统 ✅
-- P1-1: 天命试炼塔 ✅
-- P1-2: 炼宝阁（基础）⚠️ 待增强
+| 阶段 | 功能 | 状态 |
+|------|------|------|
+| P0-1 | 灵兽图鉴 | ✅ |
+| P0-2 | 灵兽皮肤 + 金龙气系统 | ✅ |
+| P0-3 | 成就系统 | ✅ |
+| P1-1 | 天命试炼塔（100层） | ✅ |
+| P1-2 | 炼宝阁（基础） | ✅ |
+| P1-2 | 炼宝阁增强（装备强化/升星） | 📋 待做 |
+| P1-3 | 好友系统 | 📋 待做 |
 
-## 🔧 常用调试命令
+## 🔧 调试命令
 
-### 查灵兽卡尺寸
-在浏览器控制台（F12）执行：
+### 查灵兽卡实时尺寸（浏览器控制台 F12）
 ```js
 const hc = document.getElementById('heroCard');
-console.log('heroCard:', hc.offsetWidth, hc.offsetHeight, hc.offsetLeft);
-console.log('children:', Array.from(hc.children).map(c=>({left:c.offsetLeft,w:c.offsetWidth})));
+console.log('heroCard宽高:', hc.offsetWidth, hc.offsetHeight);
+console.log('children:', Array.from(hc.children).map(c=>({
+  left: c.offsetLeft,
+  w: c.offsetWidth,
+  right: hc.offsetWidth - c.offsetLeft - c.offsetWidth
+})));
 ```
 
-### 重启本地服务器
+### 停掉占用端口的进程（Windows）
+```cmd
+netstat -ano | findstr :7892
+taskkill /F /PID <进程ID>
+```
+
+### 查 git 状态
 ```bash
-# 先停掉旧进程
-taskkill /F /IM python.exe 2>nul
-# 再启动
-python -m http.server 7892
+git status
+git log --oneline -5
+```
+
+### 查看改动
+```bash
+git diff index.html
 ```

@@ -12,23 +12,11 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    concurrency:
-      group: "pages"
-      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: gh-pages
-          sparse-checkout: |
-            index.html
-            phone-sim.html
-            js/
-            .nojekyll
-            CNAME
-            DEVELOP.md
-            .claude.md
-          sparse-checkout-cone-mode: false
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

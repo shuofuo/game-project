@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!-- GAME UPDATED: 2026-07-02 13:20 CST - now with 6 skills -->
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resize-content">
-<title>生肖天机</title>
+<title>生肖天机 · 命格修炼</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;}
 html,body{height:100%;height:100dvh;overflow:hidden;}
@@ -127,6 +126,19 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
 .activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#0a0a1a;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
+.active-center-panel{position:fixed;bottom:0;left:0;width:100%;max-height:88vh;background:#07071aee;z-index:303;display:none;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,215,0,.15);overflow:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}.active-center-panel.open{display:block;transform:translateY(0);}
+.active-center-panel.open{transform:translateY(0);}
+.ac-card{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.ac-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,215,0,.2);}
+.ac-card.done{opacity:.55;border-color:rgba(76,175,80,.2);}
+.ac-card.pending{border-color:rgba(255,215,0,.2);background:rgba(255,215,0,.04);}
+.ac-icon{font-size:26px;flex-shrink:0;}
+.ac-info{flex:1;min-width:0;}
+.ac-title{font-size:14px;font-weight:600;color:#ddd;margin-bottom:2px;}
+.ac-desc{font-size:11px;color:#777;}
+.ac-progress{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-top:5px;}
+.ac-bar{height:100%;border-radius:2px;transition:width .4s ease;}
+.ac-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;}
 .activity-panel.open{display:block;transform:translateX(0);}
 .activity-panel::-webkit-scrollbar{width:0;}
 @keyframes achFadeOut{from{opacity:1}to{opacity:0}}
@@ -182,33 +194,17 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
   width:100%;height:100%;
   position:relative;
   transform-style:preserve-3d;
-  transition:transform 1.2s cubic-bezier(.4,0,.2,1);
+  transition:transform 0.6s cubic-bezier(.4,0,.2,1);
   cursor:pointer;
 }
+.scard-face{position:absolute;top:0;left:0;width:160px;height:200px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:48px;border:2px solid rgba(255,215,0,.4);box-sizing:border-box;}
+.scard-back{background:linear-gradient(160deg,#1a1a3a,#2a1a4a);box-shadow:0 0 40px rgba(255,215,0,.2);display:flex;align-items:center;justify-content:center;position:absolute;top:0;left:0;width:160px;height:200px;visibility:visible;opacity:1;overflow:hidden;}
+.scard-back .q-mark{font-size:64px;color:rgba(255,215,0,.3);line-height:1;pointer-events:none;user-select:none;}
+.scard-front{background:linear-gradient(160deg,#2a1a3a,#1a1a4a);border-color:#ffd700;box-shadow:0 0 30px rgba(255,215,0,.3);flex-direction:column;gap:8px;visibility:hidden;opacity:0;position:absolute;top:0;left:0;width:160px;height:200px;box-sizing:border-box;}
+.scard.flipped .scard-back{visibility:hidden;opacity:0;}
+.scard.flipped .scard-front{visibility:visible;opacity:1;}
+.scard{width:160px;height:200px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(.4,0,.2,1);cursor:pointer;}
 .scard.flipped{transform:rotateY(180deg);}
-.scard-face{
-  position:absolute;inset:0;
-  backface-visibility:hidden;
-  border-radius:20px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:48px;
-  border:2px solid rgba(255,215,0,.4);
-}
-.scard-back{
-  background:linear-gradient(160deg,#1a1a3a,#2a1a4a);
-  box-shadow:0 0 40px rgba(255,215,0,.2);
-}
-.scard-back::before{
-  content:'？';font-size:64px;color:rgba(255,215,0,.3);
-}
-/* 金边框高级感 */
-.scard-front{
-  background:linear-gradient(160deg,#2a1a3a,#1a1a4a);
-  transform:rotateY(180deg);
-  border-color:#ffd700;
-  box-shadow:0 0 30px rgba(255,215,0,.3);
-  flex-direction:column;gap:8px;
-}
 .scard-front .sf-emoji{font-size:72px;line-height:1;}
 .scard-front .sf-name{font-size:18px;color:#ffd700;font-weight:700;}
 .scard-front .sf-cps{font-size:11px;color:#888;}
@@ -217,11 +213,14 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.7}}
 /* 结果揭晓区 */
 .summon-result-anim{
-  display:none;position:relative;text-align:center;
+  display:none;position:fixed;text-align:center;
+  left:50%;bottom:80px;transform:translateX(-50%);
   padding:12px 20px 8px;border-radius:20px;
+  z-index:510;min-height:200px;
+  flex-direction:column;align-items:center;justify-content:space-between;
   animation:sraIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
 }
-.summon-result-anim.show{display:block;}
+.summon-result-anim.show{display:flex;}
 @keyframes sraIn{
   from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}
 }
@@ -269,8 +268,8 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 
 /* 设置面板 */
 .panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(4px);}
-.panel-overlay.open{display:flex;}
-.panel-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:24px;width:min(380px,90vw);animation:popIn .3s ease;}
+.panel-overlay.open,.panel-overlay.show{display:flex;align-items:center;justify-content:center;}
+.panel-box{background:linear-gradient(160deg,#0d0d2a,#1a1a3a);border:1px solid #ffd700;border-radius:24px;width:min(420px,92vw);max-height:88vh;overflow-y:auto;animation:popIn .3s ease;box-sizing:border-box;-ms-overflow-style:none;scrollbar-width:none;}.panel-box::-webkit-scrollbar{width:0;height:0;display:none;}.panel-overlay .panel-box{overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;}.panel-overlay .panel-box::-webkit-scrollbar{width:0;height:0;display:none;}.panel-overlay .panel-content{overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;}.panel-overlay .panel-content::-webkit-scrollbar{width:0;height:0;display:none;}
 .panel-header{background:linear-gradient(135deg,#1a1a3a,#0d0d2a);border-bottom:1px solid rgba(255,215,0,.2);padding:16px 20px;font-size:17px;font-weight:700;color:#ffd700;border-radius:24px 24px 0 0;}
 
 /* 英雄展示台动画 */
@@ -449,6 +448,14 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 /* 图鉴-书 */
 .side-btn[data-fn="handbook"]{color:rgba(180,100,255,.6);}
 .side-btn[data-fn="handbook"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 12px rgba(180,100,255,.2);}
+.side-btn[data-fn="atlas"]{color:rgba(180,100,255,.6);justify-content:center;gap:5px;}
+.side-btn[data-fn="atlas"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 10px rgba(180,100,255,.2);}
+.side-btn[data-fn="tower"]{color:rgba(255,107,53,.7);justify-content:center;gap:5px;}
+.side-btn[data-fn="tower"]:hover{background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.35);color:#ff8855;box-shadow:0 0 10px rgba(255,107,53,.2);}
+.side-btn[data-fn="skin"]{color:rgba(147,197,253,.65);justify-content:center;gap:5px;}
+.side-btn[data-fn="skin"]:hover{background:rgba(147,197,253,.1);border-color:rgba(147,197,253,.35);color:#93c5fd;box-shadow:0 0 10px rgba(147,197,253,.2);}
+.side-btn[data-fn="forge"]{color:rgba(251,191,36,.65);justify-content:center;gap:5px;}
+.side-btn[data-fn="forge"]:hover{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35);color:#fbbf24;box-shadow:0 0 10px rgba(251,191,36,.2);}
 /* 排行-奖杯 */
 .side-btn[data-fn="rank"]{color:rgba(255,200,80,.65);}
 .side-btn[data-fn="rank"]:hover{background:rgba(255,200,80,.1);border-color:rgba(255,200,80,.35);color:#ffd700;box-shadow:0 0 12px rgba(255,200,80,.2);}
@@ -659,7 +666,8 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
   .side-btn{width:36px!important;height:36px!important;}
   .summon-btn{min-width:60px!important;padding:8px 12px!important;font-size:11px!important;}
   #gameBottomBar{gap:8px!important;padding:6px 8px!important;}
-  .hero-anim-hint{display:none!important;}
+  .hero-anim-hint{display:none!important;visibility:hidden!important;}
+  #heroAnimHint{display:none!important;visibility:hidden!important;}
   .hero-glow>div{width:140px!important;height:140px!important;}
   .skill-item{min-width:48px;padding:6px 8px;}
   .skill-item .sk-icon{font-size:18px;}
@@ -675,13 +683,13 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 @keyframes sshake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px) rotate(-.5deg)}35%{transform:translateX(5px) rotate(.5deg)}55%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes spFly{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
 .hero-icon-flash{animation:hflash .4s ease}@keyframes hflash{0%,100%{filter:brightness(1) drop-shadow(0 0 0 transparent)}40%{filter:brightness(2.5) drop-shadow(0 0 30px #ffd700)}70%{filter:brightness(1.3) drop-shadow(0 0 15px #fff)}}
-.sra-result-pop{animation:srpPop .45s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes srpPop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}60%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.sra-result-pop{animation:srpPop .45s cubic-bezier(.34,1.56,.64,1) forwards;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);}@keyframes srpPop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}60%{transform:translate(-50%,-50%) scale(1.1)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 
 /* ===== 成就通知动画 ===== */
 .ach-pop{animation:achPopSlide .4s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes achPopSlide{0%{transform:translate(-50%,-80px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 
 /* ===== 技能按钮 ===== */
-#skillBar{display:flex;gap:8px;overflow-x:auto;padding:6px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;cursor:pointer;min-width:52px;transition:all .2s;position:relative}.skill-btn:hover{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.25)}.skill-btn.disabled{opacity:.4;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+#skillBar{display:flex;flex-wrap:nowrap;gap:4px;overflow-x:auto;padding:5px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center;justify-content:center}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;cursor:pointer;min-width:48px;min-height:44px;transition:all .2s;position:relative;justify-content:center;font-size:8px}.skill-btn:hover{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.25)}.skill-btn.disabled{opacity:.4;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
 
 /* ===== 星级显示 ===== */
 .star-pip{display:inline-block;font-size:10px;color:#ffd700;letter-spacing:-1px}.star-pip-empty{color:#333}
@@ -695,6 +703,89 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 
 /* ===== 手机小屏优化 ===== */
 @media(max-width:480px){.hero-glow{width:160px!important;height:160px!important}#heroIcon{font-size:clamp(80px,24vw,120px)!important}#heroThumbs{max-width:180px!important}.hud-row{display:none!important}#skillBar{padding:5px 8px;gap:6px}.summon-btn{padding:8px 12px!important;font-size:13px!important}.side-btn{padding:8px 7px!important}#heroFateTag{display:none!important}.sra-result-anim{min-width:260px!important;padding:16px 12px!important}#gameBottomBar{gap:clamp(6px,2vw,12px)!important}}@media(max-width:360px){.hero-glow{width:120px!important;height:120px!important}#heroIcon{font-size:clamp(65px,20vw,90px)!important}#skillBar{padding:4px 6px;gap:4px}.skill-btn{min-width:44px;padding:4px 5px}}
+
+.forge-title{font-size:1.1em;font-weight:700;color:#fbbf24;margin-bottom:10px;text-align:center}
+.forge-materials{display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:10px}
+.mat-chip{background:rgba(255,255,255,.08);padding:3px 8px;border-radius:12px;font-size:12px}
+.suit-banner{background:linear-gradient(135deg,#ff8c00,#ff3333);color:#fff;padding:8px 12px;border-radius:8px;text-align:center;font-weight:700;margin-bottom:10px;font-size:13px}
+.suit-banner.suit-2{background:linear-gradient(135deg,#555,#777)}
+.suit-progress{color:#666;font-size:12px;padding:6px 0;margin-bottom:8px;text-align:center}
+.forge-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
+.forge-tab{background:transparent;border:none;color:#888;font-size:13px;padding:6px 10px;cursor:pointer;border-bottom:2px solid transparent;flex:1;text-align:center}
+.forge-tab.active{color:#fbbf24;border-bottom-color:#fbbf24}
+.forge-section-title{font-size:12px;color:#888;padding:4px 8px;margin-bottom:8px}
+.forge-recipe{background:rgba(255,255,255,.04);padding:8px;margin-bottom:8px;border-radius:8px;opacity:.65}
+.forge-recipe.can-craft{opacity:1;background:rgba(255,255,255,.07)}
+.recipe-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.recipe-cost{font-size:11px;color:#888;margin-bottom:3px}
+.recipe-desc{font-size:11px;color:#666;margin-bottom:5px}
+.forge-btn{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;width:100%}
+.forge-btn.active{background:#fbbf24;color:#111;font-weight:700}
+.forge-btn.disabled{background:rgba(255,255,255,.05);border-color:#333;color:#555;cursor:not-allowed}
+.forge-items-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:20px}
+.forge-item{background:rgba(255,255,255,.04);border:1px solid #555;border-radius:8px;padding:8px;text-align:center;transition:transform .15s}
+.forge-item:hover{transform:scale(1.05)}
+.forge-item.equipped{border-color:#fbbf24!important;background:rgba(251,191,36,.1)}
+.fi-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.fi-info{font-size:11px;color:#888;margin-bottom:4px}
+.fi-type{font-size:11px;color:#666;margin-bottom:6px}
+.fi-btns{display:flex;gap:4px}
+.fi-btn{background:rgba(255,255,255,.06);border:1px solid #444;color:#999;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;flex:1}
+.fi-btn.active{background:#fbbf24;color:#111;border-color:#fbbf24;font-weight:700}
+.forge-items-list{display:flex;flex-direction:column;gap:8px;padding-bottom:20px}
+.forge-list-item{background:rgba(255,255,255,.04);padding:8px;border-radius:8px}
+.li-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.li-cost{font-size:11px;color:#888;margin-bottom:6px}
+.li-btns{display:flex;gap:6px}
+.li-btns .forge-btn{width:auto;flex:1}
+.forge-empty{color:#555;text-align:center;padding:40px;font-size:14px}
+
+/* 面板内容区美化 */
+#forgeContent,#towerContent,#skinContent,#atlasContent{padding:12px 16px 20px;scrollbar-width:none;-ms-overflow-style:none;overflow-y:auto}#forgeContent::-webkit-scrollbar,#towerContent::-webkit-scrollbar,#skinContent::-webkit-scrollbar,#atlasContent::-webkit-scrollbar{width:0;height:0;display:none}
+.forge-materials{margin-bottom:12px}
+.mat-chip{border:1px solid rgba(255,215,0,.15);border-radius:12px;font-size:11px;color:#ffd700;background:rgba(255,215,0,.06);padding:4px 10px;}
+.forge-body{padding:0 2px}
+
+/* 皮肤面板 */
+.skin-preview{border:2px solid;border-radius:16px;padding:16px;text-align:center;margin-bottom:10px}
+.skin-rarity-section{margin-bottom:12px;padding-left:8px}
+.skin-rarity-label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.skin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.skin-item{border:1px solid #555;border-radius:12px;padding:8px 4px;text-align:center;transition:transform .15s;background:rgba(255,255,255,.03)}
+.skin-item:hover{transform:scale(1.06)}
+.skin-item.skin-owned{border-color:#ffd70044}
+.skin-item.skin-equipped{border-color:#ffd700!important;background:rgba(255,215,0,.1)!important}
+.close-btn{margin-top:12px;width:100%;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.05);color:#888;font-size:13px;cursor:pointer}
+.close-btn:hover{background:rgba(255,255,255,.1);color:#ccc}
+
+/* 图鉴面板 */
+.atlas-header{text-align:center;padding:8px 0 14px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:14px}
+.atlas-header .ah-unlock{font-size:13px;color:#ffd700}
+.atlas-header .ah-tip{font-size:11px;color:#666;margin-top:4px}
+.atlas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 2px}
+.atlas-item{border:1.5px solid rgba(255,255,255,.07);border-radius:12px;padding:10px 4px;text-align:center;background:rgba(255,255,255,.025);transition:all .2s}
+.atlas-item.unlocked{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.04)}
+.atlas-item .az-emoji{font-size:32px;line-height:1;margin-bottom:4px}
+.atlas-item .az-name{font-size:11px;color:#666}
+.atlas-item.unlocked .az-name{color:#ffd700;font-weight:600}
+
+/* 试炼塔面板 */
+.tower-floor-bar{background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.25);border-radius:12px;padding:12px;margin-bottom:10px}
+.tower-enemy-card{background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid #6b21a8;border-radius:14px;padding:14px;text-align:center;margin-bottom:10px}
+.tower-enemy-card.boss{border-color:#ff6b35}
+.tower-ms-item{padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.tower-ms-locked{opacity:.4}
+.tower-ms-claimed{opacity:.5}
+
+/* 手机适配 */
+@media(max-width:400px){
+  #forgeContent,#towerContent,#skinContent,#atlasContent{padding:10px 12px 16px}
+  .skin-grid{grid-template-columns:repeat(2,1fr)}
+  .atlas-grid{grid-template-columns:repeat(3,1fr)}
+  .panel-box{margin:8px;max-height:95vh}
+}
+
+
 </style>
 </head>
 <body>
@@ -734,7 +825,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
       天生 <b id="mFn">木</b> 命<br><br>
       <span id="mDesc">产金×1 · 龙气×1 · 经验×1.5</span>
     </div>
-    <button class="modal-btn modal-btn-start" onclick="startGame()">开启天机之旅 ✦</button>
+    <button class="modal-btn modal-btn-start" onclick="startGame(sz,sf)">开启天机之旅 ✦</button>
     <button class="modal-btn modal-btn-cancel" onclick="reselect()">重新选择</button>
   </div>
 </div>
@@ -742,10 +833,12 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
 <!-- 召唤翻牌动画遮罩 -->
 <div id="summonOverlay">
   <div class="summon-tip">点击卡牌揭晓命运</div>
-  <div class="scard-wrap" onclick="revealSummon()">
+  <div class="scard-wrap" onclick="revealSummon()" style="display:flex;align-items:center;justify-content:center;">
     <div class="scard" id="scard">
-      <div class="scard-face scard-back"></div>
-      <div class="scard-face scard-front">
+      <div class="scard-face scard-back" style="position:absolute;top:0;left:0;width:160px;height:200px;">
+      <span class="q-mark">？</span>
+    </div>
+      <div class="scard-face scard-front" style="position:absolute;top:0;left:0;width:160px;height:200px;">
         <div class="sf-emoji" id="sfEmoji"></div>
         <div class="sf-name"  id="sfName"></div>
         <div class="sf-cps"   id="sfCps"></div>
@@ -763,7 +856,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
     <div class="sra-bar"><div class="sra-fill" id="sraFill"></div></div>
     <div class="sra-new" id="sraNew" style="display:none">✨ 新灵兽解锁！</div>
   </div>
-  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="margin-top:20px;display:none;">收下 ✦</button>
+  <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);min-width:240px;max-width:320px;width:auto;display:none;z-index:520;">收下 ✦</button>
 </div>
 
 
@@ -856,56 +949,70 @@ function doStart(){
       <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
       <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
       <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
+      <span id="hudWeekly" style="font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;margin-left:6px;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,255,255,.1);display:none;" onclick="openWeeklyPanel()" title="本周挑战">📅 <span id="hudWeeklyNum">0/7</span></span>
     </div>
     <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
   </div>
 
-  <!-- ===== 技能条顶栏（新增）===== -->
-  <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
-    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:wrap;"></div>
-  </div>
-
   <!-- ===== 第二行：左按钮 | 灵兽 | 右按钮 ===== -->
-    <div id="middleRow" style="flex:1;display:grid;grid-template-columns:52px 200px 1fr 52px;align-items:stretch;min-height:0;overflow:hidden;margin:0;">
+    <div id="middleRow" style="flex:1;display:grid;grid-template-columns:52px 1fr 52px;grid-template-rows:1fr;align-items:stretch;min-height:0;overflow:hidden;margin:0;">
 
 <!-- 左侧功能按钮（竖排） -->
-    <div style="grid-area:1;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
+    <div style="grid-column:1;grid-row:1 / span 2;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
+      <div style="display:flex;flex-direction:column;justify-content:space-between;width:100%;flex:1;min-height:0;">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
       <button onclick="openSignPanel()" class="side-btn" data-fn="sign" title="每日签到"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openTaskPanel()" class="side-btn" data-fn="task" title="每日任务"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
       <button onclick="openActivityPanel()" class="side-btn" data-fn="activity" title="限时活动"><svg viewBox="0 0 24 24"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
-      <button onclick="openHandbook()" class="side-btn" data-fn="handbook" title="灵兽图鉴"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <button onclick="openCultPanel()" class="side-btn" data-fn="cult" title="命格修炼"><svg viewBox="0 0 24 24"><path d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-7v2h2v-2h-2zm0-8v5h2V7h-2z" fill="currentColor" opacity=".5"/></svg></button>
+        </div>
+      </div>
+
     </div>
 
-<!-- 灵兽网格（显示，覆盖在中间，5×5格子） -->
-    <div id="dragonGrid" style="grid-area:3;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0;">
-      <div style="display:flex;align-items:center;gap:8px;padding:clamp(8px,1.5vh,14px) 12px clamp(6px,1vh,10px);border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;">
-        <span style="font-size:13px;color:#ffd700;letter-spacing:2px;font-weight:600;">🐾 灵兽</span>
-        <span id="gridCount" style="font-size:11px;color:rgba(255,255,255,.3);"></span>
+<!-- 新内容区（居中，占满中间列）：上(5功能) → 中(灵兽卡) → 下(灵兽网格) -->
+    <div id="contentArea" style="display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;min-height:0;height:100%;box-sizing:border-box;">
+      <!-- 5个功能按钮行 -->
+      <div id="featureRow" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px 14px;border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;height:68px;align-content:center;">
+        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="color:rgba(255,107,53,.7);font-size:18px;">🏔️<span style="font-size:8px;display:block;margin-top:2px;color:rgba(255,107,53,.7);">试炼塔</span></button>
+        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="color:rgba(147,197,253,.65);font-size:18px;">👑<span style="font-size:8px;display:block;margin-top:2px;color:rgba(147,197,253,.65);">皮肤</span></button>
+        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="color:rgba(251,191,36,.8);font-size:18px;">⚒️<span style="font-size:8px;display:block;margin-top:2px;color:rgba(251,191,36,.8);">炼宝</span></button>
+        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="color:rgba(180,100,255,.65);font-size:18px;">📖<span style="font-size:8px;display:block;margin-top:2px;color:rgba(180,100,255,.65);">图鉴</span></button>
+        <button onclick="openActiveCenter()" class="side-btn" data-fn="active" title="福利中心" style="color:rgba(76,175,80,.7);font-size:18px;">🎁<span style="font-size:8px;display:block;margin-top:2px;color:rgba(76,175,80,.7);">福利</span></button>
       </div>
-      <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
-    </div>
 
-<!-- 灵兽展示卡（紧凑，右边） -->
-    <div id="heroSection" style="grid-area:2;flex:0 0 200px;min-width:160px;max-width:200px;width:200px !important;max-height:100%;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;gap:2px;background:rgba(255,255,255,.015);border-left:1px solid rgba(255,215,0,.06);">
-      <!-- 命格标签 -->
-      <div id="heroFateTag" style="font-size:9px;color:rgba(255,215,0,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">木命 · 大吉</div>
-      <!-- 灵兽emoji + 光环 -->
-      <div style="position:relative;width:clamp(80px,12vw,120px);height:clamp(80px,12vw,120px);">
-        <div style="position:absolute;inset:-12px;background:radial-gradient(circle,rgba(100,60,200,.15) 0%,transparent 70%);border-radius:50%;"></div>
-        <div id="heroIcon" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(60px,9vw,90px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,215,0,.5));transition:filter .6s cubic-bezier(.4,0,.2,1);z-index:2;cursor:pointer;" onclick="cycleHeroAnim()">🐣</div>
+      <!-- 灵兽详情卡（居中，外部约束宽度） -->
+      <div id="heroCard" style="position:relative;width:92%;margin:0 auto;overflow:hidden;height:88px;box-sizing:border-box;">
+        <!-- 左侧：灵兽emoji + 文字 -->
+        <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:88px;box-sizing:border-box;">
+          <div id="heroIcon" onclick="cycleHeroAnim()" style="font-size:32px;line-height:1;filter:drop-shadow(0 0 6px rgba(255,215,0,.4));cursor:pointer;flex-shrink:0;">🐣</div>
+          <div>
+            <div id="heroFateTag" style="font-size:7px;color:rgba(255,215,0,.4);letter-spacing:1px;">木命 · 大吉</div>
+            <div style="display:flex;align-items:center;gap:2px;margin-top:1px;">
+              <span id="heroLv" style="font-size:10px;font-weight:700;color:#ffd700;">Lv.1</span>
+              <span style="color:rgba(255,215,0,.25);font-size:8px;">·</span>
+              <span id="heroCps" style="font-size:9px;color:#aaa;">+1/s</span>
+            </div>
+            <div id="heroThumbs" style="display:flex;gap:2px;margin-top:2px;"></div>
+          </div>
+        </div>
+        <!-- 右侧：攻防速 -->
+        <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9px;color:rgba(255,255,255,.4);line-height:1.7;text-align:right;white-space:nowrap;">
+          攻击 <span style="color:rgba(255,215,0,.7);">12</span><br>
+          防御 <span style="color:rgba(255,215,0,.7);">8</span><br>
+          速度 <span style="color:rgba(255,215,0,.7);">15</span>
+        </div>
       </div>
-      <!-- 等级+产金 -->
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span id="heroLv" style="font-size:11px;font-weight:700;color:#ffd700;letter-spacing:1px;">Lv.1</span>
-        <span style="color:rgba(255,215,0,.3);font-size:9px;">·</span>
-        <span id="heroCps" style="font-size:10px;color:#aaa;">+1/s</span>
+
+      <!-- 灵兽网格（5×5）填充剩余空间 -->
+      <div id="dragonGrid" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
+        <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
       </div>
-      <!-- 进化链预览 -->
-      <div id="heroThumbs" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:clamp(150px,18vw,210px);font-size:clamp(14px,2.5vw,22px);opacity:.5;margin-top:2px;"></div>
-    </div>
+    </div><!-- /contentArea -->
 
 <!-- 右侧功能按钮（竖排） -->
-    <div style="grid-area:4;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
+    <div style="grid-column:3;grid-row:1 / span 2;width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;z-index:50;padding-top:clamp(32px,5vh,60px);padding-bottom:clamp(70px,12vh,100px);background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 30%,transparent 70%,rgba(0,0,0,.15) 100%);">
+      <button onclick="openActiveCenter()" class="side-btn" data-fn="active" id="hudActiveBtn" title="今日活跃" style="position:relative;"><svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg><span id="hudActiveBadge" style="position:absolute;top:4px;right:4px;width:12px;height:12px;background:#ff4444;border-radius:50%;font-size:8px;color:#fff;font-weight:700;display:none;align-items:center;justify-content:center;line-height:1;z-index:2;">0</span></button>
       <button onclick="openRankPanel()" class="side-btn" data-fn="rank" title="排行榜"><svg viewBox="0 0 24 24"><path d="M8 21h8m-4-4v4m-5-8l2.5-6.5L12 12l3.5-5.5L20 13H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 4h10l-1.5 4-3 2-3-2L7 4z" fill="currentColor" opacity=".5"/><circle cx="12" cy="6" r="1.5" fill="currentColor"/></svg></button>
       <button onclick="openAchPanel()" class="side-btn" data-fn="ach" title="成就"><svg viewBox="0 0 24 24"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <button onclick="openStatsPanel()" class="side-btn" data-fn="stat" title="游戏统计" style="color:rgba(100,180,255,.6);"><svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="14" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg></button>
@@ -913,6 +1020,11 @@ function doStart(){
     </div>
   </div><!-- /中间行 -->
 
+  <!-- ===== 技能条（召唤栏上方）===== -->
+  <div id="skillBarRow" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.5vw,12px);padding:clamp(4px,0.8vh,8px) clamp(40px,6vw,60px);background:rgba(7,7,26,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,215,0,.05);">
+    <div id="skillBar" style="display:flex;gap:clamp(6px,1.5vw,12px);align-items:center;justify-content:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
+  </div>
+
   <!-- ===== 第三行：底部召唤栏 ===== -->
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
     <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
@@ -932,6 +1044,40 @@ function doStart(){
 
 </div>
     </div>
+<div id="activeCenterPanel" class="active-center-panel">
+  <div style="padding:16px 20px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);">
+    <div style="font-size:16px;font-weight:700;color:#ffd700;letter-spacing:1px;">📋 今日活跃</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="acScore" style="font-size:12px;color:#ffd700;font-weight:700;background:rgba(255,215,0,.08);padding:3px 10px;border-radius:12px;border:1px solid rgba(255,215,0,.15);">0分</span>
+      <span onclick="closeActiveCenter()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;">×</span>
+    </div>
+  </div>
+  <div style="padding:14px 14px 100px;">
+    <div id="activeCenterItems"></div>
+    <div style="margin-top:14px;">
+      <div style="font-size:10px;color:#555;letter-spacing:2px;margin-bottom:10px;padding-left:2px;">快捷入口</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="closeActiveCenter();openSignPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">📅</span>每日签到</button>
+        <button onclick="closeActiveCenter();openTaskPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">📝</span>每日任务</button>
+        <button onclick="closeActiveCenter();openActivityPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">⚡</span>限时活动</button>
+        <button onclick="closeActiveCenter();openCultPanel();" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 8px;color:#ddd;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;"><span style="font-size:22px;">⚗️</span>命格修炼</button>
+      </div>
+    </div>
+    <div style="margin-top:14px;">
+      <div style="font-size:10px;color:#555;letter-spacing:2px;margin-bottom:10px;padding-left:2px;">本周挑战</div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;" onclick="closeActiveCenter();openWeeklyPanel();">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px;color:#ddd;font-weight:600;">📅 本周完成进度</span>
+          <span id="acWeeklyNum" style="font-size:12px;color:#ffd700;font-weight:700;">0/7</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;">
+          <div id="acWeeklyBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ffd700,#ff9800);border-radius:2px;transition:width .5s ease;"></div>
+        </div>
+      </div>
+    </div>
+    <!-- 炼宝阁已移至右侧灵兽区 -->
+  </div>
+</div>
 <div id="rankPanel" class="rank-panel"></div>
   <div id="signPanel" class="sign-panel"></div>
   <div id="taskPanel" class="task-panel"></div>
@@ -951,6 +1097,15 @@ function doStart(){
 
   <!-- === feat[9]: 游戏统计面板 === -->
   <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
+  <div id="towerPanel" class="panel-overlay">
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#ff6b35;">⚔️ 天命试炼塔</span>
+        <span onclick="closeTowerPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
+      </div>
+      <div id="towerContent" style="padding:0 0 20px;"></div>
+    </div>
+  </div>
   <div id="settingsPanel" class="panel-overlay">
     <div class="panel-box">
       <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
@@ -996,107 +1151,39 @@ function doStart(){
   <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
   <div id="guideOverlay"></div>
   <div id="guideTooltip"></div>
-  <script src="js/config.js"></script>
-<script src="js/audio.v2.js"></script>
-<script src="js/game.v3.js"></script>
-<script src="js/ui.v2.js"></script>
-</body>
-</html
-    </div>
-
-  <!-- ===== 第三行：底部召唤栏 ===== -->
-  <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
-    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:clamp(70px,22vw,90px);padding:10px 16px;" title="金币召唤">
-      <span style="font-size:18px;">💰</span>
-      <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>
-    </button>
-    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:90px;padding:10px 16px;" title="龙气召唤">
-      <span id="qiCost" style="font-size:9px;display:block;margin-bottom:1px;color:rgba(255,255,255,.5);">✨ 500</span>
-      <span style="font-size:18px;">✨</span>
-      <span style="font-size:10px;margin-left:2px;color:rgba(160,216,239,.9);">500</span>
-    </button>
-    <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
-      <span style="font-size:18px;">🌿</span>
-      <span id="freeCount" style="font-size:10px;margin-left:2px;color:rgba(76,175,80,.9);"></span>
-    </button>
-  </div>
-
-</div>
-<div id="rankPanel" class="rank-panel"></div>
-  <div id="signPanel" class="sign-panel"></div>
-  <div id="taskPanel" class="task-panel"></div>
-  <div id="activityPanel" class="activity-panel"></div>
-  <div id="handbookPanel" class="handbook-panel"></div>
-
-  <!-- === feat[8]: 连击计时条 === -->
-  <div id="comboBar">
-    <div class="combo-track">
-      <div class="combo-fill c0" id="comboFill" style="height:100%"></div>
-    </div>
-    <div class="combo-badge" id="comboBadge">×1</div>
-  </div>
-  <div id="cultPanel" class="cult-panel"></div>
-  <div id="achPanel" class="ach-panel"></div>
-  <div id="weeklyPanel" class="ach-panel"></div>
-
-  <!-- === feat[9]: 游戏统计面板 === -->
-  <div id="statsPanel" class="ach-panel" style="z-index:304;"></div>
-  <div id="settingsPanel" class="panel-overlay">
-    <div class="panel-box">
-      <div class="panel-header">⚙️ 设置与重置<a onclick="closeSettings()" style="float:right;cursor:pointer;font-size:22px;line-height:1;">×</a></div>
-      <div style="padding:20px 20px 24px;">
-        <div style="margin-bottom:18px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
-            <span>🔊 总音量</span><span id="volVal">70%</span>
-          </div>
-          <input type="range" id="volSlider" min="0" max="100" value="70" style="width:100%;accent-color:#ffd700;" oninput="onVolChange(this.value)">
-        </div>
-        <div style="margin-bottom:18px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
-            <span>🎵 背景音乐</span>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
-              <input type="checkbox" id="bgmToggle" checked onchange="onBgmToggle(this.checked)">
-              <span id="bgmLabel">开启</span>
-            </label>
-          </div>
-          <input type="range" id="bgmSlider" min="0" max="100" value="35" style="width:100%;accent-color:#ffd700;" oninput="onBgmChange(this.value)">
-        </div>
-        <div style="margin-bottom:24px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
-            <span>🔔 游戏音效</span>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#aaa;">
-              <input type="checkbox" id="sfxToggle" checked onchange="onSfxToggle(this.checked)"><span id="sfxLabel">开启</span>
-            </label>
-          </div>
-          <input type="range" id="sfxSlider" min="0" max="100" value="80" style="width:100%;accent-color:#ffd700;" oninput="onSfxChange(this.value)">
-        </div>
-        <div style="margin-bottom:24px;">
-          <div style="margin-bottom:8px;font-size:14px;">☁️ 服务器地址（天机榜）</div>
-          <input type="text" id="backendUrlInput" placeholder="例：http://你的服务器IP:3001" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px;box-sizing:border-box;">
-          <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;">填入服务器地址后，打开天机榜即可上榜<br>离线模式下游戏不受影响</div>
-        </div>
-        <button onclick="saveSettings();closeSettings();" style="width:100%;padding:13px;border-radius:20px;background:#ffd700;border:none;color:#1a0a00;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;">保存 ✦</button>
+  <!-- P0-1 灵兽图鉴面板 -->
+  <div id="atlasPanel" class="panel-overlay">
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#c4b5fd;">📖 灵兽图鉴</span>
+        <span onclick="closeAtlasPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
       </div>
+      <div id="atlasContent" style="padding:0 0 20px;"></div>
     </div>
   </div>
-  <div id="fateOverlay" style="position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0;transition:opacity 1s;"></div>
-    <div id="mergeFlash" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;pointer-events:none;z-index:500;">
-    <div id="mergeText" style="font-size:96px;filter:drop-shadow(0 0 32px rgba(255,215,0,.8));"></div>
+  <!-- P0-2 灵兽皮肤面板 -->
+  <div id="skinPanel" class="panel-overlay">
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#93c5fd;">✨ 灵兽皮肤</span>
+        <span onclick="closeSkinPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
+      </div>
+      <div id="skinContent" style="padding:0 0 20px;"></div>
+    </div>
   </div>
-  <div id="notif" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;z-index:400;"></div>
-  <div id="guideOverlay"></div>
-  <div id="guideTooltip"></div>
   <script src="js/config.js"></script>
-<script>
-if(sessionStorage.getItem('aps_auto_login')==='1'){
-  sz=4;sf=1;nextId=3;
-  document.getElementById('gamePage').style.cssText='display:flex;visibility:visible;opacity:1';
-  document.getElementById('loginWrap').style.display='none';
-  G={zodiac:4,fate:1,coins:2000,qi:200,dragons:[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}],mergeCount:5,summonCount:3,maxCombo:2,unlockedAtlas:[4],signStreak:1,totalCoins:2000,created:true};
-}
-</script>
 <script src="js/audio.v2.js"></script>
-<script src="js/game.v3.js"></script>
+<script src="js/game.v5.js?v=13"></script>
 <script src="js/ui.v2.js"></script>
+  <!-- P1-2 炼宝阁面板 -->
+  <div id="forgePanel" class="panel-overlay">
+    <div class="panel-box" style="max-width:420px;">
+      <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:17px;font-weight:700;color:#fbbf24;">🔨 炼宝阁</span>
+        <span onclick="closeForgePanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
+      </div>
+      <div id="forgeContent" style="padding:0 0 20px;"></div>
+    </div>
+  </div>
 </body>
 </html>

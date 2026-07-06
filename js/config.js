@@ -2,15 +2,16 @@ function cycleHeroAnim(){
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
   if(best.id) showDragonDetail(best.id);
 }
-const LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
-const COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
-const FATE_E = ['🪵','🔥','🟤','⚪','💧'];
-const FATE_C = [1,1.5,1,1,1];
-const FATE_Q = [1,1,1,1,1.5];
-const FATE_N = ['木','火','土','金','水'];
-const ZOD_E  = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
-const ZOD_UNLOCK_COST = 10000;
-const ZOD_LORE = [
+var LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
+var LICON = ['','🐣','🐥','🐤','🐦','🦅','🦆','🦉','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
+var COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
+var FATE_E = ['🪵','🔥','🟤','⚪','💧'];
+var FATE_C = [1,1.5,1,1,1];
+var FATE_Q = [1,1,1,1,1.5];
+var FATE_N = ['木','火','土','金','水'];
+var ZOD_E  = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
+var ZOD_UNLOCK_COST = 10000;
+var ZOD_LORE = [
   '鼠：十二生肖之首，机敏多智，夜行不怠。《说文》称"鼠，穴虫之总名"。',
   '牛：勤劳忠实，脚踏实地。农耕之本，春耕秋收，无怨无悔。',
   '虎：百兽之王，威震山林。《说文》记"虎，山兽之君"，镇宅辟邪。',
@@ -24,18 +25,14 @@ const ZOD_LORE = [
   '狗：忠诚守护，义犬救主。"狗，叩也"，叩头摇尾，忠于主人。',
   '猪：厚福安详，随遇而安。"猪者，诸也"，诸事顺遂，圆满之象。'
 ];
-const ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
-const YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
-const YUN_COIN   = [-.5,-.2,0,.3,.5];
-const RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#aaa'},{icon:'🥉',title:'小成',min:6,color:'#cd7f32'},{icon:'🥈',title:'大成',min:10,color:'#c0c0c0'},{icon:'🏆',title:'天师',min:14,color:'#ffd700'}];
+var ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+var YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
+var YUN_COIN   = [-.5,-.2,0,.3,.5];
+var RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#aaa'},{icon:'🥉',title:'小成',min:6,color:'#cd7f32'},{icon:'🥈',title:'大成',min:10,color:'#c0c0c0'},{icon:'🏆',title:'天师',min:14,color:'#ffd700'}];
 
 let _audioCtx = null;
 let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8, bgmLast: 0.35, sfxLast: 0.8 };
 
-function initAudio() {
-  if (_audioCtx) return;
-  try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-}
 
 function playSound(type) {
   if (!_audioCtx || _audioState.muted) return;
@@ -207,19 +204,20 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-let G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null};
+var G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0}};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
-const TASKS = [
+var TASKS = [
   {id:'summon10',  icon:'🐣', title:'灵兽召唤',  desc:'累计召唤10次', target:10,  reward:{coin:1000,qi:20,free:0},  type:'static'},
   {id:'summon30',  icon:'🐥', title:'召唤达人',  desc:'累计召唤30次', target:30,  reward:{coin:3000,qi:60,free:1},  type:'static'},
   {id:'merge10',   icon:'⚡', title:'合成进阶',  desc:'累计合成10次', target:10,  reward:{coin:2000,qi:40,free:0},  type:'static'},
   {id:'merge30',   icon:'🌟', title:'合成大师',  desc:'累计合成30次', target:30,  reward:{coin:8000,qi:120,free:2}, type:'static'},
+  {id:'spendQi',  icon:'⚗️', title:'命格修炼',   desc:'消耗龙气修炼节点', target:1,   reward:{coin:800, qi:0, free:0},  type:'spend_qi'},
   {id:'login',     icon:'🎮', title:'每日登录',  desc:'登录游戏即可', target:1,   reward:{coin:500, qi:10, free:0},  type:'login'},
 ];
 
 // 7天签到配置
-const SIGN_REWARDS = [
+var SIGN_REWARDS = [
   {coin:500,  qi:10,  free:0, label:'第1天'},
   {coin:1000, qi:20,  free:0, label:'第2天'},
   {coin:2000, qi:30,  free:0, label:'第3天'},
@@ -231,7 +229,7 @@ const SIGN_REWARDS = [
 
 // ===== 限时活动 =====
 // 支持多活动叠加，active() 返回是否触发
-const ACTIVITIES = [
+var ACTIVITIES = [
   {
     id:'weekend2x',
     icon:'🎁',
@@ -262,15 +260,16 @@ function getActivityBonus(){return getActiveActivities();}
 function calcSummonBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.summonBonus,0));}
 function calcCoinBonus(){return 1+(getActiveActivities().reduce((s,a)=>s+a.coinBonus,0));}
 function fmtActivityCountdown(){const a=getActiveActivities()[0];if(!a)return'';if(a.id==='night1_5x'){const m=new Date();const end=new Date(m);end.setHours(22,0,0,0);if(m.getHours()>=20)return'剩余 '+(Math.max(0,Math.round((end-m)/60000)))+'min';}return'进行中';}
+var SAVE_KEY = 'sxgame_v2';
 let nextId = 1;
 let cpsTimer = null, qiTimer = null, bgmTimer = null;
 
 function saveGame(){
   G.lastOnline=Date.now();
-  localStorage.setItem(SAVE_KEY, JSON.stringify(G));
+  localStorage.setItem(SAVE_KEY || 'sxgame_v2', JSON.stringify(G));
 }
 function loadGame(){
-  const s = localStorage.getItem(SAVE_KEY);
+  const s = localStorage.getItem(SAVE_KEY || 'sxgame_v2');
   if(s){try{Object.assign(G,JSON.parse(s));}catch(e){}}
   if(G.dragons.length) nextId = Math.max(...G.dragons.map(d=>parseInt(d.id)))+1;
   // 兼容旧存档：没有 unlockedAtlas 则自动解锁自己属相
@@ -388,9 +387,9 @@ function updateFreeBtn(){
     }, 60000);
   }
 }
-const COLS=5, TOTAL=25;
-const RAR_COLORS = {0:'#1a1a1a',1:'#0a1a2a',2:'#1a0a2a',3:'#2a1a00',4:'#2a0a00'}; // 0普通~4神话（暗色背景）
-const RAR_BORDER = {0:'rgba(255,255,255,.06)',1:'rgba(126,184,255,.3)',2:'rgba(181,126,220,.3)',3:'rgba(255,215,0,.4)',4:'rgba(255,107,53,.5)'};
+var COLS=5, TOTAL=25;
+var RAR_COLORS = {0:'#1a1a1a',1:'#0a1a2a',2:'#1a0a2a',3:'#2a1a00',4:'#2a0a00'}; // 0普通~4神话（暗色背景）
+var RAR_BORDER = {0:'rgba(255,255,255,.06)',1:'rgba(126,184,255,.3)',2:'rgba(181,126,220,.3)',3:'rgba(255,215,0,.4)',4:'rgba(255,107,53,.5)'};
 function rarIdx(lvl){if(lvl<=2)return 0;if(lvl<=4)return 1;if(lvl<=7)return 2;if(lvl<=10)return 3;return 4;}
 function renderGrid(){
   const grid=document.getElementById('dragonGridInner');
@@ -592,12 +591,21 @@ function markMergeable(){
   }
 }
 function getSummonLevel(pool){
+  if(!pool||!Array.isArray(pool)||pool.length===0) pool=[{level:1,weight:100}];
   // 1) 天机召唤吉时加成（3次机会，提升高阶概率）
   let adjusted = pool.map(p=>{
     if((G._summonBoost||0)>0 && p.level>=3) return {level:p.level, weight:Math.floor(p.weight*2.5)};
+    // 2) 属相加成：龙(4)/虎(2)/牛(1)高等级概率+30%；鼠(0)低等级概率+40%；兔(3)/蛇(4)适中+20%
+    if(G.zodiac>=0){
+      const z=G.zodiac;
+      const zBonusHigh=[.4,.2,.3,0,0,.2,0,0,0,0,0,0][z]||0; // 高等级加成
+      const zBonusLow=[0,0,0,.4,0,.2,0,0,0,0,0,0][z]||0;  // 低等级加成
+      if(p.level>=3 && zBonusHigh>0) return {level:p.level, weight:Math.floor(p.weight*(1+zBonusHigh))};
+      if(p.level<=2 && zBonusLow>0) return {level:p.level, weight:Math.floor(p.weight*(1+zBonusLow))};
+    }
     return p;
   });
-  // 2) 周末活动加成
+  // 3) 周末活动加成
   const weekend=ACTIVITIES.find(a=>a.id==='weekend2x'&&a.active());
   if(weekend) adjusted=adjusted.map(p=>({...p,weight:p.level>=2?p.weight*2:p.weight}));
   let total=adjusted.reduce((s,p)=>s+p.weight,0),r=Math.random()*total,acc=0;
@@ -788,7 +796,7 @@ function notifSummon(lvl){
 }
 
 // 金币产出飘字（每秒随机位置冒出）
-const _floatPool=[];
+var _floatPool=[];
 function spawnCoinFloat(amt){
   if(!G.created||amt<=0)return;
   const el=document.createElement('div');
@@ -806,11 +814,18 @@ function spawnCoinFloat(amt){
 }
 function startCps(){
   stopCps();
+  // 周金币追踪计数（每60秒更新一次，避免频繁写存储）
+  let _weeklyCoinTimer=0;
   cpsTimer=setInterval(()=>{
     const cps=calcCps();
+    G.cps=cps;  // 缓存，供 _trackWeeklyCoins 使用
     if(cps>0){G.coins+=cps;G.totalCoins=(G.totalCoins||0)+cps;updateHud();spawnCoinFloat(cps);if(G.totalCoins%3600<cps)saveGame();}
-    // 周金币追踪
-    try{if(typeof _trackWeeklyCoins==='function')_trackWeeklyCoins();}catch(e){}
+    // 每60秒更新周金币计数（每次累加60秒产出）
+    _weeklyCoinTimer+=1000;
+    if(_weeklyCoinTimer>=60000){
+      _weeklyCoinTimer=0;
+      try{if(typeof _trackWeeklyCoins==='function')_trackWeeklyCoins();}catch(e){}
+    }
   },1000);
   // combo 衰减（500ms检测，2.5秒无合成归零）
   setInterval(()=>{if(G.created&&G.combo>0&&Date.now()-G.lastMergeTime>2500){G.combo=0;updateHud();}},500);
@@ -828,165 +843,6 @@ function startCps(){
 }
 function stopCps(){if(cpsTimer){clearInterval(cpsTimer);cpsTimer=null;}if(qiTimer){clearInterval(qiTimer);qiTimer=null;}if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null;}}
 
-function playBgmNote(freq,dur,vol,t){
-  if(!_audioCtx||_audioState.muted)return;
-  const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
-  o.connect(g);g.connect(_audioCtx.destination);
-  o.type='triangle';
-  o.frequency.value=freq;
-  g.gain.setValueAtTime((vol||.15)*_audioState.bgmVolume,_audioCtx.currentTime+(t||0));
-  g.gain.exponentialRampToValueAtTime(.001,_audioCtx.currentTime+(t||0)+dur);
-  o.start(_audioCtx.currentTime+(t||0));
-  o.stop(_audioCtx.currentTime+(t||0)+dur+.05);
-}
-let __bgmTimer=null,__bgmIdx=0,__bgmZ=-1;
-
-// 乐器音色：主音色+副音色组合，模仿真实乐器
-// sub: 副旋律相对主音的音程（0=无, 12=八度, 7=五度, 5=四度）
-// harm: 和声叠音（上方三度/六度等）
-const __INSTRUMENTS=[
-  {name:'古筝',main:'triangle',sub:12,harm:false},   // 0鼠-清脆跳进
-  {name:'低音鼓',main:'sine',sub:0,harm:false},      // 1牛-沉稳
-  {name:'铜管',main:'sawtooth',sub:0,harm:false},    // 2虎-威严
-  {name:'风铃',main:'triangle',sub:7,harm:true},     // 3兔-空灵
-  {name:'编钟',main:'triangle',sub:12,harm:false},  // 4龙-宏大
-  {name:'箫',main:'sine',sub:5,harm:false},         // 5蛇-悠远
-  {name:'马头琴',main:'sawtooth',sub:0,harm:false}, // 6马-奔腾
-  {name:'笛',main:'triangle',sub:7,harm:false},     // 7羊-悠扬
-  {name:'琵琶',main:'sawtooth',sub:0,harm:true},     // 8猴-跳脱
-  {name:'扬琴',main:'triangle',sub:12,harm:true},    // 9鸡-明亮
-  {name:'二胡',main:'sawtooth',sub:0,harm:false},   // 10狗-明快
-  {name:'排钟',main:'sine',sub:12,harm:false},      // 11猪-圆润
-];
-
-function playNote(f,dur,vol,type){
-  if(!_audioCtx||_audioState.muted||f<=0)return;
-  const now=_audioCtx.currentTime;
-  // Pluck包络：快速建立，慢速衰减，更有弹拨感
-  const rise=dur*.06;
-  const o=_audioCtx.createOscillator(),g=_audioCtx.createGain();
-  o.type=type||'triangle';o.frequency.value=f;
-  g.gain.setValueAtTime(.001,now);
-  g.gain.linearRampToValueAtTime(vol,now+rise);
-  g.gain.exponentialRampToValueAtTime(.001,now+dur);
-  o.connect(g);g.connect(_audioCtx.destination);
-  o.start(now);o.stop(now+dur+.02);
-}
-
-const ZODIAC_BGM=[
-  // 0鼠-轻快古筝（BPM90）
-  {bpm:90,inst:0,notes:[
-    261.63,329.63,392,523.25,329.63,392,523.25,392,261.63,392,523.25,659.25,
-    392,523.25,392,329.63,261.63,329.63,392,523.25,329.63,392,523.25,659.25,
-    784,659.25,523.25,392,329.63,523.25,392,329.63,261.63,329.63,392,523.25,
-    659.25,784,659.25,523.25,392,523.25,392,329.63,261.63,392,523.25,392,261.63,
-  ]},
-  // 1牛-沉稳低音（BPM58）
-  {bpm:58,inst:1,notes:[
-    130.81,98,130.81,98,130.81,98,164.81,164.81,196,164.81,196,196,164.81,130.81,
-    98,130.81,98,130.81,98,164.81,164.81,130.81,98,130.81,98,65.41,98,130.81,
-  ]},
-  // 2虎-铜管威严（BPM68）
-  {bpm:68,inst:2,notes:[
-    196,196,261.63,261.63,329.63,329.63,392,392,329.63,329.63,261.63,261.63,
-    196,196,329.63,329.63,392,392,523.25,392,329.63,261.63,329.63,261.63,196,392,
-  ]},
-  // 3兔-风铃空灵（BPM72）
-  {bpm:72,inst:3,notes:[
-    392,523.25,587.33,659.25,587.33,523.25,392,523.25,523.25,659.25,784,880,
-    784,659.25,523.25,392,523.25,392,329.63,392,523.25,392,329.63,261.63,329.63,
-    392,523.25,587.33,659.25,523.25,392,329.63,261.63,392,523.25,392,329.63,261.63,
-  ]},
-  // 4龙-编钟宏大（BPM66）
-  {bpm:66,inst:4,notes:[
-    130.81,130.81,261.63,261.63,329.63,329.63,261.63,261.63,329.63,329.63,392,329.63,
-    261.63,392,392,523.25,392,329.63,261.63,196,261.63,329.63,392,523.25,392,329.63,
-    261.63,261.63,329.63,392,523.25,659.25,523.25,392,329.63,261.63,329.63,261.63,
-  ]},
-  // 5蛇-箫悠远（BPM52）
-  {bpm:52,inst:5,notes:[
-    220,196,174.61,220,196,174.61,196,220,261.63,220,196,174.61,220,196,174.61,196,
-    220,261.63,293.66,261.63,220,196,220,261.63,293.66,329.63,261.63,220,196,174.61,
-  ]},
-  // 6马-马头琴奔腾（BPM96）
-  {bpm:96,inst:6,notes:[
-    392,392,523.25,523.25,392,392,523.25,587.33,392,392,523.25,523.25,659.25,659.25,
-    523.25,392,523.25,523.25,659.25,784,784,659.25,523.25,392,523.25,523.25,392,392,
-    659.25,587.33,523.25,392,392,523.25,523.25,392,392,523.25,
-  ]},
-  // 7羊-笛悠扬（BPM70）
-  {bpm:70,inst:7,notes:[
-    261.63,329.63,392,329.63,261.63,329.63,523.25,523.25,329.63,392,523.25,659.25,
-    523.25,392,329.63,261.63,329.63,523.25,523.25,329.63,392,523.25,659.25,784,
-    659.25,523.25,392,329.63,261.63,329.63,392,329.63,261.63,196,261.63,329.63,392,
-  ]},
-  // 8猴-琵琶跳脱（BPM100）
-  {bpm:100,inst:8,notes:[
-    523.25,784,523.25,784,659.25,523.25,392,523.25,784,659.25,523.25,392,523.25,784,
-    523.25,784,659.25,523.25,392,523.25,784,659.25,523.25,392,523.25,784,523.25,784,
-    659.25,523.25,392,523.25,784,659.25,523.25,392,523.25,784,659.25,523.25,392,
-  ]},
-  // 9鸡-扬琴明亮（BPM85）
-  {bpm:85,inst:9,notes:[
-    587.33,784,987.77,784,587.33,587.33,784,987.77,880,1174.66,880,784,587.33,587.33,
-    784,659.25,587.33,784,987.77,880,784,587.33,784,987.77,987.77,784,659.25,587.33,
-    784,784,659.25,587.33,392,523.25,659.25,784,987.77,784,659.25,587.33,784,659.25,
-  ]},
-  // 10狗-二胡明快（BPM88）
-  {bpm:88,inst:10,notes:[
-    293.66,392,523.25,392,293.66,392,523.25,392,293.66,392,523.25,659.25,523.25,392,
-    293.66,392,523.25,392,293.66,392,523.25,659.25,523.25,392,523.25,659.25,784,
-    659.25,523.25,392,293.66,392,523.25,659.25,523.25,392,293.66,392,523.25,392,
-  ]},
-  // 11猪-排钟圆润（BPM62）
-  {bpm:62,inst:11,notes:[
-    130.81,130.81,196,196,261.63,196,261.63,196,196,261.63,329.63,329.63,261.63,196,
-    130.81,261.63,329.63,392,329.63,261.63,329.63,392,523.25,392,329.63,261.63,196,
-    130.81,130.81,196,196,261.63,261.63,329.63,329.63,261.63,261.63,392,523.25,
-  ]},
-];
-
-function playFullBgm(z){
-  if(!_audioCtx||z<0)return;
-  stopBgm();__bgmZ=z;
-  const track=ZODIAC_BGM[z]||ZODIAC_BGM[4];
-  const inst=__INSTRUMENTS[track.inst]||__INSTRUMENTS[0];
-  _bgmIdx=0;
-  function tick(){
-    if(!_audioCtx||_audioState.muted){stopBgm();return;}
-    if(__bgmZ!==z)return;
-    const V=_audioState.bgmVolume;
-    const f=track.notes[__bgmIdx%track.notes.length];
-    const dur=(60/track.bpm)*(1+(Math.random()-.5)*.12); // BPM+时值随机微扰12%
-    // 主音
-    playNote(f,dur,V*.4,inst.main);
-    // 副音（叠音）
-    if(inst.sub>0)playNote(f*Math.pow(2,inst.sub/12),dur,V*.18,'sine');
-    // 和声
-    if(inst.harm)playNote(f*Math.pow(2,4/12),dur*.7,V*.12,'sine');
-    __bgmIdx++;
-    __bgmTimer=setTimeout(tick,dur*860);
-  }
-  initAudio();
-  tick();
-}
-
-function stopBgm(){
-  if(__bgmTimer){clearTimeout(__bgmTimer);__bgmTimer=null;}
-  __bgmIdx=0;__bgmZ=-1;
-}
-
-function startBgm(){initAudio();playFullBgm(G.zodiac);}
-
-
-// ===== 主页滑动切换 =====
-let // grid mode disabled
-var _tStartY = 0;
-
-// initHomeGesture - swipe disabled since grid is always visible now
-function initHomeGesture(){
-  // Grid is permanently visible. Swipe gestures on heroSection are disabled.
-}
 
 function enterGridMode(){
   // grid mode disabled
@@ -1070,15 +926,6 @@ function updateHeroSection(){
   heroIcon.className = animClass;
   // 动作名称（按等级显示）
   const animNames = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
-  const animHints = ['啾啾雀跃','振翅欲飞','翩翩起舞','盘龙腾云','灵蛇灵马','帝王神威','天命永恒'];
-  let hint = document.getElementById('heroAnimHint');
-  if(!hint){
-    hint = document.createElement('div');
-    hint.id = 'heroAnimHint';
-    hint.className = 'hero-anim-hint';
-    heroIcon.parentElement.appendChild(hint);
-  }
-  hint.textContent = animHints[G.heroAnimIdx || 0] || '';
   heroLv.textContent = 'Lv.' + best.level;
   heroCps.textContent = '+' + cps + '/s';
   if(heroFate){
@@ -1111,3 +958,257 @@ function updateHeroSection(){
 
 // 预初始化音频上下文（选属相页就建好，召唤时不卡顿）
 try{ initAudio(); }catch(e){}
+
+// ═══════════════════════════════════════
+// P0-2 灵兽皮肤系统
+// ═══════════════════════════════════════
+var DRAGON_SKINS = [
+  // 0 普通品质
+  {id:'gold',     name:'金色幻彩', icon:'🐥', color:'#ffd700', cost:300,  rarity:0, rarityLabel:'普通'},
+  {id:'silver',   name:'银月龙影', icon:'🐤', color:'#c0c0c0', cost:300,  rarity:0, rarityLabel:'普通'},
+  // 1 稀有品质
+  {id:'ice',      name:'寒冰龙影', icon:'🐦', color:'#7eb8ff', cost:600,  rarity:1, rarityLabel:'稀有'},
+  {id:'flame',    name:'烈焰龙魂', icon:'🦅', color:'#ff6b35', cost:600,  rarity:1, rarityLabel:'稀有'},
+  {id:'nature',   name:'翠木龙吟', icon:'🌿', color:'#4caf50', cost:600,  rarity:1, rarityLabel:'稀有'},
+  // 2 珍稀品质
+  {id:'cosmic',   name:'星空龙灵', icon:'🦉', color:'#b57edc', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  {id:'jade',     name:'翡翠龙鳞', icon:'💎', color:'#80cbc4', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  {id:'crystal',  name:'水晶龙魄', icon:'🔮', color:'#ce93d8', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  // 3 传说品质
+  {id:'phoenix',  name:'凤凰涅槃', icon:'🔥', color:'#ff9800', cost:3000, rarity:3, rarityLabel:'传说'},
+  {id:'thunder',  name:'雷霆祖龙', icon:'⚡', color:'#a0d8ef', cost:3000, rarity:3, rarityLabel:'传说'},
+  // 4 神话品质（最稀有，仅龙气购买）
+  {id:'celestial',name:'天命真龙', icon:'💫', color:'#ffd700', cost:8000, rarity:4, rarityLabel:'神话'},
+  {id:'void',     name:'虚空祖龙', icon:'🌌', color:'#9c27b0', cost:8000, rarity:4, rarityLabel:'神话'},
+];
+// 皮肤稀有度颜色
+var SKIN_RARITY_COLORS = ['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
+
+// 图鉴收集进度奖励
+var ATLAS_REWARDS = [
+  {count:3,  coin:1000,  qi:50,  title:'初窥门径'},
+  {count:5,  coin:3000,  qi:100, title:'小有所成'},
+  {count:8,  coin:8000,  qi:200, title:'大有可观'},
+  {count:12, coin:30000, qi:500, title:'集齐十二生肖！'},
+];
+
+// ═══════════════════════════════════════
+// P1-1 天命试炼塔 (Tower)
+// ═══════════════════════════════════════
+var TOWER_FLOORS = 100;
+// 试炼塔每层敌人配置（HP/金币随层数指数增长）
+var TOWER_ENEMIES = [
+  // 第1层
+  {floor:1,hp:114,coins:22,qi:0,name:'小蛇妖',isBoss:false},
+  // 第2层
+  {floor:2,hp:132,coins:25,qi:0,name:'小狐精',isBoss:false},
+  // 第3层
+  {floor:3,hp:152,coins:28,qi:0,name:'小狼魂',isBoss:false},
+  // 第4层
+  {floor:4,hp:174,coins:31,qi:0,name:'小鼠灵',isBoss:false},
+  // 第5层
+  {floor:5,hp:201,coins:35,qi:0,name:'小蛇妖',isBoss:false},
+  // 第6层
+  {floor:6,hp:231,coins:39,qi:0,name:'小狐精',isBoss:false},
+  // 第7层
+  {floor:7,hp:266,coins:44,qi:0,name:'小狼魂',isBoss:false},
+  // 第8层
+  {floor:8,hp:305,coins:49,qi:0,name:'小鼠灵',isBoss:false},
+  // 第9层
+  {floor:9,hp:351,coins:55,qi:0,name:'小蛇妖',isBoss:false},
+  // 第10层 🏆BOSS
+  {floor:10,hp:404,coins:62,qi:10,name:'小狐精王',isBoss:true},
+  // 第11层
+  {floor:11,hp:465,coins:69,qi:0,name:'幽魂',isBoss:false},
+  // 第12层
+  {floor:12,hp:535,coins:77,qi:0,name:'妖蛇',isBoss:false},
+  // 第13层
+  {floor:13,hp:615,coins:87,qi:0,name:'魔狼',isBoss:false},
+  // 第14层
+  {floor:14,hp:707,coins:97,qi:0,name:'灵狐',isBoss:false},
+  // 第15层
+  {floor:15,hp:813,coins:109,qi:0,name:'幽魂',isBoss:false},
+  // 第16层
+  {floor:16,hp:935,coins:122,qi:0,name:'妖蛇',isBoss:false},
+  // 第17层
+  {floor:17,hp:1076,coins:137,qi:0,name:'魔狼',isBoss:false},
+  // 第18层
+  {floor:18,hp:1237,coins:153,qi:0,name:'灵狐',isBoss:false},
+  // 第19层
+  {floor:19,hp:1423,coins:172,qi:0,name:'幽魂',isBoss:false},
+  // 第20层 🏆BOSS
+  {floor:20,hp:1636,coins:192,qi:20,name:'妖蛇王',isBoss:true},
+  // 第21层
+  {floor:21,hp:1882,coins:216,qi:0,name:'魔狼',isBoss:false},
+  // 第22层
+  {floor:22,hp:2164,coins:242,qi:0,name:'灵狐',isBoss:false},
+  // 第23层
+  {floor:23,hp:2489,coins:271,qi:0,name:'幽魂',isBoss:false},
+  // 第24层
+  {floor:24,hp:2862,coins:303,qi:0,name:'妖蛇',isBoss:false},
+  // 第25层
+  {floor:25,hp:3291,coins:340,qi:0,name:'魔狼',isBoss:false},
+  // 第26层
+  {floor:26,hp:3785,coins:380,qi:0,name:'灵狐',isBoss:false},
+  // 第27层
+  {floor:27,hp:4353,coins:426,qi:0,name:'幽魂',isBoss:false},
+  // 第28层
+  {floor:28,hp:5006,coins:477,qi:0,name:'妖蛇',isBoss:false},
+  // 第29层
+  {floor:29,hp:5757,coins:534,qi:0,name:'魔狼',isBoss:false},
+  // 第30层 🏆BOSS
+  {floor:30,hp:6621,coins:599,qi:30,name:'灵狐王',isBoss:true},
+  // 第31层
+  {floor:31,hp:7614,coins:671,qi:0,name:'幽冥',isBoss:false},
+  // 第32层
+  {floor:32,hp:8756,coins:751,qi:0,name:'暗魔',isBoss:false},
+  // 第33层
+  {floor:33,hp:10069,coins:841,qi:0,name:'妖龙',isBoss:false},
+  // 第34层
+  {floor:34,hp:11580,coins:942,qi:0,name:'冥凤',isBoss:false},
+  // 第35层
+  {floor:35,hp:13317,coins:1055,qi:0,name:'幽冥',isBoss:false},
+  // 第36层
+  {floor:36,hp:15315,coins:1182,qi:0,name:'暗魔',isBoss:false},
+  // 第37层
+  {floor:37,hp:17612,coins:1324,qi:0,name:'妖龙',isBoss:false},
+  // 第38层
+  {floor:38,hp:20254,coins:1483,qi:0,name:'冥凤',isBoss:false},
+  // 第39层
+  {floor:39,hp:23292,coins:1661,qi:0,name:'幽冥',isBoss:false},
+  // 第40层 🏆BOSS
+  {floor:40,hp:26786,coins:1861,qi:40,name:'暗魔王',isBoss:true},
+  // 第41层
+  {floor:41,hp:30804,coins:2084,qi:0,name:'妖龙',isBoss:false},
+  // 第42层
+  {floor:42,hp:35424,coins:2334,qi:0,name:'冥凤',isBoss:false},
+  // 第43层
+  {floor:43,hp:40738,coins:2614,qi:0,name:'幽冥',isBoss:false},
+  // 第44层
+  {floor:44,hp:46849,coins:2928,qi:0,name:'暗魔',isBoss:false},
+  // 第45层
+  {floor:45,hp:53876,coins:3279,qi:0,name:'妖龙',isBoss:false},
+  // 第46层
+  {floor:46,hp:61958,coins:3673,qi:0,name:'冥凤',isBoss:false},
+  // 第47层
+  {floor:47,hp:71252,coins:4114,qi:0,name:'幽冥',isBoss:false},
+  // 第48层
+  {floor:48,hp:81940,coins:4607,qi:0,name:'暗魔',isBoss:false},
+  // 第49层
+  {floor:49,hp:94231,coins:5160,qi:0,name:'妖龙',isBoss:false},
+  // 第50层 🏆BOSS
+  {floor:50,hp:108365,coins:5780,qi:50,name:'冥凤王',isBoss:true},
+  // 第51层
+  {floor:51,hp:124620,coins:6473,qi:0,name:'幽冥',isBoss:false},
+  // 第52层
+  {floor:52,hp:143313,coins:7250,qi:0,name:'暗魔',isBoss:false},
+  // 第53层
+  {floor:53,hp:164810,coins:8120,qi:0,name:'妖龙',isBoss:false},
+  // 第54层
+  {floor:54,hp:189532,coins:9095,qi:0,name:'冥凤',isBoss:false},
+  // 第55层
+  {floor:55,hp:217962,coins:10186,qi:0,name:'幽冥',isBoss:false},
+  // 第56层
+  {floor:56,hp:250656,coins:11408,qi:0,name:'暗魔',isBoss:false},
+  // 第57层
+  {floor:57,hp:288255,coins:12777,qi:0,name:'妖龙',isBoss:false},
+  // 第58层
+  {floor:58,hp:331493,coins:14311,qi:0,name:'冥凤',isBoss:false},
+  // 第59层
+  {floor:59,hp:381217,coins:16028,qi:0,name:'幽冥',isBoss:false},
+  // 第60层 🏆BOSS
+  {floor:60,hp:438399,coins:17951,qi:60,name:'暗魔王',isBoss:true},
+  // 第61层
+  {floor:61,hp:504159,coins:20106,qi:0,name:'妖神',isBoss:false},
+  // 第62层
+  {floor:62,hp:579783,coins:22518,qi:0,name:'冥祖',isBoss:false},
+  // 第63层
+  {floor:63,hp:666751,coins:25221,qi:0,name:'虚空',isBoss:false},
+  // 第64层
+  {floor:64,hp:766764,coins:28247,qi:0,name:'天魔',isBoss:false},
+  // 第65层
+  {floor:65,hp:881778,coins:31637,qi:0,name:'妖神',isBoss:false},
+  // 第66层
+  {floor:66,hp:1014045,coins:35433,qi:0,name:'冥祖',isBoss:false},
+  // 第67层
+  {floor:67,hp:1166152,coins:39686,qi:0,name:'虚空',isBoss:false},
+  // 第68层
+  {floor:68,hp:1341075,coins:44448,qi:0,name:'天魔',isBoss:false},
+  // 第69层
+  {floor:69,hp:1542236,coins:49782,qi:0,name:'妖神',isBoss:false},
+  // 第70层 🏆BOSS
+  {floor:70,hp:1773572,coins:55755,qi:70,name:'冥祖王',isBoss:true},
+  // 第71层
+  {floor:71,hp:2039607,coins:62446,qi:0,name:'虚空',isBoss:false},
+  // 第72层
+  {floor:72,hp:2345548,coins:69940,qi:0,name:'天魔',isBoss:false},
+  // 第73层
+  {floor:73,hp:2697381,coins:78333,qi:0,name:'妖神',isBoss:false},
+  // 第74层
+  {floor:74,hp:3101988,coins:87733,qi:0,name:'冥祖',isBoss:false},
+  // 第75层
+  {floor:75,hp:3567286,coins:98261,qi:0,name:'虚空',isBoss:false},
+  // 第76层
+  {floor:76,hp:4102379,coins:110052,qi:0,name:'天魔',isBoss:false},
+  // 第77层
+  {floor:77,hp:4717736,coins:123258,qi:0,name:'妖神',isBoss:false},
+  // 第78层
+  {floor:78,hp:5425397,coins:138049,qi:0,name:'冥祖',isBoss:false},
+  // 第79层
+  {floor:79,hp:6239206,coins:154615,qi:0,name:'虚空',isBoss:false},
+  // 第80层 🏆BOSS
+  {floor:80,hp:7175087,coins:173169,qi:80,name:'天魔王',isBoss:true},
+  // 第81层
+  {floor:81,hp:8251351,coins:193950,qi:0,name:'妖神',isBoss:false},
+  // 第82层
+  {floor:82,hp:9489053,coins:217224,qi:0,name:'冥祖',isBoss:false},
+  // 第83层
+  {floor:83,hp:10912411,coins:243290,qi:0,name:'虚空',isBoss:false},
+  // 第84层
+  {floor:84,hp:12549273,coins:272485,qi:0,name:'天魔',isBoss:false},
+  // 第85层
+  {floor:85,hp:14431664,coins:305184,qi:0,name:'妖神',isBoss:false},
+  // 第86层
+  {floor:86,hp:16596414,coins:341806,qi:0,name:'冥祖',isBoss:false},
+  // 第87层
+  {floor:87,hp:19085876,coins:382822,qi:0,name:'虚空',isBoss:false},
+  // 第88层
+  {floor:88,hp:21948758,coins:428761,qi:0,name:'天魔',isBoss:false},
+  // 第89层
+  {floor:89,hp:25241071,coins:480213,qi:0,name:'妖神',isBoss:false},
+  // 第90层 🏆BOSS
+  {floor:90,hp:29027232,coins:537838,qi:90,name:'冥祖王',isBoss:true},
+  // 第91层
+  {floor:91,hp:33381317,coins:602379,qi:0,name:'太初',isBoss:false},
+  // 第92层
+  {floor:92,hp:38388515,coins:674664,qi:0,name:'终焉',isBoss:false},
+  // 第93层
+  {floor:93,hp:44146792,coins:755624,qi:0,name:'天道',isBoss:false},
+  // 第94层
+  {floor:94,hp:50768811,coins:846299,qi:0,name:'天命',isBoss:false},
+  // 第95层
+  {floor:95,hp:58384132,coins:947855,qi:0,name:'太初',isBoss:false},
+  // 第96层
+  {floor:96,hp:67141752,coins:1061598,qi:0,name:'终焉',isBoss:false},
+  // 第97层
+  {floor:97,hp:77213015,coins:1188989,qi:0,name:'天道',isBoss:false},
+  // 第98层
+  {floor:98,hp:88794967,coins:1331668,qi:0,name:'天命',isBoss:false},
+  // 第99层
+  {floor:99,hp:102114213,coins:1491469,qi:0,name:'太初',isBoss:false},
+  // 第100层 🏆BOSS
+  {floor:100,hp:117431345,coins:1670445,qi:100,name:'终焉王',isBoss:true},
+];
+
+// ═══════════════════════════════════════
+// P1-1 天命试炼塔 (Tower)
+// ═══════════════════════════════════════
+var TOWER_ACHIEVEMENTS = [
+  {floor:5,coins:100,qi:0,title:'初入试炼'},
+  {floor:10,coins:300,qi:20,title:'小试牛刀'},
+  {floor:20,coins:800,qi:50,title:'渐入佳境'},
+  {floor:30,coins:2000,qi:100,title:'登堂入室'},
+  {floor:50,coins:6000,qi:300,title:'炉火纯青'},
+  {floor:80,coins:20000,qi:800,title:'出神入化'},
+  {floor:100,coins:50000,qi:2000,title:'天命所归'}
+];

@@ -24,10 +24,10 @@ jobs:
             index.html
             phone-sim.html
             js/
-            docs/
-            legacy/
             .nojekyll
             CNAME
+            DEVELOP.md
+            .claude.md
           sparse-checkout-cone-mode: false
 
       - name: Setup Pages

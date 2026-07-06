@@ -982,10 +982,10 @@ function doStart(){
       </div>
 
       <!-- 灵兽详情卡（居中，外部约束宽度） -->
-      <div id="heroCard" style="position:relative;width:92%;margin:0 auto;overflow:hidden;height:88px;box-sizing:border-box;">
+      <div id="heroCard" style="position:relative;width:92%;margin:60px auto 0;overflow:hidden;height:88px;box-sizing:border-box;">
         <!-- 左侧：灵兽emoji + 文字 -->
         <div style="display:flex;align-items:center;gap:6px;padding:0 10px;height:88px;box-sizing:border-box;">
-          <div id="heroIcon" onclick="cycleHeroAnim()" style="font-size:32px;line-height:1;filter:drop-shadow(0 0 6px rgba(255,215,0,.4));cursor:pointer;flex-shrink:0;">🐣</div>
+          <div id="heroIcon" onclick="cycleHeroAnim()" style="font-size:32px;line-height:1;filter:drop-shadow(0 0 6px rgba(255,215,0,.4));cursor:pointer;flex-shrink:0;padding-left:51px;">🐣</div>
           <div>
             <div id="heroFateTag" style="font-size:7px;color:rgba(255,215,0,.4);letter-spacing:1px;">木命 · 大吉</div>
             <div style="display:flex;align-items:center;gap:2px;margin-top:1px;">
@@ -1005,7 +1005,7 @@ function doStart(){
       </div>
 
       <!-- 灵兽网格（5×5）填充剩余空间 -->
-      <div id="dragonGrid" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
+      <div id="dragonGrid" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;margin-top:51px;">
         <div id="dragonGridInner" style="width:100%;flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,0.8vw,8px);padding:clamp(6px,1.2vh,14px) clamp(8px,1.8vw,18px);align-content:start;box-sizing:border-box;overflow:hidden;"></div>
       </div>
     </div><!-- /contentArea -->

@@ -1931,7 +1931,7 @@ function updateHud(){
   }
   if(document.getElementById('qiCost')){
     var qiCost=Math.floor(500*Math.pow(1.1,Math.floor((G.summonCount||0)/15)));
-    document.getElementById('qiCost').innerHTML='<span class="qi-icon qi-icon-sm"></span> '+qiCost;
+    document.getElementById('qiCost').innerHTML='<span class="qi-icon qi-icon-md"></span> '+qiCost;
     var btnQi=document.getElementById('btnQi');
     if(btnQi)btnQi.disabled=(G.qi||0)<qiCost;
   }

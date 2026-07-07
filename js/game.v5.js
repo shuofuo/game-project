@@ -2206,6 +2206,15 @@ function getTowerPlayerDmg(){
   var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
   return Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
 }
+// 试练塔材料计算
+function getTowerReward(floor){
+  var enemy=getTowerEnemy(floor);
+  var isBoss=enemy?enemy.isBoss:false;
+  var isBonus=floor%10===0||isBoss;
+  return{coins:(enemy&&enemy.coins)||0,qi:(enemy&&enemy.qi)||0,
+    iron:3+Math.floor(floor/10)*2,crystal:isBonus?1:0,dragon:isBonus?1:0,isBoss:isBoss,enemy:enemy};
+}
+
 function towerAttack(){
   if(!G.created) return;
   var floor=G.towerFloor||1;
@@ -2228,9 +2237,21 @@ function towerAttack(){
     G.towerEnemyHp=0;
     saveGame();
     checkAch&&checkAch();
-    // BOSS击败提示
+    // 材料入账（每层必掉铁锭，BOSS层/每10层额外掉水晶龙鳞）
+    if(!G.forge) G.forge={items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
+    var mat=G.forge.materials;
+    mat.iron=(mat.iron||0)+1;
+    mat.crystal=(mat.crystal||0)+(floor%10===0?1:0);
+    mat.dragonScale=(mat.dragonScale||0)+(floor%10===0?1:0);
+    // 通知
+    var mm='';
+    if(mat.iron>0) mm+=' 🔩'+mat.iron;
+    if(mat.crystal>0) mm+=' 💎'+mat.crystal;
+    if(mat.dragonScale>0) mm+=' 🐉'+mat.dragonScale;
     if(enemy.isBoss){
-      alert('🏆 BOSS击败！第'+floor+'层 '+enemy.name+'\n+'+(enemy.coins||0)+'💰 '+(enemy.qi||0)+'<span class="qi-icon qi-icon-sm"></span>');
+      showNotif('success','🏆 BOSS击败！'+enemy.name+'（'+floor+'层）'+mm);
+    } else {
+      showNotif('success','试练塔 第'+floor+'层：'+mm);
     }
     playSound&&playSound('merge');
   }
@@ -2240,10 +2261,10 @@ function towerAttack(){
 function towerSweep(){
   if(!G.created) return;
   var floor=G.towerFloor||1;
-  if(floor<=1){alert('通关第1层后才能使用扫荡！');return;}
+  if(floor<=1){showNotif('warn','通关第1层后才能使用扫荡！');return;}
   var sweepMax=Math.max(1,floor-1);
   var sweepCost=Math.round(sweepMax*8);
-  if((G.coins||0)<sweepCost){alert('金币不足！扫荡需要 '+sweepCost+'💰');return;}
+  if((G.coins||0)<sweepCost){showNotif('error','金币不足！扫荡需要 '+sweepCost+'💰');return;}
   G.coins=(G.coins||0)-sweepCost;
   if(!G.forge) G.forge={items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
   if(!G.forge.materials) G.forge.materials={iron:0,crystal:0,dragonScale:0,starDust:0};
@@ -2260,13 +2281,9 @@ function towerSweep(){
   mat.iron=(mat.iron||0)+totalIron;
   mat.crystal=(mat.crystal||0)+totalCrystal;
   mat.dragonScale=(mat.dragonScale||0)+totalDragon;
-  var msg='🌀 扫荡完成！扫描了 1~'+sweepMax+' 层\n\n';
-  msg+='🔩 铁锭 +'+totalIron+'\n';
-  if(totalCrystal>0) msg+='💎 水晶 +'+totalCrystal+'\n';
-  if(totalDragon>0) msg+='🐉 龙鳞 +'+totalDragon;
   saveGame();
   checkAch&&checkAch();
-  alert(msg);
+  var msg='🧹 扫荡完成：🔩'+totalIron+' 💎'+totalCrystal+(totalDragon>0?' 🐉'+totalDragon:'');showNotif('success',msg);
   if(typeof updateHud==='function') updateHud();
 }
 function towerClaimMilestone(idx){

@@ -431,8 +431,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 #heroIcon{
   transition: transform .5s cubic-bezier(.4,0,.2,1), filter .6s cubic-bezier(.4,0,.2,1);
 }
-.hero-glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(240px,60vw);height:min(240px,60vw);border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,.12) 0%,transparent 72%);animation:hero-glow-pulse 4s ease-in-out infinite;z-index:1;pointer-events:none;}
-@keyframes hero-glow-pulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.15)}}
+.hero-glow{display:none;}
 
 
 /* 侧边栏按钮 */

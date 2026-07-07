@@ -187,6 +187,27 @@ function activateSkill(id){
   }
   if(playSound)playSound('achieve');
 }
+// ── 灵兽升级系统 ───────────────────────────────────────────
+function upgradeCost(level){
+  var costs=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
+  return costs[level]||0;
+}
+function upgradeDragon(id){
+  var dragon=G.dragons.find(function(d){return d.id===id;});
+  if(!dragon){showNotif('error','灵兽不存在');return;}
+  if(dragon.level>=15){showNotif('info','已达最高等级');return;}
+  var cost=upgradeCost(dragon.level);
+  if(G.coins<cost){showNotif('error','金币不足，需要 '+cost+' 金币');return;}
+  G.coins-=cost;
+  dragon.level++;
+  if(window.playSound)try{playSound('summon');}catch(e){}
+  saveGame();
+  renderGrid();
+  updateHud();
+  checkAch();
+}
+
+
 
 // 使用道具
 function useItem(id){
@@ -446,6 +467,27 @@ function upgradeStar(id){
   showNotif('gold','⭐ 升星成功！'+(ns)+'星 '+starMult(ns)+'×产金倍率！');
   if(playSound)playSound('achieve');
 }
+// ── 灵兽升级系统 ───────────────────────────────────────────
+function upgradeCost(level){
+  var costs=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
+  return costs[level]||0;
+}
+function upgradeDragon(id){
+  var dragon=G.dragons.find(function(d){return d.id===id;});
+  if(!dragon){showNotif('error','灵兽不存在');return;}
+  if(dragon.level>=15){showNotif('info','已达最高等级');return;}
+  var cost=upgradeCost(dragon.level);
+  if(G.coins<cost){showNotif('error','金币不足，需要 '+cost+' 金币');return;}
+  G.coins-=cost;
+  dragon.level++;
+  if(window.playSound)try{playSound('summon');}catch(e){}
+  saveGame();
+  renderGrid();
+  updateHud();
+  checkAch();
+}
+
+
 
 window.addEventListener('DOMContentLoaded',initGame);
 

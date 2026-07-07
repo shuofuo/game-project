@@ -5,6 +5,8 @@ function cycleHeroAnim(){
 var LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
 var LICON = ['','🐣','🐥','🐤','🐦','🦅','🦆','🦉','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
 var COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
+var UPGRADE_COST = [0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
+function getUpgradeCost(lvl){return UPGRADE_COST[lvl]||0;}
 var FATE_E = ['🪵','🔥','🟤','⚪','💧'];
 var FATE_C = [1,1.5,1,1,1];
 var FATE_Q = [1,1,1,1,1.5];
@@ -141,7 +143,21 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
   const star=(dragon&&dragon.star)||1;
   const smult=star>1?starMult(star):null;
   const starsHtml=star>=1?'<div style="font-size:16px;color:#ffd700;letter-spacing:2px;margin-bottom:6px;">'+'⭐'.repeat(Math.min(star,5))+'</div>':'';
-  const upgradeBtn=dragon&&canUpgradeStar(dragon)?
+  // 升级按钮（金币升级，非合并）
+  var nextLvl=(dragon&&dragon.level<15)?dragon.level+1:null;
+  var upCost=dragon?getUpgradeCost(dragon.level):0;
+  var canUp=dragon&&dragon.level<15&&G.coins>=upCost;
+  var upBtnHtml='';
+  if(dragon&&dragon.level<15){
+    upBtnHtml=`<div style="margin:6px 0;">
+      <button onclick="event.stopPropagation();upgradeDragon('${dragon.id}')" 
+        style="background:${canUp?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)'};border:1px solid ${canUp?'#ffd700':'#555'};color:${canUp?'#ffd700':'#555'};border-radius:12px;padding:8px 16px;font-size:13px;cursor:${canUp?'pointer':'not-allowed'};width:100%;margin-bottom:4px;">
+        💰 升级至 Lv.${nextLvl}（${upCost} 金币）
+      </button>
+      <div style="font-size:10px;color:#555;">升级后: ${nextLvl?COIN_S[nextLvl]:0}/s，回本约 ${nextLvl?Math.ceil(upCost/(nextLvl?COIN_S[nextLvl]:1)/60):0}分钟</div>
+    </div>`;
+  }
+  const upgradeBtn=(dragon&&canUpgradeStar(dragon))?
     `<button onclick="event.stopPropagation();upgradeStar('${dragon.id}')" class="star-up-btn">⬆ 升星（需 ${starUpgradeCost(star)} 金币）</button>`:
     (dragon&&star<5?'<div style="font-size:10px;color:#555;margin-top:4px;">满级后可升星 ⭐</div>':'');
   const finalCps=Math.floor(cps*(smult||1));
@@ -172,6 +188,7 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
         <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
       </div>
     </div>
+    ${upBtnHtml}
     ${upgradeBtn}
     <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;">点击任意处关闭</div>
   </div>`;

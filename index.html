@@ -16,6 +16,12 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 @keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
 
 .wrap{position:fixed;z-index:100;width:100vw;max-width:100vw;padding:0 0 calc(16px + env(safe-area-inset-bottom)) 0;margin:0 auto;overflow-x:hidden;top:0;left:0;right:0;bottom:0;overflow-y:auto;background:rgba(5,5,16,.98);}
+/* ===== 龙气图标（CSS光球） ===== */
+.qi-icon{display:inline-block;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e0f7fa,#a0d8ef 40%,#4fc3f7 70%,#0277bd);box-shadow:0 0 6px #4fc3f7,0 0 12px rgba(79,195,247,.35);vertical-align:middle;}
+.qi-icon-sm{width:12px;height:12px;}
+.qi-icon-md{width:16px;height:16px;}
+.qi-icon-lg{width:20px;height:20px;}
+.qi-icon-xl{width:24px;height:24px;}
 
 /* ===== 标题区：书法印章风格 ===== */
 .logo{text-align:center;margin-bottom:8px;position:relative;}
@@ -854,7 +860,7 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
     <div class="sra-divider"></div>
     <div class="sra-cps" id="sraCps"></div>
     <div class="sra-bar"><div class="sra-fill" id="sraFill"></div></div>
-    <div class="sra-new" id="sraNew" style="display:none">✨ 新灵兽解锁！</div>
+    <div class="sra-new" id="sraNew" style="display:none"><span class="qi-icon qi-icon-sm"></span> 新灵兽解锁！</div>
   </div>
   <button class="modal-btn modal-btn-start" id="sraBtn" onclick="closeSummonAnim()" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);min-width:240px;max-width:320px;width:auto;display:none;z-index:520;">收下 ✦</button>
 </div>
@@ -948,7 +954,7 @@ function doStart(){
     <div style="display:flex;align-items:center;gap:16px;">
       <span style="font-size:16px;">💰</span><span id="hudCoins" style="font-size:18px;font-weight:700;">0</span>
       <span style="font-size:12px;color:rgba(255,255,255,.4);" id="hudCps">+0/s</span><span id="hudRank" style="font-size:14px;display:none;cursor:pointer;margin-left:8px;" onclick="openRankPanel()"></span>
-      <span style="font-size:16px;margin-left:8px;">✨</span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
+      <span style="font-size:16px;margin-left:8px;"><span class="qi-icon qi-icon-sm"></span></span><span id="hudQi" style="font-size:16px;font-weight:700;color:#a0d8ef;">0</span>
       <span id="hudWeekly" style="font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;margin-left:6px;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,255,255,.1);display:none;" onclick="openWeeklyPanel()" title="本周挑战">📅 <span id="hudWeeklyNum">0/7</span></span>
     </div>
     <span id="hudYunshi" style="font-size:12px;color:rgba(255,255,255,.5);min-width:50px;"></span>
@@ -1162,7 +1168,7 @@ function doStart(){
   <div id="skinPanel" class="panel-overlay">
     <div class="panel-box" style="max-width:420px;">
       <div class="panel-header" style="border-radius:24px 24px 0 0;display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:17px;font-weight:700;color:#93c5fd;">✨ 灵兽皮肤</span>
+        <span style="font-size:17px;font-weight:700;color:#93c5fd;"><span class="qi-icon qi-icon-sm"></span> 灵兽皮肤</span>
         <span onclick="closeSkinPanel()" style="font-size:22px;color:#555;cursor:pointer;line-height:1;padding:0 4px;">×</span>
       </div>
       <div id="skinContent" style="padding:0 0 20px;"></div>

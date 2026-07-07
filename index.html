@@ -492,6 +492,9 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .summon-qi:hover{background:rgba(160,216,239,.2);}
 .summon-free{background:rgba(76,175,80,.15);border:1.5px solid rgba(76,175,80,.4);color:#4caf50;padding:8px 14px;min-width:0;}
 .summon-free:hover{background:rgba(76,175,80,.25);}
+/* 召唤批量切换 */
+#summonBatchSwitch button{background:transparent;color:rgba(255,255,255,.35);}
+#summonBatchSwitch button.active{background:rgba(255,215,0,.2);color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,.25);}
 /* 命格修炼节点脉冲动画 */
 .cult-pulse{animation:cultPulse .7s ease-out forwards;}
 @keyframes cultPulse{
@@ -1031,6 +1034,12 @@ function doStart(){
 
   <!-- ===== 第三行：底部召唤栏 ===== -->
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
+    <!-- 召唤批量切换 -->
+    <div id="summonBatchSwitch" style="display:flex;gap:3px;background:rgba(0,0,0,.25);border-radius:10px;padding:3px;align-items:center;">
+      <button onclick="setSummonBatch(1)" id="batchBtn1" style="padding:3px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;">1连</button>
+      <button onclick="setSummonBatch(5)" id="batchBtn5" style="padding:3px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;">5连</button>
+      <button onclick="setSummonBatch(10)" id="batchBtn10" style="padding:3px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;">10连</button>
+    </div>
     <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:90px;padding:10px 16px;" title="金币召唤">
       <span style="font-size:18px;">💰</span>
       <span id="coinCost" style="font-size:10px;margin-left:2px;color:rgba(255,220,0,.9);">100</span>

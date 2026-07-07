@@ -206,7 +206,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-var G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0}};
+var G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 var TASKS = [
@@ -336,10 +336,13 @@ function updateHud(){
     ch.textContent='x'+G.combo+' COMBO';
   }
   updateComboBar(false); // 同步 combo 条（active=false，只更新不退条）
-  const coinCost=Math.floor(100*Math.pow(1.2,Math.floor(G.summonCount/10)));
-  const qiCost=Math.floor(500*Math.pow(1.1,Math.floor(G.summonCount/15)));
-  document.getElementById('coinCost').textContent=coinCost;
-  document.getElementById('btnCoin').disabled=G.coins<coinCost;
+  const batch=G.summonBatch||1;
+  const coinCost=Math.floor(100*Math.pow(1.2,Math.floor(G.summonCount/10)))*batch;
+  const qiCost=Math.floor(500*Math.pow(1.1,Math.floor(G.summonCount/15)))*batch;
+  var costEl=document.getElementById('coinCost');
+  if(costEl){costEl.textContent=coinCost;}
+  var btnCoin=document.getElementById('btnCoin');
+  if(btnCoin) btnCoin.disabled=G.coins<coinCost;
   document.getElementById('btnQi').disabled=G.qi<qiCost;
   const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent=qiCost;
   if(G.fate===2) updateFreeBtn();
@@ -635,13 +638,66 @@ function getSummonLevel(pool){
 }
 
 function summonCoin(){
-  const n=G.summonCount;
+  var batch=G.summonBatch||1;
+  var n=G.summonCount;
   // 指数增长：100 → 120 → 145 → 174 → ...（每50次翻倍）
-  const cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)));
-  if(G.coins<cost){showNotif('error','金币不足！');return;}
+  var cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
+  if(G.coins<cost){showNotif('error','金币不足！需要 '+cost+'💰');return;}
   G.coins-=cost;
-  doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+  if(batch===1){
+    doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+    return;
+  }
+  // 批量召唤：收集结果，统一展示
+  var results=[];
+  for(var i=0;i<batch;i++){
+    results.push(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+  }
+  results.forEach(function(lv){
+    var t=new Set(G.dragons.map(function(d){return d.idx})),empty=[];
+    for(var k=0;k<TOTAL;k++) if(!t.has(k)) empty.push(k);
+    if(empty.length===0) return;
+    var slot=empty[Math.floor(Math.random()*empty.length)];
+    G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1});
+    G.summonCount++;
+    _onWeeklyEvent('summon');
+  });
+  saveGame();renderGrid();updateHud();checkAch();
+  showBatchSummonResult(results);
 }
+function showBatchSummonResult(results){
+  var html='<div style="padding:16px 8px;text-align:center">';
+  html+='<div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:12px">🎉 '+results.length+'连召唤结果</div>';
+  results.forEach(function(lv){
+    var t=getRarity(lv);
+    var color=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'][t];
+    html+='<div style="display:inline-flex;flex-direction:column;align-items:center;margin:6px;padding:8px 10px;background:rgba(255,255,255,.04);border:1px solid '+color+'44;border-radius:10px;min-width:52px">';
+    html+='<div style="font-size:28px">'+(LICON[lv]||'?')+'</div>';
+    html+='<div style="font-size:10px;font-weight:700;color:'+color+'">'+LNAME[lv]+'</div>';
+    html+='<div style="font-size:10px;color:#888">Lv'+lv+' · '+['普通','稀有','史诗','传说','神话'][t]+'</div>';
+    html+='</div>';
+  });
+  html+='<div style="margin-top:12px;padding:8px 14px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:10px;font-size:12px;color:#888">点击任意区域关闭</div>';
+  html+='</div>';
+  var overlay=document.createElement('div');
+  overlay.id='batchSummonOverlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9000;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1a3a,#0d0d1a);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:20px;max-width:320px;width:90vw;max-height:70vh;overflow-y:auto;">'+html+'</div>';
+  overlay.onclick=function(){overlay.remove();try{updateHeroSection();}catch(e){}};
+  document.body.appendChild(overlay);
+}
+function setSummonBatch(n){
+  G.summonBatch=n;
+  document.querySelectorAll('#summonBatchSwitch button').forEach(function(b,i){
+    var v=[1,5,10][i];
+    b.className=v===n?'active':'';
+  });
+  updateHud&&updateHud();
+}
+// 页面加载时初始化切换状态
+window.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){setSummonBatch(G.summonBatch||1);},100);
+});
 function summonQi(){
   // 龙气消耗也指数增长，防止龙气溢出
   const n=G.summonCount;

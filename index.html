@@ -483,6 +483,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
   display:flex;align-items:center;justify-content:center;
   border-radius:24px;padding:8px 18px;cursor:pointer;border:none;
   font-size:13px;font-weight:700;gap:4px;min-width:70px;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);
   transition:all .2s;
 }
 .summon-btn:active{transform:scale(.94);}
@@ -698,7 +699,7 @@ body{background:#07071a;display:flex;align-items:stretch;justify-content:center;
 .ach-pop{animation:achPopSlide .4s cubic-bezier(.34,1.56,.64,1) forwards}@keyframes achPopSlide{0%{transform:translate(-50%,-80px) scale(.7);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 
 /* ===== 技能按钮 ===== */
-#skillBar{display:flex;flex-wrap:nowrap;gap:4px;overflow-x:auto;padding:5px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center;justify-content:center}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 6px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;cursor:pointer;min-width:48px;min-height:44px;transition:all .2s;position:relative;justify-content:center;font-size:8px}.skill-btn:hover{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.25)}.skill-btn.disabled{opacity:.4;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+#skillBar{display:flex;flex-wrap:nowrap;gap:4px;overflow-x:auto;padding:5px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center;justify-content:center}.skill-btn{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);border-radius:8px;cursor:pointer;min-width:48px;min-height:44px;transition:all .2s;position:relative;justify-content:center;font-size:8px}.skill-btn:hover{background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.25)}.skill-btn.disabled{opacity:.4;cursor:not-allowed}.skill-cd{position:absolute;inset:0;background:rgba(0,0,0,.55);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
 
 /* ===== 星级显示 ===== */
 .star-pip{display:inline-block;font-size:10px;color:#ffd700;letter-spacing:-1px}.star-pip-empty{color:#333}
@@ -983,11 +984,11 @@ function doStart(){
     <div id="contentArea" style="display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;min-height:0;height:100%;box-sizing:border-box;">
       <!-- 5个功能按钮行 -->
       <div id="featureRow" style="display:flex;gap:4px;padding:0 14px;border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;height:55px;align-items:center;">
-        <button onclick="openTowerPanel()" data-fn="tower" title="天命试炼塔" style="background:rgba(20,20,50,.6);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:rgba(255,107,53,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">试炼</button>
-        <button onclick="openSkinPanel()" data-fn="skin" title="灵兽皮肤" style="background:rgba(20,20,50,.6);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:rgba(147,197,253,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">皮肤</button>
-        <button onclick="openForgePanel()" data-fn="forge" title="炼宝阁" style="background:rgba(20,20,50,.6);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:rgba(251,191,36,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">炼宝</button>
-        <button onclick="openAtlasPanel()" data-fn="atlas" title="灵兽图鉴" style="background:rgba(20,20,50,.6);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:rgba(180,100,255,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">图鉴</button>
-        <button onclick="openActiveCenter()" data-fn="active" title="福利中心" style="background:rgba(20,20,50,.6);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:rgba(76,175,80,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">福利</button>
+        <button onclick="openTowerPanel()" data-fn="tower" title="天命试炼塔" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(255,107,53,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">试炼</button>
+        <button onclick="openSkinPanel()" data-fn="skin" title="灵兽皮肤" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(147,197,253,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">皮肤</button>
+        <button onclick="openForgePanel()" data-fn="forge" title="炼宝阁" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(251,191,36,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">炼宝</button>
+        <button onclick="openAtlasPanel()" data-fn="atlas" title="灵兽图鉴" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(180,100,255,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">图鉴</button>
+        <button onclick="openActiveCenter()" data-fn="active" title="福利中心" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(76,175,80,1);font-size:12px;letter-spacing:1px;padding:4px 2px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:2px;flex:1;">福利</button>
       </div>
 
       <!-- 灵兽详情卡（居中，外部约束宽度） -->

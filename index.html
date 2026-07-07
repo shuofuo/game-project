@@ -973,12 +973,12 @@ function doStart(){
 <!-- 新内容区（居中，占满中间列）：上(5功能) → 中(灵兽卡) → 下(灵兽网格) -->
     <div id="contentArea" style="display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;min-height:0;height:100%;box-sizing:border-box;">
       <!-- 5个功能按钮行 -->
-      <div id="featureRow" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px 14px;border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;height:68px;align-content:center;">
-        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="color:rgba(255,107,53,.7);font-size:18px;">🏔️<span style="font-size:8px;display:block;margin-top:2px;color:rgba(255,107,53,.7);">试炼塔</span></button>
-        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="color:rgba(147,197,253,.65);font-size:18px;">👑<span style="font-size:8px;display:block;margin-top:2px;color:rgba(147,197,253,.65);">皮肤</span></button>
-        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="color:rgba(251,191,36,.8);font-size:18px;">⚒️<span style="font-size:8px;display:block;margin-top:2px;color:rgba(251,191,36,.8);">炼宝</span></button>
-        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="color:rgba(180,100,255,.65);font-size:18px;">📖<span style="font-size:8px;display:block;margin-top:2px;color:rgba(180,100,255,.65);">图鉴</span></button>
-        <button onclick="openActiveCenter()" class="side-btn" data-fn="active" title="福利中心" style="color:rgba(76,175,80,.7);font-size:18px;">🎁<span style="font-size:8px;display:block;margin-top:2px;color:rgba(76,175,80,.7);">福利</span></button>
+      <div id="featureRow" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:0 14px;border-bottom:1px solid rgba(255,215,0,.07);flex-shrink:0;height:55px;align-content:center;">
+        <button onclick="openTowerPanel()" class="side-btn" data-fn="tower" title="天命试炼塔" style="color:rgba(255,107,53,1);font-size:13px;letter-spacing:1px;">🏔️ 试炼</button>
+        <button onclick="openSkinPanel()" class="side-btn" data-fn="skin" title="灵兽皮肤" style="color:rgba(147,197,253,1);font-size:13px;letter-spacing:1px;">👑 皮肤</button>
+        <button onclick="openForgePanel()" class="side-btn" data-fn="forge" title="炼宝阁" style="color:rgba(251,191,36,1);font-size:13px;letter-spacing:1px;">⚒️ 炼宝</button>
+        <button onclick="openAtlasPanel()" class="side-btn" data-fn="atlas" title="灵兽图鉴" style="color:rgba(180,100,255,1);font-size:13px;letter-spacing:1px;">📖 图鉴</button>
+        <button onclick="openActiveCenter()" class="side-btn" data-fn="active" title="福利中心" style="color:rgba(76,175,80,1);font-size:13px;letter-spacing:1px;">🎁 福利</button>
       </div>
 
       <!-- 灵兽详情卡（居中，外部约束宽度） -->
@@ -991,10 +991,9 @@ function doStart(){
             <span style="color:rgba(255,215,0,.25);font-size:10px;">·</span>
             <span id="heroCps" style="font-size:12px;color:#aaa;">+1/s</span>
           </div>
-          <div id="heroThumbs" style="display:flex;gap:3px;margin-top:2px;"></div>
         </div>
         <!-- 中间：灵兽emoji（居中，靠下） -->
-        <div id="heroIcon" onclick="cycleHeroAnim()" style="position:absolute;left:50%;bottom:-50px;transform:translateX(-50%);font-size:clamp(48px,10vw,70px);line-height:1;filter:drop-shadow(0 0 10px rgba(255,215,0,.5));cursor:pointer;">🐣</div>
+        <div id="heroIcon" onclick="cycleHeroAnim()" style="position:absolute;left:50%;bottom:-35px;transform:translateX(-50%);font-size:clamp(48px,10vw,70px);line-height:1;filter:drop-shadow(0 0 10px rgba(255,215,0,.5));cursor:pointer;">🐣</div>
         <!-- 右下：攻防速 -->
         <div style="font-size:10px;color:rgba(255,255,255,.4);line-height:1.8;text-align:right;white-space:nowrap;flex-shrink:0;padding-bottom:4px;">
           攻击 <span style="color:rgba(255,215,0,.7);">12</span><br>

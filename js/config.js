@@ -143,20 +143,6 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
   const star=(dragon&&dragon.star)||1;
   const smult=star>1?starMult(star):null;
   const starsHtml=star>=1?'<div style="font-size:16px;color:#ffd700;letter-spacing:2px;margin-bottom:6px;">'+'⭐'.repeat(Math.min(star,5))+'</div>':'';
-  // 升级按钮（金币升级，非合并）
-  var nextLvl=(dragon&&dragon.level<15)?dragon.level+1:null;
-  var upCost=dragon?getUpgradeCost(dragon.level):0;
-  var canUp=dragon&&dragon.level<15&&G.coins>=upCost;
-  var upBtnHtml='';
-  if(dragon&&dragon.level<15){
-    upBtnHtml=`<div style="margin:6px 0;">
-      <button onclick="event.stopPropagation();upgradeDragon('${dragon.id}')" 
-        style="background:${canUp?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)'};border:1px solid ${canUp?'#ffd700':'#555'};color:${canUp?'#ffd700':'#555'};border-radius:12px;padding:8px 16px;font-size:13px;cursor:${canUp?'pointer':'not-allowed'};width:100%;margin-bottom:4px;">
-        💰 升级至 Lv.${nextLvl}（${upCost} 金币）
-      </button>
-      <div style="font-size:10px;color:#555;">升级后: ${nextLvl?COIN_S[nextLvl]:0}/s，回本约 ${nextLvl?Math.ceil(upCost/(nextLvl?COIN_S[nextLvl]:1)/60):0}分钟</div>
-    </div>`;
-  }
   const upgradeBtn=(dragon&&canUpgradeStar(dragon))?
     `<button onclick="event.stopPropagation();upgradeStar('${dragon.id}')" class="star-up-btn">⬆ 升星（需 ${starUpgradeCost(star)} 金币）</button>`:
     (dragon&&star<5?'<div style="font-size:10px;color:#555;margin-top:4px;">满级后可升星 ⭐</div>':'');
@@ -188,7 +174,6 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
         <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
       </div>
     </div>
-    ${upBtnHtml}
     ${upgradeBtn}
     <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;">点击任意处关闭</div>
   </div>`;
@@ -549,6 +534,11 @@ function doDrop(src,dst){
   if(!s)return;
   if(t){
     if(s.level===t.level&&s.level<15){
+      // 合成费用（按合成结果等级定价）
+      var MC=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
+      var mc=MC[s.level]||0;
+      if(G.coins<mc){showNotif('warn','合成需 '+mc+'💰');return;}
+      G.coins-=mc;
       // 时光倒流备份
       G._dragonsBak=G.dragons.map(d=>({...d}));
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
@@ -569,7 +559,7 @@ function doDrop(src,dst){
       const qiGain=Math.floor(Math.random()*2);
       if(qiGain>0){G.qi=Math.min(99999,G.qi+qiGain);updateHud();}
       showMergeFlash(LICON[s.level+1]);
-      showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
+      showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]} (-${mc}💰)`);
       if(G.zodiac>=0) playSound('merge_z'+G.zodiac);
       // combo 检测（2.5秒内连续合成）
       const now=Date.now();

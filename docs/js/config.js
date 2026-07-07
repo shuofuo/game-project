@@ -340,7 +340,7 @@ function updateHud(){
   document.getElementById('coinCost').textContent=coinCost;
   document.getElementById('btnCoin').disabled=G.coins<coinCost;
   document.getElementById('btnQi').disabled=G.qi<qiCost;
-  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent='✨ '+qiCost;
+  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent=qiCost;
   if(G.fate===2) updateFreeBtn();
 }
 

@@ -2201,10 +2201,36 @@ function getTowerEnemy(floor){
   return TOWER_ENEMIES[floor-1]||TOWER_ENEMIES[0];
 }
 function getTowerPlayerDmg(){
-  // 灵兽总战力 = 最高等级灵兽的 cps * 攻击系数
+  // 基础伤害 = maxLv²×0.5+5
   if(!G.dragons||!G.dragons.length) return 10;
   var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
-  return Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
+  var base=Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
+  // 装备加成（所有已装备物品的 atk 总和）
+  var fm=G.forge, atk=0, def=0, spd=0;
+  if(fm&&fm.items){
+    for(var i=0;i<fm.items.length;i++){
+      var it=fm.items[i];
+      if(it.equipped){
+        if(it.atk) atk+=it.atk;
+        if(it.def) def+=it.def;
+        if(it.spd) spd+=it.spd;
+      }
+    }
+  }
+  // 攻击 = 基础 × (1+atk/100) + SPD加成
+  var spdBonus=Math.floor(spd*0.3);
+  return Math.max(1,Math.floor(base*(1+atk/100))+spdBonus);
+}
+// 玩家试练塔总防御（用于扣血计算）
+function getTowerPlayerDef(){
+  var fm=G.forge, def=0;
+  if(fm&&fm.items){
+    for(var i=0;i<fm.items.length;i++){
+      var it=fm.items[i];
+      if(it.equipped&&it.def) def+=it.def;
+    }
+  }
+  return def;
 }
 // 试练塔材料计算
 function getTowerReward(floor){
@@ -2218,42 +2244,68 @@ function getTowerReward(floor){
 function towerAttack(){
   if(!G.created) return;
   var floor=G.towerFloor||1;
+  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
+  var maxHp=100+maxLv*5;
+  // HP只在进入新层或死亡时才重置
+  if(!G.towerPlayerHp||G.towerPlayerHp<=0||G._towerFloorBak!==floor){
+    G.towerPlayerHp=maxHp;G._towerFloorBak=floor;
+  }
   var enemy=getTowerEnemy(floor);
-  var dmg=getTowerPlayerDmg();
-  // 扣敌人血
+  var playerDef=getTowerPlayerDef();
+
+  // 计算敌人反击伤害 = floor×20，被防御减免
+  var enemyBaseDmg=Math.max(1,Math.floor(floor*20));
+  var enemyDmg=Math.max(1,Math.floor(enemyBaseDmg/(1+playerDef/50)));
+
+  // 处理攻击（可能有多次普攻）
+  var fm=G.forge, spd=0;
+  if(fm&&fm.items){for(var ii=0;ii<fm.items.length;ii++){var it=fm.items[ii];if(it.equipped&&it.spd)spd+=it.spd;}}
+  var extraChance=Math.min(100, Math.floor(spd*0.2)); // 每1spd=0.2%额外攻击
+  var hits=1;
+  if(Math.random()*100<extraChance) hits++;
+  if(Math.random()*100<Math.max(0,extraChance-100)) hits++;
+
   if(!G.towerEnemyHp) G.towerEnemyHp=enemy.hp;
-  G.towerEnemyHp=Math.max(0,G.towerEnemyHp-dmg);
-  // 攻击动画
+  var totalDmg=0;
+  for(var h=0;h<hits;h++){
+    var dmg=getTowerPlayerDmg();
+    G.towerEnemyHp=Math.max(0,G.towerEnemyHp-dmg);
+    totalDmg+=dmg;
+  }
+  // 玩家扣血（敌人反击）
+  G.towerPlayerHp=Math.max(0,G.towerPlayerHp-enemyDmg);
+  // 动画
   var btn=document.getElementById('towerAtkBtn');
   if(btn){btn.style.transform='scale(0.92)';setTimeout(function(){btn.style.transform='';},120);}
-  // 记录时间
   G.towerLastAtk=Date.now();
+
   // 击败检测
   if(G.towerEnemyHp<=0){
     G.coins=(G.coins||0)+enemy.coins;
     G.qi=(G.qi||0)+(enemy.qi||0);
     G.totalCoins=(G.totalCoins||0)+enemy.coins;
     G.towerFloor=(floor>=100?100:floor+1);
-    G.towerEnemyHp=0;
-    saveGame();
-    checkAch&&checkAch();
-    // 材料入账（每层必掉铁锭，BOSS层/每10层额外掉水晶龙鳞）
+    G.towerEnemyHp=0;G.towerPlayerHp=maxHp;
+    saveGame();checkAch&&checkAch();
+    // 材料入账
     if(!G.forge) G.forge={items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
     var mat=G.forge.materials;
     mat.iron=(mat.iron||0)+1;
     mat.crystal=(mat.crystal||0)+(floor%10===0?1:0);
     mat.dragonScale=(mat.dragonScale||0)+(floor%10===0?1:0);
-    // 通知
     var mm='';
     if(mat.iron>0) mm+=' 🔩'+mat.iron;
     if(mat.crystal>0) mm+=' 💎'+mat.crystal;
     if(mat.dragonScale>0) mm+=' 🐉'+mat.dragonScale;
-    if(enemy.isBoss){
-      showNotif('success','🏆 BOSS击败！'+enemy.name+'（'+floor+'层）'+mm);
-    } else {
-      showNotif('success','试练塔 第'+floor+'层：'+mm);
-    }
+    if(enemy.isBoss){showNotif('success','🏆 BOSS击败！'+enemy.name+'（'+floor+'层）'+mm);}
+    else{showNotif('success','试练塔 第'+floor+'层：'+mm);}
     playSound&&playSound('merge');
+  }
+  // 玩家HP归0 → 重置试练塔到当前层
+  if(G.towerPlayerHp<=0){
+    showNotif('warn','体力耗尽！试练塔重置到第'+floor+'层');
+    G.towerFloor=floor;G.towerEnemyHp=0;G.towerPlayerHp=maxHp;
+    saveGame();
   }
   renderTowerPanel&&renderTowerPanel();
   updateHUD&&updateHUD();
@@ -2348,16 +2400,24 @@ function renderTowerPanel(){
   if(!c) return;
   if(!G||!G.created){c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   var floor=G.towerFloor||1;
+  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
+  var playerMaxHp=100+maxLv*5;
+  var playerHp=Math.max(0,G.towerPlayerHp||playerMaxHp);
+  var playerHpPct=Math.max(0,Math.min(100,playerHp/playerMaxHp*100));
   var enemy=getTowerEnemy(floor);
   var curHp=(!G.towerEnemyHp||G.towerEnemyHp===0)?enemy.hp:G.towerEnemyHp;
   var hpPct=Math.max(0,Math.min(100,curHp/enemy.hp*100));
   var playerDmg=getTowerPlayerDmg();
-  var maxHp=enemy.hp;
+  var playerDef=getTowerPlayerDef();
+  // 统计装备属性
+  var fm=G.forge, totAtk=0, totDef=0, totSpd=0;
+  if(fm&&fm.items){for(var ii=0;ii<fm.items.length;ii++){var it=fm.items[ii];if(it.equipped){if(it.atk)totAtk+=it.atk;if(it.def)totDef+=it.def;if(it.spd)totSpd+=it.spd;}}}
   var boss=enemy.isBoss;
   var floorTxt=floor>=100?'<span style="color:#ffd700">巅峰(100层)</span>':'第'+floor+'层';
   var bossMark=boss?' <span style="color:#ff6b35">🏆BOSS</span>':'';
   var progPct=Math.min(100,floor/100*100);
   var hpColor=hpPct>50?'#4ade80':hpPct>25?'#fb923c':'#f87171';
+  var phpColor=playerHpPct>60?'#60a5fa':playerHpPct>30?'#fb923c':'#f87171';
   var atkBtn='<button id="towerAtkBtn" onclick="towerAttack()" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b35,#ff3a3a);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 16px rgba(255,80,80,.4)">⚔️ 发起攻击 (伤害:'+playerDmg+')</button>';
   var sweepMax=Math.max(1,floor-1);
   var sweepBtn='<button id="towerSweepBtn" onclick="towerSweep()" style="width:100%;margin-top:6px;padding:10px 14px;border:1px solid rgba(251,191,36,.4);border-radius:10px;background:rgba(251,191,36,.08);color:#fbbf24;font-size:13px;cursor:pointer;font-weight:600">🌀 扫荡 1~'+sweepMax+'层</button>';
@@ -2370,7 +2430,9 @@ function renderTowerPanel(){
     msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="color:#ffd700">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#a0d8ef">'+a.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+(a.title?' <span style="color:#f0abfc">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
   });
   var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px"><div style="font-size:12px;color:#888;margin-bottom:6px">📊 层数里程碑</div>'+msItems+'</div>';
-  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div><div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+maxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+'</div></div>'+
+  var attrHtml=(totAtk||totDef||totSpd)?'<div style="display:flex;justify-content:center;gap:12px;font-size:11px;color:#aaa;margin-bottom:8px">'+(totAtk?'<span>⚔️ '+totAtk+'</span>':'')+(totDef?'<span>🛡️ '+totDef+'</span>':'')+(totSpd?'<span>💨 '+totSpd+'</span>':'')+'</div>':'';
+  var playerHpHtml='<div style="margin-top:8px;text-align:center"><div style="font-size:11px;color:#93c5fd;margin-bottom:4px">你的 HP: '+playerHp+' / '+playerMaxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+playerHpPct+'%;background:'+phpColor+';border-radius:4px;transition:width .15s"></div></div></div>';
+  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div>'+attrHtml+'<div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+enemy.hp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+'</div>'+playerHpHtml+'</div>'+
 (floor>=100?'<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px">🎉 已通关100层！可领取所有里程碑奖励</div>':(atkBtn+sweepBtn))+msHtml+'</div>';
   c.innerHTML=html;
 }
@@ -2400,26 +2462,26 @@ var EQUIP_TYPE_NAME = {weapon:'⚔️武器',armor:'🛡️护甲',accessory:'�
 // quality: 0=普通 1=稀有 2=史诗 3=传说 4=天命
 var FORGE_RECIPES = [
   // 武器
-  {id:'w1',type:'weapon',name:'木剑',quality:0,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
-  {id:'w2',type:'weapon',name:'铁剑',quality:0,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
-  {id:'w3',type:'weapon',name:'钢剑',quality:1,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
-  {id:'w4',type:'weapon',name:'秘银剑',quality:2,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
-  {id:'w5',type:'weapon',name:'龙鳞剑',quality:3,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
-  {id:'w6',type:'weapon',name:'天命剑',quality:4,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
+  {id:'w1',type:'weapon',name:'木剑',quality:0,atk:8,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
+  {id:'w2',type:'weapon',name:'铁剑',quality:0,atk:18,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
+  {id:'w3',type:'weapon',name:'钢剑',quality:1,atk:35,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
+  {id:'w4',type:'weapon',name:'秘银剑',quality:2,atk:60,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
+  {id:'w5',type:'weapon',name:'龙鳞剑',quality:3,atk:100,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
+  {id:'w6',type:'weapon',name:'天命剑',quality:4,atk:160,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
   // 护甲
-  {id:'a1',type:'armor',name:'布衣',quality:0,iron:15,crystal:0,dragonScale:0,starDust:0,desc:'基础的防护'},
-  {id:'a2',type:'armor',name:'皮甲',quality:0,iron:40,crystal:4,dragonScale:0,starDust:0,desc:'皮革护身'},
-  {id:'a3',type:'armor',name:'锁甲',quality:1,iron:90,crystal:12,dragonScale:0,starDust:0,desc:'铁链编织'},
-  {id:'a4',type:'armor',name:'秘银甲',quality:2,iron:180,crystal:35,dragonScale:5,starDust:0,desc:'秘银铠甲'},
-  {id:'a5',type:'armor',name:'龙鳞甲',quality:3,iron:280,crystal:75,dragonScale:18,starDust:4,desc:'龙鳞护体'},
-  {id:'a6',type:'armor',name:'天命甲',quality:4,iron:450,crystal:140,dragonScale:45,starDust:18,desc:'天命战甲'},
+  {id:'a1',type:'armor',name:'布衣',quality:0,def:5,iron:15,crystal:0,dragonScale:0,starDust:0,desc:'基础的防护'},
+  {id:'a2',type:'armor',name:'皮甲',quality:0,def:12,iron:40,crystal:4,dragonScale:0,starDust:0,desc:'皮革护身'},
+  {id:'a3',type:'armor',name:'锁甲',quality:1,def:25,iron:90,crystal:12,dragonScale:0,starDust:0,desc:'铁链编织'},
+  {id:'a4',type:'armor',name:'秘银甲',quality:2,def:48,iron:180,crystal:35,dragonScale:5,starDust:0,desc:'秘银铠甲'},
+  {id:'a5',type:'armor',name:'龙鳞甲',quality:3,def:85,iron:280,crystal:75,dragonScale:18,starDust:4,desc:'龙鳞护体'},
+  {id:'a6',type:'armor',name:'天命甲',quality:4,def:130,iron:450,crystal:140,dragonScale:45,starDust:18,desc:'天命战甲'},
   // 饰品
-  {id:'j1',type:'accessory',name:'草戒',quality:0,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
-  {id:'j2',type:'accessory',name:'银戒',quality:0,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
-  {id:'j3',type:'accessory',name:'玉佩',quality:1,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
-  {id:'j4',type:'accessory',name:'秘银坠',quality:2,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
-  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
-  {id:'j6',type:'accessory',name:'天命戒',quality:4,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
+  {id:'j1',type:'accessory',name:'草戒',quality:0,spd:5,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
+  {id:'j2',type:'accessory',name:'银戒',quality:0,spd:10,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
+  {id:'j3',type:'accessory',name:'玉佩',quality:1,spd:28,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
+  {id:'j4',type:'accessory',name:'秘银坠',quality:2,spd:52,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
+  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,spd:88,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
+  {id:'j6',type:'accessory',name:'天命戒',quality:4,spd:120,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
 ];
 
 // 强化消耗：每级需要铁锭和金
@@ -2530,9 +2592,14 @@ function renderForgeInventory(fm){
     var it=items[i];
     var color=QUALITY_COLORS[it.quality];
     var maxLv=10+it.star*3;
+    var attrHtml='<div class="fi-attr" style="font-size:11px;margin:3px 0 2px;color:#aaa">'+
+      (it.atk?'<span style="color:#f87171">⚔️+'+it.atk+'</span> ':'')+
+      (it.def?'<span style="color:#60a5fa">🛡️+'+it.def+'</span> ':'')+
+      (it.spd?'<span style="color:#86efac">💨+'+it.spd+'</span> ':'')+'</div>';
     html+='<div class="forge-item '+(it.equipped?'equipped':'')+'" style="border-color:'+color+'">'+
       '<div class="fi-name" style="color:'+color+'">'+it.name+'</div>'+
       '<div class="fi-info">⭐'+it.star+' ★Lv.'+it.level+'/'+maxLv+'</div>'+
+      attrHtml+
       '<div class="fi-type">'+EQUIP_TYPE_NAME[it.type]+'</div>'+
       '<div class="fi-btns">'+
         '<button class="fi-btn '+(it.equipped?'':'active')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
@@ -2587,7 +2654,11 @@ function craftForgeItem(recipeId){
   }
   mat.iron-=r.iron; mat.crystal-=r.crystal; mat.dragonScale-=r.dragonScale; mat.starDust-=r.starDust;
   if(!fm.items)fm.items=[];
-  fm.items.push({id:Date.now()+'_'+r.id,itemId:r.id,name:r.name,type:r.type,quality:r.quality,star:1,level:1,equipped:false});
+  var newItem={id:Date.now()+'_'+r.id,itemId:r.id,name:r.name,type:r.type,quality:r.quality,star:1,level:1,equipped:false};
+  if(r.atk) newItem.atk=r.atk;
+  if(r.def) newItem.def=r.def;
+  if(r.spd) newItem.spd=r.spd;
+  fm.items.push(newItem);
   fm.totalCrafts=(fm.totalCrafts||0)+1;
   G.forge=fm;
   saveGame();updateHud();renderForgePanel();

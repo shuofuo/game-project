@@ -539,6 +539,16 @@ function doDrop(src,dst){
       var mc=MC[s.level]||0;
       if(G.coins<mc){showNotif('warn','合成需 '+mc+'💰');return;}
       G.coins-=mc;
+      // 合成成功率：结果等级越高越难 max(10%, 100%-(Lv-2)*7%)
+      var rs=Math.max(10,100-(s.level+1-2)*7);
+      if(Math.random()*100>rs){
+        // 失败：两只灵兽消失，时光倒流恢复格子位置（但金币不退）
+        G.dragons.forEach(function(d){if(d.idx===src)d.idx=src;if(d.idx===dst)d.idx=dst;});
+        G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
+        saveGame();renderGrid();updateHud();
+        showNotif('error','合成失败！'+LNAME[s.level]+'×2 消失 😢（成功率'+rs+'%）');
+        return;
+      }
       // 时光倒流备份
       G._dragonsBak=G.dragons.map(d=>({...d}));
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);

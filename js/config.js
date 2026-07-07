@@ -339,7 +339,7 @@ function updateHud(){
   document.getElementById('coinCost').textContent=coinCost;
   document.getElementById('btnCoin').disabled=G.coins<coinCost;
   document.getElementById('btnQi').disabled=G.qi<qiCost;
-  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent='✨ '+qiCost;
+  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent=qiCost;
   if(G.fate===2) updateFreeBtn();
 }
 
@@ -906,7 +906,7 @@ function updateHeroSection(){
     if(heroThumbs){
       heroThumbs.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:rgba(255,215,0,.4);padding:4px 12px;letter-spacing:1px;">
-          <span style="font-size:22px;margin-bottom:2px;">✨</span>
+          <span class="qi-icon qi-icon-xl" style="display:block;margin:0 auto 2px;"></span>
           <span>首次召唤获得灵兽</span>
           <span style="font-size:9px;opacity:.6;">点击下方召唤按钮</span>
         </div>`;

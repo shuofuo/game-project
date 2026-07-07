@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>生肖天机 · 布局E（修正标题）</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-family: "PingFang SC","Microsoft YaHei",sans-serif; }
+.phone { width: 420px; height: 95vh; max-height: 840px; background: #07071a; border-radius: 40px; overflow: hidden; border: 3px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,.6); display: flex; flex-direction: column; }
+.status-bar { height: 44px; background: #0d0d1a; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; letter-spacing: 2px; flex-shrink: 0; }
+.top-hud { height: 48px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; background: rgba(7,7,26,.75); border-bottom: 2px solid rgba(255,215,0,.3); flex-shrink: 0; }
+.hud-stat { display: flex; align-items: center; gap: 3px; }
+.hud-val { font-size: 15px; font-weight: 700; color: #ffd700; }
+.hud-cps { font-size: 10px; color: rgba(255,255,255,.4); }
+.hud-yun { font-size: 11px; color: rgba(255,255,255,.3); letter-spacing: 2px; }
+
+/* middleRow: 左侧按钮 | 内容 | 右侧按钮 */
+.middle-row { flex: 1; display: grid; grid-template-columns: 52px 1fr 52px; overflow: hidden; min-height: 0; }
+
+/* 侧边栏 */
+.side-bar { display: flex; flex-direction: column; justify-content: space-between; padding-top: 30px; padding-bottom: 60px; align-items: center; }
+.side-bar-left { background: linear-gradient(to bottom,rgba(0,0,0,.3) 0%,transparent 20%,transparent 75%,rgba(0,0,0,.2) 100%); border-right: 1px solid rgba(255,215,0,.08); }
+.side-bar-right { background: linear-gradient(to bottom,rgba(0,0,0,.3) 0%,transparent 20%,transparent 75%,rgba(0,0,0,.2) 100%); border-left: 1px solid rgba(255,215,0,.08); }
+.side-btn { width: 36px; height: 36px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; }
+
+/* 内容区 */
+.content-area { overflow: hidden; display: flex; flex-direction: column; }
+
+/* 5个功能按钮行：固定高度 */
+.feature-row { padding: 8px 14px; display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; border-bottom: 1px solid rgba(255,215,0,.07); flex-shrink: 0; height: 70px; align-content: center; }
+.feature-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 4px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 8px; cursor: pointer; }
+.feature-btn .icon { font-size: 16px; }
+.feature-btn .label { font-size: 8px; color: rgba(255,255,255,.45); margin-top: 2px; }
+.feature-btn:hover { background: rgba(255,215,0,.08); border-color: rgba(255,215,0,.25); }
+
+/* 灵兽详情卡：固定高度 */
+.hero-card { display: flex; align-items: center; gap: 12px; padding: 0 14px; border-bottom: 1px solid rgba(255,215,0,.07); flex-shrink: 0; height: 88px; }
+.hero-emoji { font-size: 40px; filter: drop-shadow(0 0 10px rgba(255,215,0,.4)); flex-shrink: 0; }
+.hero-name { font-size: 9px; color: rgba(255,215,0,.4); letter-spacing: 1.5px; }
+.hero-level { font-size: 11px; color: #ffd700; font-weight: 700; margin-top: 2px; }
+.hero-evo { display: flex; gap: 5px; margin-top: 5px; }
+.evo-dot { width: 16px; height: 16px; background: rgba(255,215,0,.1); border: 1px solid rgba(255,215,0,.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+.evo-dot.active { background: rgba(255,215,0,.2); border-color: #ffd700; }
+.hero-spacer { flex: 1; }
+.hero-stats { font-size: 10px; color: rgba(255,255,255,.4); line-height: 1.9; }
+.hero-stats span { color: rgba(255,215,0,.7); }
+
+/* 灵兽网格：5×5，无标题行，直接就是格子 */
+.grid-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.grid-inner { flex: 1; display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; padding: 8px 14px; align-content: start; overflow-y: auto; min-height: 0; box-sizing: border-box; }
+.dragon { aspect-ratio: 1; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+.dragon.lit { background: rgba(255,215,0,.08); border-color: rgba(255,215,0,.3); box-shadow: 0 0 6px rgba(255,215,0,.15); }
+.dragon.locked { background: rgba(255,255,255,.015); border: 1px dashed rgba(255,255,255,.06); color: rgba(255,255,255,.08); }
+
+/* 技能条 */
+.skill-row { display: flex; align-items: center; justify-content: center; padding: 8px 20px; background: rgba(7,7,26,.9); border-top: 1px solid rgba(255,215,0,.08); gap: 10px; flex-shrink: 0; height: 60px; }
+.skill-btn { width: 52px; height: 44px; flex-direction: column; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; gap: 1px; cursor: pointer; }
+.skill-btn span { font-size: 8px; color: rgba(255,255,255,.5); }
+.skill-btn:hover { background: rgba(255,215,0,.08); border-color: rgba(255,215,0,.25); }
+
+/* 召唤栏 */
+.summon-row { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px 20px; background: rgba(7,7,26,.95); flex-shrink: 0; height: 48px; }
+.summon-btn { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.summon-btn.coin { background: linear-gradient(135deg,#2a2000,#1a1000); border: 1px solid #5a4000; color: #c8a020; }
+.summon-btn.star { background: linear-gradient(135deg,#1a1030,#100a20); border: 1px solid #3a2060; color: #c090ff; }
+.summon-btn.free { background: linear-gradient(135deg,#0a2000,#051000); border: 1px solid #1a4000; color: #80e040; }
+.safe-area { height: env(safe-area-inset-bottom,0); background: #07071a; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">13:43</div>
+  <div class="top-hud">
+    <div class="hud-stat">🐉<span class="hud-val">1,280</span></div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="hud-stat">💰<span class="hud-val">8,432</span><span class="hud-cps">+12/s</span></div>
+      <div class="hud-stat"><span class="qi-icon qi-icon-sm"></span><span class="hud-val" style="color:#a0d8ef;">1,280</span></div>
+    </div>
+    <span class="hud-yun">运势：大吉</span>
+  </div>
+
+  <div class="middle-row">
+    <div class="side-bar side-bar-left">
+      <div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center;"><button class="side-btn" title="签到">📅</button><button class="side-btn" title="任务">📝</button><button class="side-btn" title="活动">⚡</button><button class="side-btn" title="命格">🔮</button></div>
+      <div></div>
+    </div>
+
+    <div class="content-area">
+
+  <div class="feature-row">
+    <div class="feature-btn"><span class="icon">🏔️</span><span class="label">试炼塔</span></div>
+    <div class="feature-btn"><span class="icon">👑</span><span class="label">灵兽皮肤</span></div>
+    <div class="feature-btn"><span class="icon">⚒️</span><span class="label">炼宝阁</span></div>
+    <div class="feature-btn"><span class="icon">📖</span><span class="label">灵兽图鉴</span></div>
+    <div class="feature-btn"><span class="icon">🎁</span><span class="label">福利中心</span></div>
+  </div>
+
+  <div class="hero-card">
+    <div class="hero-emoji">🐣</div>
+    <div>
+      <div class="hero-name">木命 · 大吉</div>
+      <div class="hero-level">Lv.1 &nbsp;·&nbsp; +1/s</div>
+      <div class="hero-evo">
+        <div class="evo-dot active">🐣</div>
+        <div class="evo-dot">🐥</div>
+        <div class="evo-dot">🐔</div>
+      </div>
+    </div>
+    <div class="hero-spacer"></div>
+    <div class="hero-stats">
+      攻击 <span>12</span><br>
+      防御 <span>8</span><br>
+      速度 <span>15</span>
+    </div>
+  </div>
+  <div class="grid-area"><div class="grid-inner">
+    <div class="dragon lit">🐣</div>
+    <div class="dragon lit">🐉</div>
+    <div class="dragon lit">🦊</div>
+    <div class="dragon lit">🐍</div>
+    <div class="dragon lit">🐴</div>
+    <div class="dragon lit">🐔</div>
+    <div class="dragon lit">🐱</div>
+    <div class="dragon lit">🐶</div>
+    <div class="dragon lit">🐷</div>
+    <div class="dragon lit">🐮</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+    <div class="dragon locked">+</div>
+  </div></div>
+
+    </div>
+
+    <div class="side-bar side-bar-right">
+      <div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center;"><button class="side-btn" title="活跃">📋</button><button class="side-btn" title="排行">🏆</button><button class="side-btn" title="成就">🎯</button><button class="side-btn" title="统计">📊</button><button class="side-btn" title="设置">⚙️</button></div>
+      <div></div>
+    </div>
+  </div>
+
+
+  <div class="skill-row">
+    <div class="skill-btn">⚔️<span>龙息</span></div>
+    <div class="skill-btn">🛡️<span>护盾</span></div>
+    <div class="skill-btn">⚡<span>雷霆</span></div>
+    <div class="skill-btn">🔥<span>流星火雨</span></div>
+    <div class="skill-btn">💨<span>疾风</span></div>
+    <div class="skill-btn">❄️<span>寒冰</span></div>
+  </div>
+
+  <div class="summon-row">
+    <div class="summon-btn coin">💰 100</div>
+    <div class="summon-btn star"><span class="qi-icon qi-icon-sm"></span> 500</div>
+    <div class="summon-btn free">🌿 免费</div>
+  </div>
+
+  <div class="safe-area"></div>
+</div>
+</body>
+</html>

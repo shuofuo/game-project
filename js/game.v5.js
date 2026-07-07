@@ -234,7 +234,7 @@ function renderSkillBar(){
     return `<button class="skill-btn ${disabled?'disabled':''}" onclick="${disabled?'':'activateSkill(\''+sk.id+'\')'}" title="${sk.desc}\n龙气消耗:${sk.qiCost} 冷却:${sk.cd}秒\n品阶:${rarityLabel}">
       <span style="font-size:18px;line-height:1;">${sk.icon}</span>
       <span style="font-size:9px;color:${rarityColor};font-weight:600;line-height:1;">${sk.name}</span>
-      <span style="font-size:9px;color:rgba(160,216,239,.7);line-height:1;">✨${sk.qiCost}</span>
+      <span style="font-size:9px;color:rgba(160,216,239,.7);line-height:1;"><span class="qi-icon qi-icon-sm"></span>${sk.qiCost}</span>
       ${onCooldown?'<div class="skill-cd"><div style="width:'+cdPct+'%;height:100%;background:rgba(0,0,0,.6);position:absolute;left:0;top:0;transition:width 1s linear;"></div>'+cd+'s</div>':''}
     </button>`;
   }).join('');
@@ -552,7 +552,7 @@ function checkAch(){
       // ── 居中成就弹窗（含奖励） ──
       const rc=a.reward||{};
       const coinStr=rc.coins?'<span style="color:#ffd700">+'+rc.coins+'💰</span> ':'';
-      const qiStr=rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'✨</span> ':'';
+      const qiStr=rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'<span class="qi-icon qi-icon-sm"></span></span> ':'';
       const titleStr=rc.title?'<span style="color:#f0abfc">★ '+rc.title+'</span> ':'';
       const rewardLine=(coinStr||qiStr||titleStr)?'<div style="font-size:13px;color:#aaa;margin-top:8px;">'+coinStr+qiStr+titleStr+'</div>':'';
       const ac=a.color||'#ffd700';
@@ -604,7 +604,7 @@ function rollFate(){
   G.lastFateDate=today();
   saveGame();
   updateHud();
-  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','✨ 大吉'];
+  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','<span class="qi-icon qi-icon-sm"></span> 大吉'];
   const icons=['⚠️','⚠️','☀️','🌟','⭐'];
   const colors=['#f44336','#ff9800','#888','#8bc34a','#ffd700'];
   showNotif('info','今日运势：'+names[G.currentFate-1]+'！产出'+(YUN_COIN[G.currentFate-1]>=0?'+'+(YUN_COIN[G.currentFate-1]*100).toFixed(0)+'%':(YUN_COIN[G.currentFate-1]*100).toFixed(0)+'%'));
@@ -622,7 +622,7 @@ function checkFateDaily(){
 }
 function showFateDetail(){
   const idx=G.currentFate-1;
-  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','✨ 大吉'];
+  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','<span class="qi-icon qi-icon-sm"></span> 大吉'];
   const descs=['诸事不顺，产出-50%','略有不顺，产出-20%','运气平平，正常产出','运势旺盛，产出+30%','鸿运当头，产出+50%'];
   const colors=['#f44336','#ff9800','#888','#8bc34a','#ffd700'];
   const bonus=YUN_COIN[idx];
@@ -721,7 +721,7 @@ function renderCultPanel(){
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeCultPanel()">✕ 关闭</div>
     </div>
     <div style="font-size:11px;color:#666;margin-bottom:18px;background:linear-gradient(135deg,rgba(255,215,0,.06),rgba(255,140,0,.04));border:1px solid rgba(255,215,0,.12);padding:10px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">
-      <span>当前拥有 <span style="color:#ffd700;font-weight:700;">✨ ${G.qi}</span> 龙气</span>
+      <span>当前拥有 <span style="color:#ffd700;font-weight:700;"><span class="qi-icon qi-icon-sm"></span> ${G.qi}</span> 龙气</span>
       <span style="color:#555;">每条命格可修炼3层</span>
     </div>
     ${CULTivation.map(c=>{
@@ -752,7 +752,7 @@ function renderCultPanel(){
             const canAfford=G.qi>=n.cost;
             return `<div id="cult_${c.key}_${i}" onclick="doCultNode('${c.key}',${i})" style="flex:1;background:${done?'rgba(255,215,0,.07)':'rgba(255,255,255,.03)'};border:1.5px solid ${done?'rgba(255,215,0,.25)':isNext?c.color+'88':'rgba(255,255,255,.06)'};border-radius:10px;padding:8px 4px;text-align:center;cursor:${done?'default':(canAfford||isNext)?'pointer':'not-allowed'};opacity:${done?'1':isNext?'1':'.3'};transition:all .2s;">
               <div style="font-size:9px;color:${done?'rgba(255,215,0,.8)':isNext?c.color:'#444'};font-weight:700;margin-bottom:3px;">${n.title}</div>
-              ${done?'<div style="font-size:14px;">✅</div>':`<div style="font-size:9px;color:${canAfford&&isNext?'#ffd700':'#555'};">✨${n.cost}</div>`}
+              ${done?'<div style="font-size:14px;">✅</div>':`<div style="font-size:9px;color:${canAfford&&isNext?'#ffd700':'#555'};"><span class="qi-icon qi-icon-sm"></span>${n.cost}</div>`}
             </div>`;}).join('')}
         </div>
       </div>`;}).join('')}
@@ -774,7 +774,7 @@ function renderCultPanel(){
           <span style="font-size:15px;">🐉</span><div><div style="font-size:10px;color:#555;">高级灵兽</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.highRate*100).toFixed(0)}%</div></div>
         </div>
         <div style="grid-column:1/-1;display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
-          <span style="font-size:15px;">✨</span><div><div style="font-size:10px;color:#555;">龙气回复</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${bonus.qiRate}/min</div></div>
+          <span style="font-size:15px;"><span class="qi-icon qi-icon-sm"></span></span><div><div style="font-size:10px;color:#555;">龙气回复</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${bonus.qiRate}/min</div></div>
         </div>
       </div>
     </div>
@@ -842,7 +842,7 @@ function renderHandbook(){
       var unlockBtn='';
       if(!unlocked){
         var canAfford=G.qi>=ZOD_UNLOCK_COST;
-        unlockBtn='<button onclick="unlockZodiac('+zi+')" style="margin-top:8px;padding:5px 8px;font-size:11px;border-radius:8px;border:none;cursor:pointer;background:'+(canAfford?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)')+';color:'+(canAfford?'#ffd700':'#555')+';">'+(isSelf?'初始':'✨ '+ZOD_UNLOCK_COST+' 解锁')+'</button>';
+        unlockBtn='<button onclick="unlockZodiac('+zi+')" style="margin-top:8px;padding:5px 8px;font-size:11px;border-radius:8px;border:none;cursor:pointer;background:'+(canAfford?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)')+';color:'+(canAfford?'#ffd700':'#555')+';">'+(isSelf?'初始':'<span class="qi-icon qi-icon-sm"></span> '+ZOD_UNLOCK_COST+' 解锁')+'</button>';
       } else if(isSelf){
         unlockBtn='<div style="margin-top:8px;font-size:10px;color:#ffd700;">初始解锁</div>';
       } else {
@@ -988,7 +988,7 @@ function claimWeeklyChallenge(id){
   saveGame();
   updateHud();
   if(playSound) playSound('achieve');
-  showNotif('success','🏆 '+ch.title+' 领取成功！💰+'+fmtNum(ch.reward.coin)+' ✨+'+ch.reward.qi);
+  showNotif('success','🏆 '+ch.title+' 领取成功！💰+'+fmtNum(ch.reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+ch.reward.qi);
   openWeeklyPanel(); // 刷新面板
 
   // 检查是否全部完成 → 额外奖励
@@ -1042,7 +1042,7 @@ function renderWeeklyPanel(){
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:10px;color:#555;">${done?'':'进度: '+progress+'/'+ch.target}</span>
-        <span style="font-size:10px;color:#ffd700;">💰${fmtNum(ch.reward.coin)} ✨+${ch.reward.qi}</span>
+        <span style="font-size:10px;color:#ffd700;">💰${fmtNum(ch.reward.coin)} <span class="qi-icon qi-icon-sm"></span>+${ch.reward.qi}</span>
       </div>
     </div>`;
   });
@@ -1152,7 +1152,7 @@ function renderSignPanel(){
       <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">📋 7天签到奖励表</div>
       ${SIGN_REWARDS.map((r,i)=>{const day=i+1;const active=day===getSignDay();return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);${active?'opacity:1;':'opacity:.5;'}">
         <span style="font-size:11px;color:${active?'#ffd700':'#666'};">${r.label}</span>
-        <span style="font-size:11px;color:${active?'#ffd700':'#666'};">💰+${fmtNum(r.coin)} ✨+${r.qi}${r.free>0?' 🆓+'+r.free+'召唤':''}</span>
+        <span style="font-size:11px;color:${active?'#ffd700':'#666'};">💰+${fmtNum(r.coin)} <span class="qi-icon qi-icon-sm"></span>+${r.qi}${r.free>0?' 🆓+'+r.free+'召唤':''}</span>
       </div>`;}).join('')}
     </div>
   </div>`;
@@ -1186,12 +1186,12 @@ function doSign(){
   if(btn){
     btn.style.background='rgba(76,175,80,.15)';
     btn.style.border='1.5px solid rgba(76,175,80,.4)';
-    btn.innerHTML='<div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 签到成功！</div><div style="font-size:11px;color:#aaa;margin-top:4px;">💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'次召唤':'')+'</div>';
+    btn.innerHTML='<div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 签到成功！</div><div style="font-size:11px;color:#aaa;margin-top:4px;">💰+'+fmtNum(reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'次召唤':'')+'</div>';
     btn.style.cursor='default';
     btn.onclick=null;
   }
   _onWeeklyEvent('sign');
-  showNotif('success','🎉 连续签到第'+G.signStreak+'天 · 💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'召唤':''));
+  showNotif('success','🎉 连续签到第'+G.signStreak+'天 · 💰+'+fmtNum(reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'召唤':''));
 }
 
 function yesterday(){
@@ -1271,7 +1271,7 @@ function renderTaskPanel(){
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
           <span style="font-size:10px;color:#555;">${completed?'':'进度: '+prog+'/'+t.target}</span>
-          <span style="font-size:10px;color:#ffd700;">💰${t.reward.coin>=1000?t.reward.coin/1000+'K':t.reward.coin} ✨+${t.reward.qi}${t.reward.free?' 🆓+'+t.reward.free+'次':''}</span>
+          <span style="font-size:10px;color:#ffd700;">💰${t.reward.coin>=1000?t.reward.coin/1000+'K':t.reward.coin} <span class="qi-icon qi-icon-sm"></span>+${t.reward.qi}${t.reward.free?' 🆓+'+t.reward.free+'次':''}</span>
         </div>
       </div>`;}).join('')}
     </div>
@@ -1311,7 +1311,7 @@ function claimTask(id){
   saveGame();
   updateHud();
   if(playSound) playSound('achieve');
-  showNotif('success','✅ 领取成功！💰+'+fmtNum(t.reward.coin)+' ✨+'+t.reward.qi+(t.reward.free?' 🆓+'+t.reward.free+'召唤':''));
+  showNotif('success','✅ 领取成功！💰+'+fmtNum(t.reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+t.reward.qi+(t.reward.free?' 🆓+'+t.reward.free+'召唤':''));
   renderTaskPanel();
 }
 
@@ -1481,7 +1481,7 @@ const GUIDE_STEPS = [
   {
     step:3,
     title:'三种召唤方式',
-    body:'💰 金币召唤：消耗累积金币\n✨ 龙气召唤：使用龙气，获得更高品阶\n🆓 免费召唤：每天重置，适合微氪玩家',
+    body:'💰 金币召唤：消耗累积金币\n<span class="qi-icon qi-icon-sm"></span> 龙气召唤：使用龙气，获得更高品阶\n🆓 免费召唤：每天重置，适合微氪玩家',
     target:'#summonBar',
     pos:'bottom',
     nextText:'继续 →',
@@ -1731,7 +1731,7 @@ function startSkyEvents(){
 // ===== 属相图鉴解锁 =====
 function unlockZodiac(zidx){
   if(G.qi < ZOD_UNLOCK_COST){
-    showNotif('warning','龙气不足！需要 '+ZOD_UNLOCK_COST+' ✨，当前只有 '+Math.floor(G.qi)+' ✨');
+    showNotif('warning','龙气不足！需要 '+ZOD_UNLOCK_COST+' <span class="qi-icon qi-icon-sm"></span>，当前只有 '+Math.floor(G.qi)+' <span class="qi-icon qi-icon-sm"></span>');
     return;
   }
   if(!G.unlockedAtlas) G.unlockedAtlas = [];
@@ -1761,7 +1761,7 @@ function claimActiveReward(){
   G.activeClaimedDate=td;
   G.coins+=5000;G.qi+=100;
   saveGame();updateHud();
-  showNotif('success','🎁 活跃奖励领取成功！💰+5000 ✨+100');
+  showNotif('success','🎁 活跃奖励领取成功！💰+5000 <span class="qi-icon qi-icon-sm"></span>+100');
 }
 
 
@@ -1931,7 +1931,7 @@ function updateHud(){
   }
   if(document.getElementById('qiCost')){
     var qiCost=Math.floor(500*Math.pow(1.1,Math.floor((G.summonCount||0)/15)));
-    document.getElementById('qiCost').textContent='✨ '+qiCost;
+    document.getElementById('qiCost').textContent='<span class="qi-icon qi-icon-sm"></span> '+qiCost;
     var btnQi=document.getElementById('btnQi');
     if(btnQi)btnQi.disabled=(G.qi||0)<qiCost;
   }
@@ -2188,7 +2188,7 @@ function towerAttack(){
     checkAch&&checkAch();
     // BOSS击败提示
     if(enemy.isBoss){
-      alert('🏆 BOSS击败！第'+floor+'层 '+enemy.name+'\n+'+(enemy.coins||0)+'💰 '+(enemy.qi||0)+'✨');
+      alert('🏆 BOSS击败！第'+floor+'层 '+enemy.name+'\n+'+(enemy.coins||0)+'💰 '+(enemy.qi||0)+'<span class="qi-icon qi-icon-sm"></span>');
     }
     playSound&&playSound('merge');
   }
@@ -2237,7 +2237,7 @@ function towerClaimMilestone(idx){
   G.qi=(G.qi||0)+ach.qi;
   G.towerMilestones.push(idx);
   var titleStr=ach.title?' · 称号['+ach.title+']':'';
-  alert('领取成功！\n+'+ach.coins+'💰 '+(ach.qi?'+'+ach.qi+'✨ ':'')+titleStr);
+  alert('领取成功！\n+'+ach.coins+'💰 '+(ach.qi?'+'+ach.qi+'<span class="qi-icon qi-icon-sm"></span> ':'')+titleStr);
   saveGame();
   renderTowerPanel&&renderTowerPanel();
   updateHUD&&updateHUD();
@@ -2308,10 +2308,10 @@ function renderTowerPanel(){
     var claimed=G.towerMilestones&&G.towerMilestones.includes(i);
     var cls='tower-ms-item'+(done?'':' tower-ms-locked')+(claimed?' tower-ms-claimed':'');
     var btn=done&&!claimed?'<button onclick="towerClaimMilestone('+i+')" style="background:#ff6b35;border:none;color:#fff;border-radius:6px;padding:2px 8px;font-size:.75em;cursor:pointer">领取</button>':(claimed?'✅':'🔒');
-    msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="color:#ffd700">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#a0d8ef">'+a.qi+'✨</span>':'')+(a.title?' <span style="color:#f0abfc">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
+    msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="color:#ffd700">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#a0d8ef">'+a.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+(a.title?' <span style="color:#f0abfc">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
   });
   var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px"><div style="font-size:12px;color:#888;margin-bottom:6px">📊 层数里程碑</div>'+msItems+'</div>';
-  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div><div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+maxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'✨</span>':'')+'</div></div>'+
+  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div><div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+maxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+'</div></div>'+
 (floor>=100?'<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px">🎉 已通关100层！可领取所有里程碑奖励</div>':(atkBtn+sweepBtn))+msHtml+'</div>';
   c.innerHTML=html;
 }
@@ -2421,7 +2421,7 @@ function renderForgePanel(){
     '<span class="mat-chip">🔩铁锭: '+mat.iron+'</span>'+
     '<span class="mat-chip">💎水晶: '+mat.crystal+'</span>'+
     '<span class="mat-chip">🐉龙鳞: '+mat.dragonScale+'</span>'+
-    '<span class="mat-chip">✨星尘: '+mat.starDust+'</span>'+
+    '<span class="mat-chip"><span class="qi-icon qi-icon-sm"></span>星尘: '+mat.starDust+'</span>'+
     '</div>';
 
   // 套装状态
@@ -2453,7 +2453,7 @@ function renderForgeCraft(fm,mat){
     var color=QUALITY_COLORS[r.quality];
     html+='<div class="forge-recipe '+(can?'can-craft':'')+'" style="border-left:4px solid '+color+'">'+
       '<div class="recipe-name" style="color:'+color+'">'+r.name+' <span style="font-size:11px;color:#888">'+EQUIP_TYPE_NAME[r.type]+'</span></div>'+
-      '<div class="recipe-cost">🔩'+r.iron+' 💎'+r.crystal+' 🐉'+r.dragonScale+' ✨'+r.starDust+'</div>'+
+      '<div class="recipe-cost">🔩'+r.iron+' 💎'+r.crystal+' 🐉'+r.dragonScale+' <span class="qi-icon qi-icon-sm"></span>'+r.starDust+'</div>'+
       '<div class="recipe-desc">'+r.desc+'</div>'+
       '<button class="forge-btn '+(can?'active':'disabled')+'" onclick="craftForgeItem(\''+r.id+'\')">'+(can?'🔨 制作':'材料不足')+'</button>'+
       '</div>';

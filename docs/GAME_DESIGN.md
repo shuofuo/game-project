@@ -141,10 +141,10 @@
 game-project/
 ├── index.html           ← 游戏入口（完整 HTML5 游戏）
 ├── js/
-│   ├── config.js        ← 全局配置/常量/存档/G状态
-│   ├── audio.js         ← Web Audio API 音效/BGM
-│   ├── game.js          ← 核心游戏逻辑（召唤/合成/产金/存档）
-│   └── ui.js            ← UI渲染/弹窗/图鉴面板
+│   ├── config.js        ← 全局配置/常量/G状态/存档KEY
+│   ├── audio.v2.js      ← Web Audio API 音效/BGM
+│   ├── game.v5.js       ← 核心游戏逻辑（召唤/合成/产金/存档/统计/周挑战/试炼塔/皮肤/炼宝）
+│   └── ui.v2.js         ← UI渲染/弹窗/图鉴面板
 └── docs/
     ├── GAME_DESIGN.md   ← 本文档
     ├── GAME_STATUS.md  ← 功能状态追踪

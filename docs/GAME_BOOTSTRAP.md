@@ -54,19 +54,21 @@ python3 -m http.server 7892
 |------|------|
 | `index.html` | 游戏入口，HTML骨架，CSS样式 |
 | `js/config.js` | 全局常量、G状态对象、COIN_S、存档KEY |
-| `js/audio.js` | Web Audio API 音效/BGM |
-| `js/game.js` | 核心逻辑：startGame/合成/召唤/产金/存档 |
-| `js/ui.js` | UI渲染：弹窗/图鉴面板/侧边栏 |
+| `js/audio.v2.js` | Web Audio API 音效/BGM |
+| `js/game.v5.js` | 核心逻辑：召唤/合成/产金/存档/统计/周挑战/试炼塔/皮肤/炼宝 |
+| `js/ui.v2.js` | UI渲染：弹窗/图鉴面板/侧边栏 |
 
 ### 加载顺序（不可调换）
 
 ```
 index.html
-  → js/config.js  (声明所有全局变量)
-  → js/audio.js   (依赖 config.js 的 G/_audioCtx)
-  → js/game.js    (调用 config/audio 的函数)
-  → js/ui.js      (渲染依赖 game 函数)
+  → js/config.js        (声明所有全局变量)
+  → js/audio.v2.js      (依赖 config.js 的 G/_audioCtx)
+  → js/game.v5.js?v=13  (调用 config/audio 的函数)
+  → js/ui.v2.js         (渲染依赖 game 函数)
 ```
+
+> ⚠️ game.v3.js / game.js / game.min.js / audio.js / ui.js 全部是废弃版本，已删除
 
 ### 全局关键变量
 

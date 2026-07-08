@@ -26,6 +26,7 @@ function startGame(zz,ff){
   saveGame();renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
   try{showFeatureButtons();}catch(e){}
   requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
+  _initCloudAccount();
   requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
   setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);
   if(!window._skillBarInterval){
@@ -2715,4 +2716,181 @@ function equipForgeItem(itemId){
   }
   G.forge=fm;
   saveGame();updateHud();renderForgePanel();
+}
+
+// ============================================================
+// 云端账号系统
+// ============================================================
+const CLOUD_API = "https://47.105.41.23/api";
+
+// 工具函数：fetch 封装
+async function _cloudFetch(method, path, body) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(CLOUD_API + path, opts);
+  return r.json();
+}
+
+// 打开云端面板
+function openCloudPanel() {
+  document.getElementById("cloudPanel").classList.add("open");
+  document.getElementById("cloudError").style.display = "none";
+  const tab = G._cloudPlayerId ? "logout" : "login";
+  if (tab === "logout") {
+    document.getElementById("cloudPhone").value = G._cloudPhone || "";
+    document.getElementById("cloudPhone").disabled = true;
+    document.getElementById("cloudPwd").style.display = "none";
+    document.getElementById("cloudSubmitBtn").textContent = "解除绑定";
+  } else {
+    document.getElementById("cloudPhone").value = "";
+    document.getElementById("cloudPhone").disabled = false;
+    document.getElementById("cloudPwd").style.display = "";
+    switchCloudTab("login");
+  }
+}
+
+// 关闭云端面板
+function closeCloudPanel() {
+  document.getElementById("cloudPanel").classList.remove("open");
+}
+
+// 切换登录/注册标签
+function switchCloudTab(tab) {
+  const lbtn = document.getElementById("cloudTabLogin");
+  const rbtn = document.getElementById("cloudTabReg");
+  if (tab === "login") {
+    lbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;color:#ffd700;font-size:14px;cursor:pointer;";
+    rbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#888;font-size:14px;cursor:pointer;";
+    document.getElementById("cloudSubmitBtn").textContent = "登录";
+  } else {
+    rbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;color:#ffd700;font-size:14px;cursor:pointer;";
+    lbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#888;font-size:14px;cursor:pointer;";
+    document.getElementById("cloudSubmitBtn").textContent = "注册";
+  }
+}
+
+// 提交登录/注册表单
+async function cloudSubmit() {
+  const panel = document.getElementById("cloudPanel");
+  // 解除绑定
+  if (panel.querySelector("#cloudPhone").disabled) {
+    G._cloudPlayerId = null;
+    G._cloudPhone = null;
+    localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+    closeCloudPanel();
+    updateHeroSection();
+    return;
+  }
+  const phone = document.getElementById("cloudPhone").value.trim();
+  const pwd = document.getElementById("cloudPwd").value;
+  const errEl = document.getElementById("cloudError");
+  const btn = document.getElementById("cloudSubmitBtn");
+  const isReg = btn.textContent === "注册";
+
+  if (!phone || !isReg && !pwd) {
+    errEl.textContent = "请填写手机号和密码"; errEl.style.display = "";
+    return;
+  }
+  if (phone.length !== 11) {
+    errEl.textContent = "手机号必须是11位"; errEl.style.display = "";
+    return;
+  }
+  if (pwd.length < 6) {
+    errEl.textContent = "密码至少6位"; errEl.style.display = "";
+    return;
+  }
+  errEl.style.display = "none";
+  btn.disabled = true;
+  btn.textContent = "请稍候...";
+
+  try {
+    const path = isReg ? "/auth/register" : "/auth/login";
+    const res = await _cloudFetch("POST", path, { phone, password: pwd });
+
+    if (res.code === 0) {
+      G._cloudPlayerId = res.player_id;
+      G._cloudPhone = phone;
+      localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+      // 注册/登录成功后上传本地存档
+      await cloudSaveToServer(true);
+      closeCloudPanel();
+      updateHeroSection();
+      showToast((isReg ? "注册" : "登录") + "成功 ☁️", "#ffd700");
+    } else {
+      errEl.textContent = res.msg || "操作失败"; errEl.style.display = "";
+      btn.disabled = false;
+      btn.textContent = isReg ? "注册" : "登录";
+    }
+  } catch(e) {
+    errEl.textContent = "网络错误，请检查网络连接"; errEl.style.display = "";
+    btn.disabled = false;
+    btn.textContent = isReg ? "注册" : "登录";
+  }
+}
+
+// 云端存档（每次大操作后自动调用）
+async function cloudSave(quiet) {
+  if (!G._cloudPlayerId) return;
+  try {
+    await cloudSaveToServer(!!quiet);
+    if (!quiet) {
+      showToast("☁️ 已同步", "#4ade80");
+    }
+  } catch(e) {
+    if (!quiet) showToast("同步失败", "#ff6b6b");
+  }
+}
+
+// 主动保存到云端（带loading提示）
+async function cloudSaveToServer(quiet) {
+  if (!G._cloudPlayerId) return;
+  const gameData = {
+    coins: G.coins,
+    totalCoinsEarned: G.totalCoinsEarned || G.coins,
+    dragons: G.dragons,
+    mergeCount: G.mergeCount || 0,
+    zodiac: G.zodiac,
+    fate: G.fate,
+    dragonQi: G.dragonQi,
+    achievements: G.achievements || [],
+    unlockedAtlas: G.unlockedAtlas || [],
+    signDays: G.signDays || 0,
+    summonCount: G.summonCount || 0
+  };
+  await _cloudFetch("POST", "/game/save", {
+    player_id: G._cloudPlayerId,
+    game_data: gameData
+  });
+}
+
+// 加载云端存档覆盖本地
+async function cloudLoadFromServer(quiet) {
+  if (!G._cloudPlayerId) return;
+  const res = await _cloudFetch("GET", "/game/load/" + G._cloudPlayerId);
+  if (res.code === 0 && res.game_data) {
+    const d = res.game_data;
+    G.coins = d.coins || 0;
+    G.totalCoinsEarned = d.totalCoinsEarned || d.coins || 0;
+    G.dragons = d.dragons || [];
+    G.mergeCount = d.mergeCount || 0;
+    G.zodiac = d.zodiac ?? -1;
+    G.fate = d.fate ?? -1;
+    G.dragonQi = d.dragonQi || 0;
+    G.achievements = d.achievements || [];
+    G.unlockedAtlas = d.unlockedAtlas || [];
+    G.signDays = d.signDays || 0;
+    G.summonCount = d.summonCount || 0;
+    localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+    saveGame();
+    updateHud();
+    if (!quiet) showToast("☁️ 云端存档已恢复", "#4ade80");
+  }
+}
+
+// 云端同步按钮（侧边栏加一个云图标）
+// 在 startGame 末尾调用，初始化时检查已登录玩家
+function _initCloudAccount() {
+  if (G._cloudPlayerId) {
+    cloudLoadFromServer(true).catch(function() {});
+  }
 }

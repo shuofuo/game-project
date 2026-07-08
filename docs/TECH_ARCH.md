@@ -449,3 +449,49 @@ git push origin v0.1
 
 > 本文档为技术架构设计 v1.0  
 > 后续更新需记录变更内容到 SPEC.md 的"重要决策记录"章节
+---
+
+## 三、游戏后端 API（2026-07-08 部署）
+
+### 架构
+
+```
+玩家浏览器/小程序
+    ↓ HTTPS → http://shengxiao.ink/api/
+阿里云 ECS（47.105.41.23:5000）
+    ↓ 内网连接
+阿里云 RDS MySQL 8.0（shengxiao 数据库）
+```
+
+### 依赖
+
+```bash
+pip3 install flask flask-cors pymysql
+# 安装到 /usr/local/lib/python3.12/site-packages
+```
+
+### 启动方式
+
+```bash
+systemctl start shengxiao    # 启动
+systemctl stop shengxiao     # 停止
+systemctl restart shengxiao  # 重启
+journalctl -u shengxiao -f   # 查看日志
+```
+
+### 环境变量
+
+| 变量 | 值 |
+|------|-----|
+| PYTHONPATH | /usr/local/lib/python3.12/site-packages |
+| DB_HOST | rm-m5e3c29lzp37083us-pub.mysql.rds.aliyuncs.com |
+| DB_USER | root |
+| DB_PASS | Fuofuo230 |
+| DB_NAME | shengxiao |
+
+### 安全注意
+
+> ⚠️ 当前密码是明文存储在 `/opt/shengxiao/app.py`，后续应改为：
+> 1. 密码 hash 改用 bcrypt
+> 2. 数据库密码写入环境变量而非代码
+> 3. RDS 白名单限制来源 IP（目前已限制 ECS IP）

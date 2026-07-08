@@ -119,3 +119,31 @@
 | `js/ui.js` | ❌ 已删除 | 旧版 v1，被 v2 替代 |
 
 > index.html 实际引用：config.js → audio.v2.js → game.v5.js → ui.v2.js
+---
+
+## 云端后端（2026-07-08 部署）
+
+| 项目 | 内容 |
+|------|------|
+| 服务器 | 阿里云 ECS（47.105.41.23）青岛 |
+| 数据库 | 阿里云 RDS MySQL 8.0 |
+| API 地址 | http://47.105.41.23:5000 |
+| 自启动 | systemctl enable shengxiao ✅ |
+| 域名 | shengxiao.ink（实名审核中）|
+
+### API 列表（Flask）
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/api/ping` | GET | 健康检查 |
+| `/api/auth/register` | POST | 手机号注册 |
+| `/api/auth/login` | POST | 手机号登录 |
+| `/api/game/save` | POST | 云端存档（player_id+game_data）|
+| `/api/game/load/<id>` | GET | 读取存档 |
+| `/api/rank/coins` | GET | 金币排行榜 Top20 |
+| `/api/rank/level` | GET | 等级排行榜 Top20 |
+
+### 数据库表
+
+- `players`：玩家账号（phone + password_hash）
+- `player_data`：游戏存档（game_data JSON + coins/max_level/merge_count 冗余字段）

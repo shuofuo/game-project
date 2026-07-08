@@ -96,22 +96,23 @@
 
 ```
 game-project/
-├── docs/
-│   ├── index.html          ← 游戏入口（完整 HTML5 游戏）
-│   └── js/
-│       ├── config.js       ← 全局配置/音效/拖拽/存档
-│       ├── game.js         ← 游戏逻辑/召唤/成就/签到/任务
-│       ├── audio.js        ← 音效生成（Web Audio API）
-│       └── ui.js           ← 辅助 UI
-├── SPEC.md                 ← 游戏设计规格说明书
+├── index.html              ← 游戏入口（完整 HTML5 游戏）
+├── js/
+│   ├── config.js           ← 全局配置/常量/G状态
+│   ├── audio.js            ← Web Audio API 音效/BGM
+│   ├── game.js             ← 核心游戏逻辑
+│   └── ui.js               ← UI渲染/弹窗
+├── SPEC.md                 ← 游戏规格说明书
 ├── SETUP_GUIDE.md          ← 快速启动指南
-└── docs/
-    ├── TECH_ARCH.md        ← 技术架构
+└── docs/                   ← 设计文档（不参与部署）
     ├── GAME_DESIGN.md      ← 玩法设计
-    ├── DEV_GUIDE.md         ← 开发指南
-    ├── DEV_RULES.md         ← 代码规范
-    ├── DAILY_LOG.md         ← 开发日志
-    └── GAME_STATUS.md       ← 功能状态追踪
+    ├── GAME_STATUS.md      ← 功能状态追踪
+    ├── TECH_ARCH.md        ← 技术架构
+    ├── DEV_GUIDE.md        ← 开发指南
+    ├── DEV_RULES.md        ← 代码规范
+    ├── DAILY_LOG.md        ← 开发日志
+    ├── BUILD_GUIDE.md      ← 构建指南
+    └── MIGRATION.md        ← 迁移记录
 ```
 
 ---
@@ -140,7 +141,7 @@ https://shuofuo.github.io/game-project/
 ```bash
 git clone https://github.com/shuofuo/game-project.git
 cd game-project/docs
-# 直接用浏览器打开 index.html
+# 直接用浏览器打开 index.html（根目录下）
 # 或用 http-server：
 npx http-server . -p 8080
 ```
@@ -161,5 +162,5 @@ npx http-server . -p 8080
 
 ---
 
-> ⚠️ 游戏代码在 `docs/`，无需构建，直接 push 即部署  
+> ⚠️ 游戏代码在根目录（index.html + js/），docs/ 只放设计文档  
 > 所有代码通过 GitHub 管理，commit 规范参考 `docs/DEV_RULES.md`

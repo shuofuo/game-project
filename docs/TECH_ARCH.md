@@ -491,7 +491,31 @@ journalctl -u shengxiao -f   # 查看日志
 
 ### 安全注意
 
-> ⚠️ 当前密码是明文存储在 `/opt/shengxiao/app.py`，后续应改为：
-> 1. 密码 hash 改用 bcrypt
-> 2. 数据库密码写入环境变量而非代码
-> 3. RDS 白名单限制来源 IP（目前已限制 ECS IP）
+> ⚠️ 密码明文存在代码里，后续要改：
+> 1. 数据库密码写入环境变量
+> 2. 密码 hash 改用 bcrypt
+
+### 关键文件位置（ECS）
+
+| 文件 | 说明 |
+|------|------|
+| `/opt/shengxiao/app.py` | Flask 后端代码 |
+| `/etc/systemd/system/shengxiao.service` | 自启动服务文件 |
+| `/opt/shengxiao/api.log` | 运行日志 |
+| `/opt/shengxiao/backend/` | 代码备份目录 |
+
+### ECS 登录
+
+```bash
+ssh root@47.105.41.23
+# 密码见：~/.ssh/config 或公司密码管理器
+```
+
+### RDS 连接信息
+
+| 项目 | 值 |
+|------|-----|
+| 连接地址 | rm-m5e3c29lzp37083us-pub.mysql.rds.aliyuncs.com |
+| 数据库名 | shengxiao |
+| 账号 | root |
+| 密码 | 见密码管理器（勿写在代码里）|

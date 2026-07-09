@@ -651,11 +651,11 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 
 /* === feat[4]: 成就顶部弹出通知 === */
 #achPopContainer{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
-.ach-pop{background:linear-gradient(135deg,#1a1a3a,#2a1a5a);border:1.5px solid #ffd700;border-radius:16px;padding:12px 20px;display:flex;align-items:center;gap:10px;animation:achTopPop .5s cubic-bezier(.34,1.56,.64,1) forwards;box-shadow:0 4px 30px rgba(255,215,0,.3);pointer-events:auto;cursor:pointer;}
+.ach-pop{background:linear-gradient(135deg,#fdfcf5,#f5f0e8);border:1.5px solid rgba(180,140,80,.4);border-radius:16px;padding:12px 20px;display:flex;align-items:center;gap:10px;animation:achTopPop .5s cubic-bezier(.34,1.56,.64,1) forwards;box-shadow:0 4px 30px rgba(180,140,80,.2);pointer-events:auto;cursor:pointer;}
 @keyframes achTopPop{0%{opacity:0;transform:translateY(-20px) scale(.9);}100%{opacity:1;transform:translateY(0) scale(1);}}
 .ach-pop-icon{font-size:28px;}
 .ach-pop-text{text-align:left;}
-.ach-pop-title{font-size:13px;font-weight:600;font-weight:700;color:#888;}
+.ach-pop-title{font-size:13px;font-weight:600;font-weight:700;color:#1A1A1A;}
 .ach-pop-desc{font-size:11px;color:#1A1A1A;font-weight:600;}
 
 /* === feat[7]: 签到日历 === */
@@ -726,13 +726,13 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 /* ===== 手机小屏优化 ===== */
 @media(max-width:480px){.hero-glow{width:160px!important;height:160px!important}#heroIcon{font-size:clamp(80px,24vw,120px)!important}#heroThumbs{max-width:180px!important}.hud-row{display:none!important}#skillBar{padding:5px 8px;gap:6px}.summon-btn{padding:8px 12px!important;font-size:13px;font-weight:600!important}.side-btn{padding:8px 7px!important}.sra-result-anim{min-width:260px!important;padding:16px 12px!important}#gameBottomBar{gap:clamp(6px,2vw,12px)!important}}@media(max-width:360px){.hero-glow{width:120px!important;height:120px!important}#heroIcon{font-size:clamp(65px,20vw,90px)!important}#skillBar{padding:4px 6px;gap:4px}.skill-btn{min-width:44px;padding:4px 5px}}
 
-.forge-title{font-size:1.1em;font-weight:700;color:#fbbf24;margin-bottom:10px;text-align:center}
+.forge-title{font-size:1.1em;font-weight:700;color:#1A1A1A;margin-bottom:10px;text-align:center}
 .forge-materials{display:flex;gap:6px;flex-wrap:wrap;padding:8px;rgba(255,255,255,.92);border-radius:8px;margin-bottom:10px}
 .mat-chip{background:rgba(255,255,255,.08);padding:3px 8px;border-radius:12px;font-size:12px}
-.suit-banner{background:linear-gradient(135deg,#ff8c00,#ff3333);color:#555;padding:8px 12px;border-radius:8px;text-align:center;font-weight:700;margin-bottom:10px;font-size:13px;font-weight:600}
-.suit-banner.suit-2{background:linear-gradient(135deg,#555,#777)}
+.suit-banner{background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,215,0,.05));border:1px solid rgba(255,215,0,.3);border-radius:10px;color:#1A1A1A;padding:8px 12px;text-align:center;font-weight:600;margin-bottom:10px;font-size:12px;letter-spacing:.5px}
+.suit-banner.suit-2{background:linear-gradient(135deg,rgba(126,184,255,.12),rgba(126,184,255,.05));border-color:rgba(126,184,255,.3);color:#0277bd}
 .suit-progress{color:#666;font-size:12px;padding:6px 0;margin-bottom:8px;text-align:center}
-.forge-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:10px}
+.forge-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(180,140,80,.2);margin-bottom:10px}
 .forge-tab{background:transparent;border:none;color:#555;font-size:13px;font-weight:600;padding:6px 10px;cursor:pointer;border-bottom:2px solid transparent;flex:1;text-align:center}
 .forge-tab.active{color:#fbbf24;border-bottom-color:#fbbf24}
 .forge-section-title{font-size:12px;color:#555;padding:4px 8px;margin-bottom:8px}
@@ -775,7 +775,7 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 .skin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .skin-item{border:1px solid #555;border-radius:12px;padding:8px 4px;text-align:center;transition:transform .15s;rgba(255,255,255,.92)}
 .skin-item:hover{transform:scale(1.06)}
-.skin-item.skin-owned{border-color:#1A1A1A;font-weight:60044}
+.skin-item.skin-owned{border-color:#1A1A1A;font-weight:600;}
 .skin-item.skin-equipped{border-color:#1A1A1A;font-weight:600!important;background:rgba(255,215,0,.1)!important}
 .close-btn{margin-top:12px;width:100%;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.05);color:#555;font-size:13px;font-weight:600;cursor:pointer}
 .close-btn:hover{background:rgba(255,255,255,.1);color:#555}
@@ -1257,12 +1257,12 @@ function doStart(){
 /* ── 召唤面板紧凑化 ── */
 .summon-btn{padding:9px 14px;border-radius:14px;border:1.5px solid rgba(180,140,80,.35);font-size:13px;font-weight:600;font-weight:700;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .summon-btn:active{transform:scale(.95);}
-.sbtn-coin{background:linear-gradient(135deg,#3a2e00,#2a1e00);color:#1A1A1A;font-weight:600;}
-.sbtn-coin:hover{background:linear-gradient(135deg,#4a3e00,#3a2e00);}
-.sbtn-qi{background:rgba(220,250,210,.88);color:#2e7d32;}
-.sbtn-qi:hover{background:rgba(220,250,210,.92);}
-.sbtn-free{rgba(200,220,250,.92);color:#0277bd;border-color:rgba(126,216,239,.3);}
-.sbtn-free:hover{background:rgba(200,220,250,.92);}
+.sbtn-coin{background:rgba(255,248,235,.93);color:#1A1A1A;font-weight:600;}
+.sbtn-coin:hover{background:rgba(255,248,235,.96);}
+.sbtn-qi{background:rgba(220,250,210,.92);color:#1A1A1A;font-weight:600;}
+.sbtn-qi:hover{background:rgba(220,250,210,.95);}
+.sbtn-free{background:rgba(200,220,250,.92);color:#1A1A1A;font-weight:600;border-color:rgba(126,216,239,.3);}
+.sbtn-free:hover{background:rgba(200,220,250,.95);}
 
 /* ── 套装进度条 ── */
 .suit-banner{background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,215,0,.05));border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:8px 12px;text-align:center;font-size:12px;color:#1A1A1A;font-weight:600;margin:6px 0;letter-spacing:.5px;}

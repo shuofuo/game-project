@@ -2113,8 +2113,10 @@ function equipSkin(skinId){
   if(!isSkinOwned(skinId)){alert('请先拥有该皮肤！');return;}
   G.equippedSkin=skinId;
   saveGame();
+  // 关键：换肤后立即刷新灵兽网格（大灵兽+卡片全部重新渲染）
+  try{renderGrid&&renderGrid();}catch(e){}
+  try{updateHud&&updateHud();}catch(e){}
   renderSkinPanel();
-  updateHUD();
   playSound('click');
 }
 

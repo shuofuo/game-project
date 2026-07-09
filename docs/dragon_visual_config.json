@@ -1,0 +1,267 @@
+{
+  "SKINS": [
+    {
+      "id": "default",
+      "name": "默认原皮",
+      "cost": 0,
+      "rarity": 0,
+      "label": "普通",
+      "color": "#8b6914",
+      "glow": "#d4a017",
+      "filter": "",
+      "border": "#aaa",
+      "shadow": "rgba(180,140,80,.25)",
+      "visualRarity": 0
+    },
+    {
+      "id": "gold",
+      "name": "鎏金天命",
+      "cost": 800,
+      "rarity": 4,
+      "label": "传说",
+      "color": "#d4a017",
+      "glow": "#ffd700",
+      "filter": "sepia(0) saturate(3) hue-rotate(0deg)",
+      "border": "#ffd700",
+      "shadow": "rgba(255,215,0,.35)",
+      "visualRarity": 4
+    },
+    {
+      "id": "azure",
+      "name": "玄青龙纹",
+      "cost": 500,
+      "rarity": 3,
+      "label": "珍稀",
+      "color": "#1565c0",
+      "glow": "#64b5f6",
+      "filter": "sepia(0) saturate(2) hue-rotate(200deg)",
+      "border": "#64b5f6",
+      "shadow": "rgba(21,101,192,.35)",
+      "visualRarity": 3
+    },
+    {
+      "id": "flame",
+      "name": "赤焰战魂",
+      "cost": 800,
+      "rarity": 4,
+      "label": "传说",
+      "color": "#c62828",
+      "glow": "#ff5722",
+      "filter": "sepia(0.5) saturate(3) hue-rotate(-20deg)",
+      "border": "#ff5722",
+      "shadow": "rgba(198,40,40,.35)",
+      "visualRarity": 4
+    },
+    {
+      "id": "jade",
+      "name": "翡翠灵韵",
+      "cost": 500,
+      "rarity": 3,
+      "label": "珍稀",
+      "color": "#2e7d32",
+      "glow": "#66bb6a",
+      "filter": "sepia(0) saturate(2) hue-rotate(80deg)",
+      "border": "#66bb6a",
+      "shadow": "rgba(46,125,50,.35)",
+      "visualRarity": 3
+    },
+    {
+      "id": "purple",
+      "name": "紫霄星芒",
+      "cost": 500,
+      "rarity": 3,
+      "label": "珍稀",
+      "color": "#7b3fcb",
+      "glow": "#ce93d8",
+      "filter": "sepia(0) saturate(2) hue-rotate(280deg)",
+      "border": "#ce93d8",
+      "shadow": "rgba(123,63,203,.35)",
+      "visualRarity": 3
+    },
+    {
+      "id": "silver",
+      "name": "白银圣甲",
+      "cost": 300,
+      "rarity": 1,
+      "label": "稀有",
+      "color": "#9e9e9e",
+      "glow": "#e0e0e0",
+      "filter": "sepia(0) saturate(0.5) hue-rotate(0deg)",
+      "border": "#e0e0e0",
+      "shadow": "rgba(158,158,158,.35)",
+      "visualRarity": 2
+    },
+    {
+      "id": "dark",
+      "name": "九幽暗纹",
+      "cost": 800,
+      "rarity": 4,
+      "label": "传说",
+      "color": "#4a148c",
+      "glow": "#7b1fa2",
+      "filter": "sepia(0.8) saturate(2) hue-rotate(260deg) brightness(0.7)",
+      "border": "#7b1fa2",
+      "shadow": "rgba(123,31,162,.4)",
+      "visualRarity": 4
+    },
+    {
+      "id": "crystal",
+      "name": "琉璃幻彩",
+      "cost": 300,
+      "rarity": 1,
+      "label": "稀有",
+      "color": "#00838f",
+      "glow": "#80deea",
+      "filter": "sepia(0) saturate(1.5) hue-rotate(170deg) brightness(1.1)",
+      "border": "#80deea",
+      "shadow": "rgba(0,131,143,.35)",
+      "visualRarity": 2
+    },
+    {
+      "id": "destiny",
+      "name": "天命神兽",
+      "cost": 1500,
+      "rarity": 4,
+      "label": "神话",
+      "color": "#f57f17",
+      "glow": "#ffe082",
+      "filter": "sepia(0.1) saturate(3) hue-rotate(10deg) brightness(1.1)",
+      "border": "#ffe082",
+      "shadow": "rgba(255,224,130,.4)",
+      "visualRarity": 4
+    }
+  ],
+  "ZODIAC": [
+    {
+      "id": 0,
+      "name": "鼠",
+      "desc": "灵巧尖耳小体型，灵活尾巴，灰棕色调",
+      "baseColor": "#6b5a3e",
+      "glowColor": "#c8a040"
+    },
+    {
+      "id": 1,
+      "name": "牛",
+      "desc": "厚重牛角方头，力量铜棕，稳如泰山",
+      "baseColor": "#7a5c3a",
+      "glowColor": "#d4a050"
+    },
+    {
+      "id": 2,
+      "name": "虎",
+      "desc": "虎纹金棕，锐利虎眼，王者威严",
+      "baseColor": "#d4761a",
+      "glowColor": "#ff8c00"
+    },
+    {
+      "id": 3,
+      "name": "兔",
+      "desc": "长耳粉白，轻盈柔和，月光精灵",
+      "baseColor": "#c8a0b0",
+      "glowColor": "#e8c0d0"
+    },
+    {
+      "id": 4,
+      "name": "龙",
+      "desc": "龙角鳞片，青金长身，呼风唤雨",
+      "baseColor": "#2a6090",
+      "glowColor": "#5ab0e0"
+    },
+    {
+      "id": 5,
+      "name": "蛇",
+      "desc": "蛇眼冷绿，鳞身缠绕，神秘灵动",
+      "baseColor": "#3a7a3a",
+      "glowColor": "#60c060"
+    },
+    {
+      "id": 6,
+      "name": "马",
+      "desc": "马首长鬃，枣红飞驰，骏逸千里",
+      "baseColor": "#8a6030",
+      "glowColor": "#c08040"
+    },
+    {
+      "id": 7,
+      "name": "羊",
+      "desc": "卷角绒毛，米白温和，祥瑞之象",
+      "baseColor": "#c8c0a0",
+      "glowColor": "#e0d8b0"
+    },
+    {
+      "id": 8,
+      "name": "猴",
+      "desc": "猿耳桃心，棕黄灵活，机敏灵动",
+      "baseColor": "#b08040",
+      "glowColor": "#d0a060"
+    },
+    {
+      "id": 9,
+      "name": "鸡",
+      "desc": "高冠金橙，羽翼明艳，知时守信",
+      "baseColor": "#e0a020",
+      "glowColor": "#ffc040"
+    },
+    {
+      "id": 10,
+      "name": "狗",
+      "desc": "犬耳竖立，棕灰忠诚，忠义护主",
+      "baseColor": "#8a6040",
+      "glowColor": "#c08050"
+    },
+    {
+      "id": 11,
+      "name": "猪",
+      "desc": "圆鼻粉白，憨态圆润，福气圆满",
+      "baseColor": "#d0a0a0",
+      "glowColor": "#e8c0c0"
+    }
+  ],
+  "STAGES": [
+    {
+      "stage": 1,
+      "name": "幼生",
+      "lvMin": 1,
+      "lvMax": 3,
+      "glow": 0,
+      "scale": 1,
+      "desc": "基础幼兽，简单轮廓"
+    },
+    {
+      "stage": 2,
+      "name": "成长",
+      "lvMin": 4,
+      "lvMax": 6,
+      "glow": 0.2,
+      "scale": 1.15,
+      "desc": "体型变大，特征强化"
+    },
+    {
+      "stage": 3,
+      "name": "成形",
+      "lvMin": 7,
+      "lvMax": 9,
+      "glow": 0.5,
+      "scale": 1.3,
+      "desc": "特征完整，灵气初现"
+    },
+    {
+      "stage": 4,
+      "name": "通灵",
+      "lvMin": 10,
+      "lvMax": 12,
+      "glow": 0.8,
+      "scale": 1.45,
+      "desc": "武器符文，灵气缠绕"
+    },
+    {
+      "stage": 5,
+      "name": "神化",
+      "lvMin": 13,
+      "lvMax": 15,
+      "glow": 1,
+      "scale": 1.6,
+      "desc": "神兽形态，终极特效"
+    }
+  ]
+}

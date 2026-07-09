@@ -101,28 +101,28 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 
 /* 开始按钮 */
 .start-btn{margin-top:4px;width:100%;padding:12px;font-size:15px;background:linear-gradient(135deg,#2a2000,#1a1000);border:1.5px solid #5a4000;border-radius:30px;color:#777;cursor:not-allowed;letter-spacing:4px;font-weight:600;transition:all .3s;}
-.start-btn.ready{background:linear-gradient(135deg,#c8a020,#8b6010);border-color:#1A1A1A;font-weight:600;color:#555;cursor:pointer;letter-spacing:4px;box-shadow:0 4px 18px rgba(200,160,32,.3);}
+.start-btn.ready{background:linear-gradient(135deg,#c8a020,#8b6010);border-color:#1A1A1A;font-weight:600;color:#1A1A1A;font-weight:700;cursor:pointer;letter-spacing:4px;box-shadow:0 4px 18px rgba(180,120,20,.3);}
 .start-btn.ready:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(200,160,32,.4);}
 .start-btn:active{transform:scale(.97);}
 /* 底部功能栏 */
 #gameBottomBar{padding-bottom:max(20px,env(safe-area-inset-bottom));}
 
 /* 弹窗 */
-.modal{position:fixed;inset:0;background:rgba(80,40,10,.35);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:200;touch-action:manipulation;-webkit-backdrop-filter:none;}
 .modal.show{display:flex;}
-.modal-box{background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.35);border-radius:28px;padding:40px 36px;width:min(380px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(80,40,10,.18);}
+.modal-box{background:rgba(255,255,255,.96);border:1.5px solid rgba(180,140,80,.35);border-radius:28px;padding:40px 36px;width:min(380px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.18);}
 @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-badge{display:inline-block;background:linear-gradient(135deg,#8b6914,#d4a017);color:#555;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:3px;margin-bottom:20px;}
+.modal-badge{display:inline-block;background:linear-gradient(135deg,#d4a017,#c8a020);color:#1A1A1A;font-size:11px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:3px;margin-bottom:20px;}
 .modal-chars{display:flex;justify-content:center;align-items:center;gap:20px;margin:16px 0 24px;}
 .modal-chars .mc-zodiac,.modal-chars .mc-fate{font-size:64px;line-height:1;}
-.modal-chars .mc-vs{font-size:20px;color:#888;}
-.modal-info{font-size:13px;font-weight:600;color:#555;line-height:1.8;}
+.modal-chars .mc-vs{font-size:20px;color:#1A1A1A;font-weight:800;}
+.modal-info{font-size:14px;font-weight:600;color:#333;line-height:1.8;}
 .modal-info b{color:#1A1A1A;font-weight:600;font-weight:700;}
 .modal-btn{margin-top:8px;width:100%;padding:13px;border-radius:30px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all .2s;}
-.modal-btn-start{background:linear-gradient(135deg,#8b6914,#d4a017);border:none;color:#888;}
+.modal-btn-start{background:linear-gradient(135deg,#8b6914,#d4a017);border:none;color:#1A1A1A;font-weight:700;}
 .modal-btn-start:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(180,120,20,.35);}
 .modal-btn-cancel{background:transparent;border:1px solid rgba(180,140,80,.3);color:#555;margin-top:10px;}
-.modal-btn-cancel:hover{border-color:rgba(180,140,80,.5);color:#888;}
+.modal-btn-cancel:hover{border-color:rgba(180,140,80,.5);color:#1A1A1A;}
 
 /* ===== 游戏主界面 ===== */
 #gamePage{width:100%;height:100dvh;overflow:hidden;touch-action:none;flex-direction:column;padding-bottom:0;display:flex;visibility:hidden;opacity:0;}
@@ -139,17 +139,17 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 .task-panel.open{display:block;}
 .task-panel::-webkit-scrollbar{width:0;}
 .activity-panel{position:fixed;top:0;right:0;width:min(400px,92vw);height:100%;height:100dvh;background:#faf7f2;z-index:303;display:none;overflow-y:auto;transform:translateX(100%);transition:transform .3s ease;}
-.active-center-panel{position:fixed;bottom:0;left:0;width:100%;max-height:88vh;background:#faf7f2ee;z-index:303;display:none;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-radius:20px 20px 0 0;border-top:1px solid rgba(255,215,0,.15);overflow:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}.active-center-panel.open{display:block;transform:translateY(0);}
+.active-center-panel{position:fixed;bottom:0;left:0;width:100%;max-height:88vh;background:#faf7f2ee;z-index:303;display:none;transform:translateY(110%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-radius:20px 20px 0 0;border-top:1px solid rgba(180,140,80,.3);overflow:hidden;-webkit-overflow-scrolling:touch;}.active-center-panel.open{display:block;transform:translateY(0);}
 .active-center-panel.open{transform:translateY(0);}
-.ac-card{display:flex;align-items:center;gap:14px;padding:13px 16px;rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
+.ac-card{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,.92);border:1px solid rgba(180,140,80,.2);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .2s;}
 .ac-card:hover{rgba(255,255,255,.96);border-color:rgba(255,215,0,.2);}
 .ac-card.done{opacity:.55;border-color:rgba(76,175,80,.2);}
 .ac-card.pending{border-color:rgba(255,215,0,.2);background:rgba(255,215,0,.08);}
 .ac-icon{font-size:26px;flex-shrink:0;}
 .ac-info{flex:1;min-width:0;}
-.ac-title{font-size:14px;font-weight:700;color:#555;margin-bottom:2px;}
-.ac-desc{font-size:11px;color:#777;}
-.ac-progress{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;margin-top:5px;}
+.ac-title{font-size:14px;font-weight:700;color:#1A1A1A;margin-bottom:2px;}
+.ac-desc{font-size:11px;color:#333;}
+.ac-progress{height:3px;background:rgba(180,140,80,.15);border-radius:2px;overflow:hidden;margin-top:5px;}
 .ac-bar{height:100%;border-radius:2px;transition:width .4s ease;}
 .ac-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;}
 .activity-panel.open{display:block;transform:translateX(0);}
@@ -182,7 +182,7 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 #summonBar{display:flex;gap:10px;padding:10px 16px 16px;}
 .sbtn{flex:1;min-width:0;padding:10px 4px 8px;border-radius:14px;border:1.5px solid;cursor:pointer;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:1px;rgba(255,255,255,.92);backdrop-filter:blur(4px);transition:all .2s;color:#888;}
 .sbtn small{font-size:10px;opacity:.7;}
-.sbtn-coin{border-color:#1A1A1A;font-weight:600;color:#1A1A1A;font-weight:600;}
+.sbtn-coin{border-color:#1A1A1A;font-weight:600;color:#1A1A1A;font-weight:600;;background:rgba(255,248,235,.93);}
 .sbtn-coin:hover{background:rgba(255,215,0,.15);}
 .sbtn-qi{border-color:#7eb8ff;color:#7eb8ff;}
 .sbtn-qi:hover{background:rgba(126,184,255,.15);}
@@ -454,40 +454,40 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 .side-btn{
   width:36px;height:36px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;border:none;
-  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.15);
+  cursor:pointer;
+  background:rgba(255,255,255,.92);border:1.5px solid rgba(180,140,80,.25);
   transition:all .2s;padding:0;
-  /* 用 CSS shape 画图标，不用 emoji */
+  font-size:10px;font-weight:700;color:#555;
 }
-.side-btn svg{width:18px;height:18px;fill:currentColor;}
+.side-btn svg{width:20px;height:20px;fill:currentColor;stroke-width:1.8;}
 /* 任务-卷轴 */
-.side-btn[data-fn="task"]{color:rgba(200,180,100,.7);}
-.side-btn[data-fn="task"]:hover{background:rgba(200,180,100,.12);border-color:rgba(200,180,100,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 12px rgba(200,180,100,.2);}
+.side-btn[data-fn="task"]{color:#8b6914;font-weight:700;}
+.side-btn[data-fn="task"]:hover{background:rgba(212,160,23,.15);border-color:rgba(180,140,80,.45);color:#1A1A1A;font-weight:700;box-shadow:0 0 12px rgba(180,120,20,.2);}
 /* 活动-闪电 */
-.side-btn[data-fn="activity"]{color:rgba(100,200,255,.6);}
-.side-btn[data-fn="activity"]:hover{background:rgba(100,200,255,.1);border-color:rgba(100,200,255,.35);color:#7ef;box-shadow:0 0 12px rgba(100,200,255,.2);}
+.side-btn[data-fn="activity"]{color:#1565c0;font-weight:600;}
+.side-btn[data-fn="activity"]:hover{background:rgba(21,101,192,.12);border-color:rgba(21,101,192,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 12px rgba(21,101,192,.2);}
 /* 图鉴-书 */
-.side-btn[data-fn="handbook"]{color:rgba(180,100,255,.6);}
-.side-btn[data-fn="handbook"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 12px rgba(180,100,255,.2);}
-.side-btn[data-fn="atlas"]{color:rgba(180,100,255,.6);justify-content:center;gap:5px;}
-.side-btn[data-fn="atlas"]:hover{background:rgba(180,100,255,.1);border-color:rgba(180,100,255,.35);color:#c7a0ff;box-shadow:0 0 10px rgba(180,100,255,.2);}
-.side-btn[data-fn="tower"]{color:rgba(255,107,53,.7);justify-content:center;gap:5px;}
-.side-btn[data-fn="tower"]:hover{background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.35);color:#ff8855;box-shadow:0 0 10px rgba(255,107,53,.2);}
-.side-btn[data-fn="skin"]{color:rgba(147,197,253,.65);justify-content:center;gap:5px;}
-.side-btn[data-fn="skin"]:hover{background:rgba(147,197,253,.1);border-color:rgba(147,197,253,.35);color:#93c5fd;box-shadow:0 0 10px rgba(147,197,253,.2);}
-.side-btn[data-fn="forge"]{color:rgba(251,191,36,.65);justify-content:center;gap:5px;}
-.side-btn[data-fn="forge"]:hover{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35);color:#fbbf24;box-shadow:0 0 10px rgba(251,191,36,.2);}
+.side-btn[data-fn="handbook"]{color:#7b3fcb;font-weight:600;}
+.side-btn[data-fn="handbook"]:hover{background:rgba(123,63,203,.12);border-color:rgba(123,63,203,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 12px rgba(123,63,203,.2);}
+.side-btn[data-fn="atlas"]{color:#7b3fcb;font-weight:600;justify-content:center;gap:5px;}
+.side-btn[data-fn="atlas"]:hover{background:rgba(123,63,203,.12);border-color:rgba(123,63,203,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 10px rgba(123,63,203,.2);}
+.side-btn[data-fn="tower"]{color:#c62828;font-weight:600;justify-content:center;gap:5px;}
+.side-btn[data-fn="tower"]:hover{background:rgba(198,40,40,.12);border-color:rgba(198,40,40,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 10px rgba(198,40,40,.2);}
+.side-btn[data-fn="skin"]{color:#1565c0;font-weight:600;justify-content:center;gap:5px;}
+.side-btn[data-fn="skin"]:hover{background:rgba(21,101,192,.12);border-color:rgba(21,101,192,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 10px rgba(21,101,192,.2);}
+.side-btn[data-fn="forge"]{color:#8b6914;font-weight:600;justify-content:center;gap:5px;}
+.side-btn[data-fn="forge"]:hover{background:rgba(212,160,23,.12);border-color:rgba(180,140,80,.4);color:#1A1A1A;font-weight:600;box-shadow:0 0 10px rgba(180,120,20,.2);}
 /* 排行-奖杯 */
-.side-btn[data-fn="rank"]{color:rgba(255,200,80,.65);}
-.side-btn[data-fn="rank"]:hover{background:rgba(255,200,80,.1);border-color:rgba(255,200,80,.35);color:#1A1A1A;font-weight:600;box-shadow:0 0 12px rgba(255,200,80,.2);}
+.side-btn[data-fn="rank"]{color:#8b6914;font-weight:700;}
+.side-btn[data-fn="rank"]:hover{background:rgba(212,160,23,.12);border-color:rgba(180,140,80,.4);color:#1A1A1A;font-weight:700;box-shadow:0 0 12px rgba(180,120,20,.2);}
 /* 成就-徽章 */
-.side-btn[data-fn="guide"]{background:linear-gradient(135deg,#4a2d80,#2a1a50);border-color:rgba(180,130,255,.25);}
-.side-btn[data-fn="guide"]:hover{background:linear-gradient(135deg,#6a3da0,#4a2a70);border-color:rgba(180,130,255,.5);}
+.side-btn[data-fn="guide"]{background:linear-gradient(135deg,#c8a020,#8b6010);border-color:rgba(180,140,80,.4);}
+.side-btn[data-fn="guide"]:hover{background:linear-gradient(135deg,#d4a017,#9b7010);border-color:rgba(180,140,80,.6);}
 .side-btn[data-fn="ach"]{color:rgba(80,220,120,.6);}
 .side-btn[data-fn="ach"]:hover{background:rgba(80,220,120,.1);border-color:rgba(80,220,120,.35);color:#5fdc78;box-shadow:0 0 12px rgba(80,220,120,.2);}
 /* 签到 */
-.side-btn[data-fn="sign"]{color:rgba(255,215,0,.6);}
-.side-btn[data-fn="sign"]:hover{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.35);color:#1A1A1A;font-weight:600;box-shadow:0 0 12px rgba(255,215,0,.2);}
+.side-btn[data-fn="sign"]{color:#388e3c;font-weight:600;}
+.side-btn[data-fn="sign"]:hover{background:rgba(56,142,60,.12);border-color:rgba(56,142,60,.45);color:#1A1A1A;font-weight:600;box-shadow:0 0 12px rgba(56,142,60,.2);}
 /* 设置-齿轮 */
 .side-btn[data-fn="cloud"]{color:rgba(100,180,255,.7);}
 .side-btn[data-fn="cloud"]:hover{background:rgba(100,180,255,.1);border-color:rgba(100,180,255,.35);color:#8bc8ff;}
@@ -741,7 +741,7 @@ body{background:#f5f0e8;font-family:'PingFang SC','Microsoft YaHei',sans-serif;c
 .recipe-name{font-size:14px;font-weight:700;margin-bottom:3px}
 .recipe-cost{font-size:11px;color:#555;margin-bottom:3px}
 .recipe-desc{font-size:11px;color:#666;margin-bottom:5px}
-.forge-btn{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;width:100%}
+.forge-btn{background:rgba(251,191,36,.15);border:1px solid rgba(180,140,80,.4);color:#8b6010;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;width:100%}
 .forge-btn.active{background:#fbbf24;color:#111;font-weight:700}
 .forge-btn.disabled{background:rgba(255,255,255,.05);border-color:#555;color:#555;cursor:not-allowed}
 .forge-items-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:20px}
@@ -843,9 +843,9 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
       <div class="mc-fate" id="mF"></div>
     </div>
     <div class="modal-info" id="mInfo">
-      <span id="mDesc" style="font-size:12px;color:#555;letter-spacing:2px;"></span>
+      <span id="mDesc" style="font-size:13px;color:#1A1A1A;font-weight:600;letter-spacing:2px;"></span>
     </div>
-    <button class="modal-btn modal-btn-start" onclick="startGame(sz,sf)" style="font-size:14px;letter-spacing:3px;padding:14px;">✦ 开启旅程 ✦</button>
+    <button class="modal-btn modal-btn-start" onclick="startGame(sz,sf)" style="font-size:17px;letter-spacing:3px;padding:14px;color:#1A1A1A;font-weight:700;">✦ 开启旅程 ✦</button>
     <button class="modal-btn modal-btn-cancel" onclick="reselect()">重新选择</button>
   </div>
 </div>
@@ -1047,14 +1047,15 @@ function doStart(){
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
     <!-- 召唤批量切换 -->
   <div id="summonBatchSwitch" style="display:flex;gap:3px;background:rgba(255,255,255,.4);border:1px solid rgba(180,140,80,.2);border-radius:10px;padding:3px;align-items:center;">
-  <button onclick="toggleTenMode()" id="batchBtn10" style="padding:7px 16px;border-radius:10px;border:none;font-size:13px;font-weight:600;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#8b6914,#d4a017);color:#555;transition:all .2s;letter-spacing:1px;box-shadow:0 2px 8px rgba(180,120,20,.25);">✨ 十连召唤</button>
+  <button onclick="toggleTenMode()" id="batchBtn10" style="padding:10px 18px;border-radius:14px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#c8a020,#8b6010);color:#1A1A1A;transition:all .2s;letter-spacing:1px;box-shadow:0 2px 8px rgba(180,120,20,.25);">✨ 十连召唤</button>
     </div>
-    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:80px;padding:9px 14px;border-radius:14px;" title="金币召唤">
-      <span style="font-size:18px;">💰</span>
-      <span id="coinCost" style="font-size:11px;margin-left:3px;color:#1A1A1A;font-weight:600;font-weight:600;">100</span>
+    <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="flex:1;padding:10px 10px;border-radius:14px;" title="金币召唤">
+      <span style="font-size:16px;">💰</span>
+      <span id="coinCost" style="font-size:15px;margin-left:3px;color:#1A1A1A;font-weight:700;">100</span>
     </button>
-    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="min-width:80px;padding:9px 14px;border-radius:14px;" title="龙气召唤">
-      <span id="qiCost" style="font-size:17px;margin-left:4px;color:#1A1A1A;font-weight:600;font-weight:700;">500</span>
+    <button onclick="summonQi()" class="summon-btn summon-qi" id="btnQi" style="flex:1;padding:10px 10px;border-radius:14px;" title="龙气召唤">
+      <span class="qi-icon qi-icon-sm"></span>
+      <span id="qiCost" style="font-size:15px;margin-left:4px;color:#1A1A1A;font-weight:700;">500</span>
     </button>
     <button onclick="summonFree()" class="summon-btn summon-free" id="btnFree" style="display:none;" title="免费召唤">
       <span style="font-size:18px;">🌿</span>
@@ -1266,7 +1267,7 @@ function doStart(){
 
 /* ── 套装进度条 ── */
 .suit-banner{background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,215,0,.05));border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:8px 12px;text-align:center;font-size:12px;color:#1A1A1A;font-weight:600;margin:6px 0;letter-spacing:.5px;}
-.suit-banner.suit-2{background:linear-gradient(135deg,rgba(126,184,255,.12),rgba(126,184,255,.05));border-color:rgba(126,184,255,.3);color:#0277bd;}
+.suit-banner.suit-2{background:linear-gradient(135deg,rgba(126,184,255,.12),rgba(126,184,255,.05));border-color:rgba(126,184,255,.3);color:#1A1A1A;font-weight:600;}
 .suit-progress{font-size:11px;color:#555;padding:4px 8px;margin:4px 0;}
 
 /* ── 弹窗紧凑化 ── */

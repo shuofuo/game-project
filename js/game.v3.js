@@ -26,7 +26,6 @@ function startGame(zz,ff){
   saveGame();renderGrid();updateHud();startCps();try{playFullBgm&&playFullBgm(G.zodiac>-1?G.zodiac:0);}catch(e){}initHomeGesture();
   try{showFeatureButtons();}catch(e){}
   requestAnimationFrame(()=>{try{updateHeroSection();}catch(e){}});
-  _initCloudAccount();
   requestAnimationFrame(()=>{setTimeout(()=>{try{updateHeroSection();}catch(e){}},200);});
   setTimeout(()=>{try{renderSkillBar();}catch(e){}},300);
   if(!window._skillBarInterval){
@@ -85,8 +84,8 @@ const RARITY=[
   {name:'普通',color:'#aaa',tag:'普通'},
   {name:'稀有',color:'#7eb8ff',tag:'稀有'},
   {name:'史诗',color:'#b57edc',tag:'史诗'},
-  {name:'传说',color:'#c8860a',tag:'传说'},
-  {name:'神话',color:'#c62828',tag:'神话'},
+  {name:'传说',color:'#ffd700',tag:'传说'},
+  {name:'神话',color:'#ff6b35',tag:'神话'},
 ];
 function getRarity(lvl){
   if(lvl<=3)return 0;
@@ -101,11 +100,11 @@ let summonRevealed=false;
 // ── 主动技能系统 ───────────────────────────────────────
 const SKILLS=[
   {id:'s1',name:'流星火雨',icon:'🔥',cost:200,qiCost:300,cd:120,desc:'5秒内每秒掉落火球，每球造成金币×3伤害',color:'#ff4444',rar:2},
-  {id:'s2',name:'金光护体',icon:'🛡',cost:150,qiCost:200,cd:90,desc:'8秒内每次合成额外获得+50%金币',color:'#c8860a',rar:2},
+  {id:'s2',name:'金光护体',icon:'🛡',cost:150,qiCost:200,cd:90,desc:'8秒内每次合成额外获得+50%金币',color:'#ffd700',rar:2},
   {id:'s3',name:'龙息吹息',icon:'💨',cost:250,qiCost:400,cd:150,desc:'3秒内金币产出速度×3',color:'#42a5f5',rar:3},
   {id:'s4',name:'天罚雷击',icon:'⚡',cost:300,qiCost:500,cd:180,desc:'随机获得传说级灵兽×1',color:'#9c27b0',rar:3},
   {id:'s5',name:'时光倒流',icon:'⏳',cost:180,qiCost:300,cd:120,desc:'撤销最近一次合成，返还全部消耗',color:'#7c4dff',rar:2},
-  {id:'s6',name:'天命召唤',icon:'⭐',cost:500,qiCost:800,cd:300,desc:'必得传说级或以上灵兽',color:'#c62828',rar:4},
+  {id:'s6',name:'天命召唤',icon:'⭐',cost:500,qiCost:800,cd:300,desc:'必得传说级或以上灵兽',color:'#ff6b35',rar:4},
 ];
 // 道具配置
 const ITEMS=[
@@ -188,44 +187,6 @@ function activateSkill(id){
   }
   if(playSound)playSound('achieve');
 }
-// 星级倍率（升星后基础属性 × starMult）
-function starMult(st){return[0,1,1.2,1.5,2.0,2.5][st||1]||1;}
-
-// 灵兽基础攻防速（每级+2攻+3防+1速，乘星级倍率）
-function getDragonBaseStats(level,star){
-  var lv=level||1;
-  var st=star||1;
-  var sm=starMult(st);
-  return{atk:Math.floor(lv*2*sm),def:Math.floor(lv*3*sm),spd:Math.floor(lv*sm)};
-}
-
-
-// // ── 灵兽升级系统 ───────────────────────────────────────────
-function upgradeCost(level){
-  var costs=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
-  return costs[level]||0;
-}
-function upgradeDragon(id){
-  var dragon=G.dragons.find(function(d){return d.id===id;});
-  if(!dragon){showNotif('error','灵兽不存在');return;}
-  if(dragon.level>=15){showNotif('info','已达最高等级');return;}
-  var cost=upgradeCost(dragon.level);
-  if(G.coins<cost){showNotif('error','金币不足，需要 '+cost+' 金币');return;}
-  G.coins-=cost;
-  dragon.level++;
-  // 同步基础攻防速（每次升级实时更新）
-  var stats=getDragonBaseStats(dragon.level,dragon.star||1);
-  if(!dragon._base) dragon._base={};
-  dragon._base.atk=stats.atk; dragon._base.def=stats.def; dragon._base.spd=stats.spd;
-  if(window.playSound)try{playSound('summon');}catch(e){}
-  saveGame();
-  renderGrid();
-  updateHud();
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  checkAch();
-}
-
-
 
 // 使用道具
 function useItem(id){
@@ -268,12 +229,12 @@ function renderSkillBar(){
     const disabled=onCooldown||!canAfford;
     const cdPct=onCooldown?Math.round((cd/sk.cd)*100):0;
     const rarityLabel=['','普通','稀有','珍稀','传说'][sk.rar]||'';
-    const rarityColor=['','#555','#1565c0','#1976d2','#c8860a'][sk.rar]||'#555';
+    const rarityColor=['','#aaa','#7eb8ff','#42a5f5','#ffd700'][sk.rar]||'#aaa';
     const itemCount=G.items&&G.items.find(i=>i.id==='i'+sk.id[1])?(G.items.find(i=>i.id==='i'+sk.id[1]).count):0;
     return `<button class="skill-btn ${disabled?'disabled':''}" onclick="${disabled?'':'activateSkill(\''+sk.id+'\')'}" title="${sk.desc}\n龙气消耗:${sk.qiCost} 冷却:${sk.cd}秒\n品阶:${rarityLabel}">
       <span style="font-size:18px;line-height:1;">${sk.icon}</span>
       <span style="font-size:9px;color:${rarityColor};font-weight:600;line-height:1;">${sk.name}</span>
-      <span style="font-size:9px;color:rgba(160,216,239,.7);line-height:1;"><span class="qi-icon qi-icon-sm"></span>${sk.qiCost}</span>
+      <span style="font-size:9px;color:rgba(160,216,239,.7);line-height:1;">✨${sk.qiCost}</span>
       ${onCooldown?'<div class="skill-cd"><div style="width:'+cdPct+'%;height:100%;background:rgba(0,0,0,.6);position:absolute;left:0;top:0;transition:width 1s linear;"></div>'+cd+'s</div>':''}
     </button>`;
   }).join('');
@@ -283,7 +244,7 @@ function renderSkillBar(){
     bar.innerHTML+=G.items.filter(it=>it.count>0).map(it=>{
       return `<button class="skill-btn" onclick="useItem('${it.id}')" title="${it.name}: ${it.desc}" style="border-color:rgba(255,215,0,.2);">
         <span style="font-size:20px;">${it.icon}</span>
-        <span style="font-size:9px;color:#c8860a;font-weight:700;">${it.count}</span>
+        <span style="font-size:9px;color:#ffd700;font-weight:700;">${it.count}</span>
       </button>`;
     }).join('');
   }
@@ -338,12 +299,12 @@ function playSummonSound(r){
 
 // ── 粒子爆炸 ─────────────────────────────────────────────
 function spawnSummonParticles(r){
-  const pw=document.getElementById('sraPw');if(!pw)return;pw.innerHTML='';const c=['#aaa','#7eb8ff','#b57edc','#c8860a','#ff6b35'][r];const n=[8,12,18,24,32][r];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='sra-p';const ang=Math.random()*Math.PI*2,dist=30+Math.random()*60;const dx=Math.cos(ang)*dist,dy=Math.sin(ang)*dist;const _sz=4+Math.random()*8;p.style.cssText=`left:50%;top:40%;width:${_sz}px;height:${_sz}px;background:${c};--dx:${dx}px;--dy:${dy}px;animation-delay:${Math.random()*.3}s;box-shadow:0 0 ${_sz}px ${c}`;pw.appendChild(p);}
+  const pw=document.getElementById('sraPw');if(!pw)return;pw.innerHTML='';const c=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'][r];const n=[8,12,18,24,32][r];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='sra-p';const ang=Math.random()*Math.PI*2,dist=30+Math.random()*60;const dx=Math.cos(ang)*dist,dy=Math.sin(ang)*dist;const _sz=4+Math.random()*8;p.style.cssText=`left:50%;top:40%;width:${_sz}px;height:${_sz}px;background:${c};--dx:${dx}px;--dy:${dy}px;animation-delay:${Math.random()*.3}s;box-shadow:0 0 ${_sz}px ${c}`;pw.appendChild(p);}
 }
 
 // ── 稀有度进度条 ────────────────────────────────────────
 function animateRarityBar(r){
-  const fill=document.getElementById('sraFill');const bar=document.querySelector('.sra-bar');if(!fill||!bar)return;const colors=['#555','#1565c0','#7b3fcb','#c8860a','#c62828'];fill.style.background=colors[r];fill.style.width='0%';setTimeout(()=>fill.style.width=(20+r*20)+'%',50);}
+  const fill=document.getElementById('sraFill');const bar=document.querySelector('.sra-bar');if(!fill||!bar)return;const colors=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];fill.style.background=colors[r];fill.style.width='0%';setTimeout(()=>fill.style.width=(20+r*20)+'%',50);}
 
 // ── 新灵兽检测 ──────────────────────────────────────────
 function checkNewDragon(lvl){const owned=new Set(G.dragons.map(d=>d.level));return !owned.has(lvl);}
@@ -411,7 +372,7 @@ function closeSummonAnim(){
   try{updateHeroSection();}catch(e){}
 }
 
-// ── 单抽：直接展示完整灵兽信息，无翻转无问号 ──────────
+// 改造 doSummon：触发翻牌动画而不是直接弹窗
 function doSummon(level){
   try{initAudio();}catch(e){}
   if(G.zodiac>=0) playSound('summon_z'+G.zodiac);
@@ -425,49 +386,40 @@ function doSummon(level){
   saveGame();renderGrid();updateHud();checkAch();
   _onWeeklyEvent("summon");
   try{updateHeroSection();}catch(e){}
+  // 改为触发翻牌动画
+  pendingSummonLevel=level;
+  summonRevealed=false;
+  // 重置卡牌状态（第二次召唤时清除翻牌残留）
+  // 强制注入最新 flip CSS（绕过浏览器 CSS 缓存）
+  if(!document.getElementById('_flip_css')){
+    var s=document.createElement('style');s.id='_flip_css';s.textContent=
+      '.scard-face{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;}'+
+      '.scard-back{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;visibility:visible!important;opacity:1!important;}'+
+      '.scard-front{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;visibility:hidden!important;opacity:0!important;}'+
+      '.scard.flipped .scard-back{visibility:hidden!important;opacity:0!important;}'+
+      '.scard.flipped .scard-front{visibility:visible!important;opacity:1!important;}'+
+      '.scard{width:160px!important;height:200px!important;position:relative!important;transform-style:preserve-3d!important;transition:transform .6s cubic-bezier(.4,0,.2,1)!important;cursor:pointer!important;}'+
+      '.scard.flipped{transform:rotateY(180deg)!important;}';
+    document.head.appendChild(s);
+  }
+  const scard=document.getElementById('scard');
+  if(scard) scard.classList.remove('flipped');
+  const scardWrap=document.querySelector('.scard-wrap');
+  if(scardWrap) scardWrap.style.display='';
+  const summonTip=document.querySelector('.summon-tip');
+  if(summonTip) summonTip.style.display='';
+  // 重置 overlay 内容
+  document.getElementById('summonOverlay').classList.add('show');
+  document.getElementById('summonResultAnim').classList.remove('show','sra-result-pop');
+  document.getElementById('sraBtn').style.display='none';
   // 召唤记录
   if(!G.summonLog) G.summonLog=[];
   G.summonLog.unshift({level,lvl:level>=6?'传说':level>=4?'稀有':'普通',t:new Date().toLocaleTimeString()});
   if(G.summonLog.length>20) G.summonLog.length=20;
   saveGame();
-  // 直接展示结果弹窗
-  showSingleSummonResult(level);
+  // 1.5秒后自动翻牌
+  setTimeout(()=>{try{revealSummon();}catch(e){}},1500);
 }
-
-
-
-// ── 单抽结果弹窗：全屏黑遮罩 + 白底卡片，无翻转无问号 ─────────────────
-function showSingleSummonResult(level){
-  var rarColors=['#555','#1565c0','#7b3fcb','#c8860a','#c62828'];
-  var t=rarIdx(level);
-  var color=rarColors[t];
-  var name=LNAME[level]||'灵兽';
-  var icon=LICON[level]||'🐣';
-  var cps=COIN_S[level]||0;
-  var rarityName=['普通','稀有','史诗','传说','神话'][t]||'普通';
-
-  var html='<div style="padding:28px 28px 24px;text-align:center;background:rgba(255,255,255,.97);border-radius:24px;border:1.5px solid rgba(180,140,80,.3);">';
-  html+='<div style="font-size:11px;color:#555;letter-spacing:4px;margin-bottom:12px;font-weight:600;">✦ 召唤结果 ✦</div>';
-  html+='<div style="font-size:68px;margin-bottom:10px;line-height:1;">'+icon+'</div>';
-  html+='<div style="font-size:22px;font-weight:900;color:#1A1A1A;letter-spacing:3px;margin-bottom:6px;">'+name+'</div>';
-  html+='<div style="display:inline-block;font-size:12px;font-weight:700;color:#1A1A1A;padding:3px 14px;border:1.5px solid rgba(180,140,80,.35);border-radius:20px;margin-bottom:8px;">'+rarityName+'</div>';
-  html+='<div style="font-size:28px;font-weight:900;color:'+color+';margin:8px 0 2px;">+'+cps+'/s</div>';
-  html+='<div style="font-size:12px;color:#555;margin-bottom:20px;">每秒产出金币</div>';
-  html+='<div style="display:flex;gap:10px;justify-content:center;">';
-  html+='<button onclick="document.getElementById(\'singleSummonOverlay\').remove();try{renderGrid&&renderGrid();updateHud&&updateHud();}catch(e){}" style="flex:1;padding:13px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#8b6914,#d4a017);color:#1A1A1A;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:3px;box-shadow:0 3px 12px rgba(180,120,20,.3);">收 下</button>';
-  html+='</div></div>';
-
-  var old=document.getElementById('singleSummonOverlay');
-  if(old)old.remove();
-  var overlay=document.createElement('div');
-  overlay.id='singleSummonOverlay';
-  overlay.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.58);padding:16px;';
-  overlay.innerHTML='<div style="width:min(320px,100%);max-height:88vh;overflow-y:auto;">'+html+'</div>';
-  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
-  document.body.appendChild(overlay);
-  try{playSound&&playSound('summon');}catch(e){}
-}
-
 
 // ── 升星系统 ───────────────────────────────────────────
 // 检查某灵兽是否满级可升星
@@ -490,37 +442,10 @@ function upgradeStar(id){
   G.coins-=cost;
   dragon.level=1;
   dragon.star=ns;
-  // 重置属性基准（满级L15时的属性 × 星级倍率）
-  var stats=getDragonBaseStats(15,ns);
-  if(!dragon._base) dragon._base={};
-  dragon._base.atk=stats.atk; dragon._base.def=stats.def; dragon._base.spd=stats.spd;
-  saveGame();renderGrid();updateHud();
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  checkAch();
+  saveGame();renderGrid();updateHud();checkAch();
   showNotif('gold','⭐ 升星成功！'+(ns)+'星 '+starMult(ns)+'×产金倍率！');
   if(playSound)playSound('achieve');
 }
-// ── 灵兽升级系统 ───────────────────────────────────────────
-function upgradeCost(level){
-  var costs=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
-  return costs[level]||0;
-}
-function upgradeDragon(id){
-  var dragon=G.dragons.find(function(d){return d.id===id;});
-  if(!dragon){showNotif('error','灵兽不存在');return;}
-  if(dragon.level>=15){showNotif('info','已达最高等级');return;}
-  var cost=upgradeCost(dragon.level);
-  if(G.coins<cost){showNotif('error','金币不足，需要 '+cost+' 金币');return;}
-  G.coins-=cost;
-  dragon.level++;
-  if(window.playSound)try{playSound('summon');}catch(e){}
-  saveGame();
-  renderGrid();
-  updateHud();
-  checkAch();
-}
-
-
 
 window.addEventListener('DOMContentLoaded',initGame);
 
@@ -552,16 +477,16 @@ const ACHIEVEMENTS=[
    reward:{coins:600, qi:120, title:'融合宗师'},
    cond:g=>g.mergeCount>=25},
   // ── 财富类 ──
-  {id:'c1',type:'coin',title:'日进斗金',desc:'累计产出10K金币',icon:'💰',color:'#c8860a',
+  {id:'c1',type:'coin',title:'日进斗金',desc:'累计产出10K金币',icon:'💰',color:'#ffd700',
    reward:{coins:200, qi:20,  title:null},
    cond:g=>(g.totalCoins||0)>=10000},
-  {id:'c2',type:'coin',title:'富甲一方',desc:'累计产出100K金币',icon:'💎',color:'#c8860a',
+  {id:'c2',type:'coin',title:'富甲一方',desc:'累计产出100K金币',icon:'💎',color:'#ffd700',
    reward:{coins:600, qi:60,  title:null},
    cond:g=>(g.totalCoins||0)>=100000},
-  {id:'c3',type:'coin',title:'富可敌国',desc:'累计产出1M金币',icon:'👑',color:'#c8860a',
+  {id:'c3',type:'coin',title:'富可敌国',desc:'累计产出1M金币',icon:'👑',color:'#ffd700',
    reward:{coins:2000, qi:200, title:null},
    cond:g=>(g.totalCoins||0)>=1000000},
-  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计产出10M金币',icon:'🌌',color:'#c8860a',
+  {id:'c4',type:'coin',title:'宇宙财阀',desc:'累计产出10M金币',icon:'🌌',color:'#ffd700',
    reward:{coins:8000, qi:500, title:'宇宙财阀'},
    cond:g=>(g.totalCoins||0)>=10000000},
   // ── 收集/段位类 ──
@@ -605,7 +530,7 @@ const RANKS=[
   {title:'初窥',icon:'🔰',min:3,color:'#aaa'},
   {title:'小成',icon:'🥉',min:6,color:'#cd7f32'},
   {title:'大成',icon:'🥈',min:10,color:'#c0c0c0'},
-  {title:'天师',icon:'🏆',min:14,color:'#c8860a'},
+  {title:'天师',icon:'🏆',min:14,color:'#ffd700'},
 ];
 let _unlocked=new Set(JSON.parse(localStorage.getItem(SAVE_KEY+'_ach')||'[]'));
 function saveAch(){localStorage.setItem(SAVE_KEY+'_ach',JSON.stringify([..._unlocked]));}
@@ -626,11 +551,11 @@ function checkAch(){
       }
       // ── 居中成就弹窗（含奖励） ──
       const rc=a.reward||{};
-      const ac=a.color||'#c8860a';
-      const coinStr=rc.coins?'<span style="color:#c8860a;font-weight:700">+'+rc.coins+'💰</span> ':'';
-      const qiStr=rc.qi?'<span style="color:#0277bd">+'+rc.qi+' <span class="qi-icon qi-icon-sm"></span></span> ':'';
-      const titleStr=rc.title?'<span style="color:#7b3fcb">★ '+rc.title+'</span> ':'';
+      const coinStr=rc.coins?'<span style="color:#ffd700">+'+rc.coins+'💰</span> ':'';
+      const qiStr=rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'✨</span> ':'';
+      const titleStr=rc.title?'<span style="color:#f0abfc">★ '+rc.title+'</span> ':'';
       const rewardLine=(coinStr||qiStr||titleStr)?'<div style="font-size:13px;color:#aaa;margin-top:8px;">'+coinStr+qiStr+titleStr+'</div>':'';
+      const ac=a.color||'#ffd700';
       const mask=document.createElement('div');
       mask.id='ach_'+a.id;
       mask.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .3s ease;';
@@ -679,9 +604,9 @@ function rollFate(){
   G.lastFateDate=today();
   saveGame();
   updateHud();
-  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','<span class="qi-icon qi-icon-sm"></span> 大吉'];
+  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','✨ 大吉'];
   const icons=['⚠️','⚠️','☀️','🌟','⭐'];
-  const colors=['#c62828','#e65100','#555','#2e7d32','#c8860a'];
+  const colors=['#f44336','#ff9800','#888','#8bc34a','#ffd700'];
   showNotif('info','今日运势：'+names[G.currentFate-1]+'！产出'+(YUN_COIN[G.currentFate-1]>=0?'+'+(YUN_COIN[G.currentFate-1]*100).toFixed(0)+'%':(YUN_COIN[G.currentFate-1]*100).toFixed(0)+'%'));
   updateFateOverlay();
 }
@@ -697,9 +622,9 @@ function checkFateDaily(){
 }
 function showFateDetail(){
   const idx=G.currentFate-1;
-  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','<span class="qi-icon qi-icon-sm"></span> 大吉'];
+  const names=['🌪️ 极凶','🌧️ 小凶','☀️ 平','🌤️ 小吉','✨ 大吉'];
   const descs=['诸事不顺，产出-50%','略有不顺，产出-20%','运气平平，正常产出','运势旺盛，产出+30%','鸿运当头，产出+50%'];
-  const colors=['#c62828','#e65100','#555','#2e7d32','#c8860a'];
+  const colors=['#f44336','#ff9800','#888','#8bc34a','#ffd700'];
   const bonus=YUN_COIN[idx];
   const pct=(bonus>=0?'+'+(bonus*100).toFixed(0)+'%':(bonus*100).toFixed(0)+'%');
   const el=document.createElement('div');
@@ -720,7 +645,7 @@ function updateFateOverlay(){
 
 // ===== 命格修炼系统 =====
 const CULTivation=[
-  {key:'mu',  name:'木', icon:'🪵', color:'#2e7d32', desc:'召唤灵兽',       node:[{cost:100,  title:'嫩芽萌发',desc:'召唤低级概率+10%'},{cost:500,  title:'枝繁叶茂',desc:'召唤低级概率+25%'},{cost:2000, title:'参天大树',desc:'召唤低级概率+50%'}]},
+  {key:'mu',  name:'木', icon:'🪵', color:'#4caf50', desc:'召唤灵兽',       node:[{cost:100,  title:'嫩芽萌发',desc:'召唤低级概率+10%'},{cost:500,  title:'枝繁叶茂',desc:'召唤低级概率+25%'},{cost:2000, title:'参天大树',desc:'召唤低级概率+50%'}]},
   {key:'huo', name:'火', icon:'🔥', color:'#f44336', desc:'融合炼化',       node:[{cost:100,  title:'火苗初燃',desc:'合成成功率+5%'},{cost:500,  title:'烈火焚烧',desc:'合成成功率+15%'},{cost:2000, title:'烈焰焚天',desc:'合成成功率+30%'}]},
   {key:'tu',  name:'土', icon:'🟤', color:'#795548', desc:'厚土载物',       node:[{cost:100,  title:'泥土夯实',desc:'金币产出+10%'},{cost:500,  title:'沃土千里',desc:'金币产出+25%'},{cost:2000, title:'厚德载物',desc:'金币产出+50%'}]},
   {key:'kin', name:'金', icon:'⚪', color:'#9e9e9e', desc:'点石成金',       node:[{cost:100,  title:'沙里淘金',desc:'高级灵兽概率+10%'},{cost:500,  title:'点铁成金',desc:'高级灵兽概率+25%'},{cost:2000, title:'点石成金',desc:'高级灵兽概率+50%'}]},
@@ -796,7 +721,7 @@ function renderCultPanel(){
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeCultPanel()">✕ 关闭</div>
     </div>
     <div style="font-size:11px;color:#666;margin-bottom:18px;background:linear-gradient(135deg,rgba(255,215,0,.06),rgba(255,140,0,.04));border:1px solid rgba(255,215,0,.12);padding:10px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;">
-      <span>当前拥有 <span style="color:#c8860a;font-weight:700;"><span class="qi-icon qi-icon-sm"></span> ${G.qi}</span> 龙气</span>
+      <span>当前拥有 <span style="color:#ffd700;font-weight:700;">✨ ${G.qi}</span> 龙气</span>
       <span style="color:#555;">每条命格可修炼3层</span>
     </div>
     ${CULTivation.map(c=>{
@@ -827,29 +752,29 @@ function renderCultPanel(){
             const canAfford=G.qi>=n.cost;
             return `<div id="cult_${c.key}_${i}" onclick="doCultNode('${c.key}',${i})" style="flex:1;background:${done?'rgba(255,215,0,.07)':'rgba(255,255,255,.03)'};border:1.5px solid ${done?'rgba(255,215,0,.25)':isNext?c.color+'88':'rgba(255,255,255,.06)'};border-radius:10px;padding:8px 4px;text-align:center;cursor:${done?'default':(canAfford||isNext)?'pointer':'not-allowed'};opacity:${done?'1':isNext?'1':'.3'};transition:all .2s;">
               <div style="font-size:9px;color:${done?'rgba(255,215,0,.8)':isNext?c.color:'#444'};font-weight:700;margin-bottom:3px;">${n.title}</div>
-              ${done?'<div style="font-size:14px;">✅</div>':`<div style="font-size:9px;color:${canAfford&&isNext?'#c8860a':'#555'};"><span class="qi-icon qi-icon-sm"></span>${n.cost}</div>`}
+              ${done?'<div style="font-size:14px;">✅</div>':`<div style="font-size:9px;color:${canAfford&&isNext?'#ffd700':'#555'};">✨${n.cost}</div>`}
             </div>`;}).join('')}
         </div>
       </div>`;}).join('')}
     <div style="margin-top:6px;background:linear-gradient(135deg,rgba(255,215,0,.08),rgba(255,140,0,.04));border:1px solid rgba(255,215,0,.15);border-radius:16px;padding:16px;">
-      <div style="font-size:12px;color:#c8860a;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+      <div style="font-size:12px;color:#ffd700;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
         <span style="font-size:14px;">📈</span> 当前加成总览
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
-          <span style="font-size:15px;">💰</span><div><div style="font-size:10px;color:#555;">金币产出</div><div style="font-size:13px;color:#c8860a;font-weight:700;">+${(bonus.coinBonus*100).toFixed(0)}%</div></div>
+          <span style="font-size:15px;">💰</span><div><div style="font-size:10px;color:#555;">金币产出</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.coinBonus*100).toFixed(0)}%</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
-          <span style="font-size:15px;">🐣</span><div><div style="font-size:10px;color:#555;">召唤概率</div><div style="font-size:13px;color:#c8860a;font-weight:700;">+${(bonus.summonLowRate*100).toFixed(0)}%</div></div>
+          <span style="font-size:15px;">🐣</span><div><div style="font-size:10px;color:#555;">召唤概率</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.summonLowRate*100).toFixed(0)}%</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
-          <span style="font-size:15px;">⚡</span><div><div style="font-size:10px;color:#555;">合成成功</div><div style="font-size:13px;color:#c8860a;font-weight:700;">+${(bonus.mergeBonus*100).toFixed(0)}%</div></div>
+          <span style="font-size:15px;">⚡</span><div><div style="font-size:10px;color:#555;">合成成功</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.mergeBonus*100).toFixed(0)}%</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
-          <span style="font-size:15px;">🐉</span><div><div style="font-size:10px;color:#555;">高级灵兽</div><div style="font-size:13px;color:#c8860a;font-weight:700;">+${(bonus.highRate*100).toFixed(0)}%</div></div>
+          <span style="font-size:15px;">🐉</span><div><div style="font-size:10px;color:#555;">高级灵兽</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${(bonus.highRate*100).toFixed(0)}%</div></div>
         </div>
         <div style="grid-column:1/-1;display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:8px;">
-          <span style="font-size:15px;"><span class="qi-icon qi-icon-sm"></span></span><div><div style="font-size:10px;color:#555;">龙气回复</div><div style="font-size:13px;color:#c8860a;font-weight:700;">+${bonus.qiRate}/min</div></div>
+          <span style="font-size:15px;">✨</span><div><div style="font-size:10px;color:#555;">龙气回复</div><div style="font-size:13px;color:#ffd700;font-weight:700;">+${bonus.qiRate}/min</div></div>
         </div>
       </div>
     </div>
@@ -869,21 +794,21 @@ function renderHandbook(){
     var done=Object.keys(owned).length;
     var pct=Math.round(done/total*100);
     var rate=Object.values(COIN_S).slice(1);
-    var rcolors={'普通':'#555','稀有':'#2e7d32','珍稀':'#1565c0','传说':'#6a1b9a','史诗':'#e65100','神话':'#c8860a'};
+    var rcolors={'普通':'#888','稀有':'#4caf50','珍稀':'#2196f3','传说':'#9c27b0','史诗':'#ff9800','神话':'#ffd700'};
     var items='';
     for(var lv=1;lv<=15;lv++){
       var isDone=!!owned[lv];
       var rarity=lv<=2?'普通':lv<=4?'稀有':lv<=7?'珍稀':lv<=10?'传说':lv<=13?'史诗':'神话';
       items+='<div style="background:'+(isDone?'rgba(255,215,0,.06)':'rgba(255,255,255,.02)')+';border:1.5px solid '+(isDone?'rgba(255,215,0,.3)':'rgba(255,255,255,.06)')+';border-radius:14px;padding:14px 6px;text-align:center;'+(isDone?'':'opacity:.4')+'">'
         +'<div style="font-size:32px;margin-bottom:4px;">'+(LICON[lv]||'?')+'</div>'
-        +'<div style="font-size:11px;font-weight:700;color:'+'#c8860a'+';">'+(LNAME[lv]||'?')+'</div>'
+        +'<div style="font-size:11px;font-weight:700;color:'+(isDone?'#ffd700':'#666')+';">'+(LNAME[lv]||'?')+'</div>'
         +'<div style="font-size:10px;color:'+rcolors[rarity]+';margin:3px 0;">'+rarity+'</div>'
-        +'<div style="font-size:10px;color:'+'#c8860a'+';">Lv'+lv+' &middot; +'+(rate[lv-1]||0)+'/s</div>'
+        +'<div style="font-size:10px;color:'+(isDone?'#ffd700':'#555')+';">Lv'+lv+' &middot; +'+(rate[lv-1]||0)+'/s</div>'
         +'</div>';
     }
     var tabBar='<div style="display:flex;gap:8px;margin-bottom:16px;">'
-      +'<button onclick="window._handTab=\'level\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='level'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='level'?'#c8860a':'#888')+';">📊 等级</button>'
-      +'<button onclick="window._handTab=\'zodiac\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='zodiac'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='zodiac'?'#c8860a':'#888')+';">🏆 属相</button>'
+      +'<button onclick="window._handTab=\'level\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='level'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='level'?'#ffd700':'#888')+';">📊 等级</button>'
+      +'<button onclick="window._handTab=\'zodiac\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='zodiac'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='zodiac'?'#ffd700':'#888')+';">🏆 属相</button>'
       +'</div>';
     p.innerHTML='<div style="padding:20px 16px 60px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
@@ -892,9 +817,9 @@ function renderHandbook(){
       +'</div>'
       +tabBar
       +'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center;">'
-      +'<div style="font-size:13px;font-weight:700;color:#c8860a;margin-bottom:8px;">收集进度</div>'
+      +'<div style="font-size:13px;color:#ffd700;margin-bottom:8px;">收集进度</div>'
       +'<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">'
-      +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#c8860a,#c62828);border-radius:4px;transition:width .5s;"></div>'
+      +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:4px;transition:width .5s;"></div>'
       +'</div>'
       +'<div style="font-size:11px;color:#888;">'+pct+'% 完成 &middot; 已解锁 '+done+' 种灵兽</div>'
       +'</div>'
@@ -917,21 +842,21 @@ function renderHandbook(){
       var unlockBtn='';
       if(!unlocked){
         var canAfford=G.qi>=ZOD_UNLOCK_COST;
-        unlockBtn='<button onclick="unlockZodiac('+zi+')" style="margin-top:8px;padding:5px 8px;font-size:11px;border-radius:8px;border:none;cursor:pointer;background:'+(canAfford?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)')+';color:'+(canAfford?'#c8860a':'#555')+';">'+(isSelf?'初始':'<span class="qi-icon qi-icon-sm"></span> '+ZOD_UNLOCK_COST+' 解锁')+'</button>';
+        unlockBtn='<button onclick="unlockZodiac('+zi+')" style="margin-top:8px;padding:5px 8px;font-size:11px;border-radius:8px;border:none;cursor:pointer;background:'+(canAfford?'rgba(255,215,0,.15)':'rgba(255,255,255,.05)')+';color:'+(canAfford?'#ffd700':'#555')+';">'+(isSelf?'初始':'✨ '+ZOD_UNLOCK_COST+' 解锁')+'</button>';
       } else if(isSelf){
-        unlockBtn='<div style="margin-top:8px;font-size:10px;font-weight:700;color:#c8860a;">初始解锁</div>';
+        unlockBtn='<div style="margin-top:8px;font-size:10px;color:#ffd700;">初始解锁</div>';
       } else {
-        unlockBtn='<div style="margin-top:8px;font-size:10px;color:#2e7d32;">已解锁 ✓</div>';
+        unlockBtn='<div style="margin-top:8px;font-size:10px;color:#4caf50;">已解锁 ✓</div>';
       }
       zitems+='<div style="'+zstyle+'">'
         +'<div style="font-size:30px;margin-bottom:4px;">'+(unlocked?ZOD_E[zi]:'🔒')+'</div>'
-        +'<div style="font-size:12px;font-weight:700;color:'+'#c8860a'+';">'+zNames[zi]+'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:'+(unlocked?'#ffd700':'#555')+';">'+zNames[zi]+'</div>'
         +loreText+unlockBtn
         +'</div>';
     }
     var tabBar='<div style="display:flex;gap:8px;margin-bottom:16px;">'
-      +'<button onclick="window._handTab=\'level\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='level'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='level'?'#c8860a':'#888')+';">📊 等级</button>'
-      +'<button onclick="window._handTab=\'zodiac\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='zodiac'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='zodiac'?'#c8860a':'#888')+';">🏆 属相</button>'
+      +'<button onclick="window._handTab=\'level\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='level'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='level'?'#ffd700':'#888')+';">📊 等级</button>'
+      +'<button onclick="window._handTab=\'zodiac\';renderHandbook();" style="flex:1;padding:8px 0;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer;background:'+(tab==='zodiac'?'rgba(255,215,0,.2)':'rgba(255,255,255,.05)')+';color:'+(tab==='zodiac'?'#ffd700':'#888')+';">🏆 属相</button>'
       +'</div>';
     p.innerHTML='<div style="padding:20px 16px 60px;">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
@@ -940,9 +865,9 @@ function renderHandbook(){
       +'</div>'
       +tabBar
       +'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center;">'
-      +'<div style="font-size:13px;font-weight:700;color:#c8860a;margin-bottom:8px;">🏆 属相收藏</div>'
+      +'<div style="font-size:13px;color:#ffd700;margin-bottom:8px;">🏆 属相收藏</div>'
       +'<div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;">'
-      +'<div style="height:100%;width:'+atlasPct+'%;background:linear-gradient(90deg,#c8860a,#c62828);border-radius:4px;transition:width .5s;"></div>'
+      +'<div style="height:100%;width:'+atlasPct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:4px;transition:width .5s;"></div>'
       +'</div>'
       +'<div style="font-size:11px;color:#888;">'+atlasPct+'% 已解锁 '+atlasDone+'/12 属相</div>'
       +'</div>'
@@ -1063,7 +988,7 @@ function claimWeeklyChallenge(id){
   saveGame();
   updateHud();
   if(playSound) playSound('achieve');
-  showNotif('success','🏆 '+ch.title+' 领取成功！💰+'+fmtNum(ch.reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+ch.reward.qi);
+  showNotif('success','🏆 '+ch.title+' 领取成功！💰+'+fmtNum(ch.reward.coin)+' ✨+'+ch.reward.qi);
   openWeeklyPanel(); // 刷新面板
 
   // 检查是否全部完成 → 额外奖励
@@ -1096,7 +1021,7 @@ function renderWeeklyPanel(){
     const {progress, claimed, done} = getWeeklyChallengeState(ch.id);
     const pct = Math.min(100, Math.round(progress/ch.target*100));
     const canClaim = done && !claimed;
-    const color = claimed ? '#2e7d32' : done ? '#c8860a' : '#666';
+    const color = claimed ? '#4caf50' : done ? '#ffd700' : '#666';
     const borderColor = canClaim ? 'rgba(255,215,0,.4)' : claimed ? 'rgba(76,175,80,.2)' : 'rgba(255,255,255,.05)';
     const bg = canClaim ? 'rgba(255,215,0,.06)' : claimed ? 'rgba(76,175,80,.04)' : 'rgba(255,255,255,.025)';
     return `<div style="margin-bottom:12px;background:${bg};border:1px solid ${borderColor};border-radius:12px;padding:12px 14px;${claimed?'opacity:.65;':''}${canClaim?'box-shadow:0 0 12px rgba(255,215,0,.2);':''}">
@@ -1108,16 +1033,16 @@ function renderWeeklyPanel(){
             <div style="font-size:11px;color:#666;margin-top:2px;">${ch.desc}</div>
           </div>
         </div>
-        ${claimed ? `<div style="font-size:12px;color:#2e7d32;font-weight:700;">✅ 已领取</div>` :
-          canClaim ? `<button onclick="claimWeeklyChallenge('${ch.id}')" style="background:linear-gradient(135deg,#c8860a,#e65100);border:none;color:#1a0a00;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;">🎁 领取</button>` :
+        ${claimed ? `<div style="font-size:12px;color:#4caf50;font-weight:700;">✅ 已领取</div>` :
+          canClaim ? `<button onclick="claimWeeklyChallenge('${ch.id}')" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;color:#1a0a00;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;">🎁 领取</button>` :
           `<div style="font-size:11px;color:#555;padding-top:4px;">进行中</div>`}
       </div>
       <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin-bottom:6px;">
-        <div style="height:100%;width:${pct}%;background:${done?'#c8860a':'#0277bd'};border-radius:3px;transition:width .4s ease;"></div>
+        <div style="height:100%;width:${pct}%;background:${done?'#ffd700':'#a0d8ef'};border-radius:3px;transition:width .4s ease;"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:10px;color:#555;">${done?'':'进度: '+progress+'/'+ch.target}</span>
-        <span style="font-size:10px;font-weight:700;color:#c8860a;">💰${fmtNum(ch.reward.coin)} <span class="qi-icon qi-icon-sm"></span>+${ch.reward.qi}</span>
+        <span style="font-size:10px;color:#ffd700;">💰${fmtNum(ch.reward.coin)} ✨+${ch.reward.qi}</span>
       </div>
     </div>`;
   });
@@ -1135,15 +1060,15 @@ function renderWeeklyPanel(){
   p.innerHTML = `<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:700;">🏆 本周挑战</div>
-      <div style="font-size:12px;font-weight:700;color:#c8860a;">${doneCount}/${WEEKLY_CHALLENGES.length} 已领</div>
+      <div style="font-size:12px;color:#ffd700;">${doneCount}/${WEEKLY_CHALLENGES.length} 已领</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeWeeklyPanel()">✕ 关闭</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;font-size:11px;font-weight:700;color:#c8860a;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;font-size:11px;color:#ffd700;">
       <span>📅 ${weekRange}</span>
       <span style="color:#555;">每周一00:00重置</span>
     </div>
     ${allDone ? `<div style="background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,140,0,.08));border:1px solid rgba(255,215,0,.3);border-radius:12px;padding:12px 14px;text-align:center;margin-bottom:14px;box-shadow:0 0 20px rgba(255,215,0,.15);">
-      <div style="font-size:14px;color:#c8860a;font-weight:700;">🎉 本周挑战全部完成！</div>
+      <div style="font-size:14px;color:#ffd700;font-weight:700;">🎉 本周挑战全部完成！</div>
       <div style="font-size:11px;color:#888;margin-top:4px;">🛡保护符+🛡召唤券各×1 已发放</div>
     </div>` : ''}
     ${rows.join('')}
@@ -1190,21 +1115,21 @@ function renderSignPanel(){
   p.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:700;">🎁 每日签到</div>
-      <div style="font-size:12px;font-weight:700;color:#c8860a;">🔥 连续 ${streak} 天</div>
+      <div style="font-size:12px;color:#ffd700;">🔥 连续 ${streak} 天</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeSignPanel()">✕ 关闭</div>
     </div>
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="var p=document.getElementById('signPanel');var m=${calMonth}-1;var y=${calYear};if(m<1){m=12;y--;}p.dataset.calYear=y;p.dataset.calMonth=m;renderSignPanel();">◀ 上一月</button>
-      <span style="font-size:13px;color:#c8860a;font-weight:700;">${calYear}年 ${monthNames[calMonth-1]}</span>
+      <span style="font-size:13px;color:#ffd700;font-weight:700;">${calYear}年 ${monthNames[calMonth-1]}</span>
       <button class="cal-nav-btn" onclick="var p=document.getElementById('signPanel');var m=${calMonth}+1;var y=${calYear};if(m>12){m=1;y++;}p.dataset.calYear=y;p.dataset.calMonth=m;renderSignPanel();">下一月 ▶</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">${weekDays.map(d=>`<div style="text-align:center;font-size:9px;color:#555;padding:3px 0;">${d}</div>`).join('')}${calCells}</div>
     <div class="cal-grid" style="display:none"></div>
     ${todayDone?`<div style="text-align:center;padding:12px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.2);border-radius:12px;margin-bottom:14px;">
-      <div style="font-size:13px;color:#2e7d32;font-weight:700;">✅ 今日已签到</div>
+      <div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 今日已签到</div>
       <div style="font-size:11px;color:#888;margin-top:4px;">明天再来领取更多奖励</div>
     </div>`:`<div style="text-align:center;padding:14px;background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,140,0,.08));border:1.5px solid rgba(255,215,0,.4);border-radius:14px;margin-bottom:14px;cursor:pointer;" onclick="doSign()" id="signBtn">
-      <div style="font-size:15px;color:#c8860a;font-weight:700;">🎉 立即签到</div>
+      <div style="font-size:15px;color:#ffd700;font-weight:700;">🎉 立即签到</div>
       <div style="font-size:11px;color:#aaa;margin-top:4px;">点击领取今日奖励</div>
     </div>`}
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:16px;">
@@ -1213,10 +1138,10 @@ function renderSignPanel(){
         const past=day<getSignDay()||(day===getSignDay()&&todayDone);
         const current=day===getSignDay()&&!todayDone;
         return `<div style="text-align:center;padding:7px 3px;background:${past?'rgba(76,175,80,.12)':current?'rgba(255,215,0,.12)':'rgba(255,255,255,.03)'};border:1.5px solid ${past?'rgba(76,175,80,.3)':current?'rgba(255,215,0,.5)':'rgba(255,255,255,.05)'};border-radius:10px;${current?'box-shadow:0 0 12px rgba(255,215,0,.25);':''}">
-          <div style="font-size:9px;color:${past?'#2e7d32':current?'#c8860a':'#555'};font-weight:600;margin-bottom:3px;">Day${day}</div>
+          <div style="font-size:9px;color:${past?'#4caf50':current?'#ffd700':'#555'};font-weight:600;margin-bottom:3px;">Day${day}</div>
           <div style="font-size:14px;line-height:1;">${past?'✅':current?'📍':'⬛'}</div>
           <div style="font-size:8px;color:#666;margin-top:2px;">💰${r.coin>=1000?r.coin/1000+'K':r.coin}</div>
-          ${r.free>0?`<div style="font-size:8px;font-weight:700;color:#e65100;">🆓${r.free}</div>`:''}
+          ${r.free>0?`<div style="font-size:8px;color:#ff9800;">🆓${r.free}</div>`:''}
         </div>`;}).join('')}
     </div>
     <div style="font-size:11px;color:#555;background:rgba(255,255,255,.02);padding:8px 12px;border-radius:8px;line-height:1.8;">
@@ -1224,10 +1149,10 @@ function renderSignPanel(){
       ⏰ 每天 00:00 重置签到状态
     </div>
     <div style="margin-top:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;">
-      <div style="font-size:12px;font-weight:700;color:#c8860a;font-weight:600;margin-bottom:8px;">📋 7天签到奖励表</div>
+      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">📋 7天签到奖励表</div>
       ${SIGN_REWARDS.map((r,i)=>{const day=i+1;const active=day===getSignDay();return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);${active?'opacity:1;':'opacity:.5;'}">
-        <span style="font-size:11px;color:${active?'#c8860a':'#666'};">${r.label}</span>
-        <span style="font-size:11px;color:${active?'#c8860a':'#666'};">💰+${fmtNum(r.coin)} <span class="qi-icon qi-icon-sm"></span>+${r.qi}${r.free>0?' 🆓+'+r.free+'召唤':''}</span>
+        <span style="font-size:11px;color:${active?'#ffd700':'#666'};">${r.label}</span>
+        <span style="font-size:11px;color:${active?'#ffd700':'#666'};">💰+${fmtNum(r.coin)} ✨+${r.qi}${r.free>0?' 🆓+'+r.free+'召唤':''}</span>
       </div>`;}).join('')}
     </div>
   </div>`;
@@ -1261,12 +1186,12 @@ function doSign(){
   if(btn){
     btn.style.background='rgba(76,175,80,.15)';
     btn.style.border='1.5px solid rgba(76,175,80,.4)';
-    btn.innerHTML='<div style="font-size:13px;color:#2e7d32;font-weight:700;">✅ 签到成功！</div><div style="font-size:11px;color:#aaa;margin-top:4px;">💰+'+fmtNum(reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'次召唤':'')+'</div>';
+    btn.innerHTML='<div style="font-size:13px;color:#4caf50;font-weight:700;">✅ 签到成功！</div><div style="font-size:11px;color:#aaa;margin-top:4px;">💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'次召唤':'')+'</div>';
     btn.style.cursor='default';
     btn.onclick=null;
   }
   _onWeeklyEvent('sign');
-  showNotif('success','🎉 连续签到第'+G.signStreak+'天 · 💰+'+fmtNum(reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'召唤':''));
+  showNotif('success','🎉 连续签到第'+G.signStreak+'天 · 💰+'+fmtNum(reward.coin)+' ✨+'+reward.qi+(reward.free>0?' 🆓+'+reward.free+'召唤':''));
 }
 
 function yesterday(){
@@ -1316,10 +1241,10 @@ function renderTaskPanel(){
   panel.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="font-size:16px;font-weight:700;">📋 每日任务</div>
-      <div style="font-size:12px;font-weight:700;color:#c8860a;">${doneCount}/${TASKS.length} 完成</div>
+      <div style="font-size:12px;color:#ffd700;">${doneCount}/${TASKS.length} 完成</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeTaskPanel()">✕ 关闭</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;font-size:11px;font-weight:700;color:#c8860a;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 14px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.12);border-radius:10px;font-size:11px;color:#ffd700;">
       <span>🎯 达成后点击「领取」</span>
       <span id="taskCountdown">⏰ 重置: ${h}:${m}:${s}</span>
     </div>
@@ -1333,20 +1258,20 @@ function renderTaskPanel(){
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="font-size:20px;">${t.icon}</span>
             <div>
-              <div style="font-size:13px;font-weight:700;color:${done?'#2e7d32':completed?'#c8860a':'#ccc'};${t.title}</div>
+              <div style="font-size:13px;font-weight:700;color:${done?'#4caf50':completed?'#ffd700':'#ccc'};${t.title}</div>
               <div style="font-size:11px;color:#666;margin-top:2px;">${t.desc}</div>
             </div>
           </div>
-          ${done?`<div style="font-size:12px;color:#2e7d32;font-weight:700;">✅ 已领取</div>`:
-            completed?`<button onclick="claimTask('${t.id}')" style="background:linear-gradient(135deg,#c8860a,#e65100);border:none;color:#1a0a00;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer;">🎁 领取</button>`:
+          ${done?`<div style="font-size:12px;color:#4caf50;font-weight:700;">✅ 已领取</div>`:
+            completed?`<button onclick="claimTask('${t.id}')" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;color:#1a0a00;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer;">🎁 领取</button>`:
             `<div style="font-size:11px;color:#666;">进行中</div>`}
         </div>
         <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${done?'#2e7d32':completed?'#c8860a':'#0277bd'};border-radius:3px;transition:width .4s ease;${completed?'box-shadow:0 0 8px rgba(255,215,0,.3);':''}"></div>
+          <div style="height:100%;width:${pct}%;background:${done?'#4caf50':completed?'#ffd700':'#a0d8ef'};border-radius:3px;transition:width .4s ease;${completed?'box-shadow:0 0 8px rgba(255,215,0,.3);':''}"></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
           <span style="font-size:10px;color:#555;">${completed?'':'进度: '+prog+'/'+t.target}</span>
-          <span style="font-size:10px;font-weight:700;color:#c8860a;">💰${t.reward.coin>=1000?t.reward.coin/1000+'K':t.reward.coin} <span class="qi-icon qi-icon-sm"></span>+${t.reward.qi}${t.reward.free?' 🆓+'+t.reward.free+'次':''}</span>
+          <span style="font-size:10px;color:#ffd700;">💰${t.reward.coin>=1000?t.reward.coin/1000+'K':t.reward.coin} ✨+${t.reward.qi}${t.reward.free?' 🆓+'+t.reward.free+'次':''}</span>
         </div>
       </div>`;}).join('')}
     </div>
@@ -1386,7 +1311,7 @@ function claimTask(id){
   saveGame();
   updateHud();
   if(playSound) playSound('achieve');
-  showNotif('success','✅ 领取成功！💰+'+fmtNum(t.reward.coin)+' <span class="qi-icon qi-icon-sm"></span>+'+t.reward.qi+(t.reward.free?' 🆓+'+t.reward.free+'召唤':''));
+  showNotif('success','✅ 领取成功！💰+'+fmtNum(t.reward.coin)+' ✨+'+t.reward.qi+(t.reward.free?' 🆓+'+t.reward.free+'召唤':''));
   renderTaskPanel();
 }
 
@@ -1410,11 +1335,11 @@ function openActivityPanel(){
   panel.innerHTML=`<div style="padding:20px 16px 80px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <div style="font-size:16px;font-weight:700;">🏆 本周挑战</div>
-      <button onclick="closeActivityPanel();setTimeout(openWeeklyPanel,320);" style="flex:1;margin:0 10px;padding:9px 12px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:12px;font-size:12px;font-weight:700;color:#c8860a;cursor:pointer;text-align:center;">查看挑战 &rarr;</button>
+      <button onclick="closeActivityPanel();setTimeout(openWeeklyPanel,320);" style="flex:1;margin:0 10px;padding:9px 12px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:12px;font-size:12px;color:#ffd700;cursor:pointer;text-align:center;">查看挑战 &rarr;</button>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeActivityPanel()">✕</div>
     </div>
     <div style="font-size:16px;font-weight:700;margin-top:14px;margin-bottom:16px;">🎯 限时活动</div>
-      <div style="font-size:12px;font-weight:700;color:#c8860a;">${active.length} 个进行中</div>
+      <div style="font-size:12px;color:#ffd700;">${active.length} 个进行中</div>
       <div style="font-size:12px;color:#888;cursor:pointer;opacity:.7;" onclick="closeActivityPanel()">✕ 关闭</div>
     </div>
     <div style="font-size:11px;color:#555;margin-bottom:16px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;">
@@ -1437,7 +1362,7 @@ function openActivityPanel(){
         ${isActive?'<div style="background:linear-gradient(135deg,'+a.color+'22,transparent);border:1px solid '+a.color+'33;border-radius:8px;padding:8px 12px;text-align:center;font-size:13px;color:'+a.color+';font-weight:700;">'+a.tip+'</div>':''}
       </div>`;}).join('')}
     <div id="actCountdown" style="margin-top:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;text-align:center;">
-      <div style="font-size:11px;font-weight:700;color:#c8860a;font-weight:600;margin-bottom:6px;">⏰ 活动倒计时</div>
+      <div style="font-size:11px;color:#ffd700;font-weight:600;margin-bottom:6px;">⏰ 活动倒计时</div>
       <div id="actCdLines" style="font-size:11px;color:#666;line-height:2;"></div>
     </div>
   </div>`;
@@ -1450,7 +1375,7 @@ function openActivityPanel(){
     const isWeekend=dow===0||dow===6;
     const isNight=now.getHours()>=20&&now.getHours()<22;
     let lines='';
-    if(isWeekend){lines+='<div>🎁 周末双倍 <span style="font-weight:700;color:#e65100;">进行中 🎉</span></div>';}else{
+    if(isWeekend){lines+='<div>🎁 周末双倍 <span style="color:#ff9800;">进行中 🎉</span></div>';}else{
       const sat=new Date(now);sat.setDate(now.getDate()+(6-dow+7)%7);sat.setHours(0,0,0,0);
       const diff=Math.max(0,sat-now);const h=String(Math.floor(diff/3600000)).padStart(2,'0');
       const m=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
@@ -1503,11 +1428,11 @@ function openStatsPanel(){
       ].map(([icon,label,val])=>`<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center;">
         <div style="font-size:18px;margin-bottom:4px;">${icon}</div>
         <div style="font-size:10px;color:#666;margin-bottom:4px;">${label}</div>
-        <div style="font-size:15px;font-weight:700;font-weight:700;color:#c8860a;">${val}</div>
+        <div style="font-size:15px;font-weight:700;color:#ffd700;">${val}</div>
       </div>`).join('')}
     </div>
     <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;">
-      <div style="font-size:12px;font-weight:700;color:#c8860a;font-weight:600;margin-bottom:8px;">🎯 命格修炼进度</div>
+      <div style="font-size:12px;color:#ffd700;font-weight:600;margin-bottom:8px;">🎯 命格修炼进度</div>
       ${['木','火','土','金','水'].map((e,i)=>{
         const keys=['mu','huo','tu','kin','shui'];
         const icons=['🌿','🔥','🪨','⚪','💧'];
@@ -1518,10 +1443,10 @@ function openStatsPanel(){
           <div style="flex:1;">
             <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
               <span style="font-size:11px;color:#888;">${e} · ${lv}/3层</span>
-              <span style="font-size:10px;font-weight:700;color:#c8860a;">${pct}%</span>
+              <span style="font-size:10px;color:#ffd700;">${pct}%</span>
             </div>
             <div style="height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;">
-              <div style="height:100%;width:${pct}%;background:${icons[i]==='🌿'?'#2e7d32':icons[i]==='🔥'?'#f44336':icons[i]==='🪨'?'#795548':icons[i]==='⚪'?'#9e9e9e':'#2196f3'};border-radius:2px;"></div>
+              <div style="height:100%;width:${pct}%;background:${icons[i]==='🌿'?'#4caf50':icons[i]==='🔥'?'#f44336':icons[i]==='🪨'?'#795548':icons[i]==='⚪'?'#9e9e9e':'#2196f3'};border-radius:2px;"></div>
             </div>
           </div>
         </div>`;}).join('')}
@@ -1556,7 +1481,7 @@ const GUIDE_STEPS = [
   {
     step:3,
     title:'三种召唤方式',
-    body:'💰 金币召唤：消耗累积金币\n<span class="qi-icon qi-icon-sm"></span> 龙气召唤：使用龙气，获得更高品阶\n🆓 免费召唤：每天重置，适合微氪玩家',
+    body:'💰 金币召唤：消耗累积金币\n✨ 龙气召唤：使用龙气，获得更高品阶\n🆓 免费召唤：每天重置，适合微氪玩家',
     target:'#summonBar',
     pos:'bottom',
     nextText:'继续 →',
@@ -1678,9 +1603,9 @@ function showOfflinePopup(coins, seconds){
     <div style="font-size:36px;margin-bottom:12px;animation:floatUp 2s ease-in-out infinite;">💤</div>
     <div style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:3px;margin-bottom:12px;">离线收益</div>
     <div style="font-size:14px;color:#aaa;margin-bottom:6px;">离线 ${timeStr}</div>
-    <div style="font-size:32px;font-weight:900;font-weight:700;color:#c8860a;margin:8px 0 16px;">+${fmtNum(coins)} 💰</div>
+    <div style="font-size:32px;font-weight:900;color:#ffd700;margin:8px 0 16px;">+${fmtNum(coins)} 💰</div>
     <div style="font-size:11px;color:#555;margin-bottom:20px;">离线期间产出 50% 效率（最多8小时）</div>
-    <button onclick="this.closest('div').parentElement.remove()" style="background:linear-gradient(135deg,#c8860a,#e65100);border:none;border-radius:20px;color:#1a0a00;font-size:14px;font-weight:700;padding:10px 32px;cursor:pointer;">收下！</button>
+    <button onclick="this.closest('div').parentElement.remove()" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:20px;color:#1a0a00;font-size:14px;font-weight:700;padding:10px 32px;cursor:pointer;">收下！</button>
   </div>`;
   document.body.appendChild(el);
 }
@@ -1768,10 +1693,10 @@ function showSkyEvent(ev){
   el.innerHTML = `<div style="background:linear-gradient(160deg,#1a1030,#0d0a20);border:1.5px solid rgba(255,215,0,.4);border-radius:24px;padding:36px 32px;width:min(340px,90vw);text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);max-width:340px;">
     <div style="font-size:44px;margin-bottom:14px;animation:floatUp 2s ease-in-out infinite;">${ev.icon}</div>
     <div style="font-size:11px;color:rgba(255,215,0,.5);letter-spacing:4px;margin-bottom:10px;">天机降临</div>
-    <div style="font-size:20px;font-weight:700;font-weight:700;color:#c8860a;margin-bottom:10px;">${ev.title}</div>
+    <div style="font-size:20px;font-weight:700;color:#ffd700;margin-bottom:10px;">${ev.title}</div>
     <div style="font-size:13px;color:#aaa;line-height:1.7;margin-bottom:20px;">${ev.desc}</div>
     ${ev.duration>0 ? `<div style="font-size:11px;color:#555;margin-bottom:16px;">持续 ${ev.duration} 秒</div>` : ''}
-    <button onclick="dismissSkyEvent()" style="background:linear-gradient(135deg,#c8860a,#e65100);border:none;border-radius:20px;color:#1a0a00;font-size:14px;font-weight:700;padding:10px 32px;cursor:pointer;">${ev.duration>0?'收下':'领取'}</button>
+    <button onclick="dismissSkyEvent()" style="background:linear-gradient(135deg,#ffd700,#ff9800);border:none;border-radius:20px;color:#1a0a00;font-size:14px;font-weight:700;padding:10px 32px;cursor:pointer;">${ev.duration>0?'收下':'领取'}</button>
   </div>`;
   document.body.appendChild(el);
   if(ev.duration>0){
@@ -1806,7 +1731,7 @@ function startSkyEvents(){
 // ===== 属相图鉴解锁 =====
 function unlockZodiac(zidx){
   if(G.qi < ZOD_UNLOCK_COST){
-    showNotif('warning','龙气不足！需要 '+ZOD_UNLOCK_COST+' <span class="qi-icon qi-icon-sm"></span>，当前只有 '+Math.floor(G.qi)+' <span class="qi-icon qi-icon-sm"></span>');
+    showNotif('warning','龙气不足！需要 '+ZOD_UNLOCK_COST+' ✨，当前只有 '+Math.floor(G.qi)+' ✨');
     return;
   }
   if(!G.unlockedAtlas) G.unlockedAtlas = [];
@@ -1836,7 +1761,7 @@ function claimActiveReward(){
   G.activeClaimedDate=td;
   G.coins+=5000;G.qi+=100;
   saveGame();updateHud();
-  showNotif('success','🎁 活跃奖励领取成功！💰+5000 <span class="qi-icon qi-icon-sm"></span>+100');
+  showNotif('success','🎁 活跃奖励领取成功！💰+5000 ✨+100');
 }
 
 
@@ -1899,10 +1824,10 @@ function renderActiveCenter(){
   // 活跃项列表
   var items=[];
   var activeActs=getActiveActivities();
-  items.push({icon:'📅',title:'每日签到',desc:signed?'已签到 · +'+SIGN_REWARDS[G.signStreak%7].coin+'金币':'点击签到领取奖励',done:signed,pending:!signed,color:signed?'#2e7d32':'#c8860a',pct:signed?100:0});
-  items.push({icon:'📝',title:'每日任务',desc:tasksDone+'/'+taskTotal+' 个任务完成',done:tasksDone>=taskTotal,pending:tasksDone>0,color:tasksDone>=taskTotal?'#2e7d32':'#7eb8ff',pct:Math.round(tasksDone/taskTotal*100)});
-  items.push({icon:'⚡',title:'限时活动',desc:activeActs.length>0?activeActs.map(a=>a.icon+' '+a.name).join('  '):'当前无活动',done:activeActs.length>0,pending:activeActs.length>0,color:activeActs.length>0?'#e65100':'#555',pct:activeActs.length>0?100:0});
-  items.push({icon:'🐣',title:'召唤灵兽',desc:'今日已召唤 '+G.summonCount+' 次',done:G.summonCount>=10,pending:G.summonCount>0,color:G.summonCount>=10?'#2e7d32':'#b57edc',pct:Math.min(100,Math.round(G.summonCount/10*100))});
+  items.push({icon:'📅',title:'每日签到',desc:signed?'已签到 · +'+SIGN_REWARDS[G.signStreak%7].coin+'金币':'点击签到领取奖励',done:signed,pending:!signed,color:signed?'#4caf50':'#ffd700',pct:signed?100:0});
+  items.push({icon:'📝',title:'每日任务',desc:tasksDone+'/'+taskTotal+' 个任务完成',done:tasksDone>=taskTotal,pending:tasksDone>0,color:tasksDone>=taskTotal?'#4caf50':'#7eb8ff',pct:Math.round(tasksDone/taskTotal*100)});
+  items.push({icon:'⚡',title:'限时活动',desc:activeActs.length>0?activeActs.map(a=>a.icon+' '+a.name).join('  '):'当前无活动',done:activeActs.length>0,pending:activeActs.length>0,color:activeActs.length>0?'#ff9800':'#555',pct:activeActs.length>0?100:0});
+  items.push({icon:'🐣',title:'召唤灵兽',desc:'今日已召唤 '+G.summonCount+' 次',done:G.summonCount>=10,pending:G.summonCount>0,color:G.summonCount>=10?'#4caf50':'#b57edc',pct:Math.min(100,Math.round(G.summonCount/10*100))});
   // 本周挑战进度
   var wCount=0;
   if(G.weekly&&G.weekly.challenges){
@@ -1935,12 +1860,12 @@ function renderActiveCenter(){
       claimEl.textContent='✅ 今日已领取';
       claimEl.style.background='rgba(76,175,80,.15)';
       claimEl.style.border='1.5px solid rgba(76,175,80,.3)';
-      claimEl.style.color='#2e7d32';
+      claimEl.style.color='#4caf50';
       claimEl.style.cursor='default';
       claimEl.onclick=null;
     } else if(score>=100){
       claimEl.textContent='🎁 领取活跃奖励';
-      claimEl.style.background='linear-gradient(135deg,#c8860a,#e65100)';
+      claimEl.style.background='linear-gradient(135deg,#ffd700,#ff9800)';
       claimEl.style.border='none';
       claimEl.style.color='#1a0a00';
       claimEl.style.cursor='pointer';
@@ -2006,7 +1931,7 @@ function updateHud(){
   }
   if(document.getElementById('qiCost')){
     var qiCost=Math.floor(500*Math.pow(1.1,Math.floor((G.summonCount||0)/15)));
-    document.getElementById('qiCost').innerHTML='<span class="qi-icon qi-icon-md"></span> '+qiCost;
+    document.getElementById('qiCost').textContent='✨ '+qiCost;
     var btnQi=document.getElementById('btnQi');
     if(btnQi)btnQi.disabled=(G.qi||0)<qiCost;
   }
@@ -2028,15 +1953,12 @@ function closeCultPanel(){
 // P0-1 灵兽图鉴 (Atlas) — 查看已收集生肖 + 收集奖励
 // ═══════════════════════════════════════════════════════
 function getCollectedZodiacs(){
-  // 从 G.dragons 提取所有灵兽的属相ID（去重，同时查 d.z 和 d.level）
+  // 从 G.dragons 提取所有灵兽的属相ID（去重）
   if(!G.dragons || !G.dragons.length) return [];
   var seen={};
   var zids=[];
   G.dragons.forEach(function(d){
-    if(d){
-      var z=d.level;               // d.level 是主要属相ID（0=鼠 到 11=猪）
-      if(z !== undefined && z !== null && z >= 0 && z <= 11 && !seen[z]){seen[z]=1;zids.push(z);}
-    }
+    if(d && d.z && !seen[d.z]){seen[d.z]=1;zids.push(d.z);}
   });
   return zids.sort(function(a,b){return a-b;});
 }
@@ -2064,7 +1986,7 @@ function renderAtlasPanel(){
   if(!c)return;
   var col=getCollectedZodiacs();
   var n=col.length;
-  var html='<div class="atlas-title">📖 生肖图鉴 <span style="font-weight:700;color:#c8860a">'+n+'/12</span></div>';
+  var html='<div class="atlas-title">📖 生肖图鉴 <span style="color:#ffd700">'+n+'/12</span></div>';
   html+='<div class="atlas-grid">';
   for(var z=0;z<12;z++){
     var st=getZodiacStatus(z+1);
@@ -2075,7 +1997,7 @@ function renderAtlasPanel(){
     var title=st.collected?('第'+st.order+'个收集 · '+lore):('未解锁 · '+lore);
     html+='<div class="'+cls+'" title="'+title+'" onclick="showZodiacDetail('+(z+1)+')" style="cursor:pointer">';
     html+='<div style="font-size:2.4em">'+emoji+'</div>';
-    html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'🔒')+'</div>';
+    html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'???')+'</div>';
     html+='<div style="font-size:0.8em">'+name+'</div>';
     html+='</div>';
   }
@@ -2088,8 +2010,8 @@ function renderAtlasPanel(){
     var claimed=G.atlasClaimed&&G.atlasClaimed.includes(r.count)?'✅ 已领':claimBtn;
     html+='<div class="atlas-reward-item '+(done?'':'atlas-reward-locked')+'">';
     html+='<span>收集 <b>'+r.count+'</b> 种生肖: </span>';
-    html+='<span style="font-weight:700;color:#c8860a">'+r.coin+'金币</span> + ';
-    html+='<span style="color:#0277bd">'+r.qi+'龙气</span> ';
+    html+='<span style="color:#ffd700">'+r.coin+'金币</span> + ';
+    html+='<span style="color:#a0d8ef">'+r.qi+'龙气</span> ';
     html+='<b>['+r.title+']</b> '+claimed;
     html+='</div>';
   });
@@ -2133,10 +2055,8 @@ function equipSkin(skinId){
   if(!isSkinOwned(skinId)){alert('请先拥有该皮肤！');return;}
   G.equippedSkin=skinId;
   saveGame();
-  // 关键：换肤后立即刷新灵兽网格（大灵兽+卡片全部重新渲染）
-  try{renderGrid&&renderGrid();}catch(e){}
-  try{updateHud&&updateHud();}catch(e){}
   renderSkinPanel();
+  updateHUD();
   playSound('click');
 }
 
@@ -2174,13 +2094,13 @@ function renderSkinPanel(){
   var cur=G.equippedSkin||'default';
   var html='';
   // 当前装备预览
-  var curSkin=DRAGON_SKINS.find(function(s){return s.id===cur;})||{name:'原版',icon:'🐣',color:'#c8860a'};
+  var curSkin=DRAGON_SKINS.find(function(s){return s.id===cur;})||{name:'原版',icon:'🐣',color:'#ffd700'};
   html+='<div class="skin-preview" style="border-color:'+curSkin.color+';background:'+curSkin.color+'11">';
   html+='<div style="font-size:3em">'+curSkin.icon+'</div>';
   html+='<div style="color:'+curSkin.color+'">当前装备: '+curSkin.name+'</div>';
   html+='</div>';
   // 龙气余额
-  html+='<div style="text-align:center;margin:6px 0;color:#0277bd">💧 当前龙气: '+G.qi+'</div>';
+  html+='<div style="text-align:center;margin:6px 0;color:#a0d8ef">💧 当前龙气: '+G.qi+'</div>';
   // 皮肤列表（按稀有度分组）
   var rarities=['普通','稀有','珍稀','传说','神话'];
   for(var r=0;r<5;r++){
@@ -2212,10 +2132,38 @@ function renderSkinPanel(){
 // ═══════════════════════════════════════════════════════
 // P0-2 入口按钮 — 插入到主界面 HUD 区域
 // ═══════════════════════════════════════════════════════
-// 功能按钮已迁移到 HTML 静态布局，此函数不再注入浮动按钮
-function injectSkinAtlasButtons(){}
-// 功能按钮已迁移到 HTML 静态布局，不再显示浮动按钮
-function showFeatureButtons(){}
+function injectSkinAtlasButtons(){
+  setTimeout(function(){
+    if(document.getElementById('atlasBtn')) return; // 避免重复注入
+    var wrap=document.createElement('div');
+    // 大屏：右上角；手机：左上角（避免挡住HUD金币数）
+    wrap.style.cssText='position:fixed;top:8px;right:12px;display:flex;gap:8px;z-index:200;flex-wrap:wrap;max-width:160px;justify-content:flex-end';
+    // 手机小屏移到左上角，避免遮挡顶部HUD
+    var isMobile=window.innerWidth<=480;
+    if(isMobile){
+      wrap.style.cssText='position:fixed;top:50px;left:8px;display:flex;flex-direction:column;gap:5px;z-index:200;align-items:flex-start';
+    }
+    wrap.id='gameFeatureButtons';
+    wrap.innerHTML=
+      '<button id="atlasBtn" onclick="openAtlasPanel()" style="background:#2d1b4e;border:1px solid #8b5cf6;color:#c4b5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">📖图鉴</button>'+
+      '<button id="skinBtn" onclick="openSkinPanel()" style="background:#1b2e4b;border:1px solid #60a5fa;color:#93c5fd;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">✨皮肤</button>'+
+      '<button id="towerBtn" onclick="openTowerPanel()" style="background:#2e1b0a;border:1px solid #ff6b35;color:#ff9b6a;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">⚔️试炼塔</button>'+
+      '<button id="forgeBtn" onclick="openForgePanel()" style="background:#2e1a00;border:1px solid #fbbf24;color:#fbbf24;border-radius:8px;padding:6px 10px;font-size:0.8em;cursor:pointer;display:none">🔨炼宝阁</button>';
+    document.body.appendChild(wrap);
+    // 监听游戏启动，显示按钮
+    window._showFeatureBtns=function(){
+      var btns=document.querySelectorAll('#atlasBtn,#skinBtn,#towerBtn,#forgeBtn');
+      btns.forEach(function(b){b.style.display='block';});
+    };
+  },500);
+}
+function showFeatureButtons(){
+  // 只在游戏主界面显示，登录页隐藏（判断：loginWrap 隐藏了 = 真正在玩游戏）
+  var lw=document.getElementById('loginWrap');
+  if(lw&&lw.style.display==='none'){
+    if(window._showFeatureBtns) window._showFeatureBtns();
+  }
+}
 
 // 存档初始化兼容
 if(!G.unlockedSkins) G.unlockedSkins=['default'];
@@ -2235,122 +2183,39 @@ function getTowerEnemy(floor){
   if(floor<1||floor>100) return TOWER_ENEMIES[0];
   return TOWER_ENEMIES[floor-1]||TOWER_ENEMIES[0];
 }
-// 玩家攻击伤害 = 灵兽攻击 + SPD×0.5 + 装备百分比加成 + SPD装备加成
 function getTowerPlayerDmg(){
+  // 灵兽总战力 = 最高等级灵兽的 cps * 攻击系数
   if(!G.dragons||!G.dragons.length) return 10;
-  var best=G.dragons.reduce(function(a,b){return(a.level||0)>=(b.level||0)?a:b;});
-  var lv=best.level||1, star=best.star||1;
-  var stats=getDragonBaseStats(lv,star);
-  var eq=getEquipTotals();
-  var spdBonus=Math.floor((stats.spd+eq.spd)*0.3);
-  return Math.max(1,Math.floor(stats.atk*(1+eq.atk/100))+spdBonus);
+  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
+  return Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
 }
-// 装备总属性（含套装加成）：给试炼塔/灵兽面板共用
-function getEquipTotals(){
-  var fm=G.forge||{items:[]}, atk=0, def=0, spd=0;
-  if(fm.items){
-    for(var i=0;i<fm.items.length;i++){
-      var it=fm.items[i];
-      if(it.equipped){
-        if(it.atk) atk+=it.atk||0;
-        if(it.def) def+=it.def||0;
-        if(it.spd) spd+=it.spd||0;
-      }
-    }
-  }
-  var eff=getSuitEffect(fm.items);
-  if(eff){atk=Math.floor(atk*(1+eff.atkBonus/100));def=Math.floor(def*(1+eff.defBonus/100));spd=Math.floor(spd*(1+eff.spdBonus/100));}
-  return{atk:Math.max(0,atk),def:Math.max(0,def),spd:Math.max(0,spd)};
-}
-// 玩家试练塔总防御 = 灵兽基础防御 + 装备防御百分比
-function getTowerPlayerDef(){
-  if(!G.dragons||!G.dragons.length) return getEquipTotals().def;
-  var best=G.dragons.reduce(function(a,b){return(a.level||0)>=(b.level||0)?a:b;});
-  var stats=getDragonBaseStats(best.level||1,best.star||1);
-  return Math.max(0,Math.floor(stats.def*(1+getEquipTotals().def/100)));
-}
-// 试练塔材料计算
-function getTowerReward(floor){
-  var enemy=getTowerEnemy(floor);
-  var isBoss=enemy?enemy.isBoss:false;
-  var isBonus=floor%10===0||isBoss;
-  return{coins:(enemy&&enemy.coins)||0,qi:(enemy&&enemy.qi)||0,
-    iron:3+Math.floor(floor/10)*2,crystal:isBonus?1:0,dragon:isBonus?1:0,isBoss:isBoss,enemy:enemy};
-}
-
 function towerAttack(){
   if(!G.created) return;
   var floor=G.towerFloor||1;
-  // HP = 灵兽基础防御 × 星级 + 装备防御加成百分比
-  var def=getTowerPlayerDef();
-  var maxHp=100+Math.floor(def*5);
-  // HP只在进入新层或死亡时才重置
-  if(!G.towerPlayerHp||G.towerPlayerHp<=0||G._towerFloorBak!==floor){
-    G.towerPlayerHp=maxHp;G._towerFloorBak=floor;
-  }
   var enemy=getTowerEnemy(floor);
-  var playerDef=getTowerPlayerDef();
-
-  // 计算敌人反击伤害 = floor×20，被防御减免
-  var enemyBaseDmg=Math.max(1,Math.floor(floor*20));
-  var enemyDmg=Math.max(1,Math.floor(enemyBaseDmg/(1+playerDef/50)));
-
-  // 处理攻击（可能有多次普攻）
-  // 速度加成：每1spd=0.2%额外攻击机会
-  var spd=getEquipTotals().spd;
-  var extraChance=Math.min(100, Math.floor(spd*0.2));
-  var hits=1;
-  if(Math.random()*100<extraChance) hits++;
-  if(Math.random()*100<Math.max(0,extraChance-100)) hits++;
-
+  var dmg=getTowerPlayerDmg();
+  // 扣敌人血
   if(!G.towerEnemyHp) G.towerEnemyHp=enemy.hp;
-  var totalDmg=0;
-  for(var h=0;h<hits;h++){
-    var dmg=getTowerPlayerDmg();
-    G.towerEnemyHp=Math.max(0,G.towerEnemyHp-dmg);
-    totalDmg+=dmg;
-  }
-  // 玩家扣血（敌人反击）
-  G.towerPlayerHp=Math.max(0,G.towerPlayerHp-enemyDmg);
-  // 动画 + 实时更新攻击按钮伤害
+  G.towerEnemyHp=Math.max(0,G.towerEnemyHp-dmg);
+  // 攻击动画
   var btn=document.getElementById('towerAtkBtn');
-  if(btn){
-    btn.style.transform='scale(0.92)';
-    setTimeout(function(){
-      btn.style.transform='';
-      var newDmg=getTowerPlayerDmg();
-      btn.textContent='⚔️ 发起攻击 (伤害:'+newDmg+')';
-    },120);
-  }
+  if(btn){btn.style.transform='scale(0.92)';setTimeout(function(){btn.style.transform='';},120);}
+  // 记录时间
   G.towerLastAtk=Date.now();
-
   // 击败检测
   if(G.towerEnemyHp<=0){
     G.coins=(G.coins||0)+enemy.coins;
     G.qi=(G.qi||0)+(enemy.qi||0);
     G.totalCoins=(G.totalCoins||0)+enemy.coins;
     G.towerFloor=(floor>=100?100:floor+1);
-    G.towerEnemyHp=0;G.towerPlayerHp=maxHp;
-    saveGame();checkAch&&checkAch();
-    // 材料入账
-    if(!G.forge) G.forge={items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
-    var mat=G.forge.materials;
-    mat.iron=(mat.iron||0)+1;
-    mat.crystal=(mat.crystal||0)+(floor%10===0?1:0);
-    mat.dragonScale=(mat.dragonScale||0)+(floor%10===0?1:0);
-    var mm='';
-    if(mat.iron>0) mm+=' 🔩'+mat.iron;
-    if(mat.crystal>0) mm+=' 💎'+mat.crystal;
-    if(mat.dragonScale>0) mm+=' 🐉'+mat.dragonScale;
-    if(enemy.isBoss){showNotif('success','🏆 BOSS击败！'+enemy.name+'（'+floor+'层）'+mm);}
-    else{showNotif('success','试练塔 第'+floor+'层：'+mm);}
-    if(typeof playSynthSuccess==='function')playSynthSuccess();
-  }
-  // 玩家HP归0 → 重置试练塔到当前层
-  if(G.towerPlayerHp<=0){
-    showNotif('warn','体力耗尽！试练塔重置到第'+floor+'层');
-    G.towerFloor=floor;G.towerEnemyHp=0;G.towerPlayerHp=maxHp;
+    G.towerEnemyHp=0;
     saveGame();
+    checkAch&&checkAch();
+    // BOSS击败提示
+    if(enemy.isBoss){
+      alert('🏆 BOSS击败！第'+floor+'层 '+enemy.name+'\n+'+(enemy.coins||0)+'💰 '+(enemy.qi||0)+'✨');
+    }
+    playSound&&playSound('merge');
   }
   renderTowerPanel&&renderTowerPanel();
   updateHUD&&updateHUD();
@@ -2358,10 +2223,10 @@ function towerAttack(){
 function towerSweep(){
   if(!G.created) return;
   var floor=G.towerFloor||1;
-  if(floor<=1){showNotif('warn','通关第1层后才能使用扫荡！');return;}
+  if(floor<=1){alert('通关第1层后才能使用扫荡！');return;}
   var sweepMax=Math.max(1,floor-1);
   var sweepCost=Math.round(sweepMax*8);
-  if((G.coins||0)<sweepCost){showNotif('error','金币不足！扫荡需要 '+sweepCost+'💰');return;}
+  if((G.coins||0)<sweepCost){alert('金币不足！扫荡需要 '+sweepCost+'💰');return;}
   G.coins=(G.coins||0)-sweepCost;
   if(!G.forge) G.forge={items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
   if(!G.forge.materials) G.forge.materials={iron:0,crystal:0,dragonScale:0,starDust:0};
@@ -2378,9 +2243,13 @@ function towerSweep(){
   mat.iron=(mat.iron||0)+totalIron;
   mat.crystal=(mat.crystal||0)+totalCrystal;
   mat.dragonScale=(mat.dragonScale||0)+totalDragon;
+  var msg='🌀 扫荡完成！扫描了 1~'+sweepMax+' 层\n\n';
+  msg+='🔩 铁锭 +'+totalIron+'\n';
+  if(totalCrystal>0) msg+='💎 水晶 +'+totalCrystal+'\n';
+  if(totalDragon>0) msg+='🐉 龙鳞 +'+totalDragon;
   saveGame();
   checkAch&&checkAch();
-  var msg='🧹 扫荡完成：🔩'+totalIron+' 💎'+totalCrystal+(totalDragon>0?' 🐉'+totalDragon:'');showNotif('success',msg);
+  alert(msg);
   if(typeof updateHud==='function') updateHud();
 }
 function towerClaimMilestone(idx){
@@ -2393,7 +2262,7 @@ function towerClaimMilestone(idx){
   G.qi=(G.qi||0)+ach.qi;
   G.towerMilestones.push(idx);
   var titleStr=ach.title?' · 称号['+ach.title+']':'';
-  alert('领取成功！\n+'+ach.coins+'💰 '+(ach.qi?'+'+ach.qi+'<span class="qi-icon qi-icon-sm"></span> ':'')+titleStr);
+  alert('领取成功！\n+'+ach.coins+'💰 '+(ach.qi?'+'+ach.qi+'✨ ':'')+titleStr);
   saveGame();
   renderTowerPanel&&renderTowerPanel();
   updateHUD&&updateHUD();
@@ -2445,25 +2314,16 @@ function renderTowerPanel(){
   if(!c) return;
   if(!G||!G.created){c.innerHTML='<div style="padding:40px;text-align:center;color:#666">请先创建角色</div>';return;}
   var floor=G.towerFloor||1;
-  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
-  var playerMaxHp=100+maxLv*5;
-  var playerHp=Math.max(0,G.towerPlayerHp||playerMaxHp);
-  var playerHpPct=Math.max(0,Math.min(100,playerHp/playerMaxHp*100));
   var enemy=getTowerEnemy(floor);
   var curHp=(!G.towerEnemyHp||G.towerEnemyHp===0)?enemy.hp:G.towerEnemyHp;
   var hpPct=Math.max(0,Math.min(100,curHp/enemy.hp*100));
   var playerDmg=getTowerPlayerDmg();
-  var playerDef=getTowerPlayerDef();
-  // 装备属性（含套装加成）
-  var eq=getEquipTotals();
-  var suitEff=getSuitEffect((G.forge||{}).items);
-  var suitTag=suitEff?' <span style="font-weight:700;color:#c8860a;font-size:10px">【'+suitEff.name+'】</span>':'';
+  var maxHp=enemy.hp;
   var boss=enemy.isBoss;
-  var floorTxt=floor>=100?'<span style="font-weight:700;color:#c8860a">巅峰(100层)</span>':'第'+floor+'层';
-  var bossMark=boss?' <span style="color:#c62828">🏆BOSS</span>':'';
+  var floorTxt=floor>=100?'<span style="color:#ffd700">巅峰(100层)</span>':'第'+floor+'层';
+  var bossMark=boss?' <span style="color:#ff6b35">🏆BOSS</span>':'';
   var progPct=Math.min(100,floor/100*100);
   var hpColor=hpPct>50?'#4ade80':hpPct>25?'#fb923c':'#f87171';
-  var phpColor=playerHpPct>60?'#60a5fa':playerHpPct>30?'#fb923c':'#f87171';
   var atkBtn='<button id="towerAtkBtn" onclick="towerAttack()" style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b35,#ff3a3a);color:#fff;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 16px rgba(255,80,80,.4)">⚔️ 发起攻击 (伤害:'+playerDmg+')</button>';
   var sweepMax=Math.max(1,floor-1);
   var sweepBtn='<button id="towerSweepBtn" onclick="towerSweep()" style="width:100%;margin-top:6px;padding:10px 14px;border:1px solid rgba(251,191,36,.4);border-radius:10px;background:rgba(251,191,36,.08);color:#fbbf24;font-size:13px;cursor:pointer;font-weight:600">🌀 扫荡 1~'+sweepMax+'层</button>';
@@ -2473,13 +2333,11 @@ function renderTowerPanel(){
     var claimed=G.towerMilestones&&G.towerMilestones.includes(i);
     var cls='tower-ms-item'+(done?'':' tower-ms-locked')+(claimed?' tower-ms-claimed':'');
     var btn=done&&!claimed?'<button onclick="towerClaimMilestone('+i+')" style="background:#ff6b35;border:none;color:#fff;border-radius:6px;padding:2px 8px;font-size:.75em;cursor:pointer">领取</button>':(claimed?'✅':'🔒');
-    msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="font-weight:700;color:#c8860a">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#0277bd">'+a.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+(a.title?' <span style="color:#7b3fcb">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
+    msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="color:#ffd700">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#a0d8ef">'+a.qi+'✨</span>':'')+(a.title?' <span style="color:#f0abfc">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
   });
   var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px"><div style="font-size:12px;color:#888;margin-bottom:6px">📊 层数里程碑</div>'+msItems+'</div>';
-  var attrHtml=(eq.atk||eq.def||eq.spd)?'<div style="display:flex;justify-content:center;gap:12px;font-size:11px;color:#aaa;margin-bottom:8px">'+(eq.atk?'<span>⚔️ '+eq.atk+'</span>':'')+(eq.def?'<span>🛡️ '+eq.def+'</span>':'')+(eq.spd?'<span>💨 '+eq.spd+'</span>':'')+suitTag+'</div>':'';
-  var playerHpHtml='<div style="margin-top:8px;text-align:center"><div style="font-size:11px;color:#93c5fd;margin-bottom:4px">你的 HP: '+playerHp+' / '+playerMaxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+playerHpPct+'%;background:'+phpColor+';border-radius:4px;transition:width .15s"></div></div></div>';
-  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div>'+attrHtml+'<div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+enemy.hp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="font-weight:700;color:#c8860a">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#0277bd">'+enemy.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+'</div>'+playerHpHtml+'</div>'+
-(floor>=100?'<div style="text-align:center;font-weight:700;color:#c8860a;font-size:13px;padding:10px">🎉 已通关100层！可领取所有里程碑奖励</div>':(atkBtn+sweepBtn))+msHtml+'</div>';
+  var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div><div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+maxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'✨</span>':'')+'</div></div>'+
+(floor>=100?'<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px">🎉 已通关100层！可领取所有里程碑奖励</div>':(atkBtn+sweepBtn))+msHtml+'</div>';
   c.innerHTML=html;
 }
 
@@ -2496,70 +2354,39 @@ if(!G.towerMilestones) G.towerMilestones=[];
 // ═══════════════════════════════════════
 
 var QUALITY_NAMES   = ['普通','稀有','史诗','传说','天命'];
-var QUALITY_COLORS  = ['#666','#1565c0','#7b3fcb','#c8860a','#c62828']; // 普通/稀有/史诗/传说/天命
+var QUALITY_COLORS  = ['#888','#4a9eff','#b44aff','#ff8c00','#ff3333'];
 var QUALITY_COST    = [0, 50, 200, 800, 3000];   // 龙气购买价格
 var QUALITY_CPS_PCT = [0, 10, 25, 50, 100];       // CPS加成百分比
 var QUALITY_QI_PCT  = [0, 5, 15, 35, 70];         // 龙气加成百分比
 
 // 装备类型
-var EQUIP_TYPE_NAME = {helmet:'⛑️ 头盔',armor:'👕 护甲',shoes:'👟 鞋子',sword:'⚔️ 长剑',shield:'🛡️ 护盾',accessory:'💍 饰品'};
+var EQUIP_TYPE_NAME = {weapon:'⚔️武器',armor:'🛡️护甲',accessory:'💍饰品'};
 
 // 制作配方: {id, type, name, quality, iron, crystal, dragonScale, starDust, desc}
 // quality: 0=普通 1=稀有 2=史诗 3=传说 4=天命
-// ── 装备6大类 ──
-// helmet=头盔 armor=护甲 shoes=鞋子 sword=长剑 shield=护盾 accessory=饰品
 var FORGE_RECIPES = [
-  // ── 头盔 ──
-  {id:'h1',type:'helmet',name:'草帽',quality:0,def:4,iron:12,crystal:0,dragonScale:0,starDust:0,desc:'最初的防护'},
-  {id:'h2',type:'helmet',name:'皮帽',quality:0,def:9,iron:35,crystal:3,dragonScale:0,starDust:0,desc:'皮质头盔'},
-  {id:'h3',type:'helmet',name:'铁盔',quality:1,def:18,iron:80,crystal:10,dragonScale:0,starDust:0,desc:'铁制头盔'},
-  {id:'h4',type:'helmet',name:'秘银盔',quality:2,def:38,iron:160,crystal:28,dragonScale:4,starDust:0,desc:'秘银守护'},
-  {id:'h5',type:'helmet',name:'龙鳞盔',quality:3,def:68,iron:250,crystal:60,dragonScale:15,starDust:3,desc:'龙鳞之冠'},
-  {id:'h6',type:'helmet',name:'天命冠',quality:4,def:110,iron:420,crystal:110,dragonScale:38,starDust:14,desc:'天命神冠'},
-  // ── 护甲 ──
-  {id:'a1',type:'armor',name:'布衣',quality:0,def:5,iron:15,crystal:0,dragonScale:0,starDust:0,desc:'基础的防护'},
-  {id:'a2',type:'armor',name:'皮甲',quality:0,def:12,iron:40,crystal:4,dragonScale:0,starDust:0,desc:'皮革护身'},
-  {id:'a3',type:'armor',name:'锁甲',quality:1,def:25,iron:90,crystal:12,dragonScale:0,starDust:0,desc:'铁链编织'},
-  {id:'a4',type:'armor',name:'秘银甲',quality:2,def:48,iron:180,crystal:35,dragonScale:5,starDust:0,desc:'秘银铠甲'},
-  {id:'a5',type:'armor',name:'龙鳞甲',quality:3,def:85,iron:280,crystal:75,dragonScale:18,starDust:4,desc:'龙鳞护体'},
-  {id:'a6',type:'armor',name:'天命甲',quality:4,def:130,iron:450,crystal:140,dragonScale:45,starDust:18,desc:'天命战甲'},
-  // ── 鞋子 ──
-  {id:'s1',type:'shoes',name:'草鞋',quality:0,spd:5,def:2,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'轻盈起步'},
-  {id:'s2',type:'shoes',name:'布靴',quality:0,spd:10,def:5,iron:28,crystal:2,dragonScale:0,starDust:0,desc:'布面短靴'},
-  {id:'s3',type:'shoes',name:'皮靴',quality:1,spd:22,def:10,iron:68,crystal:8,dragonScale:0,starDust:0,desc:'皮制战靴'},
-  {id:'s4',type:'shoes',name:'秘银靴',quality:2,spd:46,def:20,iron:140,crystal:25,dragonScale:3,starDust:0,desc:'秘银快靴'},
-  {id:'s5',type:'shoes',name:'龙鳞靴',quality:3,spd:80,def:38,iron:220,crystal:55,dragonScale:12,starDust:2,desc:'龙鳞之靴'},
-  {id:'s6',type:'shoes',name:'天命靴',quality:4,spd:115,def:60,iron:380,crystal:105,dragonScale:35,starDust:12,desc:'天命飞靴'},
-  // ── 长剑 ──
-  {id:'w1',type:'sword',name:'木剑',quality:0,atk:8,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
-  {id:'w2',type:'sword',name:'铁剑',quality:0,atk:18,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
-  {id:'w3',type:'sword',name:'钢剑',quality:1,atk:35,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
-  {id:'w4',type:'sword',name:'秘银剑',quality:2,atk:60,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
-  {id:'w5',type:'sword',name:'龙鳞剑',quality:3,atk:100,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
-  {id:'w6',type:'sword',name:'天命剑',quality:4,atk:160,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
-  // ── 护盾 ──
-  {id:'d1',type:'shield',name:'木盾',quality:0,def:8,spd:-2,iron:18,crystal:0,dragonScale:0,starDust:0,desc:'简单防护'},
-  {id:'d2',type:'shield',name:'皮盾',quality:0,def:15,spd:-4,iron:45,crystal:4,dragonScale:0,starDust:0,desc:'皮革圆盾'},
-  {id:'d3',type:'shield',name:'铁盾',quality:1,def:30,spd:-5,iron:85,crystal:12,dragonScale:0,starDust:0,desc:'铁制塔盾'},
-  {id:'d4',type:'shield',name:'秘银盾',quality:2,def:58,spd:-6,iron:170,crystal:32,dragonScale:4,starDust:0,desc:'秘银大盾'},
-  {id:'d5',type:'shield',name:'龙鳞盾',quality:3,def:95,spd:-7,iron:260,crystal:68,dragonScale:16,starDust:4,desc:'龙鳞护盾'},
-  {id:'d6',type:'shield',name:'天命盾',quality:4,def:145,spd:-8,iron:420,crystal:125,dragonScale:40,starDust:15,desc:'天命圣盾'},
-  // ── 饰品 ──
-  {id:'j1',type:'accessory',name:'草戒',quality:0,spd:5,atk:2,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
-  {id:'j2',type:'accessory',name:'银戒',quality:0,spd:10,atk:5,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
-  {id:'j3',type:'accessory',name:'玉佩',quality:1,spd:28,atk:12,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
-  {id:'j4',type:'accessory',name:'秘银坠',quality:2,spd:52,atk:24,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
-  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,spd:88,atk:42,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
-  {id:'j6',type:'accessory',name:'天命戒',quality:4,spd:120,atk:65,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
+  // 武器
+  {id:'w1',type:'weapon',name:'木剑',quality:0,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
+  {id:'w2',type:'weapon',name:'铁剑',quality:0,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
+  {id:'w3',type:'weapon',name:'钢剑',quality:1,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
+  {id:'w4',type:'weapon',name:'秘银剑',quality:2,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
+  {id:'w5',type:'weapon',name:'龙鳞剑',quality:3,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
+  {id:'w6',type:'weapon',name:'天命剑',quality:4,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
+  // 护甲
+  {id:'a1',type:'armor',name:'布衣',quality:0,iron:15,crystal:0,dragonScale:0,starDust:0,desc:'基础的防护'},
+  {id:'a2',type:'armor',name:'皮甲',quality:0,iron:40,crystal:4,dragonScale:0,starDust:0,desc:'皮革护身'},
+  {id:'a3',type:'armor',name:'锁甲',quality:1,iron:90,crystal:12,dragonScale:0,starDust:0,desc:'铁链编织'},
+  {id:'a4',type:'armor',name:'秘银甲',quality:2,iron:180,crystal:35,dragonScale:5,starDust:0,desc:'秘银铠甲'},
+  {id:'a5',type:'armor',name:'龙鳞甲',quality:3,iron:280,crystal:75,dragonScale:18,starDust:4,desc:'龙鳞护体'},
+  {id:'a6',type:'armor',name:'天命甲',quality:4,iron:450,crystal:140,dragonScale:45,starDust:18,desc:'天命战甲'},
+  // 饰品
+  {id:'j1',type:'accessory',name:'草戒',quality:0,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
+  {id:'j2',type:'accessory',name:'银戒',quality:0,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
+  {id:'j3',type:'accessory',name:'玉佩',quality:1,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
+  {id:'j4',type:'accessory',name:'秘银坠',quality:2,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
+  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
+  {id:'j6',type:'accessory',name:'天命戒',quality:4,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
 ];
-
-// 装备类型中文名
-var EQUIP_TYPE_NAME={
-  helmet:'头盔', armor:'护甲', shoes:'鞋子',
-  sword:'长剑', shield:'护盾', accessory:'饰品'
-};
-// 装备类型图标
-var EQUIP_TYPE_ICON={helmet:'⛑️',armor:'👕',shoes:'👟',sword:'⚔️',shield:'🛡️',accessory:'💍'};
 
 // 强化消耗：每级需要铁锭和金
 function getForgeEnhanceCost(level) {
@@ -2573,34 +2400,22 @@ function getForgeStarCost(currentStar) {
   return {sameItem: starReq, iron: ironCost};
 }
 
-// 套装效果（2件/4件/6件套）
+// 套装效果
 var SUIT_EFFECTS = {
-  2: {name:'初具雏形',desc:'全属性+5%',cpsBonus:5,atkBonus:5,defBonus:5,spdBonus:5,qiBonus:10},
-  4: {name:'战意凝聚',desc:'全属性+15%',cpsBonus:15,atkBonus:15,defBonus:15,spdBonus:15,qiBonus:20},
-  6: {name:'天命套装',desc:'全属性+30% 金币+30% 龙气+50%',cpsBonus:30,atkBonus:30,defBonus:30,spdBonus:30,qiBonus:50},
+  2: {name:'初具雏形',desc:'全属相碎片掉率+20%',cpsBonus:0,qiBonus:0,shardBonus:20},
+  3: {name:'天命套装',desc:'金币+30% 龙气+50%',cpsBonus:30,qiBonus:50,shardBonus:20},
 };
 
-// 套装数量计算（6类各装备1件=1套，集齐2/4/6类激活对应套装）
-function countSuits(items){
-  if(!items||!items.length) return{helmet:false,armor:false,shoes:false,sword:false,shield:false,accessory:false,total:0};
-  var TYPES=['helmet','armor','shoes','sword','shield','accessory'];
-  var equipped={};
-  TYPES.forEach(function(t){equipped[t]=false;});
-  for(var i=0;i<items.length;i++){if(items[i].equipped) equipped[items[i].type]=true;}
-  var total=0;TYPES.forEach(function(t){if(equipped[t])total++;});
-  equipped.total=total;
-  return equipped;
-}
-function getSuitLevel(items){
-  var n=(countSuits(items).total)||0;
-  if(n>=6)return 6;
-  if(n>=4)return 4;
-  if(n>=2)return 2;
-  return 0;
-}
-function getSuitEffect(items){
-  var lv=getSuitLevel(items);
-  return lv?SUIT_EFFECTS[lv]:null;
+// 套装数量计算（每套=同品质3件类型各1个，任意等级/星）
+function countSuits(items) {
+  if(!items || !items.length) return {weapon:false,armor:false,accessory:false,total:0};
+  var equipped = {weapon:false,armor:false,accessory:false};
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    if(it.equipped) equipped[it.type] = true;
+  }
+  var total = (equipped.weapon?1:0)+(equipped.armor?1:0)+(equipped.accessory?1:0);
+  return {weapon:equipped.weapon,armor:equipped.armor,accessory:equipped.accessory,total:total};
 }
 
 // ═══════════════════════════════════════
@@ -2623,8 +2438,7 @@ function renderForgePanel(){
   if(!c)return;
   var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
   var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
-  var suitLv=getSuitLevel(fm.items);
-  var suitEff=getSuitEffect(fm.items);
+  var suits=countSuits(fm.items);
   var html='';
 
   // 材料栏
@@ -2632,30 +2446,21 @@ function renderForgePanel(){
     '<span class="mat-chip">🔩铁锭: '+mat.iron+'</span>'+
     '<span class="mat-chip">💎水晶: '+mat.crystal+'</span>'+
     '<span class="mat-chip">🐉龙鳞: '+mat.dragonScale+'</span>'+
-    '<span class="mat-chip"><span class="qi-icon qi-icon-sm"></span>星尘: '+mat.starDust+'</span>'+
+    '<span class="mat-chip">✨星尘: '+mat.starDust+'</span>'+
     '</div>';
 
   // 套装状态
   var suitHtml='';
-  if(suitLv===6) suitHtml='<div class="suit-banner">👑 天命套装已激活！'+suitEff.desc+'</div>';
-  else if(suitLv===4) suitHtml='<div class="suit-banner suit-2">⚙️ 战意凝聚已激活（4/6件）</div>';
-  else if(suitLv===2) suitHtml='<div class="suit-banner suit-2">⚙️ 初具雏形已激活（2/6件）</div>';
-  else {var tc=countSuits(fm.items);var tn=tc.total||0;suitHtml+='<div class="suit-progress">已装备 '+tn+'/6 件（集齐2件激活套装）</div>';}
+  if(suits.total>=3) suitHtml='<div class="suit-banner">👑 天命套装已激活！'+SUIT_EFFECTS[3].desc+'</div>';
+  else if(suits.total>=2) suitHtml='<div class="suit-banner suit-2">⚙️ 初具雏形已激活（'+suits.total+'/3件）</div>';
+  else suitHtml+='<div class="suit-progress">已装备 '+suits.total+'/3 件（集齐3件激活套装）</div>';
   html+=suitHtml;
 
-  // 标签切换（全局Tab + 装备分类快捷入口）
+  // 标签切换
   html+='<div class="forge-tabs" id="forgeTabs">'+
-    '<button class="forge-tab'+( _forgeTab==='craft'?' active':'')+'" onclick="switchForgeTab(\'craft\',event)">📜 制作台</button>'+
-    '<button class="forge-tab'+( _forgeTab==='inventory'?' active':'')+'" onclick="switchForgeTab(\'inventory\',event)">🎒 背包 ('+(fm.items?fm.items.length:0)+')</button>'+
-    '<button class="forge-tab'+( _forgeTab==='enhance'?' active':'')+'" onclick="switchForgeTab(\'enhance\',event)">⚡ 强化</button>'+
-    '</div>'+
-    '<div class="forge-eq-quick">'+
-    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'helmet'+'\')">⛑️</button>'+
-    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'armor'+'\')">👕</button>'+
-    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'shoes'+'\')">👟</button>'+
-    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'sword'+'\')">⚔️</button>'+
-    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'shield'+'\')">🛡️</button>'+
-    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'accessory'+'\')">💍</button>'+
+    '<button class="forge-tab active" onclick="switchForgeTab(\'craft\')">📜 制作台</button>'+
+    '<button class="forge-tab" onclick="switchForgeTab(\'inventory\')">🎒 背包 ('+(fm.items?fm.items.length:0)+')</button>'+
+    '<button class="forge-tab" onclick="switchForgeTab(\'enhance\')">⚡ 强化</button>'+
     '</div>';
 
   // 内容区
@@ -2673,7 +2478,7 @@ function renderForgeCraft(fm,mat){
     var color=QUALITY_COLORS[r.quality];
     html+='<div class="forge-recipe '+(can?'can-craft':'')+'" style="border-left:4px solid '+color+'">'+
       '<div class="recipe-name" style="color:'+color+'">'+r.name+' <span style="font-size:11px;color:#888">'+EQUIP_TYPE_NAME[r.type]+'</span></div>'+
-      '<div class="recipe-cost">🔩'+r.iron+' 💎'+r.crystal+' 🐉'+r.dragonScale+' <span class="qi-icon qi-icon-sm"></span>'+r.starDust+'</div>'+
+      '<div class="recipe-cost">🔩'+r.iron+' 💎'+r.crystal+' 🐉'+r.dragonScale+' ✨'+r.starDust+'</div>'+
       '<div class="recipe-desc">'+r.desc+'</div>'+
       '<button class="forge-btn '+(can?'active':'disabled')+'" onclick="craftForgeItem(\''+r.id+'\')">'+(can?'🔨 制作':'材料不足')+'</button>'+
       '</div>';
@@ -2681,64 +2486,39 @@ function renderForgeCraft(fm,mat){
   return html;
 }
 
-function renderForgeInventory(fm,filter){
+function renderForgeInventory(fm){
   var items=fm.items||[];
-  if(filter&&filter!=='all') items=items.filter(function(it){return it.type===filter;});
   if(!items.length){
     return '<div class="forge-empty">🎒 背包空空， 去制作装备吧！</div>';
   }
-  var html='<div class="forge-section-title">🎒 背包 ('+items.length+'件)</div>';
-  html+='<div class="forge-eq-tabs">';
-  var types=['all','helmet','armor','shoes','sword','shield','accessory'];
-  var icons={all:'全部',helmet:'⛑️',armor:'👕',shoes:'👟',sword:'⚔️',shield:'🛡️',accessory:'💍'};
-  types.forEach(function(t){
-    html+='<button class="forge-eq-tab'+(filter===t||(!filter&&t==='all')?' active':'')+'" onclick="filterForgeEquip(\''+t+'\')">'+icons[t]+'</button>';
-  });
-  html+='</div><div class="forge-items-grid">';
+  var html='<div class="forge-section-title">🎒 背包 ('+items.length+'件)</div><div class="forge-items-grid">';
   for(var i=0;i<items.length;i++){
     var it=items[i];
     var color=QUALITY_COLORS[it.quality];
     var maxLv=10+it.star*3;
-    var attrHtml='<div class="fi-attr" style="font-size:11px;margin:3px 0 2px;color:#aaa">'+
-      (it.atk?'<span style="color:#f87171">⚔️+'+it.atk+'</span> ':'')+
-      (it.def?'<span style="color:#60a5fa">🛡️+'+it.def+'</span> ':'')+
-      (it.spd?'<span style="color:#86efac">💨+'+it.spd+'</span> ':'')+'</div>';
-    html+='<div class="forge-item '+(it.equipped?'equipped':'')+'" data-item-id="'+it.id+'" style="border-color:'+color+'">'+
+    html+='<div class="forge-item '+(it.equipped?'equipped':'')+'" style="border-color:'+color+'">'+
       '<div class="fi-name" style="color:'+color+'">'+it.name+'</div>'+
       '<div class="fi-info">⭐'+it.star+' ★Lv.'+it.level+'/'+maxLv+'</div>'+
-      attrHtml+
       '<div class="fi-type">'+EQUIP_TYPE_NAME[it.type]+'</div>'+
       '<div class="fi-btns">'+
-        '<button class="fi-btn '+(it.equipped?'active':'disabled')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
-        '<button class="fi-btn active" onclick="openEnhanceForItem(\''+it.id+'\')">⚡强化</button>'+
-        '<button class="fi-btn" onclick="unequipForgeItem(\''+it.id+'\')">卸下</button>'+
+        '<button class="fi-btn '+(it.equipped?'':'active')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
+        '<button class="fi-btn active" onclick="openEnhanceForItem(\''+it.id+'\')">强化</button>'+
         '</div></div>';
   }
   html+='</div>';
   return html;
 }
 
-function renderForgeEnhance(fm,mat,filter){
+function renderForgeEnhance(fm,mat){
   if(!fm.items||!fm.items.length) return '<div class="forge-empty">先制作装备再来强化！</div>';
-  var items=fm.items;
-  if(filter&&filter!=='all') items=items.filter(function(it){return it.type===filter;});
-  var html='<div class="forge-section-title">⚡ 选择装备强化</div>';
-  // 分类筛选栏
-  html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
-  var types=['all','helmet','armor','shoes','sword','shield','accessory'];
-  var icons={all:'全部',helmet:'⛑️',armor:'👕',shoes:'👟',sword:'⚔️',shield:'🛡️',accessory:'💍'};
-  types.forEach(function(t){
-    var active=((_forgeEnhanceFilter||'all')===t)?'style="background:rgba(200,168,10,.25);color:#c8860a"':'';
-    html+='<button class="forge-btn '+((_forgeEnhanceFilter||'all')===t?'active':'')+'" '+active+' onclick="filterForgeEnhance(\''+t+'\')">'+icons[t]+'</button>';
-  });
-  html+='</div><div class="forge-items-list">';
-  for(var i=0;i<items.length;i++){
-    var it=items[i];
+  var html='<div class="forge-section-title">⚡ 选择装备强化</div><div class="forge-items-list">';
+  for(var i=0;i<fm.items.length;i++){
+    var it=fm.items[i];
     var color=QUALITY_COLORS[it.quality];
     var maxLv=10+it.star*3;
     var cost=getForgeEnhanceCost(it.level+1);
     var canEnhance=it.level<maxLv&&mat.iron>=cost.iron&&G.coins>=cost.coin;
-    html+='<div class="forge-list-item" data-item-id="'+it.id+'" style="border-left:3px solid '+color+'">'+
+    html+='<div class="forge-list-item" style="border-left:3px solid '+color+'">'+
       '<div class="li-name" style="color:'+color+'">'+it.name+' ⭐'+it.star+' Lv.'+it.level+'/'+maxLv+'</div>'+
       '<div class="li-cost">强化消耗: 🔩'+cost.iron+' 💰'+cost.coin+'</div>'+
       '<div class="li-btns">'+
@@ -2750,36 +2530,16 @@ function renderForgeEnhance(fm,mat,filter){
   return html;
 }
 
-// 全局制作台Tab状态（跨刷新保持）
-var _forgeTab='craft';
-var _forgeEquipFilter='all';
-
-// 强化Tab分类筛选
-var _forgeEnhanceFilter='all';
-function filterForgeEnhance(type){
-  _forgeEnhanceFilter=type;
-  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
-  var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
-  var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeEnhance(fm,mat,_forgeEnhanceFilter);
-}
-function switchForgeTab(tab,e){
-  _forgeTab=tab;
+function switchForgeTab(tab){
   document.querySelectorAll('.forge-tab').forEach(function(b){b.classList.remove('active');});
-  if(e&&e.currentTarget)e.currentTarget.classList.add('active');
+  event.target.classList.add('active');
   var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
   var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
   var body=document.getElementById('forgeBody');
   if(!body)return;
   if(tab==='craft') body.innerHTML=renderForgeCraft(fm,mat);
-  else if(tab==='inventory') body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
-  else if(tab==='enhance') body.innerHTML=renderForgeEnhance(fm,mat,_forgeEnhanceFilter||'all');
-}
-function filterForgeEquip(type){
-  _forgeEquipFilter=type;
-  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
-  var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
+  else if(tab==='inventory') body.innerHTML=renderForgeInventory(fm);
+  else if(tab==='enhance') body.innerHTML=renderForgeEnhance(fm,mat);
 }
 
 function craftForgeItem(recipeId){
@@ -2793,16 +2553,11 @@ function craftForgeItem(recipeId){
   }
   mat.iron-=r.iron; mat.crystal-=r.crystal; mat.dragonScale-=r.dragonScale; mat.starDust-=r.starDust;
   if(!fm.items)fm.items=[];
-  var newItem={id:Date.now()+'_'+r.id,itemId:r.id,name:r.name,type:r.type,quality:r.quality,star:1,level:1,equipped:false};
-  if(r.atk) newItem.atk=r.atk;
-  if(r.def) newItem.def=r.def;
-  if(r.spd) newItem.spd=r.spd;
-  fm.items.push(newItem);
+  fm.items.push({id:Date.now()+'_'+r.id,itemId:r.id,name:r.name,type:r.type,quality:r.quality,star:1,level:1,equipped:false});
   fm.totalCrafts=(fm.totalCrafts||0)+1;
   G.forge=fm;
   saveGame();updateHud();renderForgePanel();
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  showNotif('success','制作成功！获得 '+r.name+'（'+EQUIP_TYPE_NAME[r.type]+'）');
+  showNotif('success','制作成功！获得 '+r.name);
   playSound('merge');
 }
 
@@ -2820,16 +2575,9 @@ function enhanceForgeItem(itemId){
   mat.iron-=cost.iron;
   it.level++;
   G.forge=fm;
-  saveGame();updateHud();
-  if(typeof playEnhanceSfx==='function')playEnhanceSfx();
+  saveGame();updateHud();renderForgePanel();
   showNotif('success','强化成功！'+it.name+' → Lv.'+it.level);
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeEnhance(fm,mat,_forgeEnhanceFilter||'all');
-  setTimeout(function(){
-    var el=document.querySelector('[data-item-id="'+it.id+'"]');
-    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.filter='brightness(1.4)';setTimeout(function(){el.style.filter='';},600);}
-  },80);
+  playSound('merge');
 }
 
 function starUpForgeItem(itemId){
@@ -2844,613 +2592,22 @@ function starUpForgeItem(itemId){
   mat2.iron-=cost.iron;
   it.star++;
   G.forge=fm;
-  saveGame();updateHud();
-  if(typeof playSynthSuccess==='function')playSynthSuccess();
-  showNotif('success','升星成功！⭐ '+it.star+'星 '+starMult(it.star)+'×产金倍率');
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeEnhance(fm,mat2,_forgeEnhanceFilter||'all');
-  setTimeout(function(){
-    var el=document.querySelector('[data-item-id="'+it.id+'"]');
-    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.filter='brightness(1.4)';setTimeout(function(){el.style.filter='';},600);}
-  },80);
+  saveGame();updateHud();renderForgePanel();
+  showNotif('success','升星成功！⭐ '+it.star+'星');
+  playSound('summon');
 }
 
-
-// 卸下装备（不穿新装备，停留当前背包分类）
-function unequipForgeItem(itemId){
-  var fm=G.forge||{items:[]};
-  var it=null;
-  for(var i=0;i<fm.items.length;i++){
-    if(fm.items[i].id===itemId){it=fm.items[i];break;}
-  }
-  if(!it){showNotif('error','装备不存在');return;}
-  it.equipped=false;
-  G.forge=fm;
-  saveGame();updateHud();
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
-  showNotif('info',it.name+' 已卸下');
-}
-
-// // 从背包快捷跳转强化（先切Tab再刷新强化列表）
-function openEnhanceForItem(itemId){
-  _forgeTab='enhance';
-  _forgeEnhanceFilter='all';
-  switchForgeTab('enhance');
-  setTimeout(function(){
-    var el=document.querySelector('[data-item-id="'+itemId+'"]');
-    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.filter='brightness(1.3)';setTimeout(function(){el.style.filter='';},800);}
-  },100);
-}
-
-// 穿戴装备：同类型互斥（穿一件自动卸下同类型其他装备）
 function equipForgeItem(itemId){
   var fm=G.forge||{items:[]};
-  var targetItem=null;
   for(var i=0;i<fm.items.length;i++){
-    if(fm.items[i].id===itemId){targetItem=fm.items[i];break;}
-  }
-  if(!targetItem){showNotif('error','装备不存在');return;}
-  var newState=!targetItem.equipped;
-  if(newState){
-    // 先卸下同类型其他装备
-    for(var i=0;i<fm.items.length;i++){
-      if(fm.items[i].type===targetItem.type) fm.items[i].equipped=false;
+    if(fm.items[i].id===itemId){
+      fm.items[i].equipped=!fm.items[i].equipped;
+      var newState=fm.items[i].equipped;
+      showNotif(newState?'success':'info',fm.items[i].name+' '+(newState?'[已装备]':'[已卸下]'));
+    } else {
+      fm.items[i].equipped=false;
     }
   }
-  targetItem.equipped=newState;
   G.forge=fm;
-  saveGame();updateHud();try{updateHeroSection&&updateHeroSection();}catch(e){}
-  showNotif(newState?'success':'info',targetItem.name+' '+(newState?'[已装备]':'[已卸下]'));
-  // 刷新灵兽/套装全局属性
-  try{updateHeroSection&&updateHeroSection();}catch(e){}
-  // 停留背包Tab，刷新当前分类
-  var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
-}
-
-// ============================================================
-// 云端账号系统
-// ============================================================
-const CLOUD_API = "https://47.105.41.23/api";
-// ══════════════════════════════════════════════════════════════
-// 小程序 / 平台适配层
-// 隐私：后台仅存储 userId（openid 经 SHA-256 哈希），不保留原始 openid
-// ══════════════════════════════════════════════════════════════
-
-// 检测当前平台（微信=wechat / 抖音=douyin / 快手=kuaishou / 浏览器=unknown）
-var _platform = (function(){
-  var ua = navigator.userAgent.toLowerCase();
-  if (/micromessenger/.test(ua)) return 'wechat';
-  if (/douyin/.test(ua) || /aweme/.test(ua)) return 'douyin';
-  if (/ksweb|kuaishou/.test(ua)) return 'kuaishou';
-  return 'unknown';
-})();
-
-// 平台 SDK Mock（各小程序环境替换为真实 SDK 调用）
-var _platformSdk = {
-  // 获取 openid（静默授权）
-  getOpenId: function(callback) {
-    if (_platform === 'unknown') {
-      // 浏览器环境：生成随机 anonymousId 存储本地
-      var aid = localStorage.getItem('sxgame_anon_id') || (function(){
-        var a = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
-          var r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8);
-          return v.toString(16);
-        });
-        localStorage.setItem('sxgame_anon_id', a);
-        return a;
-      })();
-      setTimeout(function(){ callback(null, aid); }, 0);
-      return;
-    }
-    // 微信：wx.login() → code → 后端换 openid
-    if (_platform === 'wechat' && typeof wx !== 'undefined') {
-      wx.login({ success: function(res){
-        var code = res.code;
-        // 调用后端 /auth/wechat/code → {openid, session_key}
-        cloudFetchRaw('POST', '/auth/wechat/code', {code: code}).then(function(r){
-          callback(null, r.openid);
-        }).catch(function(e){ callback(e); });
-      }, fail: function(){ callback(new Error('wx.login失败')); }});
-      return;
-    }
-    // 抖音：tt.login() → 换取 openid
-    if (_platform === 'douyin' && typeof tt !== 'undefined') {
-      tt.login({ success: function(res){
-        var code = res.code;
-        cloudFetchRaw('POST', '/auth/douyin/code', {code: code}).then(function(r){
-          callback(null, r.openid);
-        }).catch(function(e){ callback(e); });
-      }, fail: function(){ callback(new Error('tt.login失败')); }});
-      return;
-    }
-    // 快手：ks.login() → 换取 openid
-    if (_platform === 'kuaishou' && typeof ks !== 'undefined') {
-      ks.login({ success: function(res){
-        var code = res.code;
-        cloudFetchRaw('POST', '/auth/kuaishou/code', {code: code}).then(function(r){
-          callback(null, r.openid);
-        }).catch(function(e){ callback(e); });
-      }, fail: function(){ callback(new Error('ks.login失败')); }});
-      return;
-    }
-    setTimeout(function(){ callback(null, 'mock_' + _platform + '_' + Date.now()); }, 100);
-  },
-
-  // 主动获取用户信息（需用户授权）
-  getUserInfo: function(callback) {
-    if (_platform === 'unknown') {
-      callback(null, { nickname: '游客' + String(Math.floor(Math.random()*9000)+1000), avatar: '' });
-      return;
-    }
-    if (_platform === 'wechat' && typeof wx !== 'undefined') {
-      wx.getUserProfile({ desc: '用于存档同步', success: function(res){
-        callback(null, { nickname: res.userInfo.nickName, avatar: res.userInfo.avatarUrl });
-      }, fail: function(){ callback(new Error('用户拒绝授权')); }});
-      return;
-    }
-    if (_platform === 'douyin' && typeof tt !== 'undefined') {
-      tt.getUserInfo({ success: function(res){ callback(null, res.userInfo); },
-        fail: function(){ callback(new Error('用户拒绝授权')); }});
-      return;
-    }
-    callback(null, { nickname: '玩家' + String(Math.floor(Math.random()*9000)+1000), avatar: '' });
-  }
-};
-
-// ── userId 生成：SHA-256(openid + secret) 取前32位 ──
-function _sha256Hex(str) {
-  // 简单实现：用 btoa + 自定义混淆（无外部依赖）
-  // 生产环境替换为后端计算，前端只存 userId 不碰明文 openid
-  var s = str + (typeof CLOUD_SECRET !== 'undefined' ? CLOUD_SECRET : '');
-  var h = 0;
-  for (var i = 0; i < s.length; i++) {
-    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-    h = h & h; // 强制32位
-  }
-  // 简单确定性 hash → 16位 hex × 2 = 32位 userId
-  var abs = Math.abs(h);
-  var hex = Math.pow(abs + 1, 0.5).toString(16).replace('.','') +
-            (abs * 7 + 13).toString(16).replace('.','') +
-            (abs * 3 + 5).toString(16).replace('.','') +
-            (abs * 11 + 17).toString(16).replace('.','');
-  return hex.substring(0, 32);
-}
-
-// 生成或获取 userId（静默，不弹窗）
-function _getOrCreateUserId(callback) {
-  var cached = localStorage.getItem(CLOUD_USERID_KEY);
-  if (cached) { callback(null, cached); return; }
-  _platformSdk.getOpenId(function(err, openid) {
-    if (err || !openid) {
-      // 无 openid 也生成一个（匿名玩家）
-      var fallback = 'anon_' + _platform + '_' + Date.now();
-      var uid = _sha256Hex(fallback + (typeof CLOUD_SECRET !== 'undefined' ? CLOUD_SECRET : 'default'));
-      localStorage.setItem(CLOUD_USERID_KEY, uid);
-      callback(null, uid);
-      return;
-    }
-    var uid = _sha256Hex(openid + _platform + (typeof CLOUD_SECRET !== 'undefined' ? CLOUD_SECRET : 'default'));
-    localStorage.setItem(CLOUD_USERID_KEY, uid);
-    callback(null, uid);
-  });
-}
-
-// ── cloudFetch：带 userId 的统一请求 ──
-function cloudFetchRaw(method, path, body) {
-  var opts = { method: method, headers: {'Content-Type':'application/json'} };
-  if (body) opts.body = JSON.stringify(body);
-  return fetch(CLOUD_API + path, opts).then(function(r){ return r.json(); });
-}
-
-async function _cloudFetch(method, path, body) {
-  var userId = localStorage.getItem(CLOUD_USERID_KEY) || '';
-  var extra = {};
-  if (userId) extra['X-UserId'] = userId;
-  var opts = {
-    method: method,
-    headers: Object.assign({'Content-Type':'application/json'}, extra)
-  };
-  if (body) opts.body = JSON.stringify(body);
-  try {
-    var r = await fetch(CLOUD_API + path, opts);
-    return await r.json();
-  } catch(e) {
-    return {code:-1, msg:'网络异常'};
-  }
-}
-
-
-
-// 打开云端面板
-// ── 打开云端面板（登录/退出/切换账号）──────────────
-function openCloudPanel() {
-  var panel = document.getElementById("cloudPanel");
-  if (!panel) return;
-  document.getElementById("cloudError").style.display = "none";
-
-  var isLoggedIn = !!(G._cloudPlayerId || localStorage.getItem(CLOUD_USERID_KEY));
-
-  if (isLoggedIn) {
-    // 已登录：显示账号信息 + 退出 + 切换账号
-    var uid = localStorage.getItem(CLOUD_USERID_KEY) || '';
-    var shortId = uid ? uid.substring(0, 8) + '***' : '已登录';
-    document.getElementById("cloudPhone").value = shortId;
-    document.getElementById("cloudPhone").disabled = true;
-    document.getElementById("cloudPwd").style.display = "none";
-    document.getElementById("cloudSubmitBtn").textContent = "退出登录";
-    document.getElementById("cloudTabLogin").style.display = "none";
-    document.getElementById("cloudTabReg").style.display = "none";
-  } else {
-    // 未登录：显示登录选项（微信/抖音/快手）
-    document.getElementById("cloudPhone").value = "";
-    document.getElementById("cloudPhone").disabled = true;
-    document.getElementById("cloudPwd").style.display = "none";
-    document.getElementById("cloudSubmitBtn").textContent = "授权登录";
-    document.getElementById("cloudTabLogin").style.display = "none";
-    document.getElementById("cloudTabReg").style.display = "none";
-    switchCloudTab("login");
-  }
-  panel.classList.add("open");
-}
-
-// 关闭云端面板
-function closeCloudPanel() {
-  document.getElementById("cloudPanel").classList.remove("open");
-}
-
-// 切换登录/注册标签
-// ── 切换登录/注册 Tab（简化，仅微信登录）─────────
-function switchCloudTab(tab) {
-  var lbtn = document.getElementById("cloudTabLogin");
-  var rbtn = document.getElementById("cloudTabReg");
-  if (tab === "login") {
-    if (lbtn) lbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;font-weight:700;color:#c8860a;font-size:14px;cursor:pointer;display:none;";
-    if (rbtn) rbtn.style.display = "none";
-  } else {
-    if (rbtn) rbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;font-weight:700;color:#c8860a;font-size:14px;cursor:pointer;display:none;";
-    if (lbtn) lbtn.style.display = "none";
-  }
-}
-
-// 提交登录/注册表单
-// ── 云端面板提交（退出/静默授权登录）─────────────
-async function cloudSubmit() {
-  var panel = document.getElementById("cloudPanel");
-  var btn = document.getElementById("cloudSubmitBtn");
-  var errEl = document.getElementById("cloudError");
-  var isLogout = (btn.textContent === "退出登录");
-
-  // ── 退出登录 ──
-  if (isLogout) {
-    btn.disabled = true;
-    btn.textContent = "正在退出...";
-    G._cloudPlayerId = null;
-    G._cloudPhone = null;
-    localStorage.removeItem(CLOUD_USERID_KEY);
-    localStorage.removeItem(CLOUD_TOKEN_KEY);
-    localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-    try{updateHeroSection && updateHeroSection();}catch(e){}
-    closeCloudPanel();
-    showToast("已退出登录", "#888");
-    btn.disabled = false;
-    btn.textContent = "授权登录";
-    return;
-  }
-
-  // ── 静默授权登录（微信/抖音/快手）──
-  btn.disabled = true;
-  btn.textContent = "正在授权...";
-  errEl.style.display = "none";
-
-  try {
-    _getOrCreateUserId(function(err, userId) {
-      if (err || !userId) {
-        // 静默失败（无网络/用户拒绝）：生成匿名存档
-        console.warn("静默登录失败，使用匿名存档", err);
-        G._cloudPlayerId = 'anon_' + _platform + '_' + Date.now();
-        localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-        closeCloudPanel();
-        btn.disabled = false; btn.textContent = "授权登录";
-        showToast("无网络，使用本地存档", "#c8860a");
-        return;
-      }
-      G._cloudPlayerId = userId;
-      localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-      // 尝试上传本地存档到云端
-      cloudSaveToServer(true).then(function(res) {
-        closeCloudPanel();
-        btn.disabled = false; btn.textContent = "授权登录";
-        if (res && res.code === 0) {
-          showToast("☁️ 已登录并同步", "#4ade80");
-        } else {
-          showToast("☁️ 已登录（本地存档）", "#c8860a");
-        }
-        try{updateHeroSection && updateHeroSection();}catch(e){}
-      }).catch(function(e2) {
-        closeCloudPanel();
-        btn.disabled = false; btn.textContent = "授权登录";
-        showToast("☁️ 已登录（云端同步失败）", "#c8860a");
-        try{updateHeroSection && updateHeroSection();}catch(e){}
-      });
-    });
-  } catch(e) {
-    errEl.textContent = "授权失败，请重试"; errEl.style.display = "";
-    btn.disabled = false; btn.textContent = "授权登录";
-  }
-}
-
-// 云端存档（每次大操作后自动调用，完整保存）
-async function cloudSave(quiet) {
-  if (!G._cloudPlayerId) return;
-  try {
-    await cloudSaveToServer(!!quiet);
-    if (!quiet) showToast("☁️ 已同步", "#4ade80");
-  } catch(e) {
-    if (!quiet) showToast("同步失败", "#ff6b6b");
-  }
-}
-
-// 主动保存到云端（带loading提示）
-// ── 云端存档（全量序列化）──────────────────────────
-// 存档包含：灵兽、装备、命格、命造、试炼塔、任务、活动、设置
-async function cloudSaveToServer(quiet) {
-  if (!G._cloudPlayerId) return;
-  var userId = localStorage.getItem(CLOUD_USERID_KEY) || G._cloudPlayerId;
-  var gameData = {
-    // ── 基础资源 ──
-    coins: G.coins || 0,
-    totalCoinsEarned: G.totalCoinsEarned || G.coins || 0,
-    dragonQi: G.dragonQi || 0,
-    dragonPower: G.dragonPower || 0,     // 龙气
-    gems: G.gems || 0,                   // 钻石/龙气瓶
-    cultivation: G.cultivation || {mu:0,huo:0,tu:0,kin:0,shui:0}, // 命造
-
-    // ── 灵兽 ──
-    dragons: G.dragons || [],
-    mergeCount: G.mergeCount || 0,
-    summonCount: G.summonCount || 0,
-
-    // ── 身份 ──
-    zodiac: G.zodiac ?? -1,
-    fate: G.fate ?? -1,
-    currentFate: G.currentFate ?? 3,
-    unlockedAtlas: G.unlockedAtlas || [],
-    unlockedSkins: G.unlockedSkins || [],   // 解锁皮肤
-
-    // ── 装备系统 ──
-    forge: G.forge || {items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}},
-    equippedSlots: G.equippedSlots || {},    // 穿戴槽位 {helmet:itemId, ...}
-    suitBonus: G.suitBonus || {},            // 套装效果激活记录
-
-    // ── 试炼塔 ──
-    towerFloor: G.towerFloor || 1,
-    towerBest: G.towerBest || 1,
-    towerPlayerHp: G.towerPlayerHp || 0,
-
-    // ── 活跃系统 ──
-    signDays: G.signDays || 0,
-    achievements: G.achievements || [],
-    signRecord: G.signRecord || {},         // 签到记录 {date: true}
-
-    // ── 命格/命造（进阶） ──
-    constellation: G.constellation || {},  // 命格点星图进度
-
-    // ── 任务系统 ──
-    tasks: G.tasks || {},
-    lastTaskDate: G.lastTaskDate || '',
-    _qiSpentDaily: G._qiSpentDaily || 0,
-
-    // ── 试炼塔特殊奖励 ──
-    towerRewards: G.towerRewards || {},     // 已领取层奖励记录
-    towerBossHp: G.towerBossHp || {},       // boss 血量记录
-
-    // ── 命造时间戳 ──
-    lastQiTime: G.lastQiTime || Date.now(),
-    lastFateDate: G.lastFateDate || '',
-    lastFreeDate: G.lastFreeDate || '',
-    freeLeft: G.freeLeft || 3,
-
-    // ── 存档版本 ──
-    _version: 2,                            // 存档格式版本（升级判断用）
-    _savedAt: Date.now()
-  };
-  var res = await _cloudFetch("POST", "/game/save", {
-    player_id: userId,
-    userId: userId,
-    game_data: gameData
-  });
-  return res;
-}
-
-// 加载云端存档覆盖本地
-// ── 云端读取（全量恢复）──────────────────────────
-// 返回 {hasData, localNewer} 用于 UI 判断冲突
-async function cloudLoadFromServer(quiet) {
-  if (!G._cloudPlayerId) return;
-  var userId = localStorage.getItem(CLOUD_USERID_KEY) || G._cloudPlayerId;
-  var res = await _cloudFetch("GET", "/game/load/" + userId);
-  if (res.code !== 0 || !res.game_data) return;
-
-  var d = res.game_data;
-  var localTs = G._savedAt || 0;
-  var cloudTs = d._savedAt || 0;
-
-  // 云端无数据，跳过
-  if (!cloudTs) return;
-
-  // 云端比本地旧：保留本地
-  if (cloudTs < localTs) {
-    if (!quiet) showToast("☁️ 本地存档更新，已保留", "#c8860a");
-    return;
-  }
-
-  // ── 全量恢复 ──
-  if (d.coins !== undefined) G.coins = d.coins;
-  if (d.totalCoinsEarned !== undefined) G.totalCoinsEarned = d.totalCoinsEarned;
-  if (d.dragonQi !== undefined) G.dragonQi = d.dragonQi;
-  if (d.dragonPower !== undefined) G.dragonPower = d.dragonPower;
-  if (d.gems !== undefined) G.gems = d.gems;
-  if (d.cultivation !== undefined) G.cultivation = d.cultivation;
-  if (d.dragons !== undefined) G.dragons = d.dragons;
-  if (d.mergeCount !== undefined) G.mergeCount = d.mergeCount;
-  if (d.summonCount !== undefined) G.summonCount = d.summonCount;
-  if (d.zodiac !== undefined) G.zodiac = d.zodiac;
-  if (d.fate !== undefined) G.fate = d.fate;
-  if (d.currentFate !== undefined) G.currentFate = d.currentFate;
-  if (d.unlockedAtlas !== undefined) G.unlockedAtlas = d.unlockedAtlas;
-  if (d.unlockedSkins !== undefined) G.unlockedSkins = d.unlockedSkins;
-
-  // ── 装备系统 ──
-  if (d.forge !== undefined) G.forge = d.forge;
-  if (d.equippedSlots !== undefined) G.equippedSlots = d.equippedSlots;
-  if (d.suitBonus !== undefined) G.suitBonus = d.suitBonus;
-
-  // ── 试炼塔 ──
-  if (d.towerFloor !== undefined) G.towerFloor = d.towerFloor;
-  if (d.towerBest !== undefined) G.towerBest = d.towerBest;
-  if (d.towerPlayerHp !== undefined) G.towerPlayerHp = d.towerPlayerHp;
-  if (d.towerRewards !== undefined) G.towerRewards = d.towerRewards;
-
-  // ── 活跃系统 ──
-  if (d.signDays !== undefined) G.signDays = d.signDays;
-  if (d.achievements !== undefined) G.achievements = d.achievements;
-  if (d.signRecord !== undefined) G.signRecord = d.signRecord;
-
-  // ── 任务系统 ──
-  if (d.tasks !== undefined) G.tasks = d.tasks;
-  if (d.lastTaskDate !== undefined) G.lastTaskDate = d.lastTaskDate;
-  if (d._qiSpentDaily !== undefined) G._qiSpentDaily = d._qiSpentDaily;
-
-  // ── 命格/命造 ──
-  if (d.constellation !== undefined) G.constellation = d.constellation;
-
-  // ── 元数据 ──
-  if (d._savedAt !== undefined) G._savedAt = d._savedAt;
-
-  localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-  saveGame();
-  updateHud();
-  // 刷新灵兽区域（属性可能因装备变化）
-  try{updateHeroSection && updateHeroSection();}catch(e){}
-  if (!quiet) showToast("☁️ 云端存档已恢复（v"+(d._version||1)+"）", "#4ade80");
-}
-
-// 云端同步按钮（侧边栏加一个云图标）
-// ── 初始化云端账号（静默登录 + 自动同步）
-// ════════════════════════════════════════════════════════════
-// 小程序授权登录 + 切换账号
-// ════════════════════════════════════════════════════════════
-
-// 统一平台登录入口（cloudPanel 里的3个按钮调用）
-function doPlatformLogin(platform) {
-  var errEl = document.getElementById("cloudError");
-  var btnArea = document.getElementById("cloudPlatformBtns");
-  if (errEl) { errEl.style.display = "none"; }
-  if (btnArea) { btnArea.style.opacity = "0.5"; btnArea.style.pointerEvents = "none"; }
-  showToast("正在拉起" + (_platformNames[platform]||platform) + "授权...", "#888");
-
-  _getOrCreateUserId(function(err, userId) {
-    if (btnArea) { btnArea.style.opacity = "1"; btnArea.style.pointerEvents = ""; }
-    if (err || !userId) {
-      // 匿名登录兜底
-      userId = 'anon_' + (platform||_platform) + '_' + Date.now();
-      G._cloudPlayerId = userId;
-      localStorage.setItem(CLOUD_USERID_KEY, userId);
-      localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-      updateCloudPanelUI();
-      cloudSaveToServer(true).catch(function(){});
-      showToast("☁️ 已登录（本地存档）", "#c8860a");
-      try{updateHeroSection && updateHeroSection();}catch(e){}
-      return;
-    }
-    G._cloudPlayerId = userId;
-    localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-    cloudSaveToServer(true).then(function(res) {
-      updateCloudPanelUI();
-      if (res && res.code === 0) {
-        showToast("☁️ " + (_platformNames[platform]||"已登录") + "，存档已同步", "#4ade80");
-      } else {
-        showToast("☁️ " + (_platformNames[platform]||"已登录"), "#c8860a");
-      }
-      try{updateHeroSection && updateHeroSection();}catch(e){}
-    }).catch(function(e) {
-      updateCloudPanelUI();
-      showToast("☁️ 已登录（网络异常）", "#c8860a");
-      try{updateHeroSection && updateHeroSection();}catch(e){}
-    });
-  });
-}
-
-// 切换账号（清空 userId，重新授权）
-function doSwitchAccount() {
-  if (!confirm("确定要切换账号吗？当前账号存档不受影响。")) return;
-  localStorage.removeItem(CLOUD_USERID_KEY);
-  localStorage.removeItem(CLOUD_TOKEN_KEY);
-  G._cloudPlayerId = null;
-  // 强制重新获取 userId
-  _getOrCreateUserId(function(err, userId) {
-    if (!err && userId) {
-      G._cloudPlayerId = userId;
-      localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-      cloudSaveToServer(true).catch(function(){});
-      showToast("☁️ 已切换为新账号", "#c8860a");
-    }
-    updateCloudPanelUI();
-    try{updateHeroSection && updateHeroSection();}catch(e){}
-  });
-}
-
-// 平台名称映射
-var _platformNames = {wechat:'微信', douyin:'抖音', kuaishou:'快手', unknown:'游客'};
-
-// 更新 cloudPanel UI（显示账号信息或登录按钮）
-function updateCloudPanelUI() {
-  var isLoggedIn = !!(G._cloudPlayerId || localStorage.getItem(CLOUD_USERID_KEY));
-  var uid = localStorage.getItem(CLOUD_USERID_KEY) || G._cloudPlayerId || '';
-  var shortId = uid.length > 16 ? uid.substring(0, 8) + '...' + uid.substring(uid.length-4) : uid;
-
-  var accountArea = document.getElementById("cloudAccountArea");
-  var loggedInBtns = document.getElementById("cloudLoggedInBtns");
-  var platformBtns = document.getElementById("cloudPlatformBtns");
-  var accountIdEl = document.getElementById("cloudAccountId");
-
-  if (isLoggedIn) {
-    if (accountArea) accountArea.style.display = "";
-    if (accountIdEl) accountIdEl.textContent = shortId;
-    if (loggedInBtns) loggedInBtns.style.display = "";
-    if (platformBtns) platformBtns.style.display = "none";
-  } else {
-    if (accountArea) accountArea.style.display = "none";
-    if (loggedInBtns) loggedInBtns.style.display = "none";
-    if (platformBtns) platformBtns.style.display = "";
-  }
-}
-
-// 覆盖 openCloudPanel：打开时同步 UI
-var _orig_openCloudPanel = openCloudPanel;
-function openCloudPanel() {
-  _orig_openCloudPanel();
-  updateCloudPanelUI();
-}
-
-// 在 startGame 末尾调用，检查缓存 userId，尝试静默恢复
-function _initCloudAccount() {
-  var cachedId = localStorage.getItem(CLOUD_USERID_KEY);
-  if (cachedId) {
-    G._cloudPlayerId = cachedId;
-    // 静默拉取云端存档（异常不弹窗）
-    cloudLoadFromServer(true).catch(function() {});
-  } else {
-    // 无缓存：静默创建/获取 userId（不弹窗）
-    _getOrCreateUserId(function(err, userId) {
-      if (!err && userId) {
-        G._cloudPlayerId = userId;
-        localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-      }
-    });
-  }
+  saveGame();updateHud();renderForgePanel();
 }

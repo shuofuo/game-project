@@ -1,0 +1,26 @@
+# Cocos Creator
+library/
+temp/
+build/
+local/
+*.meta
+
+# IDE
+.vscode/
+.idea/
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc

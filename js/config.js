@@ -4,7 +4,9 @@ function cycleHeroAnim(){
 }
 var LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
 var LICON = ['','🐣','🐥','🐤','🐦','🦅','🦆','🦉','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
-var COIN_S = [0,1,3,8,20,55,150,400,1100,3000,8000,20000,50000,120000,300000,800000];
+var COIN_S = [0,1,2,3,4,8,9,10,11,12,16,17,18,20,24,30];
+var UPGRADE_COST = [0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
+function getUpgradeCost(lvl){return UPGRADE_COST[lvl]||0;}
 var FATE_E = ['🪵','🔥','🟤','⚪','💧'];
 var FATE_C = [1,1.5,1,1,1];
 var FATE_Q = [1,1,1,1,1.5];
@@ -141,7 +143,7 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
   const star=(dragon&&dragon.star)||1;
   const smult=star>1?starMult(star):null;
   const starsHtml=star>=1?'<div style="font-size:16px;color:#ffd700;letter-spacing:2px;margin-bottom:6px;">'+'⭐'.repeat(Math.min(star,5))+'</div>':'';
-  const upgradeBtn=dragon&&canUpgradeStar(dragon)?
+  const upgradeBtn=(dragon&&canUpgradeStar(dragon))?
     `<button onclick="event.stopPropagation();upgradeStar('${dragon.id}')" class="star-up-btn">⬆ 升星（需 ${starUpgradeCost(star)} 金币）</button>`:
     (dragon&&star<5?'<div style="font-size:10px;color:#555;margin-top:4px;">满级后可升星 ⭐</div>':'');
   const finalCps=Math.floor(cps*(smult||1));
@@ -172,6 +174,7 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
         <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
       </div>
     </div>
+    ${(()=>{var eq=getEquipTotals?getEquipTotals():{atk:0,def:0,spd:0};var sl=getSuitLevel?getSuitLevel(G.forge.items):0;var se=sl>0&&getSuitEffect?getSuitEffect(G.forge.items):null;var total=eq.atk+eq.def+eq.spd;if(total===0&&!se)return'';var sh='<div style="display:flex;gap:6px;justify-content:center;margin-bottom:7px;">'+(eq.atk?'<div style="flex:1;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#f87171;font-weight:700;">+'+eq.atk+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">⚔️攻击</div></div>':'')+(eq.def?'<div style="flex:1;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#60a5fa;font-weight:700;">+'+eq.def+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">🛡️防御</div></div>':'')+(eq.spd?'<div style="flex:1;background:rgba(134,239,172,.07);border:1px solid rgba(134,239,172,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#86efac;font-weight:700;">+'+eq.spd+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">💨速度</div></div>':'')+'</div>';var shtml=se?'<div style="background:linear-gradient(135deg,#ff8c00,#ff3333);border-radius:10px;padding:6px 10px;margin-bottom:8px;text-align:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:1px;">⛩️ '+se.name+' · '+se.desc+'</div>':'<div style="font-size:10px;color:#555;padding:4px 0 8px;text-align:center;">'+(sl>0?'已装备 '+sl+' 件（'+sl+'件待激活）':'无套装')+'</div>';return sh+shtml;})()}
     ${upgradeBtn}
     <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;">点击任意处关闭</div>
   </div>`;
@@ -204,7 +207,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-var G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0}};
+var G = {zodiac:-1,fate:-1,created:false,coins:10000,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1,_isTenMode:false};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 var TASKS = [
@@ -334,12 +337,15 @@ function updateHud(){
     ch.textContent='x'+G.combo+' COMBO';
   }
   updateComboBar(false); // 同步 combo 条（active=false，只更新不退条）
-  const coinCost=Math.floor(100*Math.pow(1.2,Math.floor(G.summonCount/10)));
-  const qiCost=Math.floor(500*Math.pow(1.1,Math.floor(G.summonCount/15)));
-  document.getElementById('coinCost').textContent=coinCost;
-  document.getElementById('btnCoin').disabled=G.coins<coinCost;
+  const batch=G.summonBatch||1;
+  const coinCost=Math.floor(100*Math.pow(1.2,Math.floor(G.summonCount/10)))*batch;
+  const qiCost=Math.floor(500*Math.pow(1.1,Math.floor(G.summonCount/15)))*batch;
+  var costEl=document.getElementById('coinCost');
+  if(costEl){costEl.textContent=coinCost;}
+  var btnCoin=document.getElementById('btnCoin');
+  if(btnCoin) btnCoin.disabled=G.coins<coinCost;
   document.getElementById('btnQi').disabled=G.qi<qiCost;
-  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent='✨ '+qiCost;
+  const qcEl=document.getElementById('qiCost');if(qcEl)qcEl.textContent=qiCost;
   if(G.fate===2) updateFreeBtn();
 }
 
@@ -532,6 +538,22 @@ function doDrop(src,dst){
   if(!s)return;
   if(t){
     if(s.level===t.level&&s.level<15){
+      // 合成费用（按合成结果等级定价）
+      var MC=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
+      var mc=MC[s.level]||0;
+      if(G.coins<mc){showNotif('warn','合成需 '+mc+'💰');return;}
+      G.coins-=mc;
+      // 合成成功率：结果等级越高越难 max(10%, 100%-(Lv-2)*7%)
+      var rs=Math.max(10,100-(s.level+1-2)*7);
+      if(Math.random()*100>rs){
+        // 失败：两只灵兽消失，时光倒流恢复格子位置（但金币不退）
+        G.dragons.forEach(function(d){if(d.idx===src)d.idx=src;if(d.idx===dst)d.idx=dst;});
+        G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
+        saveGame();renderGrid();updateHud();
+        showNotif('error','合成失败！'+LNAME[s.level]+'×2 消失（成功率'+rs+'%）');
+        if(typeof playSynthFail==='function')playSynthFail();
+        return;
+      }
       // 时光倒流备份
       G._dragonsBak=G.dragons.map(d=>({...d}));
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
@@ -552,8 +574,9 @@ function doDrop(src,dst){
       const qiGain=Math.floor(Math.random()*2);
       if(qiGain>0){G.qi=Math.min(99999,G.qi+qiGain);updateHud();}
       showMergeFlash(LICON[s.level+1]);
-      showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]}`);
-      if(G.zodiac>=0) playSound('merge_z'+G.zodiac);
+      showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]} (-${mc}💰)`);
+      if(typeof playSynthSuccess==='function')playSynthSuccess();
+      if(G.zodiac>=0&&G.zodiac<=11) playSound('merge_z'+G.zodiac);
       // combo 检测（2.5秒内连续合成）
       const now=Date.now();
       if(G.lastMergeTime&&now-G.lastMergeTime<2500){G.combo=Math.min((G.combo||0)+1,10);}else{G.combo=1;}
@@ -617,14 +640,161 @@ function getSummonLevel(pool){
   return pool[pool.length-1].level;
 }
 
+
+// ── 十连模式切换（toggle 按钮，无弹窗）────────────────────
+function toggleTenMode(){
+  G._isTenMode = !G._isTenMode;
+  var btn = document.getElementById('batchBtn10');
+  if(btn){
+    if(G._isTenMode){
+      btn.style.background = 'linear-gradient(135deg,#c0392b,#e74c3c)';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 2px 8px rgba(192,57,43,.35)';
+      btn.textContent = '🔄 十连模式';
+    } else {
+      btn.style.background = 'linear-gradient(135deg,#8b6914,#d4a017)';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 2px 8px rgba(180,120,20,.25)';
+      btn.textContent = '✨ 十连召唤';
+    }
+  }
+  updateSummonBtnText();
+  if(typeof playClick==='function') playClick();
+}
+
+function updateSummonBtnText(){
+  var n = G.summonCount || 0;
+  var coinBase = G._coinCost || 100;
+  var qiBase = G._qiCost || 500;
+  var tenCost = Math.floor(coinBase * Math.pow(1.2, Math.floor(n/10))) * 10;
+  var coinCost = Math.floor(coinBase * Math.pow(1.2, Math.floor(n/10)));
+  var qiCost = Math.floor(qiBase * Math.pow(1.2, Math.floor(n/10)));
+  var coinEl = document.getElementById('coinCost');
+  var qiEl = document.getElementById('qiCost');
+  if(coinEl){
+    coinEl.textContent = G._isTenMode ? tenCost : coinCost;
+    // 更新父按钮的图标
+    var parent = coinEl.closest('.summon-btn');
+    if(parent){
+      var iconSpan = parent.querySelector('span:first-child');
+      if(iconSpan) iconSpan.textContent = G._isTenMode ? '💰×10' : '💰';
+    }
+  }
+  if(qiEl){
+    qiEl.textContent = G._isTenMode ? (qiCost * 10) : qiCost;
+    var parent = qiEl.closest('.summon-btn');
+    if(parent){
+      var iconSpan = parent.querySelector('span:first-child');
+      if(iconSpan) iconSpan.textContent = G._isTenMode ? '☁️×10' : '☁️';
+    }
+  }
+  // HUD 金币显示
+  var hudCoins = document.getElementById('hudCoins');
+  if(hudCoins) hudCoins.textContent = fmtNum(G.coins);
+}
+
+// ── 十连抽入口（从 index.html 的 doTenSummon() 调用） ──
+// ── 十连入口（支持 coin/qi 两种资源）─────────────────────
+function doTenSummon(type){
+  type = type || 'coin';
+  var batch=10, n=G.summonCount, cost, pool;
+  if(type==='coin'){
+    cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
+    if(G.coins<cost){showToast('error','金币不足 '+cost+'💰');if(typeof playSynthFail==='function')playSynthFail();return;}
+    G.coins-=cost;
+    pool=[{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}];
+  } else {
+    var qiCostEach=Math.floor(500*Math.pow(1.1,Math.floor(n/15)));
+    cost=qiCostEach*batch;
+    if(G.qi<cost){showNotif('error','龙气不足！');return;}
+    G.qi-=cost;
+    pool=[{level:4,weight:30},{level:5,weight:18},{level:6,weight:10}];
+  }
+  var results=[];
+  for(var i=0;i<batch;i++) results.push(getSummonLevel(pool));
+  // 检查剩余格子
+  var used=new Set(G.dragons.map(function(d){return d.idx})),empty=[];
+  for(var k=0;k<TOTAL;k++) if(!used.has(k)) empty.push(k);
+  if(empty.length===0){
+    showToast('error','灵兽已满！请先合并');if(typeof playSynthFail==='function')playSynthFail();
+    G.coins+=cost;return; // 退金币
+  }
+  var placed=0;
+  results.forEach(function(lv){
+    if(empty.length===0)return;
+    var slot=empty.shift();
+    G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1});
+    G.summonCount++;placed++;
+    _onWeeklyEvent('summon');
+  });
+  saveGame();renderGrid();updateHud();checkAch();
+  showBatchSummonResult(results.slice(0,placed));
+}
+
+// ── 弹窗改为页面顶部固定（max-width:420px，小字体紧凑） ──
+// ── 十连结果弹窗：直接展示全部卡片，无翻转/无问号 ──────────
+function showBatchSummonResult(results){
+  var rarNames=['普通','稀有','史诗','传说','神话'];
+  var rarColors=['#5a7a5a','#2a7abf','#8b3ac8','#c8860a','#d44010'];
+  var bgColors=['rgba(240,235,228,.95)','rgba(225,240,255,.95)','rgba(240,228,255,.95)','rgba(255,245,210,.95)','rgba(255,238,228,.95)'];
+  var cnt=[0,0,0,0,0];results.forEach(function(lv){cnt[rarIdx(lv)]++;});
+  var summary='';cnt.forEach(function(c,i){if(c>0)summary+=rarNames[i]+'×'+c+' ';});
+  var cardsHtml='';
+  results.forEach(function(lv){
+    var t=rarIdx(lv), color=rarColors[t], bg=bgColors[t];
+    var rarityLabel=['','普通','稀有','史诗','传说','神话'][lv];
+    var name=LNAME[lv]||'灵兽';
+    var icon=LICON[lv]||'🐣';
+    var cpsdesc=lv>=4?'产出龙气':'产出金币';
+    cardsHtml+='<div style="display:flex;flex-direction:column;align-items:center;padding:10px 8px;background:'+bg+';border:1.5px solid '+color+'60;border-radius:12px;min-width:68px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.06);">';
+    cardsHtml+='<div style="font-size:38px;line-height:1;">'+icon+'</div>';
+    cardsHtml+='<div style="font-size:10px;font-weight:800;color:'+color+';margin-top:3px;">'+name+'</div>';
+    cardsHtml+='<div style="font-size:9px;color:#666;margin-top:1px;">['+rarityLabel+']</div>';
+    cardsHtml+='<div style="font-size:8px;color:#888;margin-top:2px;">'+cpsdesc+'</div>';
+    cardsHtml+='</div>';
+  });
+  var html='<div style="padding:16px 12px;text-align:center;background:rgba(255,255,255,.85);border-radius:16px;">';
+  html+='<div style="font-size:15px;font-weight:800;color:#333;letter-spacing:3px;margin-bottom:6px;">✦ 召唤结果 ✦</div>';
+  html+='<div style="font-size:12px;color:#555;font-weight:600;margin-bottom:14px;">'+summary.trim()+'</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;">'+cardsHtml+'</div>';
+  html+='<button onclick="document.getElementById(\'batchSummonOverlay\').remove();try{renderGrid&&renderGrid();updateHud&&updateHud();}catch(e){}" style="width:100%;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#8b6914,#d4a017);color:#222;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 3px 12px rgba(180,120,20,.3);">收下 ✦</button>';
+  html+='</div>';
+  var old=document.getElementById('batchSummonOverlay');if(old)old.remove();
+  var overlay=document.createElement('div');
+  overlay.id='batchSummonOverlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(60,30,10,.45);backdrop-filter:blur(6px);padding:16px;';
+  overlay.innerHTML='<div style="width:min(480px,100%);max-height:88vh;overflow-y:auto;">'+html+'</div>';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  document.body.appendChild(overlay);
+  if(typeof playTenSummonSfx==='function')playTenSummonSfx();
+  G._isTenMode=false; // 自动切回单抽
+  var btn=document.getElementById('batchBtn10');
+  if(btn){
+    btn.style.background='linear-gradient(135deg,#8b6914,#d4a017)';
+    btn.style.color='#222';
+    btn.style.boxShadow='0 2px 8px rgba(180,120,20,.25)';
+    btn.textContent='✨ 十连召唤';
+  }
+}
+function setSummonBatch(n){
+  G.summonBatch=n;
+  document.querySelectorAll('#summonBatchSwitch button').forEach(function(b,i){
+    var v=[1,5,10][i];
+    b.className=v===n?'active':'';
+  });
+  updateHud&&updateHud();
+}
+
+// ── 金币单抽（含十连模式切换）─────────────────────────────
 function summonCoin(){
-  const n=G.summonCount;
-  // 指数增长：100 → 120 → 145 → 174 → ...（每50次翻倍）
-  const cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)));
-  if(G.coins<cost){showNotif('error','金币不足！');return;}
+  if(G._isTenMode){ doTenSummon('coin'); return; }
+  const n = G.summonCount;
+  const cost = Math.floor(100*Math.pow(1.2,Math.floor(n/10)));
+  if(G.coins<cost){showNotif('error','金币不足！');if(typeof playSynthFail==='function')playSynthFail();return;}
   G.coins-=cost;
   doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
 }
+
 function summonQi(){
   // 龙气消耗也指数增长，防止龙气溢出
   const n=G.summonCount;
@@ -742,37 +912,40 @@ function shakeScreen(){
 }
 // showNotif 升级版：支持 emoji 前缀消息 + 稀有度颜色
 // showNotif：兼容旧调用 showNotif(type, msg) 和新调用 showNotif(msg)
-function showNotif(msg, colorOrOpts){
-  const el=document.getElementById('notif');
+// ── 顶部单行提示（替换 showNotif，移动到页面顶部） ──
+function showToast(type, msg){
+  var el=document.getElementById('notif');
   if(!el)return;
   clearTimeout(el._timer);
-  const COLORS={
-    success:'rgba(76,175,80,.92)',
-    error:'rgba(244,67,54,.92)',
-    info:'rgba(33,150,243,.92)',
-    warning:'rgba(255,152,0,.92)',
-    gold:'rgba(255,215,0,.92)',
+  var COLORS={
+    success:'rgba(20,100,30,.92)',
+    error:'rgba(120,20,20,.92)',
+    info:'rgba(20,50,100,.92)',
+    warn:'rgba(100,70,0,.92)',
+    gold:'rgba(80,60,0,.92)',
   };
-  // 旧调用：showNotif('error', 'message') — colorOrOpts 是消息字符串
-  let bg, text;
-  if(typeof colorOrOpts === 'string'){
-    bg = COLORS[msg] || COLORS.info;
-    text = colorOrOpts;
+  var bg=COLORS[type]||COLORS.info;
+  el.style.cssText=
+    'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;'+
+    'padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;'+
+    'letter-spacing:.5px;max-width:380px;width:92vw;overflow:hidden;'+
+    'text-overflow:ellipsis;white-space:nowrap;text-align:center;'+
+    'background:'+bg+';color:#fff;display:block;opacity:1;border:1px solid rgba(255,255,255,.12);';
+  el.textContent=msg||'';
+  el._timer=setTimeout(function(){
+    el.style.opacity='0';
+    setTimeout(function(){el.style.display='none';},250);
+  },2500);
+}
+// 兼容旧调用 showNotif(msg, colorOrOpts)
+function showNotif(msg, colorOrOpts){
+  var text, type;
+  if(typeof colorOrOpts==='string'){
+    type=msg; text=colorOrOpts;
   } else {
-    // 新调用：showNotif('完整消息', {color:'...'})
-    bg = (colorOrOpts&&colorOrOpts.color) || COLORS.info;
-    text = msg;
+    text=msg; type=(colorOrOpts&&colorOrOpts.type)||'info';
   }
-  el.style.background = bg;
-  el.textContent = text;
-  el.style.display = 'block';
-  el.style.opacity = '1';
-  el.style.transform = 'translateX(-50%) translateY(0)';
-  el._timer = setTimeout(()=>{
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(-50%) translateY(-10px)';
-    setTimeout(()=>{el.style.display='none';},300);
-  }, 2800);
+  showToast(type,text);
 }
 
 // 召唤结果通知
@@ -906,7 +1079,7 @@ function updateHeroSection(){
     if(heroThumbs){
       heroThumbs.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:rgba(255,215,0,.4);padding:4px 12px;letter-spacing:1px;">
-          <span style="font-size:22px;margin-bottom:2px;">✨</span>
+          <span class="qi-icon qi-icon-xl" style="display:block;margin:0 auto 2px;"></span>
           <span>首次召唤获得灵兽</span>
           <span style="font-size:9px;opacity:.6;">点击下方召唤按钮</span>
         </div>`;
@@ -1212,3 +1385,6 @@ var TOWER_ACHIEVEMENTS = [
   {floor:80,coins:20000,qi:800,title:'出神入化'},
   {floor:100,coins:50000,qi:2000,title:'天命所归'}
 ];
+
+
+// ── 十连切换按钮（toggle 模式）──

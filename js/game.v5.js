@@ -188,7 +188,19 @@ function activateSkill(id){
   }
   if(playSound)playSound('achieve');
 }
-// ── 灵兽升级系统 ───────────────────────────────────────────
+// 星级倍率（升星后基础属性 × starMult）
+function starMult(st){return[0,1,1.2,1.5,2.0,2.5][st||1]||1;}
+
+// 灵兽基础攻防速（每级+2攻+3防+1速，乘星级倍率）
+function getDragonBaseStats(level,star){
+  var lv=level||1;
+  var st=star||1;
+  var sm=starMult(st);
+  return{atk:Math.floor(lv*2*sm),def:Math.floor(lv*3*sm),spd:Math.floor(lv*sm)};
+}
+
+
+// // ── 灵兽升级系统 ───────────────────────────────────────────
 function upgradeCost(level){
   var costs=[0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
   return costs[level]||0;
@@ -201,10 +213,15 @@ function upgradeDragon(id){
   if(G.coins<cost){showNotif('error','金币不足，需要 '+cost+' 金币');return;}
   G.coins-=cost;
   dragon.level++;
+  // 同步基础攻防速（每次升级实时更新）
+  var stats=getDragonBaseStats(dragon.level,dragon.star||1);
+  if(!dragon._base) dragon._base={};
+  dragon._base.atk=stats.atk; dragon._base.def=stats.def; dragon._base.spd=stats.spd;
   if(window.playSound)try{playSound('summon');}catch(e){}
   saveGame();
   renderGrid();
   updateHud();
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
   checkAch();
 }
 
@@ -473,7 +490,13 @@ function upgradeStar(id){
   G.coins-=cost;
   dragon.level=1;
   dragon.star=ns;
-  saveGame();renderGrid();updateHud();checkAch();
+  // 重置属性基准（满级L15时的属性 × 星级倍率）
+  var stats=getDragonBaseStats(15,ns);
+  if(!dragon._base) dragon._base={};
+  dragon._base.atk=stats.atk; dragon._base.def=stats.def; dragon._base.spd=stats.spd;
+  saveGame();renderGrid();updateHud();
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
+  checkAch();
   showNotif('gold','⭐ 升星成功！'+(ns)+'星 '+starMult(ns)+'×产金倍率！');
   if(playSound)playSound('achieve');
 }
@@ -853,9 +876,9 @@ function renderHandbook(){
       var rarity=lv<=2?'普通':lv<=4?'稀有':lv<=7?'珍稀':lv<=10?'传说':lv<=13?'史诗':'神话';
       items+='<div style="background:'+(isDone?'rgba(255,215,0,.06)':'rgba(255,255,255,.02)')+';border:1.5px solid '+(isDone?'rgba(255,215,0,.3)':'rgba(255,255,255,.06)')+';border-radius:14px;padding:14px 6px;text-align:center;'+(isDone?'':'opacity:.4')+'">'
         +'<div style="font-size:32px;margin-bottom:4px;">'+(LICON[lv]||'?')+'</div>'
-        +'<div style="font-size:11px;font-weight:700;color:'+('#c8860a':'#666')+';">'+(LNAME[lv]||'?')+'</div>'
+        +'<div style="font-size:11px;font-weight:700;color:'+'#c8860a'+';">'+(LNAME[lv]||'?')+'</div>'
         +'<div style="font-size:10px;color:'+rcolors[rarity]+';margin:3px 0;">'+rarity+'</div>'
-        +'<div style="font-size:10px;color:'+('#c8860a':'#555')+';">Lv'+lv+' &middot; +'+(rate[lv-1]||0)+'/s</div>'
+        +'<div style="font-size:10px;color:'+'#c8860a'+';">Lv'+lv+' &middot; +'+(rate[lv-1]||0)+'/s</div>'
         +'</div>';
     }
     var tabBar='<div style="display:flex;gap:8px;margin-bottom:16px;">'
@@ -902,7 +925,7 @@ function renderHandbook(){
       }
       zitems+='<div style="'+zstyle+'">'
         +'<div style="font-size:30px;margin-bottom:4px;">'+(unlocked?ZOD_E[zi]:'🔒')+'</div>'
-        +'<div style="font-size:12px;font-weight:700;color:'+('#c8860a':'#555')+';">'+zNames[zi]+'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:'+'#c8860a'+';">'+zNames[zi]+'</div>'
         +loreText+unlockBtn
         +'</div>';
     }
@@ -1190,7 +1213,7 @@ function renderSignPanel(){
         const past=day<getSignDay()||(day===getSignDay()&&todayDone);
         const current=day===getSignDay()&&!todayDone;
         return `<div style="text-align:center;padding:7px 3px;background:${past?'rgba(76,175,80,.12)':current?'rgba(255,215,0,.12)':'rgba(255,255,255,.03)'};border:1.5px solid ${past?'rgba(76,175,80,.3)':current?'rgba(255,215,0,.5)':'rgba(255,255,255,.05)'};border-radius:10px;${current?'box-shadow:0 0 12px rgba(255,215,0,.25);':''}">
-          <div style="font-size:9px;color:${'#2e7d32':'#c8860a':'#555'};font-weight:600;margin-bottom:3px;">Day${day}</div>
+          <div style="font-size:9px;color:${past?'#2e7d32':current?'#c8860a':'#555'};font-weight:600;margin-bottom:3px;">Day${day}</div>
           <div style="font-size:14px;line-height:1;">${past?'✅':current?'📍':'⬛'}</div>
           <div style="font-size:8px;color:#666;margin-top:2px;">💰${r.coin>=1000?r.coin/1000+'K':r.coin}</div>
           ${r.free>0?`<div style="font-size:8px;font-weight:700;color:#e65100;">🆓${r.free}</div>`:''}
@@ -2212,16 +2235,15 @@ function getTowerEnemy(floor){
   if(floor<1||floor>100) return TOWER_ENEMIES[0];
   return TOWER_ENEMIES[floor-1]||TOWER_ENEMIES[0];
 }
+// 玩家攻击伤害 = 灵兽攻击 + SPD×0.5 + 装备百分比加成 + SPD装备加成
 function getTowerPlayerDmg(){
-  // 基础伤害 = maxLv²×0.5+5
   if(!G.dragons||!G.dragons.length) return 10;
-  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
-  var base=Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
-  // 装备基础加成
+  var best=G.dragons.reduce(function(a,b){return(a.level||0)>=(b.level||0)?a:b;});
+  var lv=best.level||1, star=best.star||1;
+  var stats=getDragonBaseStats(lv,star);
   var eq=getEquipTotals();
-  // 攻击 = 基础 × (1+atk/100) + SPD加成
-  var spdBonus=Math.floor(eq.spd*0.3);
-  return Math.max(1,Math.floor(base*(1+eq.atk/100))+spdBonus);
+  var spdBonus=Math.floor((stats.spd+eq.spd)*0.3);
+  return Math.max(1,Math.floor(stats.atk*(1+eq.atk/100))+spdBonus);
 }
 // 装备总属性（含套装加成）：给试炼塔/灵兽面板共用
 function getEquipTotals(){
@@ -2240,9 +2262,12 @@ function getEquipTotals(){
   if(eff){atk=Math.floor(atk*(1+eff.atkBonus/100));def=Math.floor(def*(1+eff.defBonus/100));spd=Math.floor(spd*(1+eff.spdBonus/100));}
   return{atk:Math.max(0,atk),def:Math.max(0,def),spd:Math.max(0,spd)};
 }
-// 玩家试练塔总防御（用于扣血计算）
+// 玩家试练塔总防御 = 灵兽基础防御 + 装备防御百分比
 function getTowerPlayerDef(){
-  return getEquipTotals().def;
+  if(!G.dragons||!G.dragons.length) return getEquipTotals().def;
+  var best=G.dragons.reduce(function(a,b){return(a.level||0)>=(b.level||0)?a:b;});
+  var stats=getDragonBaseStats(best.level||1,best.star||1);
+  return Math.max(0,Math.floor(stats.def*(1+getEquipTotals().def/100)));
 }
 // 试练塔材料计算
 function getTowerReward(floor){
@@ -2256,8 +2281,9 @@ function getTowerReward(floor){
 function towerAttack(){
   if(!G.created) return;
   var floor=G.towerFloor||1;
-  var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
-  var maxHp=100+maxLv*5;
+  // HP = 灵兽基础防御 × 星级 + 装备防御加成百分比
+  var def=getTowerPlayerDef();
+  var maxHp=100+Math.floor(def*5);
   // HP只在进入新层或死亡时才重置
   if(!G.towerPlayerHp||G.towerPlayerHp<=0||G._towerFloorBak!==floor){
     G.towerPlayerHp=maxHp;G._towerFloorBak=floor;
@@ -2470,13 +2496,13 @@ if(!G.towerMilestones) G.towerMilestones=[];
 // ═══════════════════════════════════════
 
 var QUALITY_NAMES   = ['普通','稀有','史诗','传说','天命'];
-var QUALITY_COLORS  = ['#888','#4a9eff','#b44aff','#ff8c00','#ff3333'];
+var QUALITY_COLORS  = ['#666','#1565c0','#7b3fcb','#c8860a','#c62828']; // 普通/稀有/史诗/传说/天命
 var QUALITY_COST    = [0, 50, 200, 800, 3000];   // 龙气购买价格
 var QUALITY_CPS_PCT = [0, 10, 25, 50, 100];       // CPS加成百分比
 var QUALITY_QI_PCT  = [0, 5, 15, 35, 70];         // 龙气加成百分比
 
 // 装备类型
-var EQUIP_TYPE_NAME = {weapon:'⚔️武器',armor:'🛡️护甲',accessory:'💍饰品'};
+var EQUIP_TYPE_NAME = {helmet:'⛑️ 头盔',armor:'👕 护甲',shoes:'👟 鞋子',sword:'⚔️ 长剑',shield:'🛡️ 护盾',accessory:'💍 饰品'};
 
 // 制作配方: {id, type, name, quality, iron, crystal, dragonScale, starDust, desc}
 // quality: 0=普通 1=稀有 2=史诗 3=传说 4=天命
@@ -2683,19 +2709,31 @@ function renderForgeInventory(fm,filter){
       attrHtml+
       '<div class="fi-type">'+EQUIP_TYPE_NAME[it.type]+'</div>'+
       '<div class="fi-btns">'+
-        '<button class="fi-btn '+(it.equipped?'':'active')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
-        '<button class="fi-btn active" onclick="enhanceForgeItem(\''+it.id+'\')">强化</button>'+
+        '<button class="fi-btn '+(it.equipped?'active':'disabled')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
+        '<button class="fi-btn active" onclick="openEnhanceForItem(\''+it.id+'\')">⚡强化</button>'+
+        '<button class="fi-btn" onclick="unequipForgeItem(\''+it.id+'\')">卸下</button>'+
         '</div></div>';
   }
   html+='</div>';
   return html;
 }
 
-function renderForgeEnhance(fm,mat){
+function renderForgeEnhance(fm,mat,filter){
   if(!fm.items||!fm.items.length) return '<div class="forge-empty">先制作装备再来强化！</div>';
-  var html='<div class="forge-section-title">⚡ 选择装备强化</div><div class="forge-items-list">';
-  for(var i=0;i<fm.items.length;i++){
-    var it=fm.items[i];
+  var items=fm.items;
+  if(filter&&filter!=='all') items=items.filter(function(it){return it.type===filter;});
+  var html='<div class="forge-section-title">⚡ 选择装备强化</div>';
+  // 分类筛选栏
+  html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">';
+  var types=['all','helmet','armor','shoes','sword','shield','accessory'];
+  var icons={all:'全部',helmet:'⛑️',armor:'👕',shoes:'👟',sword:'⚔️',shield:'🛡️',accessory:'💍'};
+  types.forEach(function(t){
+    var active=((_forgeEnhanceFilter||'all')===t)?'style="background:rgba(200,168,10,.25);color:#c8860a"':'';
+    html+='<button class="forge-btn '+((_forgeEnhanceFilter||'all')===t?'active':'')+'" '+active+' onclick="filterForgeEnhance(\''+t+'\')">'+icons[t]+'</button>';
+  });
+  html+='</div><div class="forge-items-list">';
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
     var color=QUALITY_COLORS[it.quality];
     var maxLv=10+it.star*3;
     var cost=getForgeEnhanceCost(it.level+1);
@@ -2715,6 +2753,16 @@ function renderForgeEnhance(fm,mat){
 // 全局制作台Tab状态（跨刷新保持）
 var _forgeTab='craft';
 var _forgeEquipFilter='all';
+
+// 强化Tab分类筛选
+var _forgeEnhanceFilter='all';
+function filterForgeEnhance(type){
+  _forgeEnhanceFilter=type;
+  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
+  var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
+  var body=document.getElementById('forgeBody');
+  if(body)body.innerHTML=renderForgeEnhance(fm,mat,_forgeEnhanceFilter);
+}
 function switchForgeTab(tab,e){
   _forgeTab=tab;
   document.querySelectorAll('.forge-tab').forEach(function(b){b.classList.remove('active');});
@@ -2725,7 +2773,7 @@ function switchForgeTab(tab,e){
   if(!body)return;
   if(tab==='craft') body.innerHTML=renderForgeCraft(fm,mat);
   else if(tab==='inventory') body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
-  else if(tab==='enhance') body.innerHTML=renderForgeEnhance(fm,mat);
+  else if(tab==='enhance') body.innerHTML=renderForgeEnhance(fm,mat,_forgeEnhanceFilter||'all');
 }
 function filterForgeEquip(type){
   _forgeEquipFilter=type;
@@ -2753,7 +2801,8 @@ function craftForgeItem(recipeId){
   fm.totalCrafts=(fm.totalCrafts||0)+1;
   G.forge=fm;
   saveGame();updateHud();renderForgePanel();
-  showNotif('success','制作成功！获得 '+r.name);
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
+  showNotif('success','制作成功！获得 '+r.name+'（'+EQUIP_TYPE_NAME[r.type]+'）');
   playSound('merge');
 }
 
@@ -2774,9 +2823,13 @@ function enhanceForgeItem(itemId){
   saveGame();updateHud();
   if(typeof playEnhanceSfx==='function')playEnhanceSfx();
   showNotif('success','强化成功！'+it.name+' → Lv.'+it.level);
-  // 停留在强化Tab，刷新当前内容
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
   var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeEnhance(fm,mat);
+  if(body)body.innerHTML=renderForgeEnhance(fm,mat,_forgeEnhanceFilter||'all');
+  setTimeout(function(){
+    var el=document.querySelector('[data-item-id="'+it.id+'"]');
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.filter='brightness(1.4)';setTimeout(function(){el.style.filter='';},600);}
+  },80);
 }
 
 function starUpForgeItem(itemId){
@@ -2793,20 +2846,42 @@ function starUpForgeItem(itemId){
   G.forge=fm;
   saveGame();updateHud();
   if(typeof playSynthSuccess==='function')playSynthSuccess();
-  showNotif('success','升星成功！⭐ '+it.star+'星');
-  // 停留在强化Tab，刷新当前内容
+  showNotif('success','升星成功！⭐ '+it.star+'星 '+starMult(it.star)+'×产金倍率');
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
   var body=document.getElementById('forgeBody');
-  if(body)body.innerHTML=renderForgeEnhance(fm,mat2);
+  if(body)body.innerHTML=renderForgeEnhance(fm,mat2,_forgeEnhanceFilter||'all');
+  setTimeout(function(){
+    var el=document.querySelector('[data-item-id="'+it.id+'"]');
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.filter='brightness(1.4)';setTimeout(function(){el.style.filter='';},600);}
+  },80);
 }
 
-// 从背包快捷跳转强化（先切Tab再刷新强化列表）
+
+// 卸下装备（不穿新装备，停留当前背包分类）
+function unequipForgeItem(itemId){
+  var fm=G.forge||{items:[]};
+  var it=null;
+  for(var i=0;i<fm.items.length;i++){
+    if(fm.items[i].id===itemId){it=fm.items[i];break;}
+  }
+  if(!it){showNotif('error','装备不存在');return;}
+  it.equipped=false;
+  G.forge=fm;
+  saveGame();updateHud();
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
+  var body=document.getElementById('forgeBody');
+  if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
+  showNotif('info',it.name+' 已卸下');
+}
+
+// // 从背包快捷跳转强化（先切Tab再刷新强化列表）
 function openEnhanceForItem(itemId){
   _forgeTab='enhance';
+  _forgeEnhanceFilter='all';
   switchForgeTab('enhance');
-  // 可选：滚动到该装备（通过高亮）
   setTimeout(function(){
     var el=document.querySelector('[data-item-id="'+itemId+'"]');
-    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.filter='brightness(1.3)';setTimeout(function(){el.style.filter='';},800);}
   },100);
 }
 
@@ -2829,6 +2904,8 @@ function equipForgeItem(itemId){
   G.forge=fm;
   saveGame();updateHud();try{updateHeroSection&&updateHeroSection();}catch(e){}
   showNotif(newState?'success':'info',targetItem.name+' '+(newState?'[已装备]':'[已卸下]'));
+  // 刷新灵兽/套装全局属性
+  try{updateHeroSection&&updateHeroSection();}catch(e){}
   // 停留背包Tab，刷新当前分类
   var body=document.getElementById('forgeBody');
   if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);

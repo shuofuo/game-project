@@ -2666,14 +2666,14 @@ function renderForgeInventory(fm,filter){
       (it.atk?'<span style="color:#f87171">⚔️+'+it.atk+'</span> ':'')+
       (it.def?'<span style="color:#60a5fa">🛡️+'+it.def+'</span> ':'')+
       (it.spd?'<span style="color:#86efac">💨+'+it.spd+'</span> ':'')+'</div>';
-    html+='<div class="forge-item '+(it.equipped?'equipped':'')+'" style="border-color:'+color+'">'+
+    html+='<div class="forge-item '+(it.equipped?'equipped':'')+'" data-item-id="'+it.id+'" style="border-color:'+color+'">'+
       '<div class="fi-name" style="color:'+color+'">'+it.name+'</div>'+
       '<div class="fi-info">⭐'+it.star+' ★Lv.'+it.level+'/'+maxLv+'</div>'+
       attrHtml+
       '<div class="fi-type">'+EQUIP_TYPE_NAME[it.type]+'</div>'+
       '<div class="fi-btns">'+
         '<button class="fi-btn '+(it.equipped?'':'active')+'" onclick="equipForgeItem(\''+it.id+'\')">'+(it.equipped?'已装备':'装备')+'</button>'+
-        '<button class="fi-btn active" onclick="openEnhanceForItem(\''+it.id+'\')">强化</button>'+
+        '<button class="fi-btn active" onclick="enhanceForgeItem(\''+it.id+'\')">强化</button>'+
         '</div></div>';
   }
   html+='</div>';
@@ -2689,7 +2689,7 @@ function renderForgeEnhance(fm,mat){
     var maxLv=10+it.star*3;
     var cost=getForgeEnhanceCost(it.level+1);
     var canEnhance=it.level<maxLv&&mat.iron>=cost.iron&&G.coins>=cost.coin;
-    html+='<div class="forge-list-item" style="border-left:3px solid '+color+'">'+
+    html+='<div class="forge-list-item" data-item-id="'+it.id+'" style="border-left:3px solid '+color+'">'+
       '<div class="li-name" style="color:'+color+'">'+it.name+' ⭐'+it.star+' Lv.'+it.level+'/'+maxLv+'</div>'+
       '<div class="li-cost">强化消耗: 🔩'+cost.iron+' 💰'+cost.coin+'</div>'+
       '<div class="li-btns">'+
@@ -2786,6 +2786,17 @@ function starUpForgeItem(itemId){
   // 停留在强化Tab，刷新当前内容
   var body=document.getElementById('forgeBody');
   if(body)body.innerHTML=renderForgeEnhance(fm,mat2);
+}
+
+// 从背包快捷跳转强化（先切Tab再刷新强化列表）
+function openEnhanceForItem(itemId){
+  _forgeTab='enhance';
+  switchForgeTab('enhance');
+  // 可选：滚动到该装备（通过高亮）
+  setTimeout(function(){
+    var el=document.querySelector('[data-item-id="'+itemId+'"]');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
 }
 
 // 穿戴装备：同类型互斥（穿一件自动卸下同类型其他装备）

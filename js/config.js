@@ -1474,4 +1474,14 @@ var TOWER_ACHIEVEMENTS = [
 ];
 
 
+
+
+// ═══════════════════════════════════════
+// 云端存档 + 小程序授权配置
+// ═══════════════════════════════════════
+var CLOUD_SECRET    = "sxgame_v2_2026_secret_key_userid_hash_16bytes";
+var CLOUD_USERID_KEY = "sxgame_v2_uid";
+var CLOUD_TOKEN_KEY  = "sxgame_v2_token";
+var CLOUD_API        = "https://47.105.41.23/api";
+
 // ── 十连切换按钮（toggle 模式）──

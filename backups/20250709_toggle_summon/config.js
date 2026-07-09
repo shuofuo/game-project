@@ -3,45 +3,7 @@ function cycleHeroAnim(){
   if(best.id) showDragonDetail(best.id);
 }
 var LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
-
-// ═══════════════════════════════════════════════════
-// 12生肖灵兽图标（差异化：每个生肖有独特的灵兽形态）
-// ═══════════════════════════════════════════════════
-var ZOD_ICON = [
-  // 0鼠 灵巧小体型、尖耳、灵活
-  ['','🐣','🐤','🐥','🐁','🐀','🐭','🐜','🦡','🦔','🐿','🐹','🐦','🐤','🐥','🐁'],
-  // 1牛 厚重、牛角、力量感
-  ['','🐣','🐤','🐥','🐮','🐂','🦬','🐃','🐄','🦏','🦛','🐂','🐮','🐤','🐥','🐮'],
-  // 2虎 虎纹、鬃毛、凶猛
-  ['','🐣','🐤','🐥','🐯','🐅','🐆','🦊','🐺','🐶','🐕','🐅','🐯','🐤','🐥','🐅'],
-  // 3兔 长耳、轻盈、柔和
-  ['','🐣','🐤','🐥','🐰','🐇','🦔','🐾','🐁','🐹','🐿','🐇','🐰','🐤','🐥','🐰'],
-  // 4龙 龙角、鳞片、灵气
-  ['','🐣','🐤','🐥','🐲','🐉','🌟','⚡','💫','✨','🌈','🐉','🐲','🐤','🐥','🐉'],
-  // 5蛇 蛇眼、鳞纹、缠绕
-  ['','🐣','🐤','🐥','🐍','🐉','🦎','🦔','🐾','🐁','🐀','🐍','🐍','🐤','🐥','🐍'],
-  // 6马 马首、鬃毛、奔跑
-  ['','🐣','🐤','🐥','🐴','🐎','🦄','🦓','🐎','🦄','🦌','🐴','🐎','🐤','🐥','🐴'],
-  // 7羊 羊角、绒毛、温和
-  ['','🐣','🐤','🐥','🐑','🐏','🦙','🐐','🐑','🐏','🦙','🐑','🐏','🐤','🐥','🐑'],
-  // 8猴 猿耳、机灵、动作灵活
-  ['','🐣','🐤','🐥','🐒','🙈','🙉','🙊','🐒','🙈','🙉','🐒','🐒','🐤','🐥','🐒'],
-  // 9鸡 鸡冠、羽翅、明亮
-  ['','🐣','🐤','🐥','🐔','🐓','🦃','🦚','🐔','🐓','🦚','🐔','🐓','🐤','🐥','🐔'],
-  // 10狗 犬耳、忠诚、敏捷
-  ['','🐣','🐤','🐥','🐶','🐕','🦮','🐕‍🦺','🐶','🐕','🦮','🐶','🐕','🐤','🐥','🐶'],
-  // 11猪 圆润、猪鼻、可爱
-  ['','🐣','🐤','🐥','🐷','🐖','🦡','🐾','🐷','🐖','🦡','🐷','🐖','🐤','🐥','🐷']
-];
-
-// 等级成长阶段（对应 CSS class）
-var LV_STAGE_NAMES = ['','幼生','成长','成形','通灵','神化'];
-function getLevelStage(lvl){if(lvl<=3)return 1;if(lvl<=6)return 2;if(lvl<=9)return 3;if(lvl<=12)return 4;return 5;}
-function getLevelStageName(lvl){return LV_STAGE_NAMES[getLevelStage(lvl)]||'幼生';}
-
-// ═══════════════════════════════════════════════════
-// DRAGON_SKINS 完整配置见 DRAGON_SKINS 定义段（下方）
-// getDragonVisual 函数也定义在 DRAGON_SKINS 配置段下方
+var LICON = ['','🐣','🐥','🐤','🐦','🦅','🦆','🦉','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
 var COIN_S = [0,1,2,3,4,8,9,10,11,12,16,17,18,20,24,30];
 var UPGRADE_COST = [0,200,500,1000,2000,4000,8000,16000,30000,50000,80000,120000,180000,260000,380000];
 function getUpgradeCost(lvl){return UPGRADE_COST[lvl]||0;}
@@ -68,8 +30,7 @@ var ZOD_LORE = [
 var ZOD_N  = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
 var YUN_NAMES  = ['极凶','小凶','平','小吉','大吉'];
 var YUN_COIN   = [-.5,-.2,0,.3,.5];
-var RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#555'},{icon:'🥉',title:'小成',min:6,color:'#795548'},{icon:'🥈',title:'大成',min:10,color:'#555'},{icon:'🏆',title:'天师',min:14,color:'#c8860a'}];
-
+var RANKS_HUD=[{icon:'🔰',title:'初窥',min:3,color:'#aaa'},{icon:'🥉',title:'小成',min:6,color:'#cd7f32'},{icon:'🥈',title:'大成',min:10,color:'#c0c0c0'},{icon:'🏆',title:'天师',min:14,color:'#ffd700'}];
 
 let _audioCtx = null;
 let _audioState = { muted: false, volume: 0.7, bgmVolume: 0.35, sfxVolume: 0.8, bgmLast: 0.35, sfxLast: 0.8 };
@@ -128,13 +89,20 @@ function playSound(type) {
 // 灵兽详情弹窗
 function showDragonDetail(dragonId){
   const dragon = G.dragons.find(d => d.id === String(dragonId));
-  if(!dragon){
+  if(!dragon){ // 传level时走降级逻辑（缩略图旧数据）
     const lvl = parseInt(dragonId);
     if(lvl < 1 || lvl > 15) return;
     const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
     const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
-    const colors = {普通:'#555',稀有:'#1565c0',珍稀:'#1976d2',传说:'#6a1b9a',史诗:'#e65100',神话:'#c8860a'};
-    const skills = {普通:'被动：每分钟自动产出少量金币',稀有:'被动：金币产出+50%，有几率触发双倍收益',珍稀:'被动：召唤所需龙气-10%，产出+100%',传说:'被动：每5分钟免费召唤一次（需空格）',史诗:'被动：合并成功率+20%，金币产出翻2倍',神话:'被动：全属性+300%，每级召唤必得珍稀以上'};
+    const colors = {普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
+    const skills = {
+      普通:'被动：每分钟自动产出少量金币',
+      稀有:'被动：金币产出+50%，有几率触发双倍收益',
+      珍稀:'被动：召唤所需龙气-10%，产出+100%',
+      传说:'被动：每5分钟免费召唤一次（需空格）',
+      史诗:'被动：合并成功率+20%，金币产出翻2倍',
+      神话:'被动：全属性+300%，每级召唤必得珍稀以上',
+    };
     const r = rarities[lvl-1]||'普通';
     const color = colors[r];
     const icon = LICON[lvl]||'🐣';
@@ -144,20 +112,26 @@ function showDragonDetail(dragonId){
     return;
   }
   const lvl = dragon.level||1;
-  const v = getDragonVisual(dragon);
   const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
   const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
-  const skills = {普通:'被动：每分钟自动产出少量金币',稀有:'被动：金币产出+50%，有几率触发双倍收益',珍稀:'被动：召唤所需龙气-10%，产出+100%',传说:'被动：每5分钟免费召唤一次（需空格）',史诗:'被动：合并成功率+20%，金币产出翻2倍',神话:'被动：全属性+300%，每级召唤必得珍稀以上'};
+  const colors = {普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
+  const skills = {
+    普通:'被动：每分钟自动产出少量金币',
+    稀有:'被动：金币产出+50%，有几率触发双倍收益',
+    珍稀:'被动：召唤所需龙气-10%，产出+100%',
+    传说:'被动：每5分钟免费召唤一次（需空格）',
+    史诗:'被动：合并成功率+20%，金币产出翻2倍',
+    神话:'被动：全属性+300%，每级召唤必得珍稀以上',
+  };
   const r = rarities[lvl-1]||'普通';
-  const color = v.baseColor;
+  const color = colors[r];
+  const icon = LICON[dragon.idx]||LICON[lvl]||'🐣';
   const cps = COIN_S[lvl]||0;
   const desc = skills[r];
-  showDetailModal({level:lvl, icon:v.icon, cps, r, color, names:names[lvl-1], desc, dragon, v});
+  showDetailModal({level:lvl, icon, cps, r, color, names:names[lvl-1], desc, dragon});
 }
 
-function showDetailModal({level, icon, cps, r, color, names, desc, dragon, v}){
-  // 视觉参数降级处理
-  if(!v){v={iconSize:48,stage:1,stageName:'幼生',glowColor:'#aaa',filter:'',border:'#aaa',shadow:'rgba(180,140,80,.25)',baseColor:'#8b6914',skinName:'默认原皮',skinRarity:0};}
+function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
   // 判断是最高级灵兽还是普通预览
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
   const isBest = dragon && dragon.id === best.id;
@@ -168,64 +142,41 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon, v}){
   // 星级处理
   const star=(dragon&&dragon.star)||1;
   const smult=star>1?starMult(star):null;
-  const starsHtml=star>=1?'<div style="font-size:16px;color:#c8860a;letter-spacing:2px;margin-bottom:6px;">'+'⭐'.repeat(Math.min(star,5))+'</div>':'';
+  const starsHtml=star>=1?'<div style="font-size:16px;color:#ffd700;letter-spacing:2px;margin-bottom:6px;">'+'⭐'.repeat(Math.min(star,5))+'</div>':'';
   const upgradeBtn=(dragon&&canUpgradeStar(dragon))?
     `<button onclick="event.stopPropagation();upgradeStar('${dragon.id}')" class="star-up-btn">⬆ 升星（需 ${starUpgradeCost(star)} 金币）</button>`:
     (dragon&&star<5?'<div style="font-size:10px;color:#555;margin-top:4px;">满级后可升星 ⭐</div>':'');
   const finalCps=Math.floor(cps*(smult||1));
-  // ═══ 皮肤+生肖+等级 叠加视觉 ═══
-  const skinBorderColor = v.border;
-  const skinBgAlpha = Math.min(v.bgAlpha * 2, 0.3);
-  const bgR = parseInt(v.baseColor.slice(1,3),16);
-  const bgG = parseInt(v.baseColor.slice(3,5),16);
-  const bgB = parseInt(v.baseColor.slice(5,7),16);
-  const bgHex = `rgba(${bgR},${bgG},${bgB},${skinBgAlpha})`;
-  const glowBlur = 8 + v.stage * 6 + v.skinRarity * 2;
-  const iconFontSize = 48 + v.stage * 4 + v.skinRarity * 2;
-  el.innerHTML = `<div style="background:${bgHex};border:1.5px solid ${skinBorderColor};border-radius:28px;padding:36px 32px;width:min(360px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 40px ${v.shadow},0 0 ${glowBlur}px ${v.shadow};">
+  el.innerHTML = `<div style="background:linear-gradient(160deg,#0d0d2a 0%,#1a1a3a 100%);border:1.5px solid ${color}44;border-radius:28px;padding:36px 32px;width:min(340px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 40px ${color}22;">
     ${tag}
-    <div style="font-size:10px;letter-spacing:4px;color:${v.baseColor};opacity:.8;margin-bottom:4px;">${header}</div>
-    <!-- 灵兽大图：生肖+等级+皮肤 三叠加 -->
-    <div style="position:relative;display:inline-block;margin:12px 0;">
-      <div style="font-size:${iconFontSize}px;line-height:1.2;filter:${v.filter} drop-shadow(0 0 ${8+v.stage*3}px ${v.glowColor});">${icon}</div>
-      ${v.stage >= 4 ? '<div style="position:absolute;top:-4px;right:-4px;font-size:12px;animation:pulse 2s infinite;">✨</div>' : ''}
-      ${v.stage >= 5 ? '<div style="position:absolute;bottom:-2px;left:-6px;font-size:10px;animation:pulse 2.5s infinite .5s;">⚡</div>' : ''}
-    </div>
+    <div style="font-size:11px;letter-spacing:4px;color:${color};opacity:.8;margin-bottom:4px;">${header}</div>
+    <div style="font-size:80px;margin:12px 0;filter:drop-shadow(0 0 30px ${color}66);">${icon}</div>
     ${starsHtml}
-    <!-- 名称 + 品阶 -->
-    <div style="font-size:20px;font-weight:900;color:#1A1A1A;margin-bottom:2px;">${LNAME[level]||'灵兽'}</div>
-    <div style="font-size:11px;color:${v.baseColor};letter-spacing:2px;margin-bottom:4px;">
-      ${v.stageName} · ${r}阶${smult?' ×'+smult+'产金':''}
-    </div>
-    <!-- 当前装备皮肤 -->
-    ${v.skinId !== 'default' ? `<div style="font-size:10px;color:${v.border};letter-spacing:1px;margin-bottom:6px;padding:2px 8px;border:1px solid ${v.border};border-radius:10px;display:inline-block;">🎨 ${v.skinName}</div>` : ''}
-    <!-- 金币产出 -->
-    <div style="font-size:36px;font-weight:900;color:${v.baseColor};margin:8px 0;">+${finalCps}/s</div>
-    <div style="font-size:11px;color:#555;margin-bottom:14px;">每秒产出 <strong style="color:#8b6010;">${finalCps}</strong> 金币${smult?'（⭐×'+smult+'）':''}</div>
-    <!-- 描述卡 -->
-    <div style="background:rgba(255,255,255,.92);border-radius:16px;padding:14px;margin-bottom:14px;text-align:left;font-size:12px;color:#333;line-height:1.9;">
-      <div style="color:${v.baseColor};font-weight:700;margin-bottom:6px;font-size:13px;">⚡ ${names}</div>
+    <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:2px;">${LNAME[level]||'灵兽'}</div>
+    <div style="font-size:12px;color:${color};letter-spacing:3px;margin-bottom:8px;">${r}${smult?' ×'+smult+'产金':''}</div>
+    <div style="font-size:36px;font-weight:900;color:${color};margin:8px 0;">+${finalCps}/s</div>
+    <div style="font-size:12px;color:#888;margin-bottom:16px;">每秒产出 <span style="color:#ffd700;">${finalCps}</span> 金币${smult?'（⭐×'+smult+'）':''}</div>
+    <div style="background:rgba(255,255,255,.04);border-radius:16px;padding:16px;margin-bottom:16px;text-align:left;font-size:13px;color:#999;line-height:1.9;">
+      <div style="color:${color};font-weight:700;margin-bottom:8px;font-size:14px;">⚡ ${names}</div>
       <div>${desc}</div>
     </div>
-    <!-- 三属性卡 -->
-    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px;">
-      <div style="flex:1;background:rgba(255,255,255,.92);border:1px solid rgba(180,140,80,.2);border-radius:10px;padding:8px 4px;text-align:center;">
-        <div style="font-size:16px;color:${v.baseColor};font-weight:700;">${isBest ? G.dragons.length : (dragon ? 1 : '?')}</div>
-        <div style="font-size:9px;color:#555;letter-spacing:1px;">${isBest ? '灵兽' : '等级'}</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;">
+      <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
+        <div style="font-size:18px;">${isBest ? G.dragons.length : (dragon ? 1 : '?')}</div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;">${isBest ? '灵兽总数' : '该等级'}</div>
       </div>
-      <div style="flex:1;background:rgba(255,255,255,.92);border:1px solid rgba(180,140,80,.2);border-radius:10px;padding:8px 4px;text-align:center;">
-        <div style="font-size:16px;color:${v.baseColor};font-weight:700;">Lv.${level}</div>
-        <div style="font-size:9px;color:#555;letter-spacing:1px;">等级</div>
+      <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
+        <div style="font-size:18px;">Lv.${level}</div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;">当前等级</div>
       </div>
-      <div style="flex:1;background:rgba(255,255,255,.92);border:1px solid rgba(180,140,80,.2);border-radius:10px;padding:8px 4px;text-align:center;">
-        <div style="font-size:14px;color:${v.baseColor};font-weight:700;">${r}</div>
-        <div style="font-size:9px;color:#555;letter-spacing:1px;">品阶</div>
+      <div style="flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;">
+        <div style="font-size:18px;color:${color};">${r}</div>
+        <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
       </div>
     </div>
-    <!-- 装备/套装 -->
-    ${(()=>{var eq=getEquipTotals?getEquipTotals():{atk:0,def:0,spd:0};var sl=getSuitLevel?getSuitLevel(G.forge.items):0;var se=sl>0&&getSuitEffect?getSuitEffect(G.forge.items):null;var total=eq.atk+eq.def+eq.spd;if(total===0&&!se)return'';var sh='<div style="display:flex;gap:6px;justify-content:center;margin-bottom:6px;">'+(eq.atk?'<div style="flex:1;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:7px 4px;text-align:center;"><div style="font-size:14px;color:#c62828;font-weight:700;">+'+eq.atk+'</div><div style="font-size:9px;color:#555;">⚔️攻</div></div>':'')+(eq.def?'<div style="flex:1;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:7px 4px;text-align:center;"><div style="font-size:14px;color:#1565c0;font-weight:700;">+'+eq.def+'</div><div style="font-size:9px;color:#555;">🛡️防</div></div>':'')+(eq.spd?'<div style="flex:1;background:rgba(134,239,172,.08);border:1px solid rgba(134,239,172,.2);border-radius:10px;padding:7px 4px;text-align:center;"><div style="font-size:14px;color:#2e7d32;font-weight:700;">+'+eq.spd+'</div><div style="font-size:9px;color:#555;">💨速</div></div>':'')+'</div>';var shtml=se?'<div style="background:linear-gradient(135deg,rgba(255,140,0,.1),rgba(255,51,51,.1));border:1px solid rgba(255,140,0,.3);border-radius:10px;padding:5px 8px;margin-bottom:6px;text-align:center;font-size:10px;font-weight:700;color:#c62828;letter-spacing:1px;">⛩️ '+se.name+' · '+se.desc+'</div>':'<div style="font-size:10px;color:#555;padding:2px 0 6px;text-align:center;">'+(sl>0?'已装备 '+sl+' 件':'无装备')+'</div>';return sh+shtml;})()}
+    ${(()=>{var eq=getEquipTotals?getEquipTotals():{atk:0,def:0,spd:0};var sl=getSuitLevel?getSuitLevel(G.forge.items):0;var se=sl>0&&getSuitEffect?getSuitEffect(G.forge.items):null;var total=eq.atk+eq.def+eq.spd;if(total===0&&!se)return'';var sh='<div style="display:flex;gap:6px;justify-content:center;margin-bottom:7px;">'+(eq.atk?'<div style="flex:1;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#f87171;font-weight:700;">+'+eq.atk+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">⚔️攻击</div></div>':'')+(eq.def?'<div style="flex:1;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#60a5fa;font-weight:700;">+'+eq.def+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">🛡️防御</div></div>':'')+(eq.spd?'<div style="flex:1;background:rgba(134,239,172,.07);border:1px solid rgba(134,239,172,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#86efac;font-weight:700;">+'+eq.spd+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">💨速度</div></div>':'')+'</div>';var shtml=se?'<div style="background:linear-gradient(135deg,#ff8c00,#ff3333);border-radius:10px;padding:6px 10px;margin-bottom:8px;text-align:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:1px;">⛩️ '+se.name+' · '+se.desc+'</div>':'<div style="font-size:10px;color:#555;padding:4px 0 8px;text-align:center;">'+(sl>0?'已装备 '+sl+' 件（'+sl+'件待激活）':'无套装')+'</div>';return sh+shtml;})()}
     ${upgradeBtn}
-    <div style="font-size:10px;color:#aaa;margin-top:10px;">点击任意处关闭</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;">点击任意处关闭</div>
   </div>`;
   el.onclick = e => { if(e.target===el) el.remove(); };
   document.body.appendChild(el);
@@ -234,7 +185,7 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon, v}){
 // 点击下一级缩略图 → 弹出升级预览弹窗
 function previewNextLevel(lvl, cps, icon){
   const rarity = lvl<=2?'普通':lvl<=4?'稀有':lvl<=7?'珍稀':lvl<=10?'传说':lvl<=13?'史诗':'神话';
-  const rarColors = {'普通':'#555','稀有':'#1565c0','珍稀':'#1976d2','传说':'#6a1b9a','史诗':'#e65100','神话':'#c8860a'};
+  const rarColors = {'普通':'#aaa','稀有':'#7eb8ff','珍稀':'#42a5f5','传说':'#9c27b0','史诗':'#ff9800','神话':'#ffd700'};
   const diff = cps - (COIN_S[G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b).level]||0);
   const el = document.createElement('div');
   el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);';
@@ -243,7 +194,7 @@ function previewNextLevel(lvl, cps, icon){
     <div style="font-size:72px;margin:12px 0;filter:drop-shadow(0 0 24px ${rarColors[rarity]}55);">${icon}</div>
     <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;">Lv.${lvl} · ${LNAME[lvl]||'灵兽'}</div>
     <div style="font-size:28px;font-weight:900;color:${rarColors[rarity]};margin:10px 0;">+${cps}/s</div>
-    <div style="font-size:13px;color:#555;margin:8px 0 20px;">比当前等级多 <span style="color:#c8860a;font-weight:700;">+${diff}/s</span></div>
+    <div style="font-size:13px;color:#888;margin:8px 0 20px;">比当前等级多 <span style="color:#ffd700;">+${diff}/s</span></div>
     <div style="background:rgba(255,255,255,.04);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;font-size:12px;color:#666;line-height:1.8;">
       <div>🎯 两张同等级灵兽可合成升级</div>
       <div>⚡ 合成成功率：${getCultBonus ? (100+getCultBonus().mergeBonus*100).toFixed(0)+'%' : '100%'}</div>
@@ -256,7 +207,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-var G = {zodiac:-1,fate:-1,created:false,coins:10000,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1,_isTenMode:false};
+var G = {zodiac:-1,fate:-1,created:false,coins:10000,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 var TASKS = [
@@ -287,7 +238,7 @@ var ACTIVITIES = [
     icon:'🎁',
     name:'周末双倍召唤',
     desc:'周六/周日召唤产出翻倍',
-    color:'#e65100',
+    color:'#ff9800',
     active:()=>{const d=new Date();return d.getDay()===0||d.getDay()===6;},
     summonBonus:1,  // 召唤产出的额外倍率加成
     coinBonus:0,
@@ -455,32 +406,21 @@ function renderGrid(){
     cell.className='d-cell';
     cell.style.aspectRatio='1';
     cell.style.borderRadius='12px';
-    cell.style.border='1.5px solid rgba(180,140,80,.25)';
-    cell.style.background='rgba(255,255,255,.92)';
-    cell.style.padding='3px';
+    cell.style.border='1.5px solid rgba(255,255,255,.06)';
+    cell.style.background='rgba(255,255,255,.02)';
     cell.style.cursor='pointer';
     cell.dataset.idx=i;
     const d=G.dragons.find(d=>d.idx===i);
     if(d){
-      const v = getDragonVisual(d);
+      const ri = rarIdx(d.level);
+      const bg = RAR_COLORS[ri];
+      const bd = RAR_BORDER[ri];
       const card=document.createElement('div');
-      card.className='d-card ds-stage-' + v.stage;
+      card.className='d-card';
       card.dataset.id=d.id;
-      card.style.background=v.baseColor + Math.round(v.bgAlpha * 255).toString(16).padStart(2,'0');
-      card.style.border=`1px solid ${v.border}`;
-      card.style.borderRadius='10px';
-      const glowBlur = 4 + v.stage * 2;
-      const glowSpread = v.skinRarity >= 3 ? (4 + v.stage * 2) : 0;
-      card.style.boxShadow=`0 0 ${glowBlur}px ${glowSpread}px ${v.shadow},inset 0 1px 0 rgba(255,255,255,.3)`;
-      // 阶段成长：低等级朴素，高等级有光效
-      let iconStyle = `display:block;text-align:center;font-size:${v.iconSize}px;filter:${v.filter} drop-shadow(0 0 ${v.stage}px ${v.glowColor});line-height:1.2;`;
-      card.innerHTML=`<span class="d-icon" style="${iconStyle}">${v.icon}</span>`
-        + `<span class="d-lv" style="display:block;text-align:center;font-size:9px;color:${v.baseColor};font-weight:700;margin-top:1px;opacity:.75;">Lv${d.level}</span>`
-        + `<span class="d-skin-badge" style="display:none;position:absolute;top:2px;right:2px;font-size:7px;padding:1px 3px;border-radius:4px;background:${v.border};color:#fff;opacity:.85;">${v.skinId==='default'?'':v.skinId}</span>`;
-      card.style.position='relative';
-      if(v.skinId !== 'default'){
-        card.querySelector('.d-skin-badge').style.display='block';
-      }
+      card.style.background=`${bg}`;
+      card.style.border=`1px solid ${bd}`;
+      card.innerHTML=`<span class="d-icon" style="filter:drop-shadow(0 0 8px ${bd.replace(',.3)',',.4)').replace('rgba(','rgba(').replace(',.4)','40)')}">${LICON[d.level]||'?'}</span><span class="d-lv" style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;">Lv${d.level}</span><span class="d-gold" style="font-size:9px;color:rgba(255,215,0,.6);">+${COIN_S[d.level]}/s</span>`;
       setupDrag(card,d);
       card.onclick=e=>{e.stopPropagation();showDragonDetail(d.id);};
       cell.appendChild(card);
@@ -505,7 +445,7 @@ function showCellHint(idx,cellEl){
   const name=LNAME[lvl]||'灵兽';
   const rarities=['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
   const r=rarities[lvl-1]||'普通';
-  const rarColors={普通:'#555',稀有:'#1565c0',珍稀:'#1976d2',传说:'#6a1b9a',史诗:'#e65100',神话:'#c8860a'};
+  const rarColors={普通:'#aaa',稀有:'#7eb8ff',珍稀:'#42a5f5',传说:'#9c27b0',史诗:'#ff9800',神话:'#ffd700'};
   const color=rarColors[r];
   const owned=G.dragons.some(d=>d.level===lvl);
   const tip=owned?'已拥有该等级，等待召唤归来':'通过召唤获得 · 两张同等级可合成升级';
@@ -700,79 +640,71 @@ function getSummonLevel(pool){
   return pool[pool.length-1].level;
 }
 
-
-// ── 十连模式切换（toggle 按钮，无弹窗）────────────────────
-function toggleTenMode(){
-  G._isTenMode = !G._isTenMode;
-  var btn = document.getElementById('batchBtn10');
-  if(btn){
-    if(G._isTenMode){
-      btn.style.background = 'linear-gradient(135deg,#c0392b,#e74c3c)';
-      btn.style.color = '#fff';
-      btn.style.boxShadow = '0 2px 8px rgba(192,57,43,.35)';
-      btn.textContent = '十连模式';
-    } else {
-      btn.style.background = 'linear-gradient(135deg,#c8a020,#8b6010)';
-      btn.style.color = '#1A1A1A';
-      btn.style.boxShadow = '0 2px 8px rgba(180,120,20,.25)';
-      btn.textContent = '十连召唤';
-    }
-  }
-  updateSummonBtnText();
-  if(typeof playClick==='function') playClick();
+// ── 召唤选择面板（两步骤操作）───────────────────────────────
+function openSummonPanel(){
+  var panel = document.getElementById('summonConfirmPanel');
+  if(!panel) return;
+  // 动态构建选项
+  var n = G.summonCount;
+  var tenCost = Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*10;
+  var coinCost = G._coinCost || 100;
+  var qiCost = G._qiCost || 500;
+  // 生成选项HTML
+  var optsHtml = '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;">' +
+    '<button onclick="G._pendingSummon=\'ten\';refreshSummonOpts(this)" id="sopt-ten" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.4);background:rgba(245,240,228,.88);color:#8b6914;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">✨十连召唤<div style="font-size:10px;color:#8b6914;opacity:.7;margin-top:2px;">'+tenCost+'金币</div></button>' +
+    '<button onclick="G._pendingSummon=\'coin\';refreshSummonOpts(this)" id="sopt-coin" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.3);background:rgba(245,240,228,.88);color:rgba(80,40,10,.5);font-size:12px;font-weight:600;cursor:pointer;">💰单抽金币<div style="font-size:10px;opacity:.6;margin-top:2px;">'+coinCost+'金币</div></button>' +
+    '<button onclick="G._pendingSummon=\'qi\';refreshSummonOpts(this)" id="sopt-qi" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.3);background:rgba(245,240,228,.88);color:rgba(80,40,10,.5);font-size:12px;font-weight:600;cursor:pointer;">☁️单抽龙气<div style="font-size:10px;opacity:.6;margin-top:2px;">'+qiCost+'龙气</div></button>' +
+    '</div>';
+  // 替换 scpTitle 后的内容
+  panel.innerHTML = '<div style="background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.4);border-radius:20px 20px 0 0;padding:20px clamp(16px,5vw,40px) calc(20px + env(safe-area-inset-bottom,20px));width:100%;max-width:480px;text-align:center;">' +
+    '<div style="font-size:12px;color:rgba(80,40,10,.45);letter-spacing:2px;margin-bottom:14px;">✦ 选择召唤方式 ✦</div>' +
+    optsHtml +
+    '<div style="font-size:11px;color:rgba(80,40,10,.45);margin-bottom:16px;">当前金币：<span style="color:#8b6914;font-weight:700;">'+G.coins.toLocaleString()+'</span></div>' +
+    '<div style="display:flex;gap:10px;justify-content:center;">' +
+    '<button onclick="closeSummonPanel()" style="flex:1;padding:12px;border-radius:14px;border:1.5px solid rgba(180,140,80,.3);background:transparent;color:rgba(80,40,10,.5);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:2px;">取消</button>' +
+    '<button onclick="confirmSummon()" id="scpConfirmBtn" style="flex:2;padding:12px;border-radius:14px;border:none;background:rgba(180,140,80,.25);color:rgba(80,40,10,.4);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:2px;" disabled>请先选择</button>' +
+    '</div></div>';
+  G._pendingSummon = null;
+  panel.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;background:rgba(80,40,10,.35);backdrop-filter:blur(4px);';
 }
 
-function updateSummonBtnText(){
-  var n = G.summonCount || 0;
-  var coinBase = G._coinCost || 100;
-  var qiBase = G._qiCost || 500;
-  var tenCost = Math.floor(coinBase * Math.pow(1.2, Math.floor(n/10))) * 10;
-  var coinCost = Math.floor(coinBase * Math.pow(1.2, Math.floor(n/10)));
-  var qiCost = Math.floor(qiBase * Math.pow(1.2, Math.floor(n/10)));
-  var coinEl = document.getElementById('coinCost');
-  var qiEl = document.getElementById('qiCost');
-  if(coinEl){
-    coinEl.textContent = G._isTenMode ? tenCost : coinCost;
-  }
-  if(qiEl){
-    qiEl.textContent = G._isTenMode ? (qiCost * 10) : qiCost;
-  }
-  // 十连时按钮文字说明
-  var coinBtn = document.getElementById('btnCoin');
-  if(coinBtn){
-    var iconSpan = coinBtn.querySelector('span:first-child');
-    if(iconSpan) iconSpan.textContent = '💰';
-  }
-  var qiBtn = document.getElementById('btnQi');
-  if(qiBtn){
-    var iconSpan = qiBtn.querySelector('span:first-child');
-    if(iconSpan) iconSpan.textContent = '☁️';
-  }
+function refreshSummonOpts(btn){
+  ['ten','coin','qi'].forEach(function(t){
+    var b = document.getElementById('sopt-'+t);
+    if(b){
+      b.style.borderColor = t===btn.id.split('-')[1] ? 'rgba(180,120,20,.7)' : 'rgba(180,140,80,.3)';
+      b.style.background = t===btn.id.split('-')[1] ? 'rgba(212,160,23,.2)' : 'rgba(245,240,228,.88)';
+      b.style.color = t===btn.id.split('-')[1] ? '#8b6914' : 'rgba(80,40,10,.5)';
+    }
+  });
+  var conf = document.getElementById('scpConfirmBtn');
+  if(conf){ conf.disabled = false; conf.style.background='linear-gradient(135deg,#8b6914,#d4a017)'; conf.style.color='#fff'; conf.style.cursor='pointer'; }
+}
 
-  // HUD 金币显示
-  var hudCoins = document.getElementById('hudCoins');
-  if(hudCoins) hudCoins.textContent = fmtNum(G.coins);
+function closeSummonPanel(){
+  var panel = document.getElementById('summonConfirmPanel');
+  if(panel) panel.style.display = 'none';
+  G._pendingSummon = null;
+}
+
+function confirmSummon(){
+  var type = G._pendingSummon;
+  closeSummonPanel();
+  if(!type){ showToast('info','请先选择召唤方式'); return; }
+  if(type==='ten'){ doTenSummon(); return; }
+  if(type==='coin'){ summonCoin(); return; }
+  if(type==='qi'){ summonQi(); return; }
 }
 
 // ── 十连抽入口（从 index.html 的 doTenSummon() 调用） ──
-// ── 十连入口（支持 coin/qi 两种资源）─────────────────────
-function doTenSummon(type){
-  type = type || 'coin';
-  var batch=10, n=G.summonCount, cost, pool;
-  if(type==='coin'){
-    cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
-    if(G.coins<cost){showToast('error','金币不足 '+cost+'💰');if(typeof playSynthFail==='function')playSynthFail();return;}
-    G.coins-=cost;
-    pool=[{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}];
-  } else {
-    var qiCostEach=Math.floor(500*Math.pow(1.1,Math.floor(n/15)));
-    cost=qiCostEach*batch;
-    if(G.qi<cost){showNotif('error','龙气不足！');return;}
-    G.qi-=cost;
-    pool=[{level:4,weight:30},{level:5,weight:18},{level:6,weight:10}];
-  }
+function doTenSummon(){
+  var batch=10;
+  var n=G.summonCount;
+  var cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
+  if(G.coins<cost){showToast('error','金币不足 '+cost+'💰');if(typeof playSynthFail==='function')playSynthFail();return;}
+  G.coins-=cost;
   var results=[];
-  for(var i=0;i<batch;i++) results.push(getSummonLevel(pool));
+  for(var i=0;i<batch;i++) results.push(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
   // 检查剩余格子
   var used=new Set(G.dragons.map(function(d){return d.idx})),empty=[];
   for(var k=0;k<TOTAL;k++) if(!used.has(k)) empty.push(k);
@@ -793,49 +725,34 @@ function doTenSummon(type){
 }
 
 // ── 弹窗改为页面顶部固定（max-width:420px，小字体紧凑） ──
-// ── 十连结果弹窗：直接展示全部卡片，无翻转/无问号 ──────────
 function showBatchSummonResult(results){
   var rarNames=['普通','稀有','史诗','传说','神话'];
-  var rarColors=['#5a7a5a','#2a7abf','#8b3ac8','#c8860a','#d44010'];
-  var bgColors=['rgba(240,235,228,.95)','rgba(225,240,255,.95)','rgba(240,228,255,.95)','rgba(255,245,210,.95)','rgba(255,238,228,.95)'];
+  var rarColors=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
+  // 统计各稀有度数量
   var cnt=[0,0,0,0,0];results.forEach(function(lv){cnt[rarIdx(lv)]++;});
   var summary='';cnt.forEach(function(c,i){if(c>0)summary+=rarNames[i]+'×'+c+' ';});
-  var cardsHtml='';
+  var html='<div style="padding:14px 10px;text-align:center;">';
+  html+='<div style="font-size:13px;font-weight:700;color:#8b6914;margin-bottom:10px;letter-spacing:2px">✦ 召唤结果 ✦</div>';
+  html+='<div style="font-size:11px;color:#888;margin-bottom:12px">'+summary.trim()+'</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px">';
   results.forEach(function(lv){
-    var t=rarIdx(lv), color=rarColors[t], bg=bgColors[t];
-    var rarityLabel=['','普通','稀有','史诗','传说','神话'][lv];
-    var name=LNAME[lv]||'灵兽';
-    var icon=LICON[lv]||'🐣';
-    var cpsdesc=lv>=4?'产出龙气':'产出金币';
-    cardsHtml+='<div style="display:flex;flex-direction:column;align-items:center;padding:10px 8px;background:'+bg+';border:1.5px solid '+color+'60;border-radius:12px;min-width:68px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.06);">';
-    cardsHtml+='<div style="font-size:38px;line-height:1;">'+icon+'</div>';
-    cardsHtml+='<div style="font-size:10px;font-weight:800;color:'+color+';margin-top:3px;">'+name+'</div>';
-    cardsHtml+='<div style="font-size:9px;color:#666;margin-top:1px;">['+rarityLabel+']</div>';
-    cardsHtml+='<div style="font-size:8px;color:#888;margin-top:2px;">'+cpsdesc+'</div>';
-    cardsHtml+='</div>';
+    var t=rarIdx(lv),color=rarColors[t];
+    html+='<div style="display:flex;flex-direction:column;align-items:center;padding:6px 8px;background:rgba(255,255,255,.04);border:1px solid '+color+'44;border-radius:8px;min-width:46px">';
+    html+='<div style="font-size:26px">'+(LICON[lv]||'?')+'</div>';
+    html+='<div style="font-size:9px;font-weight:700;color:'+color+'">'+(LNAME[lv]||'灵兽')+'</div>';
+    html+='</div>';
   });
-  var html='<div style="padding:16px 12px;text-align:center;background:rgba(255,255,255,.85);border-radius:16px;">';
-  html+='<div style="font-size:15px;font-weight:800;color:#333;letter-spacing:3px;margin-bottom:6px;">✦ 召唤结果 ✦</div>';
-  html+='<div style="font-size:12px;color:#555;font-weight:600;margin-bottom:14px;">'+summary.trim()+'</div>';
-  html+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;">'+cardsHtml+'</div>';
-  html+='<button onclick="document.getElementById(\'batchSummonOverlay\').remove();try{renderGrid&&renderGrid();updateHud&&updateHud();}catch(e){}" style="width:100%;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#8b6914,#d4a017);color:#222;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 3px 12px rgba(180,120,20,.3);">收下 ✦</button>';
+  html+='</div>';
+  html+='<div style="font-size:11px;color:#555;padding:6px 0">点击任意区域关闭</div>';
   html+='</div>';
   var old=document.getElementById('batchSummonOverlay');if(old)old.remove();
   var overlay=document.createElement('div');
   overlay.id='batchSummonOverlay';
-  overlay.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(60,30,10,.45);backdrop-filter:blur(6px);padding:16px;';
-  overlay.innerHTML='<div style="width:min(480px,100%);max-height:88vh;overflow-y:auto;">'+html+'</div>';
-  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  overlay.style.cssText='position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:9000;width:min(420px,96vw);max-height:78vh;overflow-y:auto;';
+  overlay.innerHTML='<div style="background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.4);border-radius:16px;padding:0;">'+html+'</div>';
+  overlay.onclick=function(){overlay.remove();try{updateHeroSection();renderGrid&&renderGrid();}catch(e){}};
   document.body.appendChild(overlay);
   if(typeof playTenSummonSfx==='function')playTenSummonSfx();
-  G._isTenMode=false; // 自动切回单抽
-  var btn=document.getElementById('batchBtn10');
-  if(btn){
-    btn.style.background='linear-gradient(135deg,#8b6914,#d4a017)';
-    btn.style.color='#222';
-    btn.style.boxShadow='0 2px 8px rgba(180,120,20,.25)';
-    btn.textContent='✨ 十连召唤';
-  }
 }
 function setSummonBatch(n){
   G.summonBatch=n;
@@ -844,16 +761,6 @@ function setSummonBatch(n){
     b.className=v===n?'active':'';
   });
   updateHud&&updateHud();
-}
-
-// ── 金币单抽（含十连模式切换）─────────────────────────────
-function summonCoin(){
-  if(G._isTenMode){ doTenSummon('coin'); return; }
-  const n = G.summonCount;
-  const cost = Math.floor(100*Math.pow(1.2,Math.floor(n/10)));
-  if(G.coins<cost){showNotif('error','金币不足！');if(typeof playSynthFail==='function')playSynthFail();return;}
-  G.coins-=cost;
-  doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
 }
 
 function summonQi(){
@@ -955,9 +862,9 @@ function showComboScore(level){
 function showComboMilestone(combo){
   const el=document.createElement('div');
   el.className='combo-milestone';
-  const colors={3:'#2e7d32',5:'#e65100',7:'#7b3fcb',10:'#c8860a'};
+  const colors={3:'#8BC34A',5:'#FF9800',7:'#e040fb',10:'#ffd700'};
   const labels={3:'GOOD!',5:'GREAT!',7:'AMAZING!',10:'LEGENDARY!'};
-  const c=colors[combo]||'#c8860a';
+  const c=colors[combo]||'#ffd700';
   el.style.color=c;
   el.style.textShadow="0 0 30px "+c+",0 0 60px "+c;
   el.innerHTML="⚡<br>"+combo+"× COMBO<br><span style=\"font-size:.45em;letter-spacing:2px;\">"+(labels[combo]||"")+"<\/span>";
@@ -1196,53 +1103,27 @@ try{ initAudio(); }catch(e){}
 // ═══════════════════════════════════════
 // P0-2 灵兽皮肤系统
 // ═══════════════════════════════════════
-// ═══════════════════════════════════════════════════
-// 10 皮肤完整配置（含购买数据 + 视觉属性）
-// ═══════════════════════════════════════════════════
 var DRAGON_SKINS = [
-  {id:'default',  name:'默认原皮',   cost:0,    rarity:0, label:'普通', icon:'🐣', color:'#8b6914', glow:'#d4a017', filter:'',              border:'#aaa',         shadow:'rgba(180,140,80,.25)', visualRarity:0},
-  {id:'gold',     name:'鎏金天命',  cost:800,  rarity:4, label:'传说', icon:'🐉', color:'#d4a017', glow:'#ffd700', filter:'sepia(0) saturate(3) hue-rotate(0deg)', border:'#ffd700',      shadow:'rgba(255,215,0,.35)',  visualRarity:4},
-  {id:'azure',    name:'玄青龙纹',  cost:500,  rarity:3, label:'珍稀', icon:'🐲', color:'#1565c0', glow:'#64b5f6', filter:'sepia(0) saturate(2) hue-rotate(200deg)', border:'#64b5f6',    shadow:'rgba(21,101,192,.35)', visualRarity:3},
-  {id:'flame',    name:'赤焰战魂',  cost:800,  rarity:4, label:'传说', icon:'🐉', color:'#c62828', glow:'#ff5722', filter:'sepia(0.5) saturate(3) hue-rotate(-20deg)', border:'#ff5722',   shadow:'rgba(198,40,40,.35)',  visualRarity:4},
-  {id:'jade',     name:'翡翠灵韵',  cost:500,  rarity:3, label:'珍稀', icon:'🐲', color:'#2e7d32', glow:'#66bb6a', filter:'sepia(0) saturate(2) hue-rotate(80deg)', border:'#66bb6a',   shadow:'rgba(46,125,50,.35)',  visualRarity:3},
-  {id:'purple',   name:'紫霄星芒',  cost:500,  rarity:3, label:'珍稀', icon:'✨', color:'#7b3fcb', glow:'#ce93d8', filter:'sepia(0) saturate(2) hue-rotate(280deg)', border:'#ce93d8',   shadow:'rgba(123,63,203,.35)', visualRarity:3},
-  {id:'silver',   name:'白银圣甲',  cost:300,  rarity:1, label:'稀有', icon:'🐉', color:'#9e9e9e', glow:'#e0e0e0', filter:'sepia(0) saturate(0.5) hue-rotate(0deg)', border:'#e0e0e0',  shadow:'rgba(158,158,158,.35)',visualRarity:2},
-  {id:'dark',     name:'九幽暗纹',  cost:800,  rarity:4, label:'传说', icon:'🐲', color:'#4a148c', glow:'#7b1fa2', filter:'sepia(0.8) saturate(2) hue-rotate(260deg) brightness(0.7)', border:'#7b1fa2',shadow:'rgba(123,31,162,.4)', visualRarity:4},
-  {id:'crystal',  name:'琉璃幻彩',  cost:300,  rarity:1, label:'稀有', icon:'💎', color:'#00838f', glow:'#80deea', filter:'sepia(0) saturate(1.5) hue-rotate(170deg) brightness(1.1)', border:'#80deea', shadow:'rgba(0,131,143,.35)',visualRarity:2},
-  {id:'destiny',  name:'天命神兽',  cost:1500, rarity:4, label:'神话', icon:'☀️', color:'#f57f17', glow:'#ffe082', filter:'sepia(0.1) saturate(3) hue-rotate(10deg) brightness(1.1)', border:'#ffe082',shadow:'rgba(255,224,130,.4)',visualRarity:4},
+  // 0 普通品质
+  {id:'gold',     name:'金色幻彩', icon:'🐥', color:'#ffd700', cost:300,  rarity:0, rarityLabel:'普通'},
+  {id:'silver',   name:'银月龙影', icon:'🐤', color:'#c0c0c0', cost:300,  rarity:0, rarityLabel:'普通'},
+  // 1 稀有品质
+  {id:'ice',      name:'寒冰龙影', icon:'🐦', color:'#7eb8ff', cost:600,  rarity:1, rarityLabel:'稀有'},
+  {id:'flame',    name:'烈焰龙魂', icon:'🦅', color:'#ff6b35', cost:600,  rarity:1, rarityLabel:'稀有'},
+  {id:'nature',   name:'翠木龙吟', icon:'🌿', color:'#4caf50', cost:600,  rarity:1, rarityLabel:'稀有'},
+  // 2 珍稀品质
+  {id:'cosmic',   name:'星空龙灵', icon:'🦉', color:'#b57edc', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  {id:'jade',     name:'翡翠龙鳞', icon:'💎', color:'#80cbc4', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  {id:'crystal',  name:'水晶龙魄', icon:'🔮', color:'#ce93d8', cost:1500, rarity:2, rarityLabel:'珍稀'},
+  // 3 传说品质
+  {id:'phoenix',  name:'凤凰涅槃', icon:'🔥', color:'#ff9800', cost:3000, rarity:3, rarityLabel:'传说'},
+  {id:'thunder',  name:'雷霆祖龙', icon:'⚡', color:'#a0d8ef', cost:3000, rarity:3, rarityLabel:'传说'},
+  // 4 神话品质（最稀有，仅龙气购买）
+  {id:'celestial',name:'天命真龙', icon:'💫', color:'#ffd700', cost:8000, rarity:4, rarityLabel:'神话'},
+  {id:'void',     name:'虚空祖龙', icon:'🌌', color:'#9c27b0', cost:8000, rarity:4, rarityLabel:'神话'},
 ];
-// 稀有度颜色标签
-var SKIN_RARITY_COLORS = ['#555','#1565c0','#7b3fcb','#c8860a','#c62828'];
-var SKIN_RARITY_NAMES  = ['普通','稀有','珍稀','传说','神话'];
-
-// ═══════════════════════════════════════════════════
-// getDragonVisual 使用 DRAGON_SKINS（统一购买数据+视觉）
-// ═══════════════════════════════════════════════════
-function getDragonVisual(dragon){
-  const zodiac = dragon.z !== undefined ? dragon.z : 0;
-  const level  = dragon.level || 1;
-  const skinId = G.equippedSkin || 'default';
-  const skin   = DRAGON_SKINS.find(s => s.id === skinId) || DRAGON_SKINS[0];
-  const stage  = getLevelStage(level);
-  const icon   = ZOD_ICON[zodiac] ? (ZOD_ICON[zodiac][level] || ZOD_ICON[zodiac][1]) : '🐣';
-  const stageSuffix = {1:'',2:'💫',3:'✨',4:'🌟',5:'⚡'}[stage] || '';
-  const displayIcon = stage >= 3 ? icon + stageSuffix : icon;
-  const iconSize = 16 + (level - 1) * 1.2;
-  const glowStrength = Math.min(1, level / 15);
-  return {
-    icon: displayIcon,
-    baseColor: skin.color,
-    glowColor: skin.glow,
-    iconSize: Math.round(iconSize),
-    bgAlpha: 0.08 + glowStrength * 0.06 + (skin.visualRarity >= 3 ? 0.04 : 0),
-    stage, stageName: LV_STAGE_NAMES[stage],
-    filter: skin.filter,
-    shadow: skin.shadow,
-    border: skin.border,
-    skinId, skinName: skin.name,
-    skinRarity: skin.visualRarity
-  };
-}
+// 皮肤稀有度颜色
+var SKIN_RARITY_COLORS = ['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
 
 // 图鉴收集进度奖励
 var ATLAS_REWARDS = [
@@ -1472,6 +1353,3 @@ var TOWER_ACHIEVEMENTS = [
   {floor:80,coins:20000,qi:800,title:'出神入化'},
   {floor:100,coins:50000,qi:2000,title:'天命所归'}
 ];
-
-
-// ── 十连切换按钮（toggle 模式）──

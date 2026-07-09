@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <filter id="gf0204" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="bgg0204" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FC9E42" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#D4761A" stop-opacity="0.9"/>
+    </radialGradient>
+  </defs>
+  <circle cx="40" cy="40" r="33.5" fill="none" stroke="#FC9E4280" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+  <circle cx="40" cy="40" r="40" fill="url(#bgg0204)" filter="url(#gf0204)"/>
+  <ellipse cx="40" cy="42" rx="12" ry="13" fill="#D4761A"/>
+    <ellipse cx="40" cy="42" rx="10" ry="11" fill="#FC9E42" opacity="0.35"/>
+    <path d="M30,36 L50,36" stroke="#FC9E42" stroke-width="2.3" opacity="0.5" stroke-linecap="round"/>
+    <path d="M30,40 L50,40" stroke="#FC9E42" stroke-width="2.3" opacity="0.5" stroke-linecap="round"/>
+    <path d="M30,44 L50,44" stroke="#FC9E42" stroke-width="2.3" opacity="0.5" stroke-linecap="round"/>
+    <polygon points="26,36 22,22 32,34" fill="#D4761A"/>
+    <polygon points="54,36 58,22 48,34" fill="#D4761A"/>
+    <polygon points="27,35 24,24 31,34" fill="#FC9E42" opacity="0.6"/>
+    <polygon points="53,35 56,24 49,34" fill="#FC9E42" opacity="0.6"/>
+    <circle cx="36" cy="40" r="2.3" fill="#1A1A1A"/>
+    <circle cx="36.7" cy="39.3" r="0.8049999999999999" fill="white" opacity="0.8"/>
+    <circle cx="44" cy="40" r="2.3" fill="#1A1A1A"/>
+    <circle cx="44.7" cy="39.3" r="0.8049999999999999" fill="white" opacity="0.8"/>
+  
+  
+</svg>

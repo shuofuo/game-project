@@ -549,7 +549,8 @@ function doDrop(src,dst){
         G.dragons.forEach(function(d){if(d.idx===src)d.idx=src;if(d.idx===dst)d.idx=dst;});
         G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
         saveGame();renderGrid();updateHud();
-        showNotif('error','合成失败！'+LNAME[s.level]+'×2 消失 😢（成功率'+rs+'%）');
+        showNotif('error','合成失败！'+LNAME[s.level]+'×2 消失（成功率'+rs+'%）');
+        if(typeof playSynthFail==='function')playSynthFail();
         return;
       }
       // 时光倒流备份
@@ -573,7 +574,8 @@ function doDrop(src,dst){
       if(qiGain>0){G.qi=Math.min(99999,G.qi+qiGain);updateHud();}
       showMergeFlash(LICON[s.level+1]);
       showNotif('success',`合成！${LNAME[s.level]} → ${LNAME[s.level+1]} (-${mc}💰)`);
-      if(G.zodiac>=0) playSound('merge_z'+G.zodiac);
+      if(typeof playSynthSuccess==='function')playSynthSuccess();
+      if(G.zodiac>=0&&G.zodiac<=11) playSound('merge_z'+G.zodiac);
       // combo 检测（2.5秒内连续合成）
       const now=Date.now();
       if(G.lastMergeTime&&now-G.lastMergeTime<2500){G.combo=Math.min((G.combo||0)+1,10);}else{G.combo=1;}
@@ -637,33 +639,64 @@ function getSummonLevel(pool){
   return pool[pool.length-1].level;
 }
 
-function summonCoin(){
-  var batch=G.summonBatch||1;
+// ── 十连抽入口（从 index.html 的 doTenSummon() 调用） ──
+function doTenSummon(){
+  var batch=10;
   var n=G.summonCount;
-  // 指数增长：100 → 120 → 145 → 174 → ...（每50次翻倍）
   var cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
-  if(G.coins<cost){showNotif('error','金币不足！需要 '+cost+'💰');return;}
+  if(G.coins<cost){showToast('error','金币不足 '+cost+'💰');if(typeof playSynthFail==='function')playSynthFail();return;}
   G.coins-=cost;
-  if(batch===1){
-    doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
-    return;
-  }
-  // 批量召唤：收集结果，统一展示
   var results=[];
-  for(var i=0;i<batch;i++){
-    results.push(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+  for(var i=0;i<batch;i++) results.push(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+  // 检查剩余格子
+  var used=new Set(G.dragons.map(function(d){return d.idx})),empty=[];
+  for(var k=0;k<TOTAL;k++) if(!used.has(k)) empty.push(k);
+  if(empty.length===0){
+    showToast('error','灵兽已满！请先合并');if(typeof playSynthFail==='function')playSynthFail();
+    G.coins+=cost;return; // 退金币
   }
+  var placed=0;
   results.forEach(function(lv){
-    var t=new Set(G.dragons.map(function(d){return d.idx})),empty=[];
-    for(var k=0;k<TOTAL;k++) if(!t.has(k)) empty.push(k);
-    if(empty.length===0) return;
-    var slot=empty[Math.floor(Math.random()*empty.length)];
+    if(empty.length===0)return;
+    var slot=empty.shift();
     G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1});
-    G.summonCount++;
+    G.summonCount++;placed++;
     _onWeeklyEvent('summon');
   });
   saveGame();renderGrid();updateHud();checkAch();
-  showBatchSummonResult(results);
+  showBatchSummonResult(results.slice(0,placed));
+}
+
+// ── 弹窗改为页面顶部固定（max-width:420px，小字体紧凑） ──
+function showBatchSummonResult(results){
+  var rarNames=['普通','稀有','史诗','传说','神话'];
+  var rarColors=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
+  // 统计各稀有度数量
+  var cnt=[0,0,0,0,0];results.forEach(function(lv){cnt[rarIdx(lv)]++;});
+  var summary='';cnt.forEach(function(c,i){if(c>0)summary+=rarNames[i]+'×'+c+' ';});
+  var html='<div style="padding:14px 10px;text-align:center;">';
+  html+='<div style="font-size:13px;font-weight:700;color:#ffd700;margin-bottom:10px;letter-spacing:2px">✦ 召唤结果 ✦</div>';
+  html+='<div style="font-size:11px;color:#888;margin-bottom:12px">'+summary.trim()+'</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px">';
+  results.forEach(function(lv){
+    var t=rarIdx(lv),color=rarColors[t];
+    html+='<div style="display:flex;flex-direction:column;align-items:center;padding:6px 8px;background:rgba(255,255,255,.04);border:1px solid '+color+'44;border-radius:8px;min-width:46px">';
+    html+='<div style="font-size:26px">'+(LICON[lv]||'?')+'</div>';
+    html+='<div style="font-size:9px;font-weight:700;color:'+color+'">'+LNAME[lv]+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  html+='<div style="font-size:11px;color:#555;padding:6px 0">点击任意区域关闭</div>';
+  html+='</div>';
+  // 移除旧的
+  var old=document.getElementById('batchSummonOverlay');if(old)old.remove();
+  var overlay=document.createElement('div');
+  overlay.id='batchSummonOverlay';
+  overlay.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9000;width:min(420px,96vw);max-height:78vh;overflow-y:auto;';
+  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1a3a,#0d0d1a);border:1px solid rgba(255,215,0,.35);border-radius:16px;padding:0;">'+html+'</div>';
+  overlay.onclick=function(){overlay.remove();try{updateHeroSection();renderGrid&&renderGrid();}catch(e){}};
+  document.body.appendChild(overlay);
+  if(typeof playTenSummonSfx==='function')playTenSummonSfx();
 }
 function showBatchSummonResult(results){
   var html='<div style="padding:16px 8px;text-align:center">';
@@ -694,10 +727,7 @@ function setSummonBatch(n){
   });
   updateHud&&updateHud();
 }
-// 页面加载时初始化切换状态
-window.addEventListener('DOMContentLoaded',function(){
-  setTimeout(function(){setSummonBatch(G.summonBatch||1);},100);
-});
+
 function summonQi(){
   // 龙气消耗也指数增长，防止龙气溢出
   const n=G.summonCount;
@@ -815,37 +845,40 @@ function shakeScreen(){
 }
 // showNotif 升级版：支持 emoji 前缀消息 + 稀有度颜色
 // showNotif：兼容旧调用 showNotif(type, msg) 和新调用 showNotif(msg)
-function showNotif(msg, colorOrOpts){
-  const el=document.getElementById('notif');
+// ── 顶部单行提示（替换 showNotif，移动到页面顶部） ──
+function showToast(type, msg){
+  var el=document.getElementById('notif');
   if(!el)return;
   clearTimeout(el._timer);
-  const COLORS={
-    success:'rgba(76,175,80,.92)',
-    error:'rgba(244,67,54,.92)',
-    info:'rgba(33,150,243,.92)',
-    warning:'rgba(255,152,0,.92)',
-    gold:'rgba(255,215,0,.92)',
+  var COLORS={
+    success:'rgba(20,100,30,.92)',
+    error:'rgba(120,20,20,.92)',
+    info:'rgba(20,50,100,.92)',
+    warn:'rgba(100,70,0,.92)',
+    gold:'rgba(80,60,0,.92)',
   };
-  // 旧调用：showNotif('error', 'message') — colorOrOpts 是消息字符串
-  let bg, text;
-  if(typeof colorOrOpts === 'string'){
-    bg = COLORS[msg] || COLORS.info;
-    text = colorOrOpts;
+  var bg=COLORS[type]||COLORS.info;
+  el.style.cssText=
+    'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;'+
+    'padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;'+
+    'letter-spacing:.5px;max-width:380px;width:92vw;overflow:hidden;'+
+    'text-overflow:ellipsis;white-space:nowrap;text-align:center;'+
+    'background:'+bg+';color:#fff;display:block;opacity:1;border:1px solid rgba(255,255,255,.12);';
+  el.textContent=msg||'';
+  el._timer=setTimeout(function(){
+    el.style.opacity='0';
+    setTimeout(function(){el.style.display='none';},250);
+  },2500);
+}
+// 兼容旧调用 showNotif(msg, colorOrOpts)
+function showNotif(msg, colorOrOpts){
+  var text, type;
+  if(typeof colorOrOpts==='string'){
+    type=msg; text=colorOrOpts;
   } else {
-    // 新调用：showNotif('完整消息', {color:'...'})
-    bg = (colorOrOpts&&colorOrOpts.color) || COLORS.info;
-    text = msg;
+    text=msg; type=(colorOrOpts&&colorOrOpts.type)||'info';
   }
-  el.style.background = bg;
-  el.textContent = text;
-  el.style.display = 'block';
-  el.style.opacity = '1';
-  el.style.transform = 'translateX(-50%) translateY(0)';
-  el._timer = setTimeout(()=>{
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(-50%) translateY(-10px)';
-    setTimeout(()=>{el.style.display='none';},300);
-  }, 2800);
+  showToast(type,text);
 }
 
 // 召唤结果通知

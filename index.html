@@ -812,13 +812,13 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
   <div class="logo">
     <div class="logo-badge">✦ 天 机 降 临 ✦</div>
     <div class="logo-title">生肖天机</div>
-    <div class="logo-sub">放置合成 · 命运由我</div>
+    <div class="logo-sub"></div>
   </div>
 
-  <div class="login-label">选择属相</div>
+  <div class="login-label"></div>
   <div class="zodiac-grid" id="zGrid"></div>
 
-  <div class="login-label" style="margin-top:14px">选择命格</div>
+  <div class="login-label" style="margin-top:14px"></div>
   <div class="fate-row" id="fGrid"></div>
   <div class="bonus" id="bonus"></div>
 
@@ -833,12 +833,10 @@ window.addEventListener('pagehide', e => { if(e.persisted) location.reload(); })
       <div class="mc-vs">×</div>
       <div class="mc-fate" id="mF"></div>
     </div>
-    <div class="modal-info">
-      你选择了 <b id="mZn">鼠</b> 属相<br>
-      天生 <b id="mFn">木</b> 命<br><br>
-      <span id="mDesc">产金×1 · 龙气×1 · 经验×1.5</span>
+    <div class="modal-info" id="mInfo">
+      <span id="mDesc" style="font-size:12px;color:#888;letter-spacing:2px;"></span>
     </div>
-    <button class="modal-btn modal-btn-start" onclick="startGame(sz,sf)">开启天机之旅 ✦</button>
+    <button class="modal-btn modal-btn-start" onclick="startGame(sz,sf)" style="font-size:14px;letter-spacing:3px;padding:14px;">✦ 开启旅程 ✦</button>
     <button class="modal-btn modal-btn-cancel" onclick="reselect()">重新选择</button>
   </div>
 </div>
@@ -944,8 +942,6 @@ function doStart(){
   const z=ZDATA[sz],f=FDATA[sf];
   document.getElementById('mZ').textContent=z.e;
   document.getElementById('mF').textContent=f.e;
-  document.getElementById('mZn').textContent=z.n;
-  document.getElementById('mFn').textContent=f.n;
   document.getElementById('mDesc').textContent=f.d;
   document.getElementById('modal').classList.add('show');
 }
@@ -1042,9 +1038,7 @@ function doStart(){
   <div id="gameBottomBar" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,3vw,20px);padding:calc(6px + env(safe-area-inset-bottom,6px)) clamp(12px,4vw,32px);">
     <!-- 召唤批量切换 -->
     <div id="summonBatchSwitch" style="display:flex;gap:3px;background:rgba(0,0,0,.25);border-radius:10px;padding:3px;align-items:center;">
-      <button onclick="setSummonBatch(1)" id="batchBtn1" style="padding:3px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;">1连</button>
-      <button onclick="setSummonBatch(5)" id="batchBtn5" style="padding:3px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;">5连</button>
-      <button onclick="setSummonBatch(10)" id="batchBtn10" style="padding:3px 8px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;">10连</button>
+      <button onclick="doTenSummon()" id="batchBtn10" style="padding:5px 14px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:rgba(255,215,0,.15);color:#ffd700;transition:all .2s;letter-spacing:1px;">十连抽</button>
     </div>
     <button onclick="summonCoin()" class="summon-btn summon-coin" id="btnCoin" style="min-width:90px;padding:10px 16px;" title="金币召唤">
       <span style="font-size:18px;">💰</span>
@@ -1242,4 +1236,42 @@ function doStart(){
 .cloud-success-msg .title{font-size:18px;color:#ffd700;margin-bottom:6px;}
 .cloud-success-msg .sub{font-size:13px;color:#888;}
 .cloud-syncing{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:8px 16px;font-size:12px;color:#ffd700;z-index:500;display:none;}
+
+/* ── 制作台装备分类Tab ── */
+.forge-eq-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:0 4px 8px;justify-content:center;}
+.forge-eq-tab{padding:4px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#888;font-size:11px;cursor:pointer;transition:all .15s;}
+.forge-eq-tab.active{background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.4);color:#ffd700;}
+.forge-eq-quick{display:flex;gap:6px;padding:0 4px 10px;justify-content:center;flex-wrap:wrap;}
+.eq-quick-btn{padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#aaa;font-size:14px;cursor:pointer;transition:all .2s;}
+.eq-quick-btn:hover{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.3);color:#ffd700;transform:scale(1.1);}
+
+/* ── 召唤面板紧凑化 ── */
+.summon-btn{padding:10px 16px;border-radius:12px;border:1px solid rgba(255,215,0,.3);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:90px;}
+.summon-btn:active{transform:scale(.95);}
+.sbtn-coin{background:linear-gradient(135deg,#3a2e00,#2a1e00);color:#ffd700;}
+.sbtn-coin:hover{background:linear-gradient(135deg,#4a3e00,#3a2e00);}
+.sbtn-qi{background:linear-gradient(135deg,#1a2a00,#0d1f00);color:#86efac;}
+.sbtn-qi:hover{background:linear-gradient(135deg,#2a4a00,#1a3000);}
+.sbtn-free{background:linear-gradient(135deg,#1a1a3a,#0d0d2a);color:#a0d8ef;border-color:rgba(126,216,239,.3);}
+.sbtn-free:hover{background:linear-gradient(135deg,#2a2a5a,#1a1a4a);}
+
+/* ── 套装进度条 ── */
+.suit-banner{background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,215,0,.05));border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:8px 12px;text-align:center;font-size:12px;color:#ffd700;margin:6px 0;letter-spacing:.5px;}
+.suit-banner.suit-2{background:linear-gradient(135deg,rgba(126,184,255,.12),rgba(126,184,255,.05));border-color:rgba(126,184,255,.3);color:#a0d8ef;}
+.suit-progress{font-size:11px;color:#555;padding:4px 8px;margin:4px 0;}
+
+/* ── 弹窗紧凑化 ── */
+.modal-info{font-size:13px;line-height:1.8;color:#aaa;padding:4px 0;}
+.modal-info b{color:#ffd700;}
+
+/* ── 登录页文字清除 ── */
+.login-label{color:transparent;user-select:none;min-height:1px;margin-bottom:2px;}
+
+/* ── 十连抽按钮样式（全局单按钮）── */
+#batchBtn10:hover{background:rgba(255,215,0,.25) !important;transform:scale(1.05);box-shadow:0 0 12px rgba(255,215,0,.2);}
+#batchBtn10:active{transform:scale(.97);}
+
+/* ── 顶部Toast 动画 ── */
+@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+#notif{animation:slideDown .2s ease;}
 </style>

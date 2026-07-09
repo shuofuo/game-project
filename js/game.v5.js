@@ -2206,32 +2206,32 @@ function getTowerPlayerDmg(){
   if(!G.dragons||!G.dragons.length) return 10;
   var maxLv=Math.max(0,...G.dragons.map(function(d){return d.level||0;}));
   var base=Math.max(1,Math.floor(maxLv*maxLv*0.5+5));
-  // 装备加成（所有已装备物品的 atk 总和）
-  var fm=G.forge, atk=0, def=0, spd=0;
-  if(fm&&fm.items){
+  // 装备基础加成
+  var eq=getEquipTotals();
+  // 攻击 = 基础 × (1+atk/100) + SPD加成
+  var spdBonus=Math.floor(eq.spd*0.3);
+  return Math.max(1,Math.floor(base*(1+eq.atk/100))+spdBonus);
+}
+// 装备总属性（含套装加成）：给试炼塔/灵兽面板共用
+function getEquipTotals(){
+  var fm=G.forge||{items:[]}, atk=0, def=0, spd=0;
+  if(fm.items){
     for(var i=0;i<fm.items.length;i++){
       var it=fm.items[i];
       if(it.equipped){
-        if(it.atk) atk+=it.atk;
-        if(it.def) def+=it.def;
-        if(it.spd) spd+=it.spd;
+        if(it.atk) atk+=it.atk||0;
+        if(it.def) def+=it.def||0;
+        if(it.spd) spd+=it.spd||0;
       }
     }
   }
-  // 攻击 = 基础 × (1+atk/100) + SPD加成
-  var spdBonus=Math.floor(spd*0.3);
-  return Math.max(1,Math.floor(base*(1+atk/100))+spdBonus);
+  var eff=getSuitEffect(fm.items);
+  if(eff){atk=Math.floor(atk*(1+eff.atkBonus/100));def=Math.floor(def*(1+eff.defBonus/100));spd=Math.floor(spd*(1+eff.spdBonus/100));}
+  return{atk:Math.max(0,atk),def:Math.max(0,def),spd:Math.max(0,spd)};
 }
 // 玩家试练塔总防御（用于扣血计算）
 function getTowerPlayerDef(){
-  var fm=G.forge, def=0;
-  if(fm&&fm.items){
-    for(var i=0;i<fm.items.length;i++){
-      var it=fm.items[i];
-      if(it.equipped&&it.def) def+=it.def;
-    }
-  }
-  return def;
+  return getEquipTotals().def;
 }
 // 试练塔材料计算
 function getTowerReward(floor){
@@ -2259,9 +2259,9 @@ function towerAttack(){
   var enemyDmg=Math.max(1,Math.floor(enemyBaseDmg/(1+playerDef/50)));
 
   // 处理攻击（可能有多次普攻）
-  var fm=G.forge, spd=0;
-  if(fm&&fm.items){for(var ii=0;ii<fm.items.length;ii++){var it=fm.items[ii];if(it.equipped&&it.spd)spd+=it.spd;}}
-  var extraChance=Math.min(100, Math.floor(spd*0.2)); // 每1spd=0.2%额外攻击
+  // 速度加成：每1spd=0.2%额外攻击机会
+  var spd=getEquipTotals().spd;
+  var extraChance=Math.min(100, Math.floor(spd*0.2));
   var hits=1;
   if(Math.random()*100<extraChance) hits++;
   if(Math.random()*100<Math.max(0,extraChance-100)) hits++;
@@ -2275,9 +2275,16 @@ function towerAttack(){
   }
   // 玩家扣血（敌人反击）
   G.towerPlayerHp=Math.max(0,G.towerPlayerHp-enemyDmg);
-  // 动画
+  // 动画 + 实时更新攻击按钮伤害
   var btn=document.getElementById('towerAtkBtn');
-  if(btn){btn.style.transform='scale(0.92)';setTimeout(function(){btn.style.transform='';},120);}
+  if(btn){
+    btn.style.transform='scale(0.92)';
+    setTimeout(function(){
+      btn.style.transform='';
+      var newDmg=getTowerPlayerDmg();
+      btn.textContent='⚔️ 发起攻击 (伤害:'+newDmg+')';
+    },120);
+  }
   G.towerLastAtk=Date.now();
 
   // 击败检测
@@ -2300,7 +2307,7 @@ function towerAttack(){
     if(mat.dragonScale>0) mm+=' 🐉'+mat.dragonScale;
     if(enemy.isBoss){showNotif('success','🏆 BOSS击败！'+enemy.name+'（'+floor+'层）'+mm);}
     else{showNotif('success','试练塔 第'+floor+'层：'+mm);}
-    playSound&&playSound('merge');
+    if(typeof playSynthSuccess==='function')playSynthSuccess();
   }
   // 玩家HP归0 → 重置试练塔到当前层
   if(G.towerPlayerHp<=0){
@@ -2410,9 +2417,10 @@ function renderTowerPanel(){
   var hpPct=Math.max(0,Math.min(100,curHp/enemy.hp*100));
   var playerDmg=getTowerPlayerDmg();
   var playerDef=getTowerPlayerDef();
-  // 统计装备属性
-  var fm=G.forge, totAtk=0, totDef=0, totSpd=0;
-  if(fm&&fm.items){for(var ii=0;ii<fm.items.length;ii++){var it=fm.items[ii];if(it.equipped){if(it.atk)totAtk+=it.atk;if(it.def)totDef+=it.def;if(it.spd)totSpd+=it.spd;}}}
+  // 装备属性（含套装加成）
+  var eq=getEquipTotals();
+  var suitEff=getSuitEffect((G.forge||{}).items);
+  var suitTag=suitEff?' <span style="color:#ffd700;font-size:10px">【'+suitEff.name+'】</span>':'';
   var boss=enemy.isBoss;
   var floorTxt=floor>=100?'<span style="color:#ffd700">巅峰(100层)</span>':'第'+floor+'层';
   var bossMark=boss?' <span style="color:#ff6b35">🏆BOSS</span>':'';
@@ -2431,7 +2439,7 @@ function renderTowerPanel(){
     msItems+='<div class="'+cls+'"><span>通关第 <b>'+a.floor+'</b> 层: <span style="color:#ffd700">'+a.coins+'💰</span>'+(a.qi?' <span style="color:#a0d8ef">'+a.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+(a.title?' <span style="color:#f0abfc">★'+a.title+'</span>':'')+'</span> '+btn+'</div>';
   });
   var msHtml='<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px"><div style="font-size:12px;color:#888;margin-bottom:6px">📊 层数里程碑</div>'+msItems+'</div>';
-  var attrHtml=(totAtk||totDef||totSpd)?'<div style="display:flex;justify-content:center;gap:12px;font-size:11px;color:#aaa;margin-bottom:8px">'+(totAtk?'<span>⚔️ '+totAtk+'</span>':'')+(totDef?'<span>🛡️ '+totDef+'</span>':'')+(totSpd?'<span>💨 '+totSpd+'</span>':'')+'</div>':'';
+  var attrHtml=(eq.atk||eq.def||eq.spd)?'<div style="display:flex;justify-content:center;gap:12px;font-size:11px;color:#aaa;margin-bottom:8px">'+(eq.atk?'<span>⚔️ '+eq.atk+'</span>':'')+(eq.def?'<span>🛡️ '+eq.def+'</span>':'')+(eq.spd?'<span>💨 '+eq.spd+'</span>':'')+suitTag+'</div>':'';
   var playerHpHtml='<div style="margin-top:8px;text-align:center"><div style="font-size:11px;color:#93c5fd;margin-bottom:4px">你的 HP: '+playerHp+' / '+playerMaxHp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+playerHpPct+'%;background:'+phpColor+';border-radius:4px;transition:width .15s"></div></div></div>';
   var html='<div style="padding:16px"><div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:12px;padding:12px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px">'+floorTxt+bossMark+'</span><span style="font-size:11px;color:#888">'+floor+'/100层</span></div><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:3px"></div></div></div>'+attrHtml+'<div style="background:linear-gradient(160deg,#1a0a2e,#2d1b4e);border:1px solid '+(boss?'#ff6b35':'#6b21a8')+';border-radius:14px;padding:14px;text-align:center;margin-bottom:12px"><div style="font-size:13px;color:#aaa;margin-bottom:4px">'+enemy.name+'</div><div style="font-size:26px;margin-bottom:6px">'+(boss?'👹':'👾')+'</div><div style="font-size:12px;color:#888;margin-bottom:8px">HP: '+curHp+' / '+enemy.hp+'</div><div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+hpPct+'%;background:'+hpColor+';border-radius:4px;transition:width .15s"></div></div><div style="font-size:11px;color:#888">击杀奖励: <span style="color:#ffd700">'+enemy.coins+'💰</span>'+(enemy.qi?' <span style="color:#a0d8ef">'+enemy.qi+'<span class="qi-icon qi-icon-sm"></span></span>':'')+'</div>'+playerHpHtml+'</div>'+
 (floor>=100?'<div style="text-align:center;color:#ffd700;font-size:13px;padding:10px">🎉 已通关100层！可领取所有里程碑奖励</div>':(atkBtn+sweepBtn))+msHtml+'</div>';
@@ -2461,29 +2469,60 @@ var EQUIP_TYPE_NAME = {weapon:'⚔️武器',armor:'🛡️护甲',accessory:'�
 
 // 制作配方: {id, type, name, quality, iron, crystal, dragonScale, starDust, desc}
 // quality: 0=普通 1=稀有 2=史诗 3=传说 4=天命
+// ── 装备6大类 ──
+// helmet=头盔 armor=护甲 shoes=鞋子 sword=长剑 shield=护盾 accessory=饰品
 var FORGE_RECIPES = [
-  // 武器
-  {id:'w1',type:'weapon',name:'木剑',quality:0,atk:8,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
-  {id:'w2',type:'weapon',name:'铁剑',quality:0,atk:18,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
-  {id:'w3',type:'weapon',name:'钢剑',quality:1,atk:35,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
-  {id:'w4',type:'weapon',name:'秘银剑',quality:2,atk:60,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
-  {id:'w5',type:'weapon',name:'龙鳞剑',quality:3,atk:100,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
-  {id:'w6',type:'weapon',name:'天命剑',quality:4,atk:160,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
-  // 护甲
+  // ── 头盔 ──
+  {id:'h1',type:'helmet',name:'草帽',quality:0,def:4,iron:12,crystal:0,dragonScale:0,starDust:0,desc:'最初的防护'},
+  {id:'h2',type:'helmet',name:'皮帽',quality:0,def:9,iron:35,crystal:3,dragonScale:0,starDust:0,desc:'皮质头盔'},
+  {id:'h3',type:'helmet',name:'铁盔',quality:1,def:18,iron:80,crystal:10,dragonScale:0,starDust:0,desc:'铁制头盔'},
+  {id:'h4',type:'helmet',name:'秘银盔',quality:2,def:38,iron:160,crystal:28,dragonScale:4,starDust:0,desc:'秘银守护'},
+  {id:'h5',type:'helmet',name:'龙鳞盔',quality:3,def:68,iron:250,crystal:60,dragonScale:15,starDust:3,desc:'龙鳞之冠'},
+  {id:'h6',type:'helmet',name:'天命冠',quality:4,def:110,iron:420,crystal:110,dragonScale:38,starDust:14,desc:'天命神冠'},
+  // ── 护甲 ──
   {id:'a1',type:'armor',name:'布衣',quality:0,def:5,iron:15,crystal:0,dragonScale:0,starDust:0,desc:'基础的防护'},
   {id:'a2',type:'armor',name:'皮甲',quality:0,def:12,iron:40,crystal:4,dragonScale:0,starDust:0,desc:'皮革护身'},
   {id:'a3',type:'armor',name:'锁甲',quality:1,def:25,iron:90,crystal:12,dragonScale:0,starDust:0,desc:'铁链编织'},
   {id:'a4',type:'armor',name:'秘银甲',quality:2,def:48,iron:180,crystal:35,dragonScale:5,starDust:0,desc:'秘银铠甲'},
   {id:'a5',type:'armor',name:'龙鳞甲',quality:3,def:85,iron:280,crystal:75,dragonScale:18,starDust:4,desc:'龙鳞护体'},
   {id:'a6',type:'armor',name:'天命甲',quality:4,def:130,iron:450,crystal:140,dragonScale:45,starDust:18,desc:'天命战甲'},
-  // 饰品
-  {id:'j1',type:'accessory',name:'草戒',quality:0,spd:5,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
-  {id:'j2',type:'accessory',name:'银戒',quality:0,spd:10,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
-  {id:'j3',type:'accessory',name:'玉佩',quality:1,spd:28,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
-  {id:'j4',type:'accessory',name:'秘银坠',quality:2,spd:52,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
-  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,spd:88,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
-  {id:'j6',type:'accessory',name:'天命戒',quality:4,spd:120,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
+  // ── 鞋子 ──
+  {id:'s1',type:'shoes',name:'草鞋',quality:0,spd:5,def:2,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'轻盈起步'},
+  {id:'s2',type:'shoes',name:'布靴',quality:0,spd:10,def:5,iron:28,crystal:2,dragonScale:0,starDust:0,desc:'布面短靴'},
+  {id:'s3',type:'shoes',name:'皮靴',quality:1,spd:22,def:10,iron:68,crystal:8,dragonScale:0,starDust:0,desc:'皮制战靴'},
+  {id:'s4',type:'shoes',name:'秘银靴',quality:2,spd:46,def:20,iron:140,crystal:25,dragonScale:3,starDust:0,desc:'秘银快靴'},
+  {id:'s5',type:'shoes',name:'龙鳞靴',quality:3,spd:80,def:38,iron:220,crystal:55,dragonScale:12,starDust:2,desc:'龙鳞之靴'},
+  {id:'s6',type:'shoes',name:'天命靴',quality:4,spd:115,def:60,iron:380,crystal:105,dragonScale:35,starDust:12,desc:'天命飞靴'},
+  // ── 长剑 ──
+  {id:'w1',type:'sword',name:'木剑',quality:0,atk:8,iron:20,crystal:0,dragonScale:0,starDust:0,desc:'最简单的武器'},
+  {id:'w2',type:'sword',name:'铁剑',quality:0,atk:18,iron:50,crystal:5,dragonScale:0,starDust:0,desc:'铁制长剑'},
+  {id:'w3',type:'sword',name:'钢剑',quality:1,atk:35,iron:100,crystal:15,dragonScale:0,starDust:0,desc:'精钢打造'},
+  {id:'w4',type:'sword',name:'秘银剑',quality:2,atk:60,iron:200,crystal:40,dragonScale:5,starDust:0,desc:'秘银铸就'},
+  {id:'w5',type:'sword',name:'龙鳞剑',quality:3,atk:100,iron:300,crystal:80,dragonScale:20,starDust:5,desc:'龙鳞加护'},
+  {id:'w6',type:'sword',name:'天命剑',quality:4,atk:160,iron:500,crystal:150,dragonScale:50,starDust:20,desc:'天命之剑'},
+  // ── 护盾 ──
+  {id:'d1',type:'shield',name:'木盾',quality:0,def:8,spd:-2,iron:18,crystal:0,dragonScale:0,starDust:0,desc:'简单防护'},
+  {id:'d2',type:'shield',name:'皮盾',quality:0,def:15,spd:-4,iron:45,crystal:4,dragonScale:0,starDust:0,desc:'皮革圆盾'},
+  {id:'d3',type:'shield',name:'铁盾',quality:1,def:30,spd:-5,iron:85,crystal:12,dragonScale:0,starDust:0,desc:'铁制塔盾'},
+  {id:'d4',type:'shield',name:'秘银盾',quality:2,def:58,spd:-6,iron:170,crystal:32,dragonScale:4,starDust:0,desc:'秘银大盾'},
+  {id:'d5',type:'shield',name:'龙鳞盾',quality:3,def:95,spd:-7,iron:260,crystal:68,dragonScale:16,starDust:4,desc:'龙鳞护盾'},
+  {id:'d6',type:'shield',name:'天命盾',quality:4,def:145,spd:-8,iron:420,crystal:125,dragonScale:40,starDust:15,desc:'天命圣盾'},
+  // ── 饰品 ──
+  {id:'j1',type:'accessory',name:'草戒',quality:0,spd:5,atk:2,iron:10,crystal:0,dragonScale:0,starDust:0,desc:'最基础的饰品'},
+  {id:'j2',type:'accessory',name:'银戒',quality:0,spd:10,atk:5,iron:30,crystal:3,dragonScale:0,starDust:0,desc:'银质戒指'},
+  {id:'j3',type:'accessory',name:'玉佩',quality:1,spd:28,atk:12,iron:70,crystal:10,dragonScale:0,starDust:0,desc:'玉石雕琢'},
+  {id:'j4',type:'accessory',name:'秘银坠',quality:2,spd:52,atk:24,iron:150,crystal:30,dragonScale:4,starDust:0,desc:'秘银护符'},
+  {id:'j5',type:'accessory',name:'龙牙坠',quality:3,spd:88,atk:42,iron:250,crystal:65,dragonScale:15,starDust:3,desc:'龙牙精制'},
+  {id:'j6',type:'accessory',name:'天命戒',quality:4,spd:120,atk:65,iron:400,crystal:120,dragonScale:40,starDust:15,desc:'天命圣戒'},
 ];
+
+// 装备类型中文名
+var EQUIP_TYPE_NAME={
+  helmet:'头盔', armor:'护甲', shoes:'鞋子',
+  sword:'长剑', shield:'护盾', accessory:'饰品'
+};
+// 装备类型图标
+var EQUIP_TYPE_ICON={helmet:'⛑️',armor:'👕',shoes:'👟',sword:'⚔️',shield:'🛡️',accessory:'💍'};
 
 // 强化消耗：每级需要铁锭和金
 function getForgeEnhanceCost(level) {
@@ -2497,22 +2536,34 @@ function getForgeStarCost(currentStar) {
   return {sameItem: starReq, iron: ironCost};
 }
 
-// 套装效果
+// 套装效果（2件/4件/6件套）
 var SUIT_EFFECTS = {
-  2: {name:'初具雏形',desc:'全属相碎片掉率+20%',cpsBonus:0,qiBonus:0,shardBonus:20},
-  3: {name:'天命套装',desc:'金币+30% 龙气+50%',cpsBonus:30,qiBonus:50,shardBonus:20},
+  2: {name:'初具雏形',desc:'全属性+5%',cpsBonus:5,atkBonus:5,defBonus:5,spdBonus:5,qiBonus:10},
+  4: {name:'战意凝聚',desc:'全属性+15%',cpsBonus:15,atkBonus:15,defBonus:15,spdBonus:15,qiBonus:20},
+  6: {name:'天命套装',desc:'全属性+30% 金币+30% 龙气+50%',cpsBonus:30,atkBonus:30,defBonus:30,spdBonus:30,qiBonus:50},
 };
 
-// 套装数量计算（每套=同品质3件类型各1个，任意等级/星）
-function countSuits(items) {
-  if(!items || !items.length) return {weapon:false,armor:false,accessory:false,total:0};
-  var equipped = {weapon:false,armor:false,accessory:false};
-  for(var i=0;i<items.length;i++){
-    var it = items[i];
-    if(it.equipped) equipped[it.type] = true;
-  }
-  var total = (equipped.weapon?1:0)+(equipped.armor?1:0)+(equipped.accessory?1:0);
-  return {weapon:equipped.weapon,armor:equipped.armor,accessory:equipped.accessory,total:total};
+// 套装数量计算（6类各装备1件=1套，集齐2/4/6类激活对应套装）
+function countSuits(items){
+  if(!items||!items.length) return{helmet:false,armor:false,shoes:false,sword:false,shield:false,accessory:false,total:0};
+  var TYPES=['helmet','armor','shoes','sword','shield','accessory'];
+  var equipped={};
+  TYPES.forEach(function(t){equipped[t]=false;});
+  for(var i=0;i<items.length;i++){if(items[i].equipped) equipped[items[i].type]=true;}
+  var total=0;TYPES.forEach(function(t){if(equipped[t])total++;});
+  equipped.total=total;
+  return equipped;
+}
+function getSuitLevel(items){
+  var n=(countSuits(items).total)||0;
+  if(n>=6)return 6;
+  if(n>=4)return 4;
+  if(n>=2)return 2;
+  return 0;
+}
+function getSuitEffect(items){
+  var lv=getSuitLevel(items);
+  return lv?SUIT_EFFECTS[lv]:null;
 }
 
 // ═══════════════════════════════════════
@@ -2535,7 +2586,8 @@ function renderForgePanel(){
   if(!c)return;
   var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0};
   var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
-  var suits=countSuits(fm.items);
+  var suitLv=getSuitLevel(fm.items);
+  var suitEff=getSuitEffect(fm.items);
   var html='';
 
   // 材料栏
@@ -2548,16 +2600,25 @@ function renderForgePanel(){
 
   // 套装状态
   var suitHtml='';
-  if(suits.total>=3) suitHtml='<div class="suit-banner">👑 天命套装已激活！'+SUIT_EFFECTS[3].desc+'</div>';
-  else if(suits.total>=2) suitHtml='<div class="suit-banner suit-2">⚙️ 初具雏形已激活（'+suits.total+'/3件）</div>';
-  else suitHtml+='<div class="suit-progress">已装备 '+suits.total+'/3 件（集齐3件激活套装）</div>';
+  if(suitLv===6) suitHtml='<div class="suit-banner">👑 天命套装已激活！'+suitEff.desc+'</div>';
+  else if(suitLv===4) suitHtml='<div class="suit-banner suit-2">⚙️ 战意凝聚已激活（4/6件）</div>';
+  else if(suitLv===2) suitHtml='<div class="suit-banner suit-2">⚙️ 初具雏形已激活（2/6件）</div>';
+  else {var tc=countSuits(fm.items);var tn=tc.total||0;suitHtml+='<div class="suit-progress">已装备 '+tn+'/6 件（集齐2件激活套装）</div>';}
   html+=suitHtml;
 
-  // 标签切换
+  // 标签切换（全局Tab + 装备分类快捷入口）
   html+='<div class="forge-tabs" id="forgeTabs">'+
-    '<button class="forge-tab active" onclick="switchForgeTab(\'craft\')">📜 制作台</button>'+
-    '<button class="forge-tab" onclick="switchForgeTab(\'inventory\')">🎒 背包 ('+(fm.items?fm.items.length:0)+')</button>'+
-    '<button class="forge-tab" onclick="switchForgeTab(\'enhance\')">⚡ 强化</button>'+
+    '<button class="forge-tab'+( _forgeTab==='craft'?' active':'')+'" onclick="switchForgeTab(\'craft\',event)">📜 制作台</button>'+
+    '<button class="forge-tab'+( _forgeTab==='inventory'?' active':'')+'" onclick="switchForgeTab(\'inventory\',event)">🎒 背包 ('+(fm.items?fm.items.length:0)+')</button>'+
+    '<button class="forge-tab'+( _forgeTab==='enhance'?' active':'')+'" onclick="switchForgeTab(\'enhance\',event)">⚡ 强化</button>'+
+    '</div>'+
+    '<div class="forge-eq-quick">'+
+    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'helmet'+'\')">⛑️</button>'+
+    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'armor'+'\')">👕</button>'+
+    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'shoes'+'\')">👟</button>'+
+    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'sword'+'\')">⚔️</button>'+
+    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'shield'+'\')">🛡️</button>'+
+    '<button class="eq-quick-btn" onclick="switchForgeTab(\'inventory\',event);filterForgeEquip(\''+'accessory'+'\')">💍</button>'+
     '</div>';
 
   // 内容区
@@ -2583,12 +2644,20 @@ function renderForgeCraft(fm,mat){
   return html;
 }
 
-function renderForgeInventory(fm){
+function renderForgeInventory(fm,filter){
   var items=fm.items||[];
+  if(filter&&filter!=='all') items=items.filter(function(it){return it.type===filter;});
   if(!items.length){
     return '<div class="forge-empty">🎒 背包空空， 去制作装备吧！</div>';
   }
-  var html='<div class="forge-section-title">🎒 背包 ('+items.length+'件)</div><div class="forge-items-grid">';
+  var html='<div class="forge-section-title">🎒 背包 ('+items.length+'件)</div>';
+  html+='<div class="forge-eq-tabs">';
+  var types=['all','helmet','armor','shoes','sword','shield','accessory'];
+  var icons={all:'全部',helmet:'⛑️',armor:'👕',shoes:'👟',sword:'⚔️',shield:'🛡️',accessory:'💍'};
+  types.forEach(function(t){
+    html+='<button class="forge-eq-tab'+(filter===t||(!filter&&t==='all')?' active':'')+'" onclick="filterForgeEquip(\''+t+'\')">'+icons[t]+'</button>';
+  });
+  html+='</div><div class="forge-items-grid">';
   for(var i=0;i<items.length;i++){
     var it=items[i];
     var color=QUALITY_COLORS[it.quality];
@@ -2632,16 +2701,26 @@ function renderForgeEnhance(fm,mat){
   return html;
 }
 
-function switchForgeTab(tab){
+// 全局制作台Tab状态（跨刷新保持）
+var _forgeTab='craft';
+var _forgeEquipFilter='all';
+function switchForgeTab(tab,e){
+  _forgeTab=tab;
   document.querySelectorAll('.forge-tab').forEach(function(b){b.classList.remove('active');});
-  event.target.classList.add('active');
+  if(e&&e.currentTarget)e.currentTarget.classList.add('active');
   var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
   var mat=fm.materials||{iron:0,crystal:0,dragonScale:0,starDust:0};
   var body=document.getElementById('forgeBody');
   if(!body)return;
   if(tab==='craft') body.innerHTML=renderForgeCraft(fm,mat);
-  else if(tab==='inventory') body.innerHTML=renderForgeInventory(fm);
+  else if(tab==='inventory') body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
   else if(tab==='enhance') body.innerHTML=renderForgeEnhance(fm,mat);
+}
+function filterForgeEquip(type){
+  _forgeEquipFilter=type;
+  var fm=G.forge||{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}};
+  var body=document.getElementById('forgeBody');
+  if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
 }
 
 function craftForgeItem(recipeId){
@@ -2681,9 +2760,12 @@ function enhanceForgeItem(itemId){
   mat.iron-=cost.iron;
   it.level++;
   G.forge=fm;
-  saveGame();updateHud();renderForgePanel();
+  saveGame();updateHud();
+  if(typeof playEnhanceSfx==='function')playEnhanceSfx();
   showNotif('success','强化成功！'+it.name+' → Lv.'+it.level);
-  playSound('merge');
+  // 停留在强化Tab，刷新当前内容
+  var body=document.getElementById('forgeBody');
+  if(body)body.innerHTML=renderForgeEnhance(fm,mat);
 }
 
 function starUpForgeItem(itemId){
@@ -2698,24 +2780,36 @@ function starUpForgeItem(itemId){
   mat2.iron-=cost.iron;
   it.star++;
   G.forge=fm;
-  saveGame();updateHud();renderForgePanel();
+  saveGame();updateHud();
+  if(typeof playSynthSuccess==='function')playSynthSuccess();
   showNotif('success','升星成功！⭐ '+it.star+'星');
-  playSound('summon');
+  // 停留在强化Tab，刷新当前内容
+  var body=document.getElementById('forgeBody');
+  if(body)body.innerHTML=renderForgeEnhance(fm,mat2);
 }
 
+// 穿戴装备：同类型互斥（穿一件自动卸下同类型其他装备）
 function equipForgeItem(itemId){
   var fm=G.forge||{items:[]};
+  var targetItem=null;
   for(var i=0;i<fm.items.length;i++){
-    if(fm.items[i].id===itemId){
-      fm.items[i].equipped=!fm.items[i].equipped;
-      var newState=fm.items[i].equipped;
-      showNotif(newState?'success':'info',fm.items[i].name+' '+(newState?'[已装备]':'[已卸下]'));
-    } else {
-      fm.items[i].equipped=false;
+    if(fm.items[i].id===itemId){targetItem=fm.items[i];break;}
+  }
+  if(!targetItem){showNotif('error','装备不存在');return;}
+  var newState=!targetItem.equipped;
+  if(newState){
+    // 先卸下同类型其他装备
+    for(var i=0;i<fm.items.length;i++){
+      if(fm.items[i].type===targetItem.type) fm.items[i].equipped=false;
     }
   }
+  targetItem.equipped=newState;
   G.forge=fm;
-  saveGame();updateHud();renderForgePanel();
+  saveGame();updateHud();try{updateHeroSection&&updateHeroSection();}catch(e){}
+  showNotif(newState?'success':'info',targetItem.name+' '+(newState?'[已装备]':'[已卸下]'));
+  // 停留背包Tab，刷新当前分类
+  var body=document.getElementById('forgeBody');
+  if(body)body.innerHTML=renderForgeInventory(fm,_forgeEquipFilter);
 }
 
 // ============================================================

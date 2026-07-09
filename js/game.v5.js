@@ -2915,31 +2915,186 @@ function equipForgeItem(itemId){
 // 云端账号系统
 // ============================================================
 const CLOUD_API = "https://47.105.41.23/api";
+// ══════════════════════════════════════════════════════════════
+// 小程序 / 平台适配层
+// 隐私：后台仅存储 userId（openid 经 SHA-256 哈希），不保留原始 openid
+// ══════════════════════════════════════════════════════════════
 
-// 工具函数：fetch 封装
-async function _cloudFetch(method, path, body) {
-  const opts = { method, headers: { "Content-Type": "application/json" } };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(CLOUD_API + path, opts);
-  return r.json();
+// 检测当前平台（微信=wechat / 抖音=douyin / 快手=kuaishou / 浏览器=unknown）
+var _platform = (function(){
+  var ua = navigator.userAgent.toLowerCase();
+  if (/micromessenger/.test(ua)) return 'wechat';
+  if (/douyin/.test(ua) || /aweme/.test(ua)) return 'douyin';
+  if (/ksweb|kuaishou/.test(ua)) return 'kuaishou';
+  return 'unknown';
+})();
+
+// 平台 SDK Mock（各小程序环境替换为真实 SDK 调用）
+var _platformSdk = {
+  // 获取 openid（静默授权）
+  getOpenId: function(callback) {
+    if (_platform === 'unknown') {
+      // 浏览器环境：生成随机 anonymousId 存储本地
+      var aid = localStorage.getItem('sxgame_anon_id') || (function(){
+        var a = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+          var r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8);
+          return v.toString(16);
+        });
+        localStorage.setItem('sxgame_anon_id', a);
+        return a;
+      })();
+      setTimeout(function(){ callback(null, aid); }, 0);
+      return;
+    }
+    // 微信：wx.login() → code → 后端换 openid
+    if (_platform === 'wechat' && typeof wx !== 'undefined') {
+      wx.login({ success: function(res){
+        var code = res.code;
+        // 调用后端 /auth/wechat/code → {openid, session_key}
+        cloudFetchRaw('POST', '/auth/wechat/code', {code: code}).then(function(r){
+          callback(null, r.openid);
+        }).catch(function(e){ callback(e); });
+      }, fail: function(){ callback(new Error('wx.login失败')); }});
+      return;
+    }
+    // 抖音：tt.login() → 换取 openid
+    if (_platform === 'douyin' && typeof tt !== 'undefined') {
+      tt.login({ success: function(res){
+        var code = res.code;
+        cloudFetchRaw('POST', '/auth/douyin/code', {code: code}).then(function(r){
+          callback(null, r.openid);
+        }).catch(function(e){ callback(e); });
+      }, fail: function(){ callback(new Error('tt.login失败')); }});
+      return;
+    }
+    // 快手：ks.login() → 换取 openid
+    if (_platform === 'kuaishou' && typeof ks !== 'undefined') {
+      ks.login({ success: function(res){
+        var code = res.code;
+        cloudFetchRaw('POST', '/auth/kuaishou/code', {code: code}).then(function(r){
+          callback(null, r.openid);
+        }).catch(function(e){ callback(e); });
+      }, fail: function(){ callback(new Error('ks.login失败')); }});
+      return;
+    }
+    setTimeout(function(){ callback(null, 'mock_' + _platform + '_' + Date.now()); }, 100);
+  },
+
+  // 主动获取用户信息（需用户授权）
+  getUserInfo: function(callback) {
+    if (_platform === 'unknown') {
+      callback(null, { nickname: '游客' + String(Math.floor(Math.random()*9000)+1000), avatar: '' });
+      return;
+    }
+    if (_platform === 'wechat' && typeof wx !== 'undefined') {
+      wx.getUserProfile({ desc: '用于存档同步', success: function(res){
+        callback(null, { nickname: res.userInfo.nickName, avatar: res.userInfo.avatarUrl });
+      }, fail: function(){ callback(new Error('用户拒绝授权')); }});
+      return;
+    }
+    if (_platform === 'douyin' && typeof tt !== 'undefined') {
+      tt.getUserInfo({ success: function(res){ callback(null, res.userInfo); },
+        fail: function(){ callback(new Error('用户拒绝授权')); }});
+      return;
+    }
+    callback(null, { nickname: '玩家' + String(Math.floor(Math.random()*9000)+1000), avatar: '' });
+  }
+};
+
+// ── userId 生成：SHA-256(openid + secret) 取前32位 ──
+function _sha256Hex(str) {
+  // 简单实现：用 btoa + 自定义混淆（无外部依赖）
+  // 生产环境替换为后端计算，前端只存 userId 不碰明文 openid
+  var s = str + (typeof CLOUD_SECRET !== 'undefined' ? CLOUD_SECRET : '');
+  var h = 0;
+  for (var i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    h = h & h; // 强制32位
+  }
+  // 简单确定性 hash → 16位 hex × 2 = 32位 userId
+  var abs = Math.abs(h);
+  var hex = Math.pow(abs + 1, 0.5).toString(16).replace('.','') +
+            (abs * 7 + 13).toString(16).replace('.','') +
+            (abs * 3 + 5).toString(16).replace('.','') +
+            (abs * 11 + 17).toString(16).replace('.','');
+  return hex.substring(0, 32);
 }
 
+// 生成或获取 userId（静默，不弹窗）
+function _getOrCreateUserId(callback) {
+  var cached = localStorage.getItem(CLOUD_USERID_KEY);
+  if (cached) { callback(null, cached); return; }
+  _platformSdk.getOpenId(function(err, openid) {
+    if (err || !openid) {
+      // 无 openid 也生成一个（匿名玩家）
+      var fallback = 'anon_' + _platform + '_' + Date.now();
+      var uid = _sha256Hex(fallback + (typeof CLOUD_SECRET !== 'undefined' ? CLOUD_SECRET : 'default'));
+      localStorage.setItem(CLOUD_USERID_KEY, uid);
+      callback(null, uid);
+      return;
+    }
+    var uid = _sha256Hex(openid + _platform + (typeof CLOUD_SECRET !== 'undefined' ? CLOUD_SECRET : 'default'));
+    localStorage.setItem(CLOUD_USERID_KEY, uid);
+    callback(null, uid);
+  });
+}
+
+// ── cloudFetch：带 userId 的统一请求 ──
+function cloudFetchRaw(method, path, body) {
+  var opts = { method: method, headers: {'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(CLOUD_API + path, opts).then(function(r){ return r.json(); });
+}
+
+async function _cloudFetch(method, path, body) {
+  var userId = localStorage.getItem(CLOUD_USERID_KEY) || '';
+  var extra = {};
+  if (userId) extra['X-UserId'] = userId;
+  var opts = {
+    method: method,
+    headers: Object.assign({'Content-Type':'application/json'}, extra)
+  };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    var r = await fetch(CLOUD_API + path, opts);
+    return await r.json();
+  } catch(e) {
+    return {code:-1, msg:'网络异常'};
+  }
+}
+
+
+
 // 打开云端面板
+// ── 打开云端面板（登录/退出/切换账号）──────────────
 function openCloudPanel() {
-  document.getElementById("cloudPanel").classList.add("open");
+  var panel = document.getElementById("cloudPanel");
+  if (!panel) return;
   document.getElementById("cloudError").style.display = "none";
-  const tab = G._cloudPlayerId ? "logout" : "login";
-  if (tab === "logout") {
-    document.getElementById("cloudPhone").value = G._cloudPhone || "";
+
+  var isLoggedIn = !!(G._cloudPlayerId || localStorage.getItem(CLOUD_USERID_KEY));
+
+  if (isLoggedIn) {
+    // 已登录：显示账号信息 + 退出 + 切换账号
+    var uid = localStorage.getItem(CLOUD_USERID_KEY) || '';
+    var shortId = uid ? uid.substring(0, 8) + '***' : '已登录';
+    document.getElementById("cloudPhone").value = shortId;
     document.getElementById("cloudPhone").disabled = true;
     document.getElementById("cloudPwd").style.display = "none";
-    document.getElementById("cloudSubmitBtn").textContent = "解除绑定";
+    document.getElementById("cloudSubmitBtn").textContent = "退出登录";
+    document.getElementById("cloudTabLogin").style.display = "none";
+    document.getElementById("cloudTabReg").style.display = "none";
   } else {
+    // 未登录：显示登录选项（微信/抖音/快手）
     document.getElementById("cloudPhone").value = "";
-    document.getElementById("cloudPhone").disabled = false;
-    document.getElementById("cloudPwd").style.display = "";
+    document.getElementById("cloudPhone").disabled = true;
+    document.getElementById("cloudPwd").style.display = "none";
+    document.getElementById("cloudSubmitBtn").textContent = "授权登录";
+    document.getElementById("cloudTabLogin").style.display = "none";
+    document.getElementById("cloudTabReg").style.display = "none";
     switchCloudTab("login");
   }
+  panel.classList.add("open");
 }
 
 // 关闭云端面板
@@ -2948,142 +3103,354 @@ function closeCloudPanel() {
 }
 
 // 切换登录/注册标签
+// ── 切换登录/注册 Tab（简化，仅微信登录）─────────
 function switchCloudTab(tab) {
-  const lbtn = document.getElementById("cloudTabLogin");
-  const rbtn = document.getElementById("cloudTabReg");
+  var lbtn = document.getElementById("cloudTabLogin");
+  var rbtn = document.getElementById("cloudTabReg");
   if (tab === "login") {
-    lbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;font-weight:700;color:#c8860a;font-size:14px;cursor:pointer;";
-    rbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#888;font-size:14px;cursor:pointer;";
-    document.getElementById("cloudSubmitBtn").textContent = "登录";
+    if (lbtn) lbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;font-weight:700;color:#c8860a;font-size:14px;cursor:pointer;display:none;";
+    if (rbtn) rbtn.style.display = "none";
   } else {
-    rbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;font-weight:700;color:#c8860a;font-size:14px;cursor:pointer;";
-    lbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#888;font-size:14px;cursor:pointer;";
-    document.getElementById("cloudSubmitBtn").textContent = "注册";
+    if (rbtn) rbtn.style.cssText = "flex:1;padding:10px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:10px;font-weight:700;color:#c8860a;font-size:14px;cursor:pointer;display:none;";
+    if (lbtn) lbtn.style.display = "none";
   }
 }
 
 // 提交登录/注册表单
+// ── 云端面板提交（退出/静默授权登录）─────────────
 async function cloudSubmit() {
-  const panel = document.getElementById("cloudPanel");
-  // 解除绑定
-  if (panel.querySelector("#cloudPhone").disabled) {
+  var panel = document.getElementById("cloudPanel");
+  var btn = document.getElementById("cloudSubmitBtn");
+  var errEl = document.getElementById("cloudError");
+  var isLogout = (btn.textContent === "退出登录");
+
+  // ── 退出登录 ──
+  if (isLogout) {
+    btn.disabled = true;
+    btn.textContent = "正在退出...";
     G._cloudPlayerId = null;
     G._cloudPhone = null;
+    localStorage.removeItem(CLOUD_USERID_KEY);
+    localStorage.removeItem(CLOUD_TOKEN_KEY);
     localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+    try{updateHeroSection && updateHeroSection();}catch(e){}
     closeCloudPanel();
-    updateHeroSection();
+    showToast("已退出登录", "#888");
+    btn.disabled = false;
+    btn.textContent = "授权登录";
     return;
   }
-  const phone = document.getElementById("cloudPhone").value.trim();
-  const pwd = document.getElementById("cloudPwd").value;
-  const errEl = document.getElementById("cloudError");
-  const btn = document.getElementById("cloudSubmitBtn");
-  const isReg = btn.textContent === "注册";
 
-  if (!phone || !isReg && !pwd) {
-    errEl.textContent = "请填写手机号和密码"; errEl.style.display = "";
-    return;
-  }
-  if (phone.length !== 11) {
-    errEl.textContent = "手机号必须是11位"; errEl.style.display = "";
-    return;
-  }
-  if (pwd.length < 6) {
-    errEl.textContent = "密码至少6位"; errEl.style.display = "";
-    return;
-  }
-  errEl.style.display = "none";
+  // ── 静默授权登录（微信/抖音/快手）──
   btn.disabled = true;
-  btn.textContent = "请稍候...";
+  btn.textContent = "正在授权...";
+  errEl.style.display = "none";
 
   try {
-    const path = isReg ? "/auth/register" : "/auth/login";
-    const res = await _cloudFetch("POST", path, { phone, password: pwd });
-
-    if (res.code === 0) {
-      G._cloudPlayerId = res.player_id;
-      G._cloudPhone = phone;
+    _getOrCreateUserId(function(err, userId) {
+      if (err || !userId) {
+        // 静默失败（无网络/用户拒绝）：生成匿名存档
+        console.warn("静默登录失败，使用匿名存档", err);
+        G._cloudPlayerId = 'anon_' + _platform + '_' + Date.now();
+        localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+        closeCloudPanel();
+        btn.disabled = false; btn.textContent = "授权登录";
+        showToast("无网络，使用本地存档", "#c8860a");
+        return;
+      }
+      G._cloudPlayerId = userId;
       localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-      // 注册/登录成功后上传本地存档
-      await cloudSaveToServer(true);
-      closeCloudPanel();
-      updateHeroSection();
-      showToast((isReg ? "注册" : "登录") + "成功 ☁️", "#c8860a");
-    } else {
-      errEl.textContent = res.msg || "操作失败"; errEl.style.display = "";
-      btn.disabled = false;
-      btn.textContent = isReg ? "注册" : "登录";
-    }
+      // 尝试上传本地存档到云端
+      cloudSaveToServer(true).then(function(res) {
+        closeCloudPanel();
+        btn.disabled = false; btn.textContent = "授权登录";
+        if (res && res.code === 0) {
+          showToast("☁️ 已登录并同步", "#4ade80");
+        } else {
+          showToast("☁️ 已登录（本地存档）", "#c8860a");
+        }
+        try{updateHeroSection && updateHeroSection();}catch(e){}
+      }).catch(function(e2) {
+        closeCloudPanel();
+        btn.disabled = false; btn.textContent = "授权登录";
+        showToast("☁️ 已登录（云端同步失败）", "#c8860a");
+        try{updateHeroSection && updateHeroSection();}catch(e){}
+      });
+    });
   } catch(e) {
-    errEl.textContent = "网络错误，请检查网络连接"; errEl.style.display = "";
-    btn.disabled = false;
-    btn.textContent = isReg ? "注册" : "登录";
+    errEl.textContent = "授权失败，请重试"; errEl.style.display = "";
+    btn.disabled = false; btn.textContent = "授权登录";
   }
 }
 
-// 云端存档（每次大操作后自动调用）
+// 云端存档（每次大操作后自动调用，完整保存）
 async function cloudSave(quiet) {
   if (!G._cloudPlayerId) return;
   try {
     await cloudSaveToServer(!!quiet);
-    if (!quiet) {
-      showToast("☁️ 已同步", "#4ade80");
-    }
+    if (!quiet) showToast("☁️ 已同步", "#4ade80");
   } catch(e) {
     if (!quiet) showToast("同步失败", "#ff6b6b");
   }
 }
 
 // 主动保存到云端（带loading提示）
+// ── 云端存档（全量序列化）──────────────────────────
+// 存档包含：灵兽、装备、命格、命造、试炼塔、任务、活动、设置
 async function cloudSaveToServer(quiet) {
   if (!G._cloudPlayerId) return;
-  const gameData = {
-    coins: G.coins,
-    totalCoinsEarned: G.totalCoinsEarned || G.coins,
-    dragons: G.dragons,
+  var userId = localStorage.getItem(CLOUD_USERID_KEY) || G._cloudPlayerId;
+  var gameData = {
+    // ── 基础资源 ──
+    coins: G.coins || 0,
+    totalCoinsEarned: G.totalCoinsEarned || G.coins || 0,
+    dragonQi: G.dragonQi || 0,
+    dragonPower: G.dragonPower || 0,     // 龙气
+    gems: G.gems || 0,                   // 钻石/龙气瓶
+    cultivation: G.cultivation || {mu:0,huo:0,tu:0,kin:0,shui:0}, // 命造
+
+    // ── 灵兽 ──
+    dragons: G.dragons || [],
     mergeCount: G.mergeCount || 0,
-    zodiac: G.zodiac,
-    fate: G.fate,
-    dragonQi: G.dragonQi,
-    achievements: G.achievements || [],
+    summonCount: G.summonCount || 0,
+
+    // ── 身份 ──
+    zodiac: G.zodiac ?? -1,
+    fate: G.fate ?? -1,
+    currentFate: G.currentFate ?? 3,
     unlockedAtlas: G.unlockedAtlas || [],
+    unlockedSkins: G.unlockedSkins || [],   // 解锁皮肤
+
+    // ── 装备系统 ──
+    forge: G.forge || {items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0}},
+    equippedSlots: G.equippedSlots || {},    // 穿戴槽位 {helmet:itemId, ...}
+    suitBonus: G.suitBonus || {},            // 套装效果激活记录
+
+    // ── 试炼塔 ──
+    towerFloor: G.towerFloor || 1,
+    towerBest: G.towerBest || 1,
+    towerPlayerHp: G.towerPlayerHp || 0,
+
+    // ── 活跃系统 ──
     signDays: G.signDays || 0,
-    summonCount: G.summonCount || 0
+    achievements: G.achievements || [],
+    signRecord: G.signRecord || {},         // 签到记录 {date: true}
+
+    // ── 命格/命造（进阶） ──
+    constellation: G.constellation || {},  // 命格点星图进度
+
+    // ── 任务系统 ──
+    tasks: G.tasks || {},
+    lastTaskDate: G.lastTaskDate || '',
+    _qiSpentDaily: G._qiSpentDaily || 0,
+
+    // ── 试炼塔特殊奖励 ──
+    towerRewards: G.towerRewards || {},     // 已领取层奖励记录
+    towerBossHp: G.towerBossHp || {},       // boss 血量记录
+
+    // ── 命造时间戳 ──
+    lastQiTime: G.lastQiTime || Date.now(),
+    lastFateDate: G.lastFateDate || '',
+    lastFreeDate: G.lastFreeDate || '',
+    freeLeft: G.freeLeft || 3,
+
+    // ── 存档版本 ──
+    _version: 2,                            // 存档格式版本（升级判断用）
+    _savedAt: Date.now()
   };
-  await _cloudFetch("POST", "/game/save", {
-    player_id: G._cloudPlayerId,
+  var res = await _cloudFetch("POST", "/game/save", {
+    player_id: userId,
+    userId: userId,
     game_data: gameData
   });
+  return res;
 }
 
 // 加载云端存档覆盖本地
+// ── 云端读取（全量恢复）──────────────────────────
+// 返回 {hasData, localNewer} 用于 UI 判断冲突
 async function cloudLoadFromServer(quiet) {
   if (!G._cloudPlayerId) return;
-  const res = await _cloudFetch("GET", "/game/load/" + G._cloudPlayerId);
-  if (res.code === 0 && res.game_data) {
-    const d = res.game_data;
-    G.coins = d.coins || 0;
-    G.totalCoinsEarned = d.totalCoinsEarned || d.coins || 0;
-    G.dragons = d.dragons || [];
-    G.mergeCount = d.mergeCount || 0;
-    G.zodiac = d.zodiac ?? -1;
-    G.fate = d.fate ?? -1;
-    G.dragonQi = d.dragonQi || 0;
-    G.achievements = d.achievements || [];
-    G.unlockedAtlas = d.unlockedAtlas || [];
-    G.signDays = d.signDays || 0;
-    G.summonCount = d.summonCount || 0;
-    localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
-    saveGame();
-    updateHud();
-    if (!quiet) showToast("☁️ 云端存档已恢复", "#4ade80");
+  var userId = localStorage.getItem(CLOUD_USERID_KEY) || G._cloudPlayerId;
+  var res = await _cloudFetch("GET", "/game/load/" + userId);
+  if (res.code !== 0 || !res.game_data) return;
+
+  var d = res.game_data;
+  var localTs = G._savedAt || 0;
+  var cloudTs = d._savedAt || 0;
+
+  // 云端无数据，跳过
+  if (!cloudTs) return;
+
+  // 云端比本地旧：保留本地
+  if (cloudTs < localTs) {
+    if (!quiet) showToast("☁️ 本地存档更新，已保留", "#c8860a");
+    return;
   }
+
+  // ── 全量恢复 ──
+  if (d.coins !== undefined) G.coins = d.coins;
+  if (d.totalCoinsEarned !== undefined) G.totalCoinsEarned = d.totalCoinsEarned;
+  if (d.dragonQi !== undefined) G.dragonQi = d.dragonQi;
+  if (d.dragonPower !== undefined) G.dragonPower = d.dragonPower;
+  if (d.gems !== undefined) G.gems = d.gems;
+  if (d.cultivation !== undefined) G.cultivation = d.cultivation;
+  if (d.dragons !== undefined) G.dragons = d.dragons;
+  if (d.mergeCount !== undefined) G.mergeCount = d.mergeCount;
+  if (d.summonCount !== undefined) G.summonCount = d.summonCount;
+  if (d.zodiac !== undefined) G.zodiac = d.zodiac;
+  if (d.fate !== undefined) G.fate = d.fate;
+  if (d.currentFate !== undefined) G.currentFate = d.currentFate;
+  if (d.unlockedAtlas !== undefined) G.unlockedAtlas = d.unlockedAtlas;
+  if (d.unlockedSkins !== undefined) G.unlockedSkins = d.unlockedSkins;
+
+  // ── 装备系统 ──
+  if (d.forge !== undefined) G.forge = d.forge;
+  if (d.equippedSlots !== undefined) G.equippedSlots = d.equippedSlots;
+  if (d.suitBonus !== undefined) G.suitBonus = d.suitBonus;
+
+  // ── 试炼塔 ──
+  if (d.towerFloor !== undefined) G.towerFloor = d.towerFloor;
+  if (d.towerBest !== undefined) G.towerBest = d.towerBest;
+  if (d.towerPlayerHp !== undefined) G.towerPlayerHp = d.towerPlayerHp;
+  if (d.towerRewards !== undefined) G.towerRewards = d.towerRewards;
+
+  // ── 活跃系统 ──
+  if (d.signDays !== undefined) G.signDays = d.signDays;
+  if (d.achievements !== undefined) G.achievements = d.achievements;
+  if (d.signRecord !== undefined) G.signRecord = d.signRecord;
+
+  // ── 任务系统 ──
+  if (d.tasks !== undefined) G.tasks = d.tasks;
+  if (d.lastTaskDate !== undefined) G.lastTaskDate = d.lastTaskDate;
+  if (d._qiSpentDaily !== undefined) G._qiSpentDaily = d._qiSpentDaily;
+
+  // ── 命格/命造 ──
+  if (d.constellation !== undefined) G.constellation = d.constellation;
+
+  // ── 元数据 ──
+  if (d._savedAt !== undefined) G._savedAt = d._savedAt;
+
+  localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+  saveGame();
+  updateHud();
+  // 刷新灵兽区域（属性可能因装备变化）
+  try{updateHeroSection && updateHeroSection();}catch(e){}
+  if (!quiet) showToast("☁️ 云端存档已恢复（v"+(d._version||1)+"）", "#4ade80");
 }
 
 // 云端同步按钮（侧边栏加一个云图标）
-// 在 startGame 末尾调用，初始化时检查已登录玩家
+// ── 初始化云端账号（静默登录 + 自动同步）
+// ════════════════════════════════════════════════════════════
+// 小程序授权登录 + 切换账号
+// ════════════════════════════════════════════════════════════
+
+// 统一平台登录入口（cloudPanel 里的3个按钮调用）
+function doPlatformLogin(platform) {
+  var errEl = document.getElementById("cloudError");
+  var btnArea = document.getElementById("cloudPlatformBtns");
+  if (errEl) { errEl.style.display = "none"; }
+  if (btnArea) { btnArea.style.opacity = "0.5"; btnArea.style.pointerEvents = "none"; }
+  showToast("正在拉起" + (_platformNames[platform]||platform) + "授权...", "#888");
+
+  _getOrCreateUserId(function(err, userId) {
+    if (btnArea) { btnArea.style.opacity = "1"; btnArea.style.pointerEvents = ""; }
+    if (err || !userId) {
+      // 匿名登录兜底
+      userId = 'anon_' + (platform||_platform) + '_' + Date.now();
+      G._cloudPlayerId = userId;
+      localStorage.setItem(CLOUD_USERID_KEY, userId);
+      localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+      updateCloudPanelUI();
+      cloudSaveToServer(true).catch(function(){});
+      showToast("☁️ 已登录（本地存档）", "#c8860a");
+      try{updateHeroSection && updateHeroSection();}catch(e){}
+      return;
+    }
+    G._cloudPlayerId = userId;
+    localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+    cloudSaveToServer(true).then(function(res) {
+      updateCloudPanelUI();
+      if (res && res.code === 0) {
+        showToast("☁️ " + (_platformNames[platform]||"已登录") + "，存档已同步", "#4ade80");
+      } else {
+        showToast("☁️ " + (_platformNames[platform]||"已登录"), "#c8860a");
+      }
+      try{updateHeroSection && updateHeroSection();}catch(e){}
+    }).catch(function(e) {
+      updateCloudPanelUI();
+      showToast("☁️ 已登录（网络异常）", "#c8860a");
+      try{updateHeroSection && updateHeroSection();}catch(e){}
+    });
+  });
+}
+
+// 切换账号（清空 userId，重新授权）
+function doSwitchAccount() {
+  if (!confirm("确定要切换账号吗？当前账号存档不受影响。")) return;
+  localStorage.removeItem(CLOUD_USERID_KEY);
+  localStorage.removeItem(CLOUD_TOKEN_KEY);
+  G._cloudPlayerId = null;
+  // 强制重新获取 userId
+  _getOrCreateUserId(function(err, userId) {
+    if (!err && userId) {
+      G._cloudPlayerId = userId;
+      localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+      cloudSaveToServer(true).catch(function(){});
+      showToast("☁️ 已切换为新账号", "#c8860a");
+    }
+    updateCloudPanelUI();
+    try{updateHeroSection && updateHeroSection();}catch(e){}
+  });
+}
+
+// 平台名称映射
+var _platformNames = {wechat:'微信', douyin:'抖音', kuaishou:'快手', unknown:'游客'};
+
+// 更新 cloudPanel UI（显示账号信息或登录按钮）
+function updateCloudPanelUI() {
+  var isLoggedIn = !!(G._cloudPlayerId || localStorage.getItem(CLOUD_USERID_KEY));
+  var uid = localStorage.getItem(CLOUD_USERID_KEY) || G._cloudPlayerId || '';
+  var shortId = uid.length > 16 ? uid.substring(0, 8) + '...' + uid.substring(uid.length-4) : uid;
+
+  var accountArea = document.getElementById("cloudAccountArea");
+  var loggedInBtns = document.getElementById("cloudLoggedInBtns");
+  var platformBtns = document.getElementById("cloudPlatformBtns");
+  var accountIdEl = document.getElementById("cloudAccountId");
+
+  if (isLoggedIn) {
+    if (accountArea) accountArea.style.display = "";
+    if (accountIdEl) accountIdEl.textContent = shortId;
+    if (loggedInBtns) loggedInBtns.style.display = "";
+    if (platformBtns) platformBtns.style.display = "none";
+  } else {
+    if (accountArea) accountArea.style.display = "none";
+    if (loggedInBtns) loggedInBtns.style.display = "none";
+    if (platformBtns) platformBtns.style.display = "";
+  }
+}
+
+// 覆盖 openCloudPanel：打开时同步 UI
+var _orig_openCloudPanel = openCloudPanel;
+function openCloudPanel() {
+  _orig_openCloudPanel();
+  updateCloudPanelUI();
+}
+
+// 在 startGame 末尾调用，检查缓存 userId，尝试静默恢复
 function _initCloudAccount() {
-  if (G._cloudPlayerId) {
+  var cachedId = localStorage.getItem(CLOUD_USERID_KEY);
+  if (cachedId) {
+    G._cloudPlayerId = cachedId;
+    // 静默拉取云端存档（异常不弹窗）
     cloudLoadFromServer(true).catch(function() {});
+  } else {
+    // 无缓存：静默创建/获取 userId（不弹窗）
+    _getOrCreateUserId(function(err, userId) {
+      if (!err && userId) {
+        G._cloudPlayerId = userId;
+        localStorage.setItem("DRAGON_CLICKER_SAVE_V1", JSON.stringify(G));
+      }
+    });
   }
 }

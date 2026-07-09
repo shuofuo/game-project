@@ -935,6 +935,7 @@ function doStart(){
       <span style="font-size:16px;margin-left:8px;"><span class="qi-icon qi-icon-md"></span></span><span id="hudQi" style="font-size:16px;font-weight:700;color:#1A1A1A;font-weight:600;">0</span>
       <span id="hudWeekly" style="font-size:11px;color:rgba(80,40,10,.4);cursor:pointer;margin-left:6px;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,255,255,.1);display:none;" onclick="openWeeklyPanel()" title="本周挑战">📅 <span id="hudWeeklyNum">0/7</span></span>
     </div>
+    <button onclick="openSharePanel()" style="background:none;border:none;color:#ffd700;font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0;" title="分享命盘">📜</button>
     <span id="hudYunshi" style="font-size:12px;color:rgba(100,60,20,.45);min-width:50px;"></span>
   </div>
 
@@ -1202,6 +1203,16 @@ function doStart(){
       <div id="skinContent" class="panel-content" style="padding:0 0 20px;"></div>
     </div>
   </div>
+
+  <!-- 分享海报面板 -->
+  <div id="sharePanel" style="display:none;"></div>
+
+  <!-- 好友绑定面板（预留） -->
+  <!-- <div id="friendsPanel" class="panel-overlay"><div class="panel-box"></div></div> -->
+
+  <!-- 全服聊天频道（预留） -->
+  <!-- <div id="chatPanel" class="panel-overlay"><div class="panel-box"></div></div> -->
+
   <script src="js/config.js"></script>
 <script src="js/audio.v2.js"></script>
 <script src="js/game.v5.js?v=14"></script>

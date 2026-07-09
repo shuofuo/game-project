@@ -1535,62 +1535,38 @@ function closeStatsPanel(){
 }
 
 // ===== 新手引导系统 =====
+// ── 新手引导：四大核心（首次进入触发，完成后永久关闭）──
 const GUIDE_STEPS = [
   {
     step:1,
-    title:'欢迎来到生肖天机！',
-    body:'在这里，你将通过召唤与合成，一步步打造属于自己的天命神兽。让我们一起开始吧！',
-    target:null,
-    pos:'center',
-    nextText:'开始探索 →',
-  },
-  {
-    step:2,
-    title:'召唤你的第一只灵兽',
-    body:'点击底部中央的「💰 金币召唤」，消耗金币召唤一只灵兽。\n\n金币会自动累积，无需手动操作。',
-    target:'#btnCoin',
-    pos:'top',
-    highlight:'rect',
+    title:'🎰 十连抽取装备',
+    body:'打开炼宝阁，点击「🔨 制作台」，消耗材料制作装备。\n\n制作台支持普通制作和十连制作，十连必出紫装以上！',
+    target:'[data-fn="forge"]',
+    pos:'bottom',
     nextText:'明白了！',
   },
   {
-    step:3,
-    title:'三种召唤方式',
-    body:'💰 金币召唤：消耗累积金币\n<span class="qi-icon qi-icon-sm"></span> 龙气召唤：使用龙气，获得更高品阶\n🆓 免费召唤：每天重置，适合微氪玩家',
-    target:'#summonBar',
+    step:2,
+    title:'⚡ 穿戴装备',
+    body:'制作完成后，点击背包中的装备可直接穿戴。\n\n装备可大幅提升灵兽的攻击、防御和速度属性！',
+    target:'[data-fn="forge"]',
     pos:'bottom',
+    nextText:'继续 →',
+  },
+  {
+    step:3,
+    title:'🐉 灵兽合成',
+    body:'拖动一只灵兽到另一只相同品阶的灵兽上，即可合成升阶！\n\n合成升级后灵兽的攻防速会同步提升！',
+    target:'#gridContainer',
+    pos:'center',
     nextText:'继续 →',
   },
   {
     step:4,
-    title:'合成升阶，灵兽进化',
-    body:'拖动一只灵兽到另一只相同品阶的灵兽上，即可合成升阶！\n\n合成等级越高，产出金币越多！',
-    target:'#gridContainer',
-    pos:'center',
-    nextText:'我学会了！',
-  },
-  {
-    step:5,
-    title:'自动产金，积累资源',
-    body:'灵兽会自动每秒产出金币 💰\n\n点击左上角的「📊 统计」可以查看详细数据。提升灵兽等级可大幅增加产出！',
-    target:'#topHud',
-    pos:'bottom',
-    nextText:'继续 →',
-  },
-  {
-    step:6,
-    title:'每日活动，不要错过',
-    body:'📋 每日签到：坚持签到，奖励递增\n📋 每日任务：自动追踪进度，完成领取奖励\n🎁 限时活动：周末双倍召唤、晚间金币时段！',
-    target:'[data-fn="sign"]',
+    title:'⚔️ 天命试炼塔',
+    body:'挑战试炼塔，获取大量金币和龙气奖励！\n\n装备越好、灵兽越强，试炼塔层数越高！',
+    target:'[data-fn="tower"]',
     pos:'right',
-    nextText:'太好了！',
-  },
-  {
-    step:7,
-    title:'恭喜你，探索完成！',
-    body:'你已掌握核心玩法。现在去召唤你的第一只灵兽，开启生肖天机之旅吧 🐉\n\n提示：图鉴、排行榜、命格修炼都在侧边栏~',
-    target:null,
-    pos:'center',
     nextText:'进入游戏 →',
   },
 ];
@@ -1602,6 +1578,7 @@ function startGuide(){
   showGuideStep(1);
 }
 
+// ── 显示引导步骤（简化版，统一底部居中）──
 function showGuideStep(n){
   const steps = GUIDE_STEPS;
   if(n > steps.length){closeGuide();return;}
@@ -1610,61 +1587,68 @@ function showGuideStep(n){
   const tooltip = document.getElementById('guideTooltip');
   if(!overlay || !tooltip) return;
 
-  // 清除旧cutout
-  overlay.querySelectorAll('.guide-cutout').forEach(e=>e.remove());
+  // 清除旧高亮
+  overlay.querySelectorAll('.guide-cutout').forEach(function(e){e.remove();});
 
-  if(step.target){
-    // 定位目标元素
-    const target = document.querySelector(step.target);
-    if(target){
-      const r = target.getBoundingClientRect();
-      const cutout = document.createElement('div');
-      cutout.className = 'guide-cutout';
-      cutout.style.cssText = `left:${r.left-6}px;top:${r.top-6}px;width:${r.width+12}px;height:${r.height+12}px;`;
-      overlay.appendChild(cutout);
-    }
-  }
-
-  // 进度点
-  const dots = steps.map((_,i)=>`<div class="dot${i+1<n?' done':i+1===n?' active':''}"></div>`).join('');
-  // 计算tooltip位置
-  let tLeft='50%',tTop='50%',tTransform='translate(-50%,-50%)';
-  if(step.pos==='center'){
-    tLeft='50%';tTop='50%';tTransform='translate(-50%,-50%)';
-  } else if(step.pos==='bottom'){
-    tLeft='50%';tTop='auto';tTransform='translate(-50%,0)';
-    tBottom=step.target?Math.max(20, window.innerHeight - (document.querySelector(step.target)?.getBoundingClientRect().top||0) + 80)+'px':'20%';
-  } else if(step.pos==='top'){
-    tLeft='50%';tTop='20px';tTransform='translate(-50%,0)';
-  } else if(step.pos==='right'){
-    tLeft='50%';tTop='50%';tTransform='translate(-50%,-50%)';
-  }
-
-  tooltip.innerHTML=`<div id="guideDots">${dots}</div>
-    <div class="guide-step-num">第 ${n} / ${steps.length} 步</div>
-    <div class="guide-title">${step.title}</div>
-    <div class="guide-body">${step.body.replace(/\n/g,'<br>')}</div>
-    <div class="guide-btns">
-      ${n>1?'':`<button class="guide-skip" onclick="closeGuide()">跳过引导</button>`}
-      <button class="guide-next" onclick="nextGuideStep(${n})">${step.nextText}</button>
-    </div>`;
-  const _t = step.pos;
-  const _topVal = _t==='bottom' ? tBottom : (_t==='top' ? '20px' : '50%');
-  tooltip.style.cssText=`left:${tLeft};top:${_topVal};${_t==='bottom'?'bottom:0;top:auto;':''};transform:${tTransform};z-index:9999;`;
-  tooltip.classList.add('show');
+  // 浅色毛玻璃遮罩
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(180,160,120,.18);z-index:998;display:block;';
   overlay.classList.add('active');
+
+  // 进度条
+  var prog = '<div style="display:flex;gap:6px;margin-bottom:14px;justify-content:center;">';
+  steps.forEach(function(_,i){
+    var done = i+1 < n, cur = i+1 === n;
+    prog += '<div style="width:'+(cur?'24px':'10px')+';height:6px;border-radius:3px;background:'+(done?'#c8860a':cur?'#ffd700':'rgba(200,168,10,.25)')+';transition:all .3s;"></div>';
+  });
+  prog += '</div>';
+
+  tooltip.innerHTML = '<div style="padding:28px 24px 24px;background:rgba(255,252,244,.97);border-radius:20px;max-width:min(360px,90vw);box-shadow:0 12px 48px rgba(100,80,20,.25);border:1px solid rgba(200,168,10,.3);">' +
+    prog +
+    '<div style="font-size:11px;font-weight:700;color:#c8860a;letter-spacing:2px;margin-bottom:10px;text-align:center;">新手引导 · 第 '+n+' / '+steps.length+' 步</div>' +
+    '<div style="font-size:18px;font-weight:700;color:#1A1A1A;margin-bottom:10px;">'+step.title+'</div>' +
+    '<div style="font-size:13px;color:#555;line-height:1.8;margin-bottom:20px;">'+step.body.replace(/\n/g,'<br>')+'</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center;">' +
+    (n > 1 ? '<button onclick="showGuideStep('+(n-1)+')" style="flex:1;padding:11px;border-radius:14px;background:#fff;border:1.5px solid rgba(200,168,10,.4);color:#555;font-size:14px;font-weight:600;cursor:pointer;">← 上一步</button>' : '') +
+    '<button onclick="nextGuideStep('+n+')" style="flex:2;padding:11px;border-radius:14px;background:linear-gradient(135deg,#ffd700,#e65100);border:none;color:#1a0a00;font-size:14px;font-weight:700;cursor:pointer;">'+step.nextText+'</button>' +
+    '</div>' +
+    '<button onclick="closeGuide()" style="display:block;margin:10px auto 0;background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;">跳过引导</button>' +
+    '</div>';
+  tooltip.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;';
+  tooltip.classList.add('show');
 }
 function nextGuideStep(current){
   showGuideStep(current+1);
 }
 
+// ── 关闭引导（完成或跳过 → 发奖励 → 永久关闭）──
 function closeGuide(){
-  const overlay=document.getElementById('guideOverlay');
-  const tooltip=document.getElementById('guideTooltip');
-  if(overlay){overlay.classList.remove('active');overlay.querySelectorAll('.guide-cutout').forEach(e=>e.remove());}
-  G.guideDone=true;
-  G.guideStep=GUIDE_STEPS.length+1;
+  var overlay = document.getElementById('guideOverlay');
+  var tooltip = document.getElementById('guideTooltip');
+  if(overlay){overlay.classList.remove('active');overlay.querySelectorAll('.guide-cutout').forEach(function(e){e.remove();});}
+  if(tooltip){tooltip.classList.remove('show');}
+  G.guideDone = true;
   saveGame();
+
+  // 引导完成奖励：50金币 + 10龙气
+  G.coins = (G.coins||0) + 50;
+  G.dragonQi = (G.dragonQi||0) + 10;
+  saveGame();
+  try{updateHud && updateHud();}catch(e){}
+
+  // 奖励弹窗（浅色主题）
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(100,80,20,.4);display:flex;align-items:center;justify-content:center;z-index:99999;animation:fadeIn .3s ease;';
+  el.innerHTML = '<div style="background:rgba(255,252,244,.97);border-radius:24px;padding:36px 32px;width:min(320px,88vw);text-align:center;border:1px solid rgba(200,168,10,.35);animation:popIn .4s cubic-bezier(.34,1.56,.64,1);">' +
+    '<div style="font-size:48px;margin-bottom:12px;">🎁</div>' +
+    '<div style="font-size:15px;font-weight:700;color:#1A1A1A;margin-bottom:16px;">引导完成！</div>' +
+    '<div style="background:rgba(255,248,230,.8);border-radius:14px;padding:14px 20px;margin-bottom:20px;text-align:left;">' +
+    '<div style="font-size:13px;color:#555;margin-bottom:8px;">🎉 新手奖励</div>' +
+    '<div style="font-size:15px;color:#1A1A1A;font-weight:700;margin-bottom:4px;">💰 +50 金币</div>' +
+    '<div style="font-size:15px;color:#1A1A1A;font-weight:700;">✨ +10 龙气</div>' +
+    '</div>' +
+    '<button onclick="this.closest(\'div\').parentElement.remove();try{updateHud&&updateHud();}catch(e){}" style="width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,#ffd700,#e65100);border:none;color:#1a0a00;font-size:14px;font-weight:700;cursor:pointer;">收下奖励</button>' +
+    '</div>';
+  document.body.appendChild(el);
 }
 
 // ===== 离线收益弹窗 =====
@@ -3454,3 +3438,414 @@ function _initCloudAccount() {
     });
   }
 }
+
+// ════════════════════════════════════════════════════════════
+// 功能2：五星八卦分享海报（Canvas 绘制）
+// ════════════════════════════════════════════════════════════
+
+// ── 今日运势文字映射 ──
+function _getFortuneText(fate) {
+  var map = {
+    1: {rank:'极凶', icon:'△', color:'#d32f2f', desc:'诸事不宜，谨慎出行'},
+    2: {rank:'小凶', icon:'▽', color:'#e64a19', desc:'运数低迷，养精蓄锐'},
+    3: {rank:'平',   icon:'○', color:'#888',   desc:'平常心应对，稳中求进'},
+    4: {rank:'小吉', icon:'◇', color:'#388e3c', desc:'运势上升，抓住机遇'},
+    5: {rank:'大吉', icon:'★', color:'#c8860a', desc:'万事顺遂，大展宏图'},
+  };
+  return map[fate] || map[3];
+}
+
+// ── 今日日期文字 ──
+function _getTodayDate() {
+  var d = new Date();
+  return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+}
+
+// ── 获取玩家最强灵兽信息 ──
+function _getTopDragon() {
+  var ds = G.dragons || [];
+  if (!ds.length) return null;
+  var top = ds.reduce(function(a,b){ return (a.level||1) > (b.level||1) ? a : b; });
+  var STAR_NAMES = ['','','','★★★','★★★★','★★★★★','★★★★★★'];
+  var st = top.star || 1;
+  var stName = STAR_NAMES[st] || '';
+  var ZOD_E = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
+  var name = top.name || ZOD_E[top.idx % 12] || '灵兽';
+  return {name: name, level: top.level||1, star: st, starName: stName, idx: top.idx};
+}
+
+// ── 数字格式化（万/亿） ──
+function _fmtK(n) {
+  if (n >= 100000000) return (n/100000000).toFixed(1)+'亿';
+  if (n >= 10000)     return (n/10000).toFixed(1)+'万';
+  return String(Math.floor(n||0));
+}
+
+// ── 八卦旋转角度表（顺时针从北方坎卦开始）──
+var BAGUA_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+
+// ── 五行颜色映射 ──
+function _getWuXingColor(idx) {
+  var colors = ['#2e7d32','#c62828','#f9a825','#6a1b9a','#1565c0'];
+  return colors[idx % 5];
+}
+
+// ── 绘制五行八卦分享海报 ──
+function generateSharePoster(canvasId) {
+  var canvas = document.getElementById(canvasId || 'shareCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = 400, H = 700;
+  canvas.width = W; canvas.height = H;
+
+  // ── 背景：深金渐变 ──
+  var bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#f5f0e0');
+  bg.addColorStop(0.5, '#ede5cc');
+  bg.addColorStop(1, '#e8dcc0');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // ── 顶部装饰条 ──
+  ctx.fillStyle = '#c8860a';
+  ctx.fillRect(0, 0, W, 6);
+  ctx.fillStyle = '#ffd700';
+  ctx.fillRect(0, 6, W, 4);
+
+  // ── 游戏标题 ──
+  ctx.fillStyle = '#1a0e00'; ctx.font = 'bold 26px serif';
+  ctx.textAlign = 'center'; ctx.fillText('生肖天机', W/2, 54);
+  ctx.fillStyle = '#c8860a'; ctx.font = '13px serif';
+  ctx.fillText('— 天命神兽养成 —', W/2, 78);
+
+  // ── 玩家生肖大图标 ──
+  var zodiac = G.zodiac ?? 0;
+  var ZOD_E = ['🐀','🐂','🐅','🐇','🐉','🐍','🐎','🐏','🐒','🐓','🐕','🐖'];
+  var zodEmoji = ZOD_E[zodiac] || '🐉';
+  var zodNames = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+  var zodName = zodNames[zodiac] || '龙';
+
+  ctx.font = '72px serif';
+  ctx.textAlign = 'center'; ctx.fillText(zodEmoji, W/2, 175);
+
+  ctx.fillStyle = '#1a0e00'; ctx.font = 'bold 20px serif';
+  ctx.fillText('我的生肖：' + zodName + '座', W/2, 205);
+
+  // ── 今日吉凶 ──
+  var fate = G.currentFate || 3;
+  var fort = _getFortuneText(fate);
+
+  // 吉凶条
+  ctx.fillStyle = 'rgba(200,168,10,.1)';
+  ctx.beginPath(); ctx.roundRect(30, 225, W-60, 60, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,168,10,.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(30, 225, W-60, 60, 12); ctx.stroke();
+
+  ctx.fillStyle = fort.color; ctx.font = 'bold 18px serif';
+  ctx.textAlign = 'center'; ctx.fillText(fort.icon + ' ' + fort.rank, W/2, 250);
+  ctx.fillStyle = '#666'; ctx.font = '12px serif';
+  ctx.fillText(fort.desc + '  (' + _getTodayDate() + ')', W/2, 272);
+
+  // ── 五行数据（基于玩家命造）──
+  var cult = G.cultivation || {mu:0,huo:0,tu:0,kin:0,shui:0};
+  var wuxing = [
+    {name:'木', val:cult.mu||0, color:'#2e7d32'},
+    {name:'火', val:cult.huo||0, color:'#c62828'},
+    {name:'土', val:cult.tu||0, color:'#8d6e63'},
+    {name:'金', val:cult.kin||0, color:'#c8860a'},
+    {name:'水', val:cult.shui||0, color:'#1565c0'},
+  ];
+  var maxVal = Math.max.apply(null, wuxing.map(function(v){return v.val||0;})) || 1;
+  var barW = (W - 80) / 5 - 8;
+
+  ctx.fillStyle = '#1a0e00'; ctx.font = 'bold 14px serif';
+  ctx.textAlign = 'center'; ctx.fillText('命造境界', W/2, 312);
+
+  wuxing.forEach(function(we, i) {
+    var x = 40 + i * ((W-80)/5);
+    var ratio = (we.val||0) / maxVal;
+    var barH = Math.max(8, 80 * ratio);
+    var barY = 360 - barH;
+
+    ctx.fillStyle = 'rgba(0,0,0,.06)';
+    ctx.beginPath(); ctx.roundRect(x, 335, barW, 30, 6); ctx.fill();
+
+    var col = ctx.createLinearGradient(0, barY, 0, 335);
+    col.addColorStop(0, we.color); col.addColorStop(1, we.color + '66');
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.roundRect(x, barY, barW, barH, 6); ctx.fill();
+
+    ctx.fillStyle = we.color; ctx.font = 'bold 14px serif';
+    ctx.textAlign = 'center'; ctx.fillText(we.name, x + barW/2, 355);
+    ctx.fillStyle = '#888'; ctx.font = '10px serif';
+    ctx.fillText((we.val||0) + '级', x + barW/2, 368);
+  });
+
+  // ── 八卦图（五行环 + 八卦符号）──
+  var cx = W/2, cy = 520, r1 = 52, r2 = 88;
+
+  // 外五行环（5色）
+  for (var i = 0; i < 5; i++) {
+    var angle = (i * 72 - 90) * Math.PI / 180;
+    var col = ctx.createRadialGradient(cx, cy, 0, cx, cy, r2);
+    col.addColorStop(0, _getWuXingColor(i) + 'cc');
+    col.addColorStop(1, _getWuXingColor(i) + '44');
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(angle)*r1*0.5, cy + Math.sin(angle)*r1*0.5, r1*0.7, 0, Math.PI*2);
+    ctx.fillStyle = col; ctx.fill();
+  }
+
+  // 中心圆
+  var centerG = ctx.createRadialGradient(cx, cy, 0, cx, cy, r1);
+  centerG.addColorStop(0, '#ffd700'); centerG.addColorStop(1, '#c8860a');
+  ctx.beginPath(); ctx.arc(cx, cy, r1, 0, Math.PI*2);
+  ctx.fillStyle = centerG; ctx.fill();
+  ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 2; ctx.stroke();
+
+  // 八卦符号（8个，均匀分布）
+  var BAGUA = ['坎','艮','震','巽','离','坤','兑','乾'];
+  for (var i = 0; i < 8; i++) {
+    var a = BAGUA_ANGLES[i] * Math.PI / 180;
+    var bx = cx + Math.cos(a) * (r1 + 30), by = cy + Math.sin(a) * (r1 + 30);
+    ctx.fillStyle = '#1a0e00'; ctx.font = 'bold 14px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(BAGUA[i], bx, by);
+  }
+  ctx.textBaseline = 'alphabetic';
+
+  // ── 玩家数据（4项）──
+  var towerBest = G.towerBest || 1;
+  var topD = _getTopDragon();
+  var stats = [
+    {icon:'🏆', label:'试炼塔', val: towerBest + '层'},
+    {icon:'🐉', label:'最强灵兽', val: topD ? (topD.starName || '') + ' Lv.'+topD.level : '无'},
+    {icon:'💰', label:'拥有金币', val: _fmtK(G.coins||0)},
+    {icon:'✨', label:'龙气', val: _fmtK(G.dragonQi||0)},
+  ];
+
+  stats.forEach(function(s, i) {
+    var col = i % 2, row = Math.floor(i/2);
+    var x = 40 + col * (W-60)/2, y = 635 + row * 42;
+    ctx.fillStyle = 'rgba(200,168,10,.08)';
+    ctx.beginPath(); ctx.roundRect(x, y, (W-80)/2, 34, 8); ctx.fill();
+    ctx.fillStyle = '#1a0e00'; ctx.font = '12px serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(s.icon + ' ' + s.label, x+10, y+22);
+    ctx.textAlign = 'right'; ctx.font = 'bold 13px serif';
+    ctx.fillText(s.val, x + (W-80)/2 - 8, y+22);
+  });
+
+  // ── 底部版权 ──
+  ctx.fillStyle = '#aaa'; ctx.font = '10px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('生肖天机 · 分享自游戏内', W/2, H - 16);
+
+  return canvas;
+}
+
+// ── 打分逻辑（1-5星）──
+function _calcShareScore() {
+  var score = 1;
+  var towerBest = G.towerBest || 1;
+  var coins = G.coins || 0;
+  var cult = G.cultivation || {};
+  var cultTotal = (cult.mu||0) + (cult.huo||0) + (cult.tu||0) + (cult.kin||0) + (cult.shui||0);
+  if (towerBest >= 50 || coins >= 1000000) score = 5;
+  else if (towerBest >= 20 || coins >= 100000) score = 4;
+  else if (towerBest >= 10 || coins >= 10000 || cultTotal >= 20) score = 3;
+  else if (towerBest >= 5  || cultTotal >= 10) score = 2;
+  return score;
+}
+
+// ── 打分显示（五星八卦图）──
+function _drawScoreStars(score) {
+  return Array.from({length:5}, function(_,i){
+    return i < score ? '★' : '☆';
+  }).join('');
+}
+
+// ── 打开分享面板（带海报预览）──
+function openSharePanel() {
+  var panel = document.getElementById('sharePanel');
+  if (!panel) {
+    // 动态创建面板（如果 HTML 没有）
+    panel = document.createElement('div');
+    panel.id = 'sharePanel';
+    panel.style.cssText = 'position:fixed;inset:0;background:rgba(100,80,20,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+    panel.innerHTML = '<div style="background:rgba(255,252,244,.97);border-radius:24px;padding:24px;width:min(440px,94vw);text-align:center;border:1px solid rgba(200,168,10,.3);">' +
+      '<div style="font-size:15px;font-weight:700;color:#1a0e00;margin-bottom:12px;">📜 五行八卦命盘</div>' +
+      '<canvas id="shareCanvas" style="border-radius:16px;width:100%;max-width:400px;box-shadow:0 4px 24px rgba(100,80,20,.2);"></canvas>' +
+      '<div id="shareScoreInfo" style="margin-top:10px;font-size:13px;color:#888;"></div>' +
+      '<div style="display:flex;gap:10px;margin-top:14px;">' +
+        '<button onclick="downloadSharePoster()" style="flex:2;padding:12px;border-radius:14px;background:linear-gradient(135deg,#ffd700,#e65100);border:none;color:#1a0a00;font-size:14px;font-weight:700;cursor:pointer;">📥 保存图片</button>' +
+        '<button onclick="shareToPlatform()" style="flex:1;padding:12px;border-radius:14px;background:rgba(200,168,10,.12);border:1.5px solid rgba(200,168,10,.35);color:#555;font-size:14px;font-weight:600;cursor:pointer;">📤 分享</button>' +
+      '</div>' +
+      '<div id="shareReward" style="margin-top:10px;font-size:12px;color:#c8860a;font-weight:600;"></div>' +
+      '<button onclick="closeSharePanel()" style="margin-top:10px;background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;">关闭</button>' +
+    '</div>';
+    document.body.appendChild(panel);
+  }
+
+  // 生成海报
+  generateSharePoster('shareCanvas');
+
+  // 打分
+  var score = _calcShareScore();
+  var stars = _drawScoreStars(score);
+  var scoreEl = document.getElementById('shareScoreInfo');
+  if (scoreEl) scoreEl.innerHTML = '<div style="font-size:18px;color:#c8860a;letter-spacing:4px;">' + stars + '</div>' +
+    '<div style="font-size:12px;color:#888;margin-top:4px;">个人运势评分 · ' + score + '星</div>';
+
+  // 奖励提示（分享成功才发）
+  var rewardEl = document.getElementById('shareReward');
+  if (rewardEl) rewardEl.innerHTML = '🎁 分享成功：+20金币 +5龙气';
+
+  panel.style.display = 'flex';
+}
+
+// ── 下载分享海报为图片 ──
+function downloadSharePoster() {
+  var canvas = document.getElementById('shareCanvas');
+  if (!canvas) return;
+  var link = document.createElement('a');
+  link.download = '生肖天机_' + today() + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+
+  // 发奖励（金币+龙气）
+  _grantShareReward();
+
+  showToast('📥 图片已保存！', '#4ade80');
+}
+
+// ── 分享到平台（各平台 SDK 留空）──
+function shareToPlatform() {
+  var canvas = document.getElementById('shareCanvas');
+  if (!canvas) return;
+
+  // 微信/抖音/快手平台分享（留空实现）
+  if (_platform === 'wechat' && typeof wx !== 'undefined') {
+    // wx.shareAppMessage({ title: '我的五行八卦命盘', imageUrl: canvas.toDataURL('image/png') });
+  }
+  if (_platform === 'douyin' && typeof tt !== 'undefined') {
+    // tt.shareApp({ title: '我的生肖天机运势', image: canvas.toDataURL('image/png') });
+  }
+  if (_platform === 'kuaishou' && typeof ks !== 'undefined') {
+    // ks.share({ title: '我的五行命盘', imageUrl: canvas.toDataURL('image/png') });
+  }
+
+  // 兜底：下载图片
+  downloadSharePoster();
+  showToast('📤 分享成功！奖励已发放', '#4ade80');
+}
+
+// ── 发放分享奖励（20金币 + 5龙气）──
+function _grantShareReward() {
+  G.coins = (G.coins||0) + 20;
+  G.dragonQi = (G.dragonQi||0) + 5;
+  saveGame();
+  try{updateHud && updateHud();}catch(e){}
+}
+
+// ── 关闭分享面板 ──
+function closeSharePanel() {
+  var panel = document.getElementById('sharePanel');
+  if (panel) panel.style.display = 'none';
+}
+
+// ── 一键分享（快捷按钮调用）──
+function quickShare() {
+  openSharePanel();
+}
+
+// ════════════════════════════════════════════════════════════
+// 功能3：好友绑定 + 全服聊天（扩展注释框架，本次不完整实现）
+// ════════════════════════════════════════════════════════════
+
+// ── 好友绑定 ──
+// TODO(Phase2): 小程序环境下拉起分享链接，绑定双向好友关系
+// 存储：G.friends = [{userId, nickname, avatar, bindTime}]
+// 同步：cloudSaveToServer 保存 / cloudLoadFromServer 恢复
+// 接口：POST /friend/bind  {userId, friendId} → {code, data: {friends: [...]}}
+function bindFriend(friendUserId, callback) {
+  console.warn('[TODO] bindFriend: 需要后端 POST /friend/bind 接口');
+  // if (callback) callback({code: -1, msg: '好友功能开发中'});
+}
+
+function unbindFriend(friendUserId, callback) {
+  console.warn('[TODO] unbindFriend: 需要后端 DELETE /friend/{userId}/friend/{friendUserId} 接口');
+  // if (callback) callback({code: 0, msg: '已解除绑定'});
+}
+
+function getFriends(callback) {
+  console.warn('[TODO] getFriends: 需要后端 GET /friend/list/{userId} 接口');
+  // cloudFetch('GET', '/friend/list/' + G._cloudPlayerId).then(function(r){ callback(r); });
+}
+
+function renderFriendsPanel() {
+  console.warn('[TODO] renderFriendsPanel: UI 待实现');
+  // var panel = document.getElementById('friendsPanel');
+  // if (!panel) return;
+  // panel.innerHTML = '<div style="padding:24px;text-align:center;color:#aaa;">好友功能开发中</div>';
+  // panel.style.display = 'flex';
+}
+
+// ── 全服聊天频道 ──
+// TODO(Phase2): 实时聊天（WebSocket 或轮询）
+// 接口：GET /chat/history?channel=global&lastId=xxx → {code, data: {messages:[...]}}
+//       POST /chat/send   {userId, channel, message} → {code, data: {id, time}}
+// 频道：global（全服）/ friends（好友）/ clan（宗族·未来扩展）
+// 限速：每条消息间隔30秒，同一内容不重复发送
+var _chatMessages = [];  // 本地缓存（实际从服务器拉取）
+var _lastChatTime = 0;
+
+function sendChatMessage(channel, text, callback) {
+  var now = Date.now();
+  if (now - _lastChatTime < 30000) {
+    if (callback) callback({code: -1, msg: '说话太快，等30秒'});
+    return;
+  }
+  if (!text || text.trim().length === 0) {
+    if (callback) callback({code: -1, msg: '内容不能为空'});
+    return;
+  }
+  _lastChatTime = now;
+  console.warn('[TODO] sendChatMessage: 需要后端 POST /chat/send 接口');
+  // _cloudFetch('POST', '/chat/send', {channel: channel, text: text.trim()}).then(function(r){
+  //   _chatMessages.push({id: r.id, userId: G._cloudPlayerId, text: text, time: now, nick: '我'});
+  //   if (callback) callback({code: 0, data: _chatMessages[_chatMessages.length-1]});
+  // });
+}
+
+function loadChatHistory(channel, callback) {
+  console.warn('[TODO] loadChatHistory: 需要后端 GET /chat/history?channel=' + channel + ' 接口');
+  // _cloudFetch('GET', '/chat/history?channel=' + channel).then(function(r){
+  //   _chatMessages = r.data || [];
+  //   if (callback) callback(_chatMessages);
+  // });
+}
+
+function renderChatPanel(channel) {
+  console.warn('[TODO] renderChatPanel: UI 待实现');
+  // var panel = document.getElementById('chatPanel');
+  // if (!panel) return;
+  // var html = '<div style="padding:16px 12px;height:320px;overflow-y:auto;" id="chatMessages">';
+  // _chatMessages.forEach(function(m){
+  //   html += '<div style="margin-bottom:10px;font-size:12px;"><b>'+m.nick+':</b> '+m.text+'</div>';
+  // });
+  // html += '</div>';
+  // html += '<div style="padding:10px 12px;border-top:1px solid rgba(200,168,10,.2);display:flex;gap:8px;">';
+  // html += '<input id="chatInput" style="flex:1;padding:8px;border-radius:10px;border:1px solid rgba(200,168,10,.3);background:rgba(255,252,244,.96);color:#1a0e00;font-size:13px;" placeholder="说点什么...">';
+  // html += '<button onclick="sendChatMessage(\''+channel+'\', document.getElementById(\'chatInput\').value)" style="padding:8px 14px;background:#c8860a;border:none;border-radius:10px;color:#fff;font-size:13px;cursor:pointer;">发送</button>';
+  // html += '</div>';
+  // panel.innerHTML = html;
+  // panel.style.display = 'flex';
+}
+
+function closeChatPanel() {
+  var panel = document.getElementById('chatPanel');
+  if (panel) panel.style.display = 'none';
+}
+
+function openFriendsPanel() { renderFriendsPanel && renderFriendsPanel(); }
+function openChatPanel() { renderChatPanel && renderChatPanel('global'); }
+

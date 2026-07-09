@@ -207,7 +207,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-var G = {zodiac:-1,fate:-1,created:false,coins:10000,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1};
+var G = {zodiac:-1,fate:-1,created:false,coins:0,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 var TASKS = [
@@ -640,62 +640,6 @@ function getSummonLevel(pool){
   return pool[pool.length-1].level;
 }
 
-// ── 召唤选择面板（两步骤操作）───────────────────────────────
-function openSummonPanel(){
-  var panel = document.getElementById('summonConfirmPanel');
-  if(!panel) return;
-  // 动态构建选项
-  var n = G.summonCount;
-  var tenCost = Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*10;
-  var coinCost = G._coinCost || 100;
-  var qiCost = G._qiCost || 500;
-  // 生成选项HTML
-  var optsHtml = '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;">' +
-    '<button onclick="G._pendingSummon=\'ten\';refreshSummonOpts(this)" id="sopt-ten" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.4);background:rgba(245,240,228,.88);color:#8b6914;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">✨十连召唤<div style="font-size:10px;color:#8b6914;opacity:.7;margin-top:2px;">'+tenCost+'金币</div></button>' +
-    '<button onclick="G._pendingSummon=\'coin\';refreshSummonOpts(this)" id="sopt-coin" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.3);background:rgba(245,240,228,.88);color:rgba(80,40,10,.5);font-size:12px;font-weight:600;cursor:pointer;">💰单抽金币<div style="font-size:10px;opacity:.6;margin-top:2px;">'+coinCost+'金币</div></button>' +
-    '<button onclick="G._pendingSummon=\'qi\';refreshSummonOpts(this)" id="sopt-qi" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.3);background:rgba(245,240,228,.88);color:rgba(80,40,10,.5);font-size:12px;font-weight:600;cursor:pointer;">☁️单抽龙气<div style="font-size:10px;opacity:.6;margin-top:2px;">'+qiCost+'龙气</div></button>' +
-    '</div>';
-  // 替换 scpTitle 后的内容
-  panel.innerHTML = '<div style="background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.4);border-radius:20px 20px 0 0;padding:20px clamp(16px,5vw,40px) calc(20px + env(safe-area-inset-bottom,20px));width:100%;max-width:480px;text-align:center;">' +
-    '<div style="font-size:12px;color:rgba(80,40,10,.45);letter-spacing:2px;margin-bottom:14px;">✦ 选择召唤方式 ✦</div>' +
-    optsHtml +
-    '<div style="font-size:11px;color:rgba(80,40,10,.45);margin-bottom:16px;">当前金币：<span style="color:#8b6914;font-weight:700;">'+G.coins.toLocaleString()+'</span></div>' +
-    '<div style="display:flex;gap:10px;justify-content:center;">' +
-    '<button onclick="closeSummonPanel()" style="flex:1;padding:12px;border-radius:14px;border:1.5px solid rgba(180,140,80,.3);background:transparent;color:rgba(80,40,10,.5);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:2px;">取消</button>' +
-    '<button onclick="confirmSummon()" id="scpConfirmBtn" style="flex:2;padding:12px;border-radius:14px;border:none;background:rgba(180,140,80,.25);color:rgba(80,40,10,.4);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:2px;" disabled>请先选择</button>' +
-    '</div></div>';
-  G._pendingSummon = null;
-  panel.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;background:rgba(80,40,10,.35);backdrop-filter:blur(4px);';
-}
-
-function refreshSummonOpts(btn){
-  ['ten','coin','qi'].forEach(function(t){
-    var b = document.getElementById('sopt-'+t);
-    if(b){
-      b.style.borderColor = t===btn.id.split('-')[1] ? 'rgba(180,120,20,.7)' : 'rgba(180,140,80,.3)';
-      b.style.background = t===btn.id.split('-')[1] ? 'rgba(212,160,23,.2)' : 'rgba(245,240,228,.88)';
-      b.style.color = t===btn.id.split('-')[1] ? '#8b6914' : 'rgba(80,40,10,.5)';
-    }
-  });
-  var conf = document.getElementById('scpConfirmBtn');
-  if(conf){ conf.disabled = false; conf.style.background='linear-gradient(135deg,#8b6914,#d4a017)'; conf.style.color='#fff'; conf.style.cursor='pointer'; }
-}
-
-function closeSummonPanel(){
-  var panel = document.getElementById('summonConfirmPanel');
-  if(panel) panel.style.display = 'none';
-  G._pendingSummon = null;
-}
-
-function confirmSummon(){
-  var type = G._pendingSummon;
-  closeSummonPanel();
-  if(!type){ showToast('info','请先选择召唤方式'); return; }
-  if(type==='ten'){ doTenSummon(); return; }
-  if(type==='coin'){ summonCoin(); return; }
-  if(type==='qi'){ summonQi(); return; }
-}
-
 // ── 十连抽入口（从 index.html 的 doTenSummon() 调用） ──
 function doTenSummon(){
   var batch=10;
@@ -732,7 +676,7 @@ function showBatchSummonResult(results){
   var cnt=[0,0,0,0,0];results.forEach(function(lv){cnt[rarIdx(lv)]++;});
   var summary='';cnt.forEach(function(c,i){if(c>0)summary+=rarNames[i]+'×'+c+' ';});
   var html='<div style="padding:14px 10px;text-align:center;">';
-  html+='<div style="font-size:13px;font-weight:700;color:#8b6914;margin-bottom:10px;letter-spacing:2px">✦ 召唤结果 ✦</div>';
+  html+='<div style="font-size:13px;font-weight:700;color:#ffd700;margin-bottom:10px;letter-spacing:2px">✦ 召唤结果 ✦</div>';
   html+='<div style="font-size:11px;color:#888;margin-bottom:12px">'+summary.trim()+'</div>';
   html+='<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px">';
   results.forEach(function(lv){
@@ -748,8 +692,8 @@ function showBatchSummonResult(results){
   var old=document.getElementById('batchSummonOverlay');if(old)old.remove();
   var overlay=document.createElement('div');
   overlay.id='batchSummonOverlay';
-  overlay.style.cssText='position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:9000;width:min(420px,96vw);max-height:78vh;overflow-y:auto;';
-  overlay.innerHTML='<div style="background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.4);border-radius:16px;padding:0;">'+html+'</div>';
+  overlay.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9000;width:min(420px,96vw);max-height:78vh;overflow-y:auto;';
+  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1a3a,#0d0d1a);border:1px solid rgba(255,215,0,.35);border-radius:16px;padding:0;">'+html+'</div>';
   overlay.onclick=function(){overlay.remove();try{updateHeroSection();renderGrid&&renderGrid();}catch(e){}};
   document.body.appendChild(overlay);
   if(typeof playTenSummonSfx==='function')playTenSummonSfx();

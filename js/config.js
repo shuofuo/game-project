@@ -174,6 +174,7 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon}){
         <div style="font-size:10px;color:#555;letter-spacing:1px;">品阶</div>
       </div>
     </div>
+    ${(()=>{var eq=getEquipTotals?getEquipTotals():{atk:0,def:0,spd:0};var sl=getSuitLevel?getSuitLevel(G.forge.items):0;var se=sl>0&&getSuitEffect?getSuitEffect(G.forge.items):null;var total=eq.atk+eq.def+eq.spd;if(total===0&&!se)return'';var sh='<div style="display:flex;gap:6px;justify-content:center;margin-bottom:7px;">'+(eq.atk?'<div style="flex:1;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#f87171;font-weight:700;">+'+eq.atk+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">⚔️攻击</div></div>':'')+(eq.def?'<div style="flex:1;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#60a5fa;font-weight:700;">+'+eq.def+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">🛡️防御</div></div>':'')+(eq.spd?'<div style="flex:1;background:rgba(134,239,172,.07);border:1px solid rgba(134,239,172,.2);border-radius:10px;padding:8px 4px;text-align:center;"><div style="font-size:16px;color:#86efac;font-weight:700;">+'+eq.spd+'</div><div style="font-size:10px;color:#555;letter-spacing:1px;">💨速度</div></div>':'')+'</div>';var shtml=se?'<div style="background:linear-gradient(135deg,#ff8c00,#ff3333);border-radius:10px;padding:6px 10px;margin-bottom:8px;text-align:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:1px;">⛩️ '+se.name+' · '+se.desc+'</div>':'<div style="font-size:10px;color:#555;padding:4px 0 8px;text-align:center;">'+(sl>0?'已装备 '+sl+' 件（'+sl+'件待激活）':'无套装')+'</div>';return sh+shtml;})()}
     ${upgradeBtn}
     <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;">点击任意处关闭</div>
   </div>`;
@@ -682,13 +683,12 @@ function showBatchSummonResult(results){
     var t=rarIdx(lv),color=rarColors[t];
     html+='<div style="display:flex;flex-direction:column;align-items:center;padding:6px 8px;background:rgba(255,255,255,.04);border:1px solid '+color+'44;border-radius:8px;min-width:46px">';
     html+='<div style="font-size:26px">'+(LICON[lv]||'?')+'</div>';
-    html+='<div style="font-size:9px;font-weight:700;color:'+color+'">'+LNAME[lv]+'</div>';
+    html+='<div style="font-size:9px;font-weight:700;color:'+color+'">'+(LNAME[lv]||'灵兽')+'</div>';
     html+='</div>';
   });
   html+='</div>';
   html+='<div style="font-size:11px;color:#555;padding:6px 0">点击任意区域关闭</div>';
   html+='</div>';
-  // 移除旧的
   var old=document.getElementById('batchSummonOverlay');if(old)old.remove();
   var overlay=document.createElement('div');
   overlay.id='batchSummonOverlay';
@@ -697,27 +697,6 @@ function showBatchSummonResult(results){
   overlay.onclick=function(){overlay.remove();try{updateHeroSection();renderGrid&&renderGrid();}catch(e){}};
   document.body.appendChild(overlay);
   if(typeof playTenSummonSfx==='function')playTenSummonSfx();
-}
-function showBatchSummonResult(results){
-  var html='<div style="padding:16px 8px;text-align:center">';
-  html+='<div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:12px">🎉 '+results.length+'连召唤结果</div>';
-  results.forEach(function(lv){
-    var t=getRarity(lv);
-    var color=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'][t];
-    html+='<div style="display:inline-flex;flex-direction:column;align-items:center;margin:6px;padding:8px 10px;background:rgba(255,255,255,.04);border:1px solid '+color+'44;border-radius:10px;min-width:52px">';
-    html+='<div style="font-size:28px">'+(LICON[lv]||'?')+'</div>';
-    html+='<div style="font-size:10px;font-weight:700;color:'+color+'">'+LNAME[lv]+'</div>';
-    html+='<div style="font-size:10px;color:#888">Lv'+lv+' · '+['普通','稀有','史诗','传说','神话'][t]+'</div>';
-    html+='</div>';
-  });
-  html+='<div style="margin-top:12px;padding:8px 14px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:10px;font-size:12px;color:#888">点击任意区域关闭</div>';
-  html+='</div>';
-  var overlay=document.createElement('div');
-  overlay.id='batchSummonOverlay';
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9000;display:flex;align-items:center;justify-content:center;';
-  overlay.innerHTML='<div style="background:linear-gradient(160deg,#1a1a3a,#0d0d1a);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:20px;max-width:320px;width:90vw;max-height:70vh;overflow-y:auto;">'+html+'</div>';
-  overlay.onclick=function(){overlay.remove();try{updateHeroSection();}catch(e){}};
-  document.body.appendChild(overlay);
 }
 function setSummonBatch(n){
   G.summonBatch=n;

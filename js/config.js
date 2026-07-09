@@ -207,7 +207,7 @@ function previewNextLevel(lvl, cps, icon){
   el.addEventListener('keydown', ()=>{ el.remove(); }, {once:true});
   document.body.appendChild(el);
 }
-var G = {zodiac:-1,fate:-1,created:false,coins:10000,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1};
+var G = {zodiac:-1,fate:-1,created:false,coins:10000,qi:0,dragons:[],mergeCount:0,summonCount:0,currentFate:3,freeLeft:3,lastFreeDate:null,cultivation:{mu:0,huo:0,tu:0,kin:0,shui:0},lastQiTime:Date.now(),signDate:null,signStreak:0,tasks:null,lastTaskDate:null,combo:0,lastMergeTime:0,totalCoins:0,guideDone:false,lastOnline:null,skills:null,items:null,_activeEffects:{},_lastMergeState:null,signHistory:{},backendUrl:null,lastSubmitDate:null,lastSubmitTs:0,maxCombo:0,weekly:null,forge:{items:[],materials:{iron:0,crystal:0,dragonScale:0,starDust:0},totalCrafts:0,suits:0},summonBatch:1,_isTenMode:false};
 
 // 每日任务配置（5个任务，所有目标随时间自然推进）
 var TASKS = [
@@ -640,71 +640,78 @@ function getSummonLevel(pool){
   return pool[pool.length-1].level;
 }
 
-// ── 召唤选择面板（两步骤操作）───────────────────────────────
-function openSummonPanel(){
-  var panel = document.getElementById('summonConfirmPanel');
-  if(!panel) return;
-  // 动态构建选项
-  var n = G.summonCount;
-  var tenCost = Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*10;
-  var coinCost = G._coinCost || 100;
-  var qiCost = G._qiCost || 500;
-  // 生成选项HTML
-  var optsHtml = '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;">' +
-    '<button onclick="G._pendingSummon=\'ten\';refreshSummonOpts(this)" id="sopt-ten" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.4);background:rgba(245,240,228,.88);color:#8b6914;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;">✨十连召唤<div style="font-size:10px;color:#8b6914;opacity:.7;margin-top:2px;">'+tenCost+'金币</div></button>' +
-    '<button onclick="G._pendingSummon=\'coin\';refreshSummonOpts(this)" id="sopt-coin" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.3);background:rgba(245,240,228,.88);color:rgba(80,40,10,.5);font-size:12px;font-weight:600;cursor:pointer;">💰单抽金币<div style="font-size:10px;opacity:.6;margin-top:2px;">'+coinCost+'金币</div></button>' +
-    '<button onclick="G._pendingSummon=\'qi\';refreshSummonOpts(this)" id="sopt-qi" style="flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(180,140,80,.3);background:rgba(245,240,228,.88);color:rgba(80,40,10,.5);font-size:12px;font-weight:600;cursor:pointer;">☁️单抽龙气<div style="font-size:10px;opacity:.6;margin-top:2px;">'+qiCost+'龙气</div></button>' +
-    '</div>';
-  // 替换 scpTitle 后的内容
-  panel.innerHTML = '<div style="background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.4);border-radius:20px 20px 0 0;padding:20px clamp(16px,5vw,40px) calc(20px + env(safe-area-inset-bottom,20px));width:100%;max-width:480px;text-align:center;">' +
-    '<div style="font-size:12px;color:rgba(80,40,10,.45);letter-spacing:2px;margin-bottom:14px;">✦ 选择召唤方式 ✦</div>' +
-    optsHtml +
-    '<div style="font-size:11px;color:rgba(80,40,10,.45);margin-bottom:16px;">当前金币：<span style="color:#8b6914;font-weight:700;">'+G.coins.toLocaleString()+'</span></div>' +
-    '<div style="display:flex;gap:10px;justify-content:center;">' +
-    '<button onclick="closeSummonPanel()" style="flex:1;padding:12px;border-radius:14px;border:1.5px solid rgba(180,140,80,.3);background:transparent;color:rgba(80,40,10,.5);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:2px;">取消</button>' +
-    '<button onclick="confirmSummon()" id="scpConfirmBtn" style="flex:2;padding:12px;border-radius:14px;border:none;background:rgba(180,140,80,.25);color:rgba(80,40,10,.4);font-size:13px;font-weight:700;cursor:not-allowed;letter-spacing:2px;" disabled>请先选择</button>' +
-    '</div></div>';
-  G._pendingSummon = null;
-  panel.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;background:rgba(80,40,10,.35);backdrop-filter:blur(4px);';
-}
 
-function refreshSummonOpts(btn){
-  ['ten','coin','qi'].forEach(function(t){
-    var b = document.getElementById('sopt-'+t);
-    if(b){
-      b.style.borderColor = t===btn.id.split('-')[1] ? 'rgba(180,120,20,.7)' : 'rgba(180,140,80,.3)';
-      b.style.background = t===btn.id.split('-')[1] ? 'rgba(212,160,23,.2)' : 'rgba(245,240,228,.88)';
-      b.style.color = t===btn.id.split('-')[1] ? '#8b6914' : 'rgba(80,40,10,.5)';
+// ── 十连模式切换（toggle 按钮，无弹窗）────────────────────
+function toggleTenMode(){
+  G._isTenMode = !G._isTenMode;
+  var btn = document.getElementById('batchBtn10');
+  if(btn){
+    if(G._isTenMode){
+      btn.style.background = 'linear-gradient(135deg,#c0392b,#e74c3c)';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 2px 8px rgba(192,57,43,.35)';
+      btn.textContent = '🔄 十连模式';
+    } else {
+      btn.style.background = 'linear-gradient(135deg,#8b6914,#d4a017)';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 2px 8px rgba(180,120,20,.25)';
+      btn.textContent = '✨ 十连召唤';
     }
-  });
-  var conf = document.getElementById('scpConfirmBtn');
-  if(conf){ conf.disabled = false; conf.style.background='linear-gradient(135deg,#8b6914,#d4a017)'; conf.style.color='#fff'; conf.style.cursor='pointer'; }
+  }
+  updateSummonBtnText();
+  if(typeof playClick==='function') playClick();
 }
 
-function closeSummonPanel(){
-  var panel = document.getElementById('summonConfirmPanel');
-  if(panel) panel.style.display = 'none';
-  G._pendingSummon = null;
-}
-
-function confirmSummon(){
-  var type = G._pendingSummon;
-  closeSummonPanel();
-  if(!type){ showToast('info','请先选择召唤方式'); return; }
-  if(type==='ten'){ doTenSummon(); return; }
-  if(type==='coin'){ summonCoin(); return; }
-  if(type==='qi'){ summonQi(); return; }
+function updateSummonBtnText(){
+  var n = G.summonCount || 0;
+  var coinBase = G._coinCost || 100;
+  var qiBase = G._qiCost || 500;
+  var tenCost = Math.floor(coinBase * Math.pow(1.2, Math.floor(n/10))) * 10;
+  var coinCost = Math.floor(coinBase * Math.pow(1.2, Math.floor(n/10)));
+  var qiCost = Math.floor(qiBase * Math.pow(1.2, Math.floor(n/10)));
+  var coinEl = document.getElementById('coinCost');
+  var qiEl = document.getElementById('qiCost');
+  if(coinEl){
+    coinEl.textContent = G._isTenMode ? tenCost : coinCost;
+    // 更新父按钮的图标
+    var parent = coinEl.closest('.summon-btn');
+    if(parent){
+      var iconSpan = parent.querySelector('span:first-child');
+      if(iconSpan) iconSpan.textContent = G._isTenMode ? '💰×10' : '💰';
+    }
+  }
+  if(qiEl){
+    qiEl.textContent = G._isTenMode ? (qiCost * 10) : qiCost;
+    var parent = qiEl.closest('.summon-btn');
+    if(parent){
+      var iconSpan = parent.querySelector('span:first-child');
+      if(iconSpan) iconSpan.textContent = G._isTenMode ? '☁️×10' : '☁️';
+    }
+  }
+  // HUD 金币显示
+  var hudCoins = document.getElementById('hudCoins');
+  if(hudCoins) hudCoins.textContent = fmtNum(G.coins);
 }
 
 // ── 十连抽入口（从 index.html 的 doTenSummon() 调用） ──
-function doTenSummon(){
-  var batch=10;
-  var n=G.summonCount;
-  var cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
-  if(G.coins<cost){showToast('error','金币不足 '+cost+'💰');if(typeof playSynthFail==='function')playSynthFail();return;}
-  G.coins-=cost;
+// ── 十连入口（支持 coin/qi 两种资源）─────────────────────
+function doTenSummon(type){
+  type = type || 'coin';
+  var batch=10, n=G.summonCount, cost, pool;
+  if(type==='coin'){
+    cost=Math.floor(100*Math.pow(1.2,Math.floor(n/10)))*batch;
+    if(G.coins<cost){showToast('error','金币不足 '+cost+'💰');if(typeof playSynthFail==='function')playSynthFail();return;}
+    G.coins-=cost;
+    pool=[{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}];
+  } else {
+    var qiCostEach=Math.floor(500*Math.pow(1.1,Math.floor(n/15)));
+    cost=qiCostEach*batch;
+    if(G.qi<cost){showNotif('error','龙气不足！');return;}
+    G.qi-=cost;
+    pool=[{level:4,weight:30},{level:5,weight:18},{level:6,weight:10}];
+  }
   var results=[];
-  for(var i=0;i<batch;i++) results.push(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
+  for(var i=0;i<batch;i++) results.push(getSummonLevel(pool));
   // 检查剩余格子
   var used=new Set(G.dragons.map(function(d){return d.idx})),empty=[];
   for(var k=0;k<TOTAL;k++) if(!used.has(k)) empty.push(k);
@@ -725,34 +732,49 @@ function doTenSummon(){
 }
 
 // ── 弹窗改为页面顶部固定（max-width:420px，小字体紧凑） ──
+// ── 十连结果弹窗：直接展示全部卡片，无翻转/无问号 ──────────
 function showBatchSummonResult(results){
   var rarNames=['普通','稀有','史诗','传说','神话'];
-  var rarColors=['#aaa','#7eb8ff','#b57edc','#ffd700','#ff6b35'];
-  // 统计各稀有度数量
+  var rarColors=['#5a7a5a','#2a7abf','#8b3ac8','#c8860a','#d44010'];
+  var bgColors=['rgba(240,235,228,.95)','rgba(225,240,255,.95)','rgba(240,228,255,.95)','rgba(255,245,210,.95)','rgba(255,238,228,.95)'];
   var cnt=[0,0,0,0,0];results.forEach(function(lv){cnt[rarIdx(lv)]++;});
   var summary='';cnt.forEach(function(c,i){if(c>0)summary+=rarNames[i]+'×'+c+' ';});
-  var html='<div style="padding:14px 10px;text-align:center;">';
-  html+='<div style="font-size:13px;font-weight:700;color:#8b6914;margin-bottom:10px;letter-spacing:2px">✦ 召唤结果 ✦</div>';
-  html+='<div style="font-size:11px;color:#888;margin-bottom:12px">'+summary.trim()+'</div>';
-  html+='<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px">';
+  var cardsHtml='';
   results.forEach(function(lv){
-    var t=rarIdx(lv),color=rarColors[t];
-    html+='<div style="display:flex;flex-direction:column;align-items:center;padding:6px 8px;background:rgba(255,255,255,.04);border:1px solid '+color+'44;border-radius:8px;min-width:46px">';
-    html+='<div style="font-size:26px">'+(LICON[lv]||'?')+'</div>';
-    html+='<div style="font-size:9px;font-weight:700;color:'+color+'">'+(LNAME[lv]||'灵兽')+'</div>';
-    html+='</div>';
+    var t=rarIdx(lv), color=rarColors[t], bg=bgColors[t];
+    var rarityLabel=['','普通','稀有','史诗','传说','神话'][lv];
+    var name=LNAME[lv]||'灵兽';
+    var icon=LICON[lv]||'🐣';
+    var cpsdesc=lv>=4?'产出龙气':'产出金币';
+    cardsHtml+='<div style="display:flex;flex-direction:column;align-items:center;padding:10px 8px;background:'+bg+';border:1.5px solid '+color+'60;border-radius:12px;min-width:68px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.06);">';
+    cardsHtml+='<div style="font-size:38px;line-height:1;">'+icon+'</div>';
+    cardsHtml+='<div style="font-size:10px;font-weight:800;color:'+color+';margin-top:3px;">'+name+'</div>';
+    cardsHtml+='<div style="font-size:9px;color:#666;margin-top:1px;">['+rarityLabel+']</div>';
+    cardsHtml+='<div style="font-size:8px;color:#888;margin-top:2px;">'+cpsdesc+'</div>';
+    cardsHtml+='</div>';
   });
-  html+='</div>';
-  html+='<div style="font-size:11px;color:#555;padding:6px 0">点击任意区域关闭</div>';
+  var html='<div style="padding:16px 12px;text-align:center;background:rgba(255,255,255,.85);border-radius:16px;">';
+  html+='<div style="font-size:15px;font-weight:800;color:#333;letter-spacing:3px;margin-bottom:6px;">✦ 召唤结果 ✦</div>';
+  html+='<div style="font-size:12px;color:#555;font-weight:600;margin-bottom:14px;">'+summary.trim()+'</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;">'+cardsHtml+'</div>';
+  html+='<button onclick="document.getElementById(\'batchSummonOverlay\').remove();try{renderGrid&&renderGrid();updateHud&&updateHud();}catch(e){}" style="width:100%;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#8b6914,#d4a017);color:#222;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 3px 12px rgba(180,120,20,.3);">收下 ✦</button>';
   html+='</div>';
   var old=document.getElementById('batchSummonOverlay');if(old)old.remove();
   var overlay=document.createElement('div');
   overlay.id='batchSummonOverlay';
-  overlay.style.cssText='position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:9000;width:min(420px,96vw);max-height:78vh;overflow-y:auto;';
-  overlay.innerHTML='<div style="background:linear-gradient(160deg,#faf8f2,#f0ebe0);border:1.5px solid rgba(180,140,80,.4);border-radius:16px;padding:0;">'+html+'</div>';
-  overlay.onclick=function(){overlay.remove();try{updateHeroSection();renderGrid&&renderGrid();}catch(e){}};
+  overlay.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(60,30,10,.45);backdrop-filter:blur(6px);padding:16px;';
+  overlay.innerHTML='<div style="width:min(480px,100%);max-height:88vh;overflow-y:auto;">'+html+'</div>';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
   document.body.appendChild(overlay);
   if(typeof playTenSummonSfx==='function')playTenSummonSfx();
+  G._isTenMode=false; // 自动切回单抽
+  var btn=document.getElementById('batchBtn10');
+  if(btn){
+    btn.style.background='linear-gradient(135deg,#8b6914,#d4a017)';
+    btn.style.color='#222';
+    btn.style.boxShadow='0 2px 8px rgba(180,120,20,.25)';
+    btn.textContent='✨ 十连召唤';
+  }
 }
 function setSummonBatch(n){
   G.summonBatch=n;
@@ -761,6 +783,16 @@ function setSummonBatch(n){
     b.className=v===n?'active':'';
   });
   updateHud&&updateHud();
+}
+
+// ── 金币单抽（含十连模式切换）─────────────────────────────
+function summonCoin(){
+  if(G._isTenMode){ doTenSummon('coin'); return; }
+  const n = G.summonCount;
+  const cost = Math.floor(100*Math.pow(1.2,Math.floor(n/10)));
+  if(G.coins<cost){showNotif('error','金币不足！');if(typeof playSynthFail==='function')playSynthFail();return;}
+  G.coins-=cost;
+  doSummon(getSummonLevel([{level:1,weight:100},{level:2,weight:80},{level:3,weight:50}]));
 }
 
 function summonQi(){
@@ -1353,3 +1385,6 @@ var TOWER_ACHIEVEMENTS = [
   {floor:80,coins:20000,qi:800,title:'出神入化'},
   {floor:100,coins:50000,qi:2000,title:'天命所归'}
 ];
+
+
+// ── 十连切换按钮（toggle 模式）──

@@ -394,7 +394,7 @@ function closeSummonAnim(){
   try{updateHeroSection();}catch(e){}
 }
 
-// 改造 doSummon：触发翻牌动画而不是直接弹窗
+// ── 单抽：直接展示完整灵兽信息，无翻转无问号 ──────────
 function doSummon(level){
   try{initAudio();}catch(e){}
   if(G.zodiac>=0) playSound('summon_z'+G.zodiac);
@@ -408,40 +408,52 @@ function doSummon(level){
   saveGame();renderGrid();updateHud();checkAch();
   _onWeeklyEvent("summon");
   try{updateHeroSection();}catch(e){}
-  // 改为触发翻牌动画
-  pendingSummonLevel=level;
-  summonRevealed=false;
-  // 重置卡牌状态（第二次召唤时清除翻牌残留）
-  // 强制注入最新 flip CSS（绕过浏览器 CSS 缓存）
-  if(!document.getElementById('_flip_css')){
-    var s=document.createElement('style');s.id='_flip_css';s.textContent=
-      '.scard-face{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;}'+
-      '.scard-back{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;visibility:visible!important;opacity:1!important;}'+
-      '.scard-front{position:absolute!important;top:0!important;left:0!important;width:160px!important;height:200px!important;visibility:hidden!important;opacity:0!important;}'+
-      '.scard.flipped .scard-back{visibility:hidden!important;opacity:0!important;}'+
-      '.scard.flipped .scard-front{visibility:visible!important;opacity:1!important;}'+
-      '.scard{width:160px!important;height:200px!important;position:relative!important;transform-style:preserve-3d!important;transition:transform .6s cubic-bezier(.4,0,.2,1)!important;cursor:pointer!important;}'+
-      '.scard.flipped{transform:rotateY(180deg)!important;}';
-    document.head.appendChild(s);
-  }
-  const scard=document.getElementById('scard');
-  if(scard) scard.classList.remove('flipped');
-  const scardWrap=document.querySelector('.scard-wrap');
-  if(scardWrap) scardWrap.style.display='';
-  const summonTip=document.querySelector('.summon-tip');
-  if(summonTip) summonTip.style.display='';
-  // 重置 overlay 内容
-  document.getElementById('summonOverlay').classList.add('show');
-  document.getElementById('summonResultAnim').classList.remove('show','sra-result-pop');
-  document.getElementById('sraBtn').style.display='none';
   // 召唤记录
   if(!G.summonLog) G.summonLog=[];
   G.summonLog.unshift({level,lvl:level>=6?'传说':level>=4?'稀有':'普通',t:new Date().toLocaleTimeString()});
   if(G.summonLog.length>20) G.summonLog.length=20;
   saveGame();
-  // 1.5秒后自动翻牌
-  setTimeout(()=>{try{revealSummon();}catch(e){}},1500);
+  // 直接展示结果弹窗
+  showSingleSummonResult(level);
 }
+
+
+
+// ── 单抽结果弹窗：直接展示，无翻转无问号 ─────────────────
+function showSingleSummonResult(level){
+  var rarNames=['普通','稀有','史诗','传说','神话'];
+  var rarColors=['#5a7a5a','#2a7abf','#8b3ac8','#c8860a','#d44010'];
+  var bgColors=['rgba(255,255,255,.92)','rgba(230,245,255,.95)','rgba(242,232,255,.95)','rgba(255,248,220,.95)','rgba(255,238,228,.95)'];
+  var t=rarIdx(level);
+  var color=rarColors[t];
+  var bg=bgColors[t];
+  var rarityLabel=['普通','稀有','史诗','传说','神话'][level]||'灵兽';
+  var name=LNAME[level]||'灵兽';
+  var icon=LICON[level]||'🐣';
+  var cps=level>=4?'产出龙气':'产出金币';
+
+  var html='<div style="padding:24px 20px 20px;text-align:center;background:'+bg+';border-radius:16px;">';
+  html+='<div style="font-size:12px;color:#888;letter-spacing:3px;margin-bottom:16px;">✦ 召唤结果 ✦</div>';
+  html+='<div style="font-size:52px;margin-bottom:8px;filter:drop-shadow(0 2px 8px '+color+'60);">'+icon+'</div>';
+  html+='<div style="font-size:20px;font-weight:800;color:'+color+';margin-bottom:4px;">'+name+'</div>';
+  html+='<div style="display:inline-block;font-size:12px;font-weight:700;color:'+color+';padding:2px 12px;border:1.5px solid '+color+'60;border-radius:20px;margin-bottom:10px;">['+rarityLabel+']</div>';
+  html+='<div style="font-size:12px;color:#444;font-weight:600;margin-bottom:18px;">'+cps+'</div>';
+  html+='<div style="display:flex;gap:10px;justify-content:center;">';
+  // 关闭按钮
+  html+='<button onclick="document.getElementById(\'singleSummonOverlay\').remove();try{renderGrid&&renderGrid();updateHud&&updateHud();}catch(e){}" style="flex:1;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#8b6914,#d4a017);color:#222;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 3px 12px rgba(180,120,20,.3);">收下 ✦</button>';
+  html+='</div></div>';
+
+  var old=document.getElementById('singleSummonOverlay');
+  if(old)old.remove();
+  var overlay=document.createElement('div');
+  overlay.id='singleSummonOverlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(60,30,10,.45);backdrop-filter:blur(6px);padding:16px;';
+  overlay.innerHTML='<div style="width:min(360px,100%);max-height:88vh;overflow-y:auto;">'+html+'</div>';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  document.body.appendChild(overlay);
+  try{playSound&&playSound('summon');}catch(e){}
+}
+
 
 // ── 升星系统 ───────────────────────────────────────────
 // 检查某灵兽是否满级可升星

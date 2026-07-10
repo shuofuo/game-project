@@ -2102,7 +2102,7 @@ function claimAtlasReward(count){
   alert('领取成功！\n+'+reward.coin+'金币  +'+reward.qi+'龙气\n称号: '+reward.title);
   saveGame();
   renderAtlasPanel();
-  updateHUD();
+  updateHud();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2137,7 +2137,7 @@ function buySkin(skinId){
   alert('购买成功！\n获得皮肤: '+skin.name+' '+skin.icon);
   saveGame();
   renderSkinPanel();
-  updateHUD();
+  updateHud();
   playSound('draw');
 }
 
@@ -2337,7 +2337,7 @@ function towerAttack(){
     saveGame();
   }
   renderTowerPanel&&renderTowerPanel();
-  updateHUD&&updateHUD();
+  updateHud&&updateHud();
 }
 function towerSweep(){
   if(!G.created) return;
@@ -2380,7 +2380,7 @@ function towerClaimMilestone(idx){
   alert('领取成功！\n+'+ach.coins+'💰 '+(ach.qi?'+'+ach.qi+'<span class="qi-icon qi-icon-sm"></span> ':'')+titleStr);
   saveGame();
   renderTowerPanel&&renderTowerPanel();
-  updateHUD&&updateHUD();
+  updateHud&&updateHud();
 }
 function towerOfflineProgress(){
   // 离线时自动通关（每秒1次模拟攻击）

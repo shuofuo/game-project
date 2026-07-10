@@ -76,9 +76,9 @@ localStorage.removeItem('sxgame_v2'); localStorage.removeItem('sxgame_v2_ach'); 
 - [ ] **抽卡消耗扣减**：抽卡前后灵石/金币差值正确（无负值、无多扣）
   ```js
   // 抽卡前
-  G.qi; G.coin;
+  G.qi; G.coins;
   // 抽卡后
-  G.qi; G.coin;
+  G.qi; G.coins;
   // 差值应等于单抽消耗
   ```
 - [ ] **结果弹窗显示**：`showNotif(type, msg)` 正常弹出，消息包含龙名/等级

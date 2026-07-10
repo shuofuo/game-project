@@ -28,7 +28,7 @@ localStorage.removeItem('sxgame_v2');localStorage.removeItem('sxgame_v2_ach');lo
 
 | 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
 |--------|----------|----------|---------------|
-| 金币/龙气显示 | 页面加载后查看顶栏 | 显示 `金币: XXX` 和 `龙气: XXX`，数字非负 | `console.log('金币:', G.coin, '龙气:', G.qi)` |
+| 金币/龙气显示 | 页面加载后查看顶栏 | 显示 `金币: XXX` 和 `龙气: XXX`，数字非负 | `console.log('金币:', G.coins, '龙气:', G.qi)` |
 | 本周挑战进度 | 查看HUD右侧 | 显示本周挑战阶段和进度文字 | `console.log(G.weekly_challenge)` |
 | 召唤按钮cost | 点击免费召唤按钮 | 按钮显示消耗数值（金币单抽消耗或龙气单抽消耗） | `document.querySelector('.summon-btn')?.textContent` |
 | `updateHud()` 刷新 | 控制台调用 `updateHud()` | HUD立即更新，不闪烁 | `updateHud(); console.log('HUD更新OK')` |
@@ -37,9 +37,9 @@ localStorage.removeItem('sxgame_v2');localStorage.removeItem('sxgame_v2_ach');lo
 
 | 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
 |--------|----------|----------|---------------|
-| 网格渲染 | 页面加载或 `renderGrid()` | 25个格子（5×5）正确显示，有灵兽的格子显示图片和生肖emoji | `document.querySelectorAll('.grid-cell').length` |
+| 网格渲染 | 页面加载或 `renderGrid()` | 25个格子（5×5）正确显示，有灵兽的格子显示图片和生肖emoji | `document.querySelectorAll('.d-cell').length` |
 | 灵兽属性显示 | 查看每个有灵兽的格子 | 显示 `LNAME[level]` 名称 + `ZOD_E[z]` 生肖 | `G.dragons.map(d => ({name: LNAME[d.level], zodiac: ZOD_E[d.z]}))` |
-| 空格显示 | 查看空格格子 | 显示空状态提示（默认空白或占位图） | `document.querySelectorAll('.grid-cell').length === 25` |
+| 空格显示 | 查看空格格子 | 显示空状态提示（默认空白或占位图） | `document.querySelectorAll('.d-cell').length === 25` |
 | 点击灵兽打开详情 | 点击有灵兽的格子 | 弹出 `showDragonDetail(dragonId)` 详情弹窗 | `showDragonDetail(G.dragons[0].id)` |
 | 滚动/放大 | 无操作 | 视口内完整显示5×5网格，无裁剪 | `document.querySelector('.grid-container')?.getBoundingClientRect()` |
 
@@ -61,7 +61,7 @@ localStorage.removeItem('sxgame_v2');localStorage.removeItem('sxgame_v2_ach');lo
 | 免费单抽 | 调用 `summonFree()` | 若今日免费次数未用，产出灵兽，网格刷新 | `summonFree()` |
 | 免费次数耗尽 | 再次调用 `summonFree()` | 提示"今日免费次数已用完"（`showNotif`） | `summonFree()` |
 | 金币单抽 | 调用 `summonCoin()` | 扣除金币，产出灵兽（根据 `COIN_S` 概率），`updateHud()` 刷新 | `summonCoin()` |
-| 金币不足 | 金币归0后调用 `summonCoin()` | 提示"金币不足" | `G.coin = 0; summonCoin()` |
+| 金币不足 | 金币归0后调用 `summonCoin()` | 提示"金币不足" | `G.coins = 0; summonCoin()` |
 | 龙气单抽 | 调用 `summonQi()` | 扣除龙气，产出灵兽，`updateHud()` 刷新 | `summonQi()` |
 | 龙气不足 | 龙气归0后调用 `summonQi()` | 提示"龙气不足" | `G.qi = 0; summonQi()` |
 | 十连模式切换 | 调用 `setSummonBatch(10)` | `G._isTenMode = true`，召唤按钮切换为"十连"状态 | `setSummonBatch(10); console.log('_isTenMode:', G._isTenMode)` |
@@ -246,9 +246,9 @@ try {
 
 **控制台：**
 ```js
-G.coin = 10; // 假设单抽消耗10
+G.coins = 10; // 假设单抽消耗10
 summonCoin();
-console.log('coin after:', G.coin); // 应为0，不为负
+console.log('coin after:', G.coins); // 应为0，不为负
 ```
 
 ---
@@ -353,10 +353,10 @@ equipSkin('dark');
   
   // 2. 网格
   renderGrid();
-  console.log('[网格] renderGrid() ✓，格子数:', document.querySelectorAll('.grid-cell').length);
+  console.log('[网格] renderGrid() ✓，格子数:', document.querySelectorAll('.d-cell').length);
   
   // 3. 抽卡
-  G.coin = 99999; G.qi = 99999;
+  G.coins = 99999; G.qi = 99999;
   summonCoin();
   summonQi();
   summonFree();

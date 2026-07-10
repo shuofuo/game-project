@@ -420,7 +420,7 @@ function doSummon(level){
   for(let i=0;i<TOTAL;i++)if(!used.has(i))spots.push(i);
   if(spots.length===0){showNotif('error','灵兽已满，请先合并！');return;}
   const idx=spots[Math.floor(Math.random()*spots.length)];
-  G.dragons.push({id:String(nextId++),level,idx,star:1});
+  G.dragons.push({id:String(nextId++),level,idx,star:1,z:Math.floor(Math.random()*12)});
   G.summonCount++;
   saveGame();renderGrid();updateHud();checkAch();
   _onWeeklyEvent("summon");
@@ -442,13 +442,13 @@ function showSingleSummonResult(level){
   var t=rarIdx(level);
   var color=rarColors[t];
   var name=LNAME[level]||'灵兽';
-  var icon=LICON[level]||'🐣';
+  var fakeD={id:'summon',level:level,z:Math.floor(Math.random()*12),idx:-1};var vS=getDragonVisual(fakeD);var iconHtmlS=_dragonIconHtml(vS,64);
   var cps=COIN_S[level]||0;
   var rarityName=['普通','稀有','史诗','传说','神话'][t]||'普通';
 
   var html='<div style="padding:28px 28px 24px;text-align:center;background:rgba(255,255,255,.97);border-radius:24px;border:1.5px solid rgba(180,140,80,.3);">';
   html+='<div style="font-size:11px;color:#555;letter-spacing:4px;margin-bottom:12px;font-weight:600;">✦ 召唤结果 ✦</div>';
-  html+='<div style="font-size:68px;margin-bottom:10px;line-height:1;">'+icon+'</div>';
+  html+='<div style="display:flex;align-items:center;justify-content:center;width:80px;height:80px;margin:0 auto 10px;">'+iconHtmlS+'</div>';
   html+='<div style="font-size:22px;font-weight:900;color:#1A1A1A;letter-spacing:3px;margin-bottom:6px;">'+name+'</div>';
   html+='<div style="display:inline-block;font-size:12px;font-weight:700;color:#1A1A1A;padding:3px 14px;border:1.5px solid rgba(180,140,80,.35);border-radius:20px;margin-bottom:8px;">'+rarityName+'</div>';
   html+='<div style="font-size:28px;font-weight:900;color:'+color+';margin:8px 0 2px;">+'+cps+'/s</div>';
@@ -1631,7 +1631,7 @@ function closeGuide(){
 
   // 引导完成奖励：50金币 + 10龙气
   G.coins = (G.coins||0) + 50;
-  G.dragonQi = (G.dragonQi||0) + 10;
+  G.qi = (G.qi||0) + 10;
   saveGame();
   try{updateHud && updateHud();}catch(e){}
 
@@ -2048,33 +2048,40 @@ function renderAtlasPanel(){
   if(!c)return;
   var col=getCollectedZodiacs();
   var n=col.length;
-  var html='<div class="atlas-title">📖 生肖图鉴 <span style="font-weight:700;color:#c8860a">'+n+'/12</span></div>';
-  html+='<div class="atlas-grid">';
+  // 修复③：生肖图鉴UI美化 — 3行4列统一网格，未解锁金色锁，深色文字
+  var html='<div style="font-size:15px;font-weight:800;color:#1A1A1A;letter-spacing:2px;margin-bottom:12px;text-align:center;">📖 生肖图鉴 <span style="color:#c8860a;font-weight:900;">'+n+'/12</span></div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 4px 80px;">';
   for(var z=0;z<12;z++){
     var st=getZodiacStatus(z+1);
     var emoji=ZOD_E[z];
     var name=ZOD_N[z];
     var lore=ZOD_LORE[z]||'暂无记录';
-    var cls=st.collected?'atlas-item-collected':'atlas-item-locked';
-    var title=st.collected?('第'+st.order+'个收集 · '+lore):('未解锁 · '+lore);
-    html+='<div class="'+cls+'" title="'+title+'" onclick="showZodiacDetail('+(z+1)+')" style="cursor:pointer">';
-    html+='<div style="font-size:2.4em">'+emoji+'</div>';
-    html+='<div style="font-size:0.9em">'+(st.collected?('第'+st.order+'个'):'🔒')+'</div>';
-    html+='<div style="font-size:0.8em">'+name+'</div>';
+    var collected=st.collected;
+    var title=collected?('第'+st.order+'个收集 · '+lore):('未解锁 · '+lore);
+    // 修复③：未解锁显示🔒金色锁图标，解锁后移除
+    var lockIcon=collected?'':'<div style="position:absolute;top:3px;right:3px;font-size:10px;">🔒</div>';
+    html+='<div class="atlas-item" title="'+title+'" onclick="showZodiacDetail('+(z+1)+')" style="cursor:pointer;position:relative;border-radius:14px;padding:10px 4px 8px;text-align:center;border:1.5px solid '+(collected?'rgba(255,215,0,.35)':'rgba(180,140,80,.2)')+';background:'+(collected?'rgba(255,215,0,.07)':'rgba(255,255,255,.96)')+';transition:all .2s;">';
+    html+='<div style="font-size:2.3em;line-height:1;margin-bottom:4px;filter:'+(collected?'none':'grayscale(1) opacity(.6)')+'">'+emoji+'</div>';
+    html+='<div style="font-size:11px;color:'+(collected?'#c8860a':'#bbb')+';font-weight:'+(collected?'700':'400')+';">'+(collected?('第'+st.order+'个'):'🔒 未解锁')+'</div>';
+    html+='<div style="font-size:10px;color:'+(collected?'#1A1A1A':'#aaa')+';font-weight:600;margin-top:2px;">'+name+'</div>';
+    html+=lockIcon;
     html+='</div>';
   }
   html+='</div>';
-  // 收集进度奖励
-  html+='<div class="atlas-rewards">';
+  // 修复③：收集奖励分行整齐，深色文字高对比
+  html+='<div style="margin-top:14px;border-top:1px solid rgba(180,140,80,.2);padding-top:12px;">';
+  html+='<div style="font-size:12px;font-weight:700;color:#1A1A1A;margin-bottom:8px;letter-spacing:1px;">🎁 收集奖励</div>';
   ATLAS_REWARDS.forEach(function(r){
     var done=n>=r.count;
-    var claimBtn=done?'<button class="atlas-claim-btn" onclick="claimAtlasReward('+r.count+')">领取</button>':'';
-    var claimed=G.atlasClaimed&&G.atlasClaimed.includes(r.count)?'✅ 已领':claimBtn;
-    html+='<div class="atlas-reward-item '+(done?'':'atlas-reward-locked')+'">';
-    html+='<span>收集 <b>'+r.count+'</b> 种生肖: </span>';
-    html+='<span style="font-weight:700;color:#c8860a">'+r.coin+'金币</span> + ';
-    html+='<span style="color:#0277bd">'+r.qi+'龙气</span> ';
-    html+='<b>['+r.title+']</b> '+claimed;
+    var claimed=G.atlasClaimed&&G.atlasClaimed.includes(r.count);
+    var claimBtn=(done&&!claimed)?'<button onclick="claimAtlasReward('+r.count+')" style="padding:3px 10px;border-radius:8px;border:none;background:linear-gradient(135deg,#c8860a,#d4a017);color:#1A1A1A;font-size:11px;font-weight:700;cursor:pointer;">领取</button>':'';
+    html+='<div style="display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:10px;background:'+(done?'rgba(255,215,0,.06)':'rgba(0,0,0,.03)')+';margin-bottom:6px;font-size:11px;line-height:1.5;">';
+    html+='<span style="color:'+(done?'#c8860a':'#bbb')+';font-weight:'+(done?'700':'400')+';">收集 <b>'+r.count+'</b> 种</span>';
+    html+='<span style="color:#1A1A1A;font-weight:700;">+'+r.coin+'💰</span>';
+    html+='<span style="color:#1A1A1A;">+'+r.qi+'✨</span>';
+    html+='<span style="color:#c8860a;font-weight:600;">【'+r.title+'】</span>';
+    if(claimed) html+='<span style="color:#2e7d32;font-weight:700;margin-left:auto;">✅已领</span>';
+    else if(claimBtn) html+='<span style="margin-left:auto;">'+claimBtn+'</span>';
     html+='</div>';
   });
   html+='</div>';
@@ -3188,7 +3195,7 @@ async function cloudSaveToServer(quiet) {
     // ── 基础资源 ──
     coins: G.coins || 0,
     totalCoinsEarned: G.totalCoinsEarned || G.coins || 0,
-    dragonQi: G.dragonQi || 0,
+    dragonQi: G.qi || 0,
     dragonPower: G.dragonPower || 0,     // 龙气
     gems: G.gems || 0,                   // 钻石/龙气瓶
     cultivation: G.cultivation || {mu:0,huo:0,tu:0,kin:0,shui:0}, // 命造
@@ -3275,7 +3282,7 @@ async function cloudLoadFromServer(quiet) {
   // ── 全量恢复 ──
   if (d.coins !== undefined) G.coins = d.coins;
   if (d.totalCoinsEarned !== undefined) G.totalCoinsEarned = d.totalCoinsEarned;
-  if (d.dragonQi !== undefined) G.dragonQi = d.dragonQi;
+  if (d.dragonQi !== undefined) G.qi = d.dragonQi;
   if (d.dragonPower !== undefined) G.dragonPower = d.dragonPower;
   if (d.gems !== undefined) G.gems = d.gems;
   if (d.cultivation !== undefined) G.cultivation = d.cultivation;
@@ -3619,7 +3626,7 @@ function generateSharePoster(canvasId) {
     {icon:'🏆', label:'试炼塔', val: towerBest + '层'},
     {icon:'🐉', label:'最强灵兽', val: topD ? (topD.starName || '') + ' Lv.'+topD.level : '无'},
     {icon:'💰', label:'拥有金币', val: _fmtK(G.coins||0)},
-    {icon:'✨', label:'龙气', val: _fmtK(G.dragonQi||0)},
+    {icon:'✨', label:'龙气', val: _fmtK(G.qi||0)},
   ];
 
   stats.forEach(function(s, i) {
@@ -3740,8 +3747,9 @@ function shareToPlatform() {
 
 // ── 发放分享奖励（20金币 + 5龙气）──
 function _grantShareReward() {
+  // 修复②：dragonQi→G.qi（正确字段名）
   G.coins = (G.coins||0) + 20;
-  G.dragonQi = (G.dragonQi||0) + 5;
+  G.qi = (G.qi||0) + 5;
   saveGame();
   try{updateHud && updateHud();}catch(e){}
 }

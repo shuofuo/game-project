@@ -642,7 +642,9 @@ function doDrop(src,dst){
       // 时光倒流备份
       G._dragonsBak=G.dragons.map(d=>({...d}));
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
-      G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst,star:1});
+      // 合成结果继承源灵兽生肖（两只生肖相同则不变，不同取较大的）
+      var newZ=s.z!==undefined?s.z:(t.z!==undefined?t.z:0);
+      G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst,star:1,z:newZ});
       G.mergeCount++;
       _onWeeklyEvent("merge");
       // 命格修炼加成：土行额外金币、金行额外龙气
@@ -683,20 +685,22 @@ function doDrop(src,dst){
   }else{s.idx=dst;saveGame();renderGrid();}
 }
 function markMergeable(){
+  // 先清掉所有标记
   document.querySelectorAll('.d-cell').forEach(c=>{c.classList.remove('mergeable');c.style.borderColor='';c.style.boxShadow='';});
-  for(let i=0;i<G.dragons.length;i++){
-    for(let j=i+1;j<G.dragons.length;j++){
-      if(G.dragons[i].level===G.dragons[j].level&&G.dragons[i].level<15){
-        document.querySelectorAll('.d-card').forEach(c=>{
-          const id=parseInt(c.dataset.id);
-          if(id===parseInt(G.dragons[i].id)||id===parseInt(G.dragons[j].id)){
-            const cell=c.closest('.d-cell');
-            if(cell){cell.classList.add('mergeable');cell.style.border='1.5px solid rgba(255,215,0,.5)';cell.style.boxShadow='0 0 14px rgba(255,215,0,.3)';}
-          }
-        });
-      }
+  // 直接用 G.dragons 数据驱动：遍历所有格子，通过 idx 匹配灵兽
+  document.querySelectorAll('.d-cell').forEach(cell=>{
+    const idx=parseInt(cell.dataset.idx);
+    if(isNaN(idx))return;
+    const d=G.dragons.find(dr=>dr.idx===idx);
+    if(!d||d.level>=15)return;
+    // 找同等级、同生肖（z属性）的另一只灵兽
+    const same=G.dragons.find(dr=>dr!==d&&dr.level===d.level&&dr.idx!==idx);
+    if(same){
+      cell.classList.add('mergeable');
+      cell.style.border='1.5px solid rgba(255,215,0,.5)';
+      cell.style.boxShadow='0 0 14px rgba(255,215,0,.3)';
     }
-  }
+  });
 }
 function getSummonLevel(pool){
   if(!pool||!Array.isArray(pool)||pool.length===0) pool=[{level:1,weight:100}];
@@ -809,7 +813,9 @@ function doTenSummon(type){
   results.forEach(function(lv){
     if(empty.length===0)return;
     var slot=empty.shift();
-    G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1});
+    // 修复⑤：召唤时随机分配生肖，确保12生肖差异化
+    var summonZ=Math.floor(Math.random()*12);
+    G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1,z:summonZ});
     G.summonCount++;placed++;
     _onWeeklyEvent('summon');
   });
@@ -830,10 +836,14 @@ function showBatchSummonResult(results){
     var t=rarIdx(lv), color=rarColors[t], bg=bgColors[t];
     var rarityLabel=['','普通','稀有','史诗','传说','神话'][lv];
     var name=LNAME[lv]||'灵兽';
-    var icon=LICON[lv]||'🐣';
+    // 修复④：抽卡结果用 SVG 渲染（修复灵兽图丢失）
+    // 临时 dragon 对象，随机生肖 + 对应等级（getDragonVisual 会自动取 skin）
+    var fakeDragon={id:'summon',level:lv,z:Math.floor(Math.random()*12),idx:-1};
+    var vSummon=getDragonVisual(fakeDragon);
+    var iconHtmlSummon=_dragonIconHtml(vSummon,48);
     var cpsdesc=lv>=4?'产出龙气':'产出金币';
     cardsHtml+='<div style="display:flex;flex-direction:column;align-items:center;padding:10px 8px;background:'+bg+';border:1.5px solid '+color+'60;border-radius:12px;min-width:68px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.06);">';
-    cardsHtml+='<div style="font-size:38px;line-height:1;">'+icon+'</div>';
+    cardsHtml+='<div style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;line-height:1;">'+iconHtmlSummon+'</div>';
     cardsHtml+='<div style="font-size:10px;font-weight:800;color:'+color+';margin-top:3px;">'+name+'</div>';
     cardsHtml+='<div style="font-size:9px;color:#666;margin-top:1px;">['+rarityLabel+']</div>';
     cardsHtml+='<div style="font-size:8px;color:#888;margin-top:2px;">'+cpsdesc+'</div>';
@@ -1245,9 +1255,12 @@ var SKIN_RARITY_NAMES  = ['普通','稀有','珍稀','传说','神话'];
 // 渲染规则：生肖基础形象 + 等级成长形态 + 皮肤特效叠加
 // ═══════════════════════════════════════════════════
 function getDragonVisual(dragon){
+  // 修复⑤：取真实灵兽的 zodiac 字段，不用统一0
+  // 每个灵兽 dragon.z 存其生肖，召唤时随机分配（见 doSummon / doTenSummon）
   const zodiac = dragon.z !== undefined ? dragon.z : 0;
   const level  = dragon.level || 1;
-  const skinId = G.equippedSkin || 'default';
+  // 灵兽自身 skinId 优先，否则用全局装备皮肤
+  const skinId = dragon.skinId || G.equippedSkin || 'default';
   const skin   = DRAGON_SKINS.find(s => s.id === skinId) || DRAGON_SKINS[0];
   const stage  = getLevelStage(level);
   const stageName = LV_STAGE_NAMES[stage] || '幼生';
@@ -1255,7 +1268,7 @@ function getDragonVisual(dragon){
   const visualConfig = _loadVisualConfig(zodiac, level, skinId);
 
   return {
-    // 渲染用的图标：优先SVG，fallback emoji
+    // 渲染用的图标：优先SVG，fallback emoji（12生肖×15级差异）
     svgPath: visualConfig.svgPath,
     emoji:   ZOD_ICON[zodiac] ? (ZOD_ICON[zodiac][level] || ZOD_ICON[zodiac][1]) : '🐣',
     // 皮肤 filter（CSS filter string，叠加到 SVG img 元素上）

@@ -1,753 +1,419 @@
-# 生肖天机 · 全功能测试验证文档
+# 神兽联盟 · 测试验证文档
 
-> 项目：生肖天机游戏 | 版本：v2 | 日期：2026-07-10
-> 前端：H5（`index.html`）| 后端：`game.v5.js` | 配置：`config.js`
-> 测试环境：本机 `python -m http.server 7892` + Chrome DevTools
+> 版本：v9-fix-tower — 2026-07-03  
+> 源码：`js/config.js`(1574行) / `js/game.v5.js`(3851行) / `js/ui.v2.js`(294行)  
+> 启动：`python -m http.server 7892` → http://localhost:7892  
+> 清理缓存：
+> ```js
+> localStorage.removeItem('sxgame_v2');
+> localStorage.removeItem('sxgame_v2_ach');
+> localStorage.removeItem('sxgame_v2_rank');
+> localStorage.removeItem('sxgame_v2_guide');
+> location.reload();
+> ```
 
 ---
 
-## 一、测试前置准备
+## 清理缓存脚本（快速复制）
 
-### 1.1 启动项目
-
-```bash
-cd /home/21027522_wy/openclaw/workspace/game-project
-python -m http.server 7892
-# 浏览器打开 http://localhost:7892
+```js
+localStorage.removeItem('sxgame_v2');localStorage.removeItem('sxgame_v2_ach');localStorage.removeItem('sxgame_v2_rank');localStorage.removeItem('sxgame_v2_guide');location.reload();
 ```
 
-### 1.2 清理缓存（每次切换测试场景前执行）
+---
 
-```javascript
-// 浏览器控制台执行，清除所有本地存档（全新开始）
-localStorage.removeItem('sxgame_v2');
-localStorage.removeItem('sxgame_v2_ach');
-localStorage.removeItem('sxgame_v2_rank');
-localStorage.removeItem('sxgame_v2_guide');
+## 模块一：UI 视觉
+
+### 1.1 HUD（顶栏信息栏）
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 金币/龙气显示 | 页面加载后查看顶栏 | 显示 `金币: XXX` 和 `龙气: XXX`，数字非负 | `console.log('金币:', G.coin, '龙气:', G.qi)` |
+| 本周挑战进度 | 查看HUD右侧 | 显示本周挑战阶段和进度文字 | `console.log(G.weekly_challenge)` |
+| 召唤按钮cost | 点击免费召唤按钮 | 按钮显示消耗数值（金币单抽消耗或龙气单抽消耗） | `document.querySelector('.summon-btn')?.textContent` |
+| `updateHud()` 刷新 | 控制台调用 `updateHud()` | HUD立即更新，不闪烁 | `updateHud(); console.log('HUD更新OK')` |
+
+### 1.2 5×5 灵兽网格
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 网格渲染 | 页面加载或 `renderGrid()` | 25个格子（5×5）正确显示，有灵兽的格子显示图片和生肖emoji | `document.querySelectorAll('.grid-cell').length` |
+| 灵兽属性显示 | 查看每个有灵兽的格子 | 显示 `LNAME[level]` 名称 + `ZOD_E[z]` 生肖 | `G.dragons.map(d => ({name: LNAME[d.level], zodiac: ZOD_E[d.z]}))` |
+| 空格显示 | 查看空格格子 | 显示空状态提示（默认空白或占位图） | `document.querySelectorAll('.grid-cell').length === 25` |
+| 点击灵兽打开详情 | 点击有灵兽的格子 | 弹出 `showDragonDetail(dragonId)` 详情弹窗 | `showDragonDetail(G.dragons[0].id)` |
+| 滚动/放大 | 无操作 | 视口内完整显示5×5网格，无裁剪 | `document.querySelector('.grid-container')?.getBoundingClientRect()` |
+
+### 1.3 大灵兽展示区
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 大灵兽动画循环 | 页面加载后观察展示区 | 大灵兽有循环动画播放（`cycleHeroAnim()`相关） | `console.log('大灵兽区是否存在', !!document.querySelector('.hero-section'))` |
+| 大灵兽属性 | 召唤高稀有度灵兽后 | 大灵兽区展示当前最高灵兽 | `cycleHeroAnim(); console.log('动画触发')` |
+
+---
+
+## 模块二：抽卡逻辑
+
+### 2.1 单抽
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 免费单抽 | 调用 `summonFree()` | 若今日免费次数未用，产出灵兽，网格刷新 | `summonFree()` |
+| 免费次数耗尽 | 再次调用 `summonFree()` | 提示"今日免费次数已用完"（`showNotif`） | `summonFree()` |
+| 金币单抽 | 调用 `summonCoin()` | 扣除金币，产出灵兽（根据 `COIN_S` 概率），`updateHud()` 刷新 | `summonCoin()` |
+| 金币不足 | 金币归0后调用 `summonCoin()` | 提示"金币不足" | `G.coin = 0; summonCoin()` |
+| 龙气单抽 | 调用 `summonQi()` | 扣除龙气，产出灵兽，`updateHud()` 刷新 | `summonQi()` |
+| 龙气不足 | 龙气归0后调用 `summonQi()` | 提示"龙气不足" | `G.qi = 0; summonQi()` |
+| 十连模式切换 | 调用 `setSummonBatch(10)` | `G._isTenMode = true`，召唤按钮切换为"十连"状态 | `setSummonBatch(10); console.log('_isTenMode:', G._isTenMode)` |
+| 十连模式切回单抽 | 调用 `setSummonBatch(1)` | `G._isTenMode = false` | `setSummonBatch(1)` |
+| `doSummon(level)` 精确调用 | 控制台 `doSummon(8)` | 手动指定稀有度level抽卡（level为LNAME下标，1-15） | `doSummon(8)` |
+| 十连（龙气） | 调用 `doTenSummon('qi')` | 返回10条灵兽结果列表，弹出 `showBatchSummonResult(results)` | `showBatchSummonResult(doTenSummon('qi'))` |
+| 十连（金币） | 调用 `doTenSummon('coin')` | 返回10条结果，弹出结果弹窗 | `showBatchSummonResult(doTenSummon('coin'))` |
+
+### 2.2 稀有度验证
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 普通稀有度 | 召唤 level ≤ 2 | `rarIdx(lvl)` 返回普通，网格卡片显示对应样式 | `console.log('rarIdx(2):', rarIdx(2))` |
+| 稀有度层级 | 检查各稀有度边界 | rarIdx(≤2)=普通 / ≤4=稀有 / ≤7=史诗 / ≤10=传说 / >10=神话 | `[1,2,3,4,5,7,8,10,11,12,15].forEach(l=>console.log('level',l,'=',rarIdx(l)))` |
+
+---
+
+## 模块三：12生肖灵兽 & 等级 & 皮肤
+
+### 3.1 12生肖收集
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 生肖状态查询 | 调用 `getZodiacStatus(zid)`（zid 0-11） | 返回 `{collected: bool, order: number, total: number}` | `getZodiacStatus(0)` |
+| 已收集生肖列表 | 调用 `getCollectedZodiacs()` | 返回已收集属相ID数组（每个灵兽的 `z` 字段去重） | `console.log('已收集:', getCollectedZodiacs())` |
+| 12生肖全覆盖 | 通过控制台给 `G.dragons` 补充所有12种z值 | 图鉴应显示全收集状态 | `for(let i=0;i<12;i++)G.dragons.push({id:Date.now()+i,z:i,level:1})` |
+| 生肖emoji显示 | 网格内查看灵兽 | 正确显示 `ZOD_E[z]` 对应emoji（🐀~🐖） | `G.dragons.forEach(d=>console.log(ZOD_E[d.z]))` |
+
+### 3.2 灵兽等级名（Lv1-Lv15）
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 等级名数组验证 | 检查 `LNAME` | 下标0=空, 1=灵蛋, 2=幼灵, ... 15=鸿蒙 | `console.log(LNAME.join(','))` |
+| 等级名显示 | `showDragonDetail(dragonId)` 查看详情 | 名称显示为 `LNAME[level]`，非原始数字 | `LNAME.slice(1).forEach((n,i)=>console.log('level',i+1,n))` |
+| 各等级灵兽召唤 | 控制台 `doSummon(15)` | 召唤出最高级"鸿蒙"灵兽 | `doSummon(15)` |
+
+### 3.3 皮肤系统
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 皮肤列表验证 | 检查skin数组 | 包含 default / gold / azure / flame / jade / purple / silver / dark / crystal / destiny 共10套 | `console.log('皮肤列表:', SKINS)` |
+| `openSkinPanel()` 打开 | 调用 `renderSkinPanel()` | 弹出皮肤商店面板，显示所有皮肤及价格 | `renderSkinPanel()` |
+| 购买皮肤 | 调用 `buySkin(skinId)`（以未拥有皮肤测试） | 扣除对应货币，皮肤变为已拥有状态 | `buySkin('gold')` |
+| 装备皮肤 | 调用 `equipSkin(skinId)` | 皮肤装备成功，灵兽外观变化 | `equipSkin('gold')` |
+| 装备默认皮肤 | `equipSkin('default')` | 恢复默认外观 | `equipSkin('default')` |
+| `dragon_visual_config.json` 覆盖数据 | 检查JSON | 每条记录有 `skinOverlays` 字段（key=皮肤ID，value=描述字符串） | — |
+
+### 3.4 SVG 文件验证
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| SVG文件存在性 | 检查 `docs/svgs/` 目录 | 应有 180 个文件（12属相 × 15等级 = 180） | 检查目录（手动或外部工具） |
+| SVG命名格式 | 查看任意SVG文件 | 命名为 `drag_X_Y.svg`（X=0-11属相，Y=1-15等级） | — |
+| SVG加载 | 页面加载后查看网格 | 灵兽图片正常显示，无404 | `new Image().src = 'docs/svgs/drag_0_1.svg'` |
+
+---
+
+## 模块四：装备体系
+
+### 4.1 装备属性
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| `getEquipTotals()` 调用 | 控制台调用 | 返回 `{atk: number, def: number, spd: number}` 含套装加成 | `console.log(getEquipTotals())` |
+| 装备显示 | 打开灵兽详情 `showDragonDetail(id)` | 显示攻击/防御/速度属性数值 | `showDragonDetail(G.dragons[0]?.id)` |
+| 套装效果 | 调用 `getSuitEffect(items)` | 有套装时返回效果描述字符串，无套装返回null | `getSuitEffect(G.equip_items || [])` |
+| 材料种类 | 检查装备材料常量 | 铁 iron / 水晶 crystal / 龙鳞 dragonScale / 星尘 starDust | — |
+
+### 4.2 炼宝阁面板
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 打开炼宝阁 | 调用 `renderForgePanel()` | 展示装备列表、合成、强化界面 | `renderForgePanel()` |
+
+---
+
+## 模块五：云端存档
+
+### 5.1 存档读写
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 本地保存 | 调用 `saveGame()` | 数据写入 `localStorage['sxgame_v2']` | `saveGame(); console.log('存档写入OK，key:', 'sxgame_v2')` |
+| 本地读取 | 清空后刷新页面 | 自动从 `localStorage['sxgame_v2']` 恢复状态 | `localStorage.getItem('sxgame_v2') ? console.log('有存档') : console.log('无存档')` |
+| 云端保存 | 调用 `cloudSave()` | 静默保存到服务器，若网络异常不中断游戏 | `cloudSave(true)` |
+| 云端保存（显式） | 调用 `cloudSaveToServer()` | 强制触发云端保存（quiet=false） | `cloudSaveToServer(false)` |
+| 云端加载 | 调用 `cloudLoadFromServer()` | 从服务器拉取存档并覆盖本地（quiet控制提示） | `cloudLoadFromServer(false)` |
+| 成就存档 | 触发成就后 | 自动写入 `localStorage['sxgame_v2_ach']` | `localStorage.getItem('sxgame_v2_ach')` |
+| 排行存档 | 上传排行后 | 写入 `localStorage['sxgame_v2_rank']` | `localStorage.getItem('sxgame_v2_rank')` |
+
+---
+
+## 模块六：新手引导
+
+### 6.1 引导流程
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 新建角色首次加载 | 清理全部localStorage后加载 | 显示新手引导遮罩或弹窗 | 清理后观察页面 |
+| 引导进度保存 | 完成引导步骤后 | 写入 `localStorage['sxgame_v2_guide']` | `localStorage.getItem('sxgame_v2_guide')` |
+| 跳过引导 | 控制台手动跳过 | 引导状态标记为已完成 | `localStorage.removeItem('sxgame_v2_guide'); location.reload()` |
+| 再次进入无引导 | 跳过引导后刷新 | 不再出现引导遮罩，直接进入游戏 | 刷新后观察 |
+
+---
+
+## 模块七：分享裂变
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 打开分享面板（config） | 调用 `openSharePanel()`（config.js） | 弹出分享面板（分享码/链接等） | `openSharePanel()` |
+| 打开分享面板（game） | 调用 `openSharePanel()`（game.v5.js） | 弹出分享面板 | `openSharePanel()` |
+| 分享数据生成 | 触发分享后 | 生成有效分享链接/图片 | — |
+
+---
+
+## 附加模块：试炼塔
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 打开试炼塔面板 | 调用 `renderTowerPanel()` | 显示试炼塔关卡列表、层数 | `renderTowerPanel()` |
+| 塔攻击 | 调用 `towerAttack()` | 触发攻击逻辑，扣血/结算 | `towerAttack()` |
+| 扫荡 | 调用 `towerSweep()` | 快速通关已通关层，获得奖励 | `towerSweep()` |
+
+---
+
+## 附加模块：活跃中心 & 图鉴 & 成就 & 周挑战
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 活跃中心 | 调用 `renderActiveCenter()` | 显示当前活动列表（`getActiveActivities()`） | `renderActiveCenter()` |
+| 领取活跃奖励 | 调用 `claimActiveReward()` | 领取后刷新活跃度状态 | `claimActiveReward()` |
+| 图鉴面板 | 调用 `renderAtlasPanel()` | 显示已收集灵兽图鉴，可领奖励 | `renderAtlasPanel()` |
+| 领取图鉴奖励 | 调用 `claimAtlasReward(count)` | 领取后发放奖励 | `claimAtlasReward(12)` |
+| 成就面板 | 无专门函数→检查存档 | `sxgame_v2_ach` 记录成就进度 | `localStorage.getItem('sxgame_v2_ach')` |
+| 周挑战状态 | 调用 `getWeeklyChallengeState()` | 返回本周挑战数据 | `console.log(getWeeklyChallengeState())` |
+| 领取周挑战奖励 | 调用 `claimWeeklyChallenge(id)` | 领取指定挑战奖励 | `claimWeeklyChallenge(1)` |
+| 技能激活 | 调用 `activateSkill(id)` | 激活对应技能 | `activateSkill(1)` |
+
+---
+
+## 模块八：其他面板
+
+| 测试点 | 操作步骤 | 预期结果 | 控制台验证命令 |
+|--------|----------|----------|---------------|
+| 培养面板 | 调用 `renderCultPanel()` | 显示灵兽培养/升级选项 | `renderCultPanel()` |
+| 活动面板（ui.v2.js） | 调用活动相关函数 | 弹窗显示活动内容 | — |
+
+---
+
+## 异常场景测试（全流程回归）
+
+### TC-01：本地存档损坏
+
+**触发条件：** 将 `localStorage['sxgame_v2']` 设为非JSON字符串后刷新
+
+**预期：** 游戏崩溃保护或提示存档异常，不白屏
+
+**控制台：**
+```js
+localStorage.setItem('sxgame_v2', 'invalid-json-not-parseable');
 location.reload();
+// 观察控制台是否有报错，游戏是否降级加载
 ```
 
-### 1.3 控制台快速调试指令
-
-```javascript
-// 查看当前游戏状态
-JSON.stringify(G, null, 2)
-
-// 强制触发新手引导
-G.guideDone = false; startGuide();
-
-// 刷满金币测试
-G.coins = 999999; updateHud();
-
-// 查看灵兽列表
-G.dragons
-
-// 切换皮肤（测试用）
-G.equippedSkin = 'gold'; renderGrid();
-G.equippedSkin = 'default'; renderGrid();
-```
-
-### 1.4 测试账号准备
-
-| 用途 | 账号状态 | 准备方式 |
-|------|---------|---------|
-| 全新账号测试 | `G.guideDone=false`，无灵兽 | `localStorage.clear()` 后刷新 |
-| 中期账号测试 | 3-5只灵兽，Lv3-8 | 手动游戏积累 |
-| 满级账号测试 | 灵兽满格，大量装备 | 控制台 `G.coins=999999` 快速构建 |
-
----
-
-## 二、分模块逐项测试
-
----
-
-### 模块 1：全局 UI 视觉校验
-
-#### 测试点 1-1：页面背景一致性
-
-- **操作步骤**：
-  1. 进入登录页 → 选属相页 → 游戏主页
-  2. 依次打开：灵兽网格、召唤区域、命格面板、试炼塔、炼宝阁、每日任务、签到面板
-  3. 截图记录每个页面的背景颜色
-
-- **预期结果**：
-  - 全部页面统一浅色国风背景（非深色）
-  - 登录页、主页、弹窗三层层次分明
-  - 无页面背景颜色突变
-
-- **判定**：✅ 合格（全部一致）/ ❌ 不合格（记录具体异常页面）
-
----
-
-#### 测试点 1-2：字体颜色校验
-
-- **操作步骤**：用浏览器 DevTools 检查各页面文字颜色，搜索是否出现 `#FFD700`/`#FFFF00`/`#87CEEB`
-
-```javascript
-// 控制台批量检查金色/黄色文字
-document.querySelectorAll('*').forEach(el => {
-  const c = getComputedStyle(el).color;
-  if(c.includes('255,215') || c.includes('255,255,0')) console.log(el.tagName, el.className, el.id, c);
-});
-```
-
-- **预期结果**：全部文字使用 `#1A1A1A` 或 `#333`，禁用金色、黄色、浅蓝色
-- **判定**：✅ 合格 / ❌ 不合格（列出违规元素）
-
----
-
-#### 测试点 1-3：灵兽卡片底色验证
-
-- **操作步骤**：
-  1. 进入游戏主页（需有灵兽）
-  2. 用 DevTools 检查 `.d-cell .d-card` 元素
-
-```javascript
-document.querySelectorAll('.d-card').forEach((el, i) => {
-  if(i > 2) return;
-  const bg = getComputedStyle(el).backgroundColor;
-  console.log('Card', i, bg);
-});
-```
-
-- **预期结果**：卡片有白色底色 `rgba(255,255,255,0.92)` 或生肖主色透明度叠加
-- **判定**：✅ 合格 / ❌ 不合格
-
----
-
-#### 测试点 1-4：召唤按钮布局
-
-- **操作步骤**：查看召唤区域三个按钮
-  - 龙气召唤（金币图标 + 数字）
-  - 金币召唤（金币图标 + 数字）
-  - 十连召唤（文字，无图标）
-
-- **预期结果**：
-  1. 龙气召唤仅保留1个图标，无多余小号图标
-  2. 金币召唤：图标在前、数字在后，与龙气按钮排版一致
-  3. 十连召唤：无图标，只有文字
-  4. 三个按钮宽高、圆角、内边距一致
-
-- **判定**：✅ 合格 / ❌ 不合格（对比截图）
-
----
-
-#### 测试点 1-5：弹窗遮罩测试
-
-- **操作步骤**：
-  1. 打开任意弹窗（如每日活跃弹窗、签到弹窗）
-  2. 尝试滚动底层页面内容
-  3. 点击弹窗外区域
-
-- **预期结果**：
-  - 弹窗有全屏遮罩 `rgba(0,0,0,.xx)`
-  - 滚动弹窗内部内容不穿透到底层页面
-  - 点击遮罩关闭弹窗
-
-- **判定**：✅ 合格 / ❌ 不合格
-
----
-
-### 模块 2：抽卡逻辑
-
-#### 测试点 2-1：单抽 vs 十连切换
-
-- **操作步骤**：
-  1. 初始状态：十连按钮默认**未选中**
-  2. 记录当前金币和龙气数量
-  3. 点击十连按钮 → 按钮变亮（选中状态）
-  4. 点击金币召唤 → 执行10连（扣除10倍金币）
-  5. 点击龙气召唤 → 执行10连（扣除10倍龙气）
-  6. 再次点击十连按钮 → 取消选中
-  7. 点击金币召唤 → 仅执行1连抽
-
-- **预期结果**：
-  - 十连按钮切换状态正确（亮/暗）
-  - 选中十连时：召唤消耗 ×10，召唤次数 ×10
-  - 未选中十连时：单抽逻辑，消耗不变
-  - 十连召唤结束后**不跳转新页面**，直接展示结果
-
-- **判定**：✅ 合格 / ❌ 逻辑错误（记录具体不符项）
-
----
-
-#### 测试点 2-2：抽卡概率分布
-
-- **操作步骤**：召唤100次（10次十连），统计各级灵兽数量
-
-```javascript
-// 控制台执行：查看召唤100次后的灵兽分布
-G.summonCount; // 总召唤次数
-G.dragons.map(d=>d.level).reduce((a,lvl)=>{a[lvl]=(a[lvl]||0)+1;return a;},{});
-// 返回各等级灵兽数量
-```
-
-- **预期结果**：
-  - 低级灵兽（L1-L3）概率明显高于高级（L13-15）
-  - 召唤概率符合 `config.js` 中各生肖配置
-
-- **判定**：✅ 合格 / ❌ 概率异常
-
----
-
-#### 测试点 2-3：抽卡展示效果
-
-- **操作步骤**：
-  1. 执行1次单抽
-  2. 执行1次十连抽
-
-- **预期结果**：
-  - 抽卡结束后直接展示灵兽卡片结果
-  - 不存在问号遮罩、翻转动画
-  - 十连抽展示10个灵兽结果（网格排列）
-  - 网格装满后依旧可以继续十连抽（溢出到下一页或替换旧灵兽）
-
-- **判定**：✅ 合格 / ❌ 有异常遮罩或动画
-
----
-
-#### 测试点 2-4：召唤消耗递增
-
-- **操作步骤**：
-  1. 记录前10次召唤的金币消耗
-  2. 记录第11-20次召唤的金币消耗
-  3. 对比数值
-
-- **预期结果**：
-  - 每召唤10次，金币成本增加（基础100金币 × 1.2^整数倍）
-  - 龙气成本同理
-
-```javascript
-// 控制台验证：每次召唤10次后的单抽成本
-G.summonCount;
-Math.floor(100 * Math.pow(1.2, Math.floor(G.summonCount / 10)))
-```
-
-- **判定**：✅ 合格 / ❌ 成本未递增
-
----
-
-### 模块 3：12生肖灵兽 & 等级 & 皮肤系统（核心重点）
-
-#### 测试点 3-1：生肖差异化（核心验证）
-
-- **操作步骤**：
-  1. 依次选择 12 种生肖创建角色（或用控制台批量创建测试灵兽）
-
-```javascript
-// 控制台批量创建12只不同生肖的Lv1灵兽（覆盖全生肖）
-for(let z=0;z<12;z++){
-  G.dragons.push({id:'test_z'+z, z:z, level:1, idx:G.dragons.length});
+**验证：**
+```js
+try {
+  const data = JSON.parse(localStorage.getItem('sxgame_v2'));
+  console.log('解析成功', data);
+} catch(e) {
+  console.log('存档损坏，降级加载:', e.message);
 }
-renderGrid();
 ```
-
-  2. 对比网格中 12 个格子，截图记录
-
-- **预期结果**：
-  - **每个格子内灵兽外观完全不同**（生肖应有不同的体型、耳朵、颜色、尾巴等）
-  - 鼠：棕灰小体、尖耳；牛：厚重、牛角；虎：金纹；兔：长耳；龙：蛇身有角……
-  - 所有生肖在同等级下视觉差异明显
-
-- **判定**：✅ 合格（12种完全不同）/ ❌ 不合格（仍有外观一致问题）
 
 ---
 
-#### 测试点 3-2：等级成长五阶段
+### TC-02：抽卡时金币/龙气刚好耗尽
 
-- **操作步骤**：
+**触发条件：** 金币/龙气刚好等于消耗值，抽卡后归零
 
-```javascript
-// 控制台创建各阶段代表灵兽
-G.dragons.push(
-  {id:'lv1', z:0, level:1, idx:G.dragons.length},
-  {id:'lv3', z:0, level:3, idx:G.dragons.length},
-  {id:'lv6', z:0, level:6, idx:G.dragons.length},
-  {id:'lv9', z:0, level:9, idx:G.dragons.length},
-  {id:'lv12',z:0, level:12,idx:G.dragons.length},
-  {id:'lv15',z:0, level:15,idx:G.dragons.length}
-);
-renderGrid();
+**预期：** 抽卡成功，数值归零但不显示负数，`updateHud()` 正常刷新
+
+**控制台：**
+```js
+G.coin = 10; // 假设单抽消耗10
+summonCoin();
+console.log('coin after:', G.coin); // 应为0，不为负
 ```
-
-- **预期结果（龙/鼠为例）**：
-  - Lv1-3（幼生）：体型小60-70%、无灵气圈、无特效
-  - Lv4-6（成长）：体型70-80%、1圈灵气、微微特效
-  - Lv7-9（灵通）：体型80-90%、2圈灵气、符文显现
-  - Lv10-12（通灵）：体型90-100%、3圈灵气、灵气蒸腾
-  - Lv13-15（神化）：体型100-110%、4圈灵气+粒子光点、神光环绕
-
-- **判定**：✅ 合格（5阶段差异明显）/ ❌ 不合格（阶段差异不足）
 
 ---
 
-#### 测试点 3-3：切换生肖/提升等级后实时刷新
+### TC-03：十连中产出0个结果
 
-- **操作步骤**：
-  1. 点击任意灵兽卡片，打开详情弹窗，记录大图
-  2. 提升灵兽等级（合并或控制台赋值）
-  3. 再次点击卡片，查看大图是否变化
+**触发条件：** 调用 `doTenSummon('coin')` 后结果数组为空
 
-```javascript
-// 控制台升一级测试
-const d = G.dragons[0];
-d.level = Math.min(d.level + 1, 15);
-renderGrid();
-// 再次点击卡片查看
-showDragonDetail(d.id);
+**预期：** `showBatchSummonResult([])` 处理空数组不报错（弹窗正常关闭或显示空状态）
+
+**控制台：**
+```js
+showBatchSummonResult([]); // 验证弹窗不crash
 ```
-
-- **预期结果**：
-  - 提升等级后，网格卡片立刻刷新显示新外观
-  - 详情弹窗内大图同步更新
-
-- **判定**：✅ 合格 / ❌ 不合格（需刷新页面才更新）
 
 ---
 
-#### 测试点 3-4：皮肤系统叠加验证
+### TC-04：云端存档与本地存档冲突
 
-- **操作步骤**：
+**触发条件：** 本地有多条灵兽，云端存档也有，调用 `cloudLoadFromServer()` 覆盖
 
-```javascript
-// 测试各皮肤效果
-for(const skin of ['default','gold','azure','flame','jade','purple','silver','dark','crystal','destiny']){
-  G.equippedSkin = skin;
+**预期：** 本地数据被云端完整覆盖，`G.dragons` 数组正确刷新
+
+**控制台：**
+```js
+// 模拟：手动写入本地存档
+saveGame();
+// 然后加载云端
+cloudLoadFromServer(true);
+console.log('当前灵兽数:', G.dragons.length);
+```
+
+---
+
+### TC-05：灵兽数组越界 / 无效ID查询
+
+**触发条件：** 调用 `showDragonDetail('non-existent-id')` 或空数组
+
+**预期：** 不崩溃，显示"灵兽不存在"提示（`showNotif`）
+
+**控制台：**
+```js
+showDragonDetail('fake-id-12345');
+showDragonDetail(G.dragons[0]?.id); // 正常情况对照
+```
+
+---
+
+### TC-06：多皮肤快速切换
+
+**触发条件：** 连续快速调用 `equipSkin()` 切换多套皮肤
+
+**预期：** 最终显示最后一套皮肤，无残留状态
+
+**控制台：**
+```js
+equipSkin('gold');
+equipSkin('azure');
+equipSkin('flame');
+equipSkin('dark');
+// 最终应为dark皮肤
+```
+
+---
+
+### TC-07：浏览器无localStorage支持
+
+**触发条件：** 私有模式/禁用存储后操作存档
+
+**预期：** `saveGame()` 不抛错，`cloudSave()` 作为fallback继续工作
+
+**说明：** 此场景需手动在浏览器隐私模式测试，控制台检查无 `QuotaExceededError`
+
+---
+
+## BUG 记录模板
+
+| # | 模块 | 测试点 | 操作步骤 | 预期结果 | 实际结果 | 严重程度 | 复现步骤 | 状态 |
+|---|------|--------|----------|----------|----------|----------|----------|------|
+| 1 | 抽卡 | 十连结果弹窗 | `doTenSummon('coin')` | 弹出10张卡片 | 弹窗崩溃 | 高 | 见TC-03 | 待修复 |
+| 2 | — | — | — | — | — | — | — | — |
+| 3 | — | — | — | — | — | — | — | — |
+
+**严重程度定义：**
+- **崩溃**：页面报错、功能完全不可用
+- **高**：核心功能（抽卡/存档）异常，但可恢复
+- **中**：UI显示错误或逻辑不一致，不阻断流程
+- **低**：视觉/文案问题，不影响核心功能
+
+---
+
+## 快速测试脚本（控制台一键执行）
+
+```js
+// === 一键回归测试脚本 ===
+(function() {
+  console.log('========== 一键测试开始 ==========');
+  
+  // 1. HUD
+  updateHud();
+  console.log('[HUD] updateHud() ✓');
+  
+  // 2. 网格
   renderGrid();
-  await new Promise(r=>setTimeout(r,300));
-  // 截图记录
-}
+  console.log('[网格] renderGrid() ✓，格子数:', document.querySelectorAll('.grid-cell').length);
+  
+  // 3. 抽卡
+  G.coin = 99999; G.qi = 99999;
+  summonCoin();
+  summonQi();
+  summonFree();
+  console.log('[抽卡] 单抽测试完成，当前灵兽数:', G.dragons.length);
+  
+  // 4. 十连
+  setSummonBatch(10);
+  G._isTenMode && showBatchSummonResult(doTenSummon('coin'));
+  console.log('[十连] 十连测试完成 ✓');
+  setSummonBatch(1);
+  
+  // 5. 详情
+  G.dragons[0] && showDragonDetail(G.dragons[0].id);
+  console.log('[详情] showDragonDetail() ✓');
+  
+  // 6. 装备
+  console.log('[装备] getEquipTotals():', getEquipTotals());
+  console.log('[套装] getSuitEffect():', getSuitEffect(G.equip_items || []));
+  
+  // 7. 存档
+  saveGame();
+  console.log('[存档] saveGame() ✓，localStorage长度:', localStorage.getItem('sxgame_v2')?.length);
+  
+  // 8. 云端
+  cloudSave(true);
+  console.log('[云端] cloudSave() 已触发 ✓');
+  
+  // 9. 皮肤
+  if (typeof renderSkinPanel === 'function') renderSkinPanel();
+  console.log('[皮肤] 面板已打开 ✓');
+  
+  // 10. 试炼塔
+  if (typeof renderTowerPanel === 'function') renderTowerPanel();
+  console.log('[试炼塔] 面板已打开 ✓');
+  
+  // 11. 活跃/图鉴
+  if (typeof renderActiveCenter === 'function') renderActiveCenter();
+  if (typeof renderAtlasPanel === 'function') renderAtlasPanel();
+  console.log('[活跃/图鉴] 已打开 ✓');
+  
+  // 12. 生肖
+  console.log('[生肖] 已收集:', getCollectedZodiacs().join(',') || '无');
+  console.log('[生肖] 各状态:', Array.from({length:12},(_,i)=>i+':'+getZodiacStatus(i).collected).join(' | '));
+  
+  // 13. 周挑战
+  console.log('[周挑战]', getWeeklyChallengeState());
+  
+  // 14. 稀有度
+  console.log('[稀有度]', [1,2,4,7,10,11,15].map(l=>`level${l}=${rarIdx(l)}`).join(', '));
+  
+  // 15. LNAME
+  console.log('[等级名]', LNAME.join('/'));
+  
+  // 16. 分享
+  openSharePanel();
+  console.log('[分享] openSharePanel() ✓');
+  
+  console.log('========== 一键测试完成 ==========');
+})();
 ```
-
-- **预期结果**：
-  - **10套皮肤各有不同外观表现**（通过CSS filter + 底色变化体现）
-  - 黄金/天命皮肤：偏金黄色调，有金光效果
-  - 赤焰皮肤：偏红橙色调
-  - 玄青皮肤：蓝青色调
-  - 翡翠：绿色调
-  - 皮肤与等级互不干扰，任意等级可穿戴任意皮肤
-
-- **判定**：✅ 合格（10套完全不同）/ ❌ 不合格（皮肤效果一致或缺失）
-
----
-
-#### 测试点 3-5：灵兽基础属性验证
-
-- **操作步骤**：
-
-```javascript
-// 查看不同等级的灵兽属性
-G.dragons = [
-  {id:'lv1', z:0, level:1, idx:0},
-  {id:'lv5', z:0, level:5, idx:1},
-  {id:'lv10',z:0, level:10,idx:2},
-  {id:'lv15',z:0, level:15,idx:3},
-];
-saveGame(); loadGame(); // 重新读取
-renderGrid();
-```
-
-- **预期结果**：
-  - 等级越高，攻击/防御/速度基础属性越高
-  - `config.js` 中属性表（`COIN_S`、`ATK_BASE` 等）与实际显示一致
-
-- **判定**：✅ 合格 / ❌ 属性未随等级增长
-
----
-
-### 模块 4：装备体系（全套测试）
-
-#### 测试点 4-1：制作台分类展示
-
-- **操作步骤**：
-  1. 打开炼宝阁（制作台）
-  2. 点击不同分类 Tab（全部 / 🔨制作 / 🎒背包）
-  3. 验证分类下装备数量
-
-- **预期结果**：
-  - 点击分类 Tab 后，只展示对应分类装备
-  - 装备过多时不会全部挤在一起
-
-- **判定**：✅ 合格 / ❌ 分类切换失效
-
----
-
-#### 测试点 4-2：装备制作
-
-- **操作步骤**：
-  1. 在制作台选择装备类型（头盔/护甲/鞋子/长剑/护盾/饰品）
-  2. 消耗材料（铁/水晶/龙鳞/星尘）制作装备
-  3. 记录背包新增装备
-
-- **预期结果**：
-  - 材料足够时可以制作成功
-  - 材料不足时提示"材料不足"
-  - 制作成功后背包新增对应装备
-
-- **判定**：✅ 合格 / ❌ 制作失败或提示错误
-
----
-
-#### 测试点 4-3：装备穿戴 & 卸下
-
-- **操作步骤**：
-  1. 点击背包中的装备 → 穿戴到灵兽
-  2. 查看详情弹窗中属性变化（+攻击/+防御/+速度）
-  3. 点击"卸下"或再次点击已装备物品 → 卸下
-
-- **预期结果**：
-  - 穿戴后灵兽属性实时增加
-  - 卸下后属性还原
-  - 每部位仅能穿戴1件（穿新自动卸旧）
-
-- **判定**：✅ 合格 / ❌ 属性未变化/部位冲突
-
----
-
-#### 测试点 4-4：套装属性触发
-
-- **操作步骤**：
-  1. 穿戴 2 件同系列装备（套装名相同）→ 查看是否有套装徽标
-  2. 穿戴 4 件同系列 → 验证套装效果提升
-  3. 穿戴 6 件同系列 → 验证最高套装效果
-
-- **预期结果**：
-  - 2件套：有基础套装效果（图标点亮）
-  - 4件套：效果增强
-  - 6件套：全套效果激活
-
-```javascript
-// 控制台验证套装效果
-countSuits(G.forge.items);     // 返回套装数量
-getSuitLevel(G.forge.items);  // 返回已触发套装等级（0-3）
-getSuitEffect(G.forge.items); // 返回套装名称和描述
-```
-
-- **判定**：✅ 合格 / ❌ 套装效果未触发
-
----
-
-#### 测试点 4-5：装备强化 / 升星
-
-- **操作步骤**：
-  1. 选择已穿戴的装备，点击"强化"（消耗材料/金币）
-  2. 查看强化后属性变化
-  3. 点击"升星"，查看星级提升
-  4. 完成后验证页面是否留在当前页
-
-- **预期结果**：
-  - 强化后属性按比例提升
-  - 升星后星级显示变化（⭐ ×数量）
-  - **操作完成后不跳转回制作台主页面**，留在原地
-
-- **判定**：✅ 合格 / ❌ 页面跳转
-
----
-
-#### 测试点 4-6：装备属性写入试炼塔
-
-- **操作步骤**：
-  1. 穿戴装备后进入试炼塔
-  2. 记录初始伤害数值
-  3. 卸下所有装备
-  4. 再次进入试炼塔，记录伤害数值
-
-- **预期结果**：
-  - 有装备时伤害明显更高（装备提供攻击加成）
-  - 无装备时伤害为基础值
-  - 试炼塔实时读取灵兽当前装备属性
-
-- **判定**：✅ 合格 / ❌ 试炼塔未读取装备属性
-
----
-
-### 模块 5：云端存档 & 小程序账号
-
-#### 测试点 5-1：本地存档读写
-
-- **操作步骤**：
-  1. 手动积累一些灵兽、装备、金币、龙气
-  2. 关闭浏览器标签页
-  3. 重新打开同一 URL
-  4. 验证数据是否保留
-
-- **预期结果**：
-  - 刷新/重开页面后，本地存档 `sxgame_v2` 完整保留
-  - 灵兽、金币、龙气、装备全部恢复
-
-```javascript
-// 控制台验证存档
-localStorage.getItem('sxgame_v2'); // 应有大量JSON数据
-JSON.parse(localStorage.getItem('sxgame_v2')).dragons.length; // 灵兽数量
-```
-
-- **判定**：✅ 合格 / ❌ 存档丢失
-
----
-
-#### 测试点 5-2：云端存档上传
-
-- **操作步骤**：
-  1. 正常游戏中触发存档保存（游戏内有自动存档机制）
-
-```javascript
-// 手动触发云端保存（测试用）
-cloudSave();
-```
-
-- **预期结果**：
-  - 云端保存请求发出（Network面板有请求）
-  - 保存成功无报错
-
-- **判定**：✅ 合格（Network有请求）/ ❌ 请求未发出或报错
-
----
-
-#### 测试点 5-3：微信/抖音小程序登录（预留）
-
-- **说明**：当前版本为 H5，微信/抖音小程序登录接口预留代码注释，暂不执行正式测试
-
----
-
-### 模块 6：新手引导
-
-#### 测试点 6-1：引导首次触发
-
-- **操作步骤**：
-  1. `localStorage.clear()` 后刷新页面
-  2. 完成属相选择，进入游戏主页
-
-- **预期结果**：
-  - 600ms后自动弹出引导步骤1
-  - 引导遮罩高亮第一个目标区域
-  - 显示引导文字说明
-
-```javascript
-// 控制台验证引导状态
-G.guideDone; // 应为 false
-G.guideStep; // 应为 1
-```
-
-- **判定**：✅ 合格 / ❌ 引导未触发
-
----
-
-#### 测试点 6-2：引导步骤流转
-
-- **操作步骤**：
-  1. 引导第1步：点击十连召唤 → 确认召唤完成
-  2. 引导第2步：穿戴装备 → 确认装备穿戴
-  3. 引导第3步：灵兽合成 → 确认合成成功
-  4. 引导第4步：挑战试炼塔 → 确认进入
-
-- **预期结果**：
-  - 每步引导高亮正确目标区域
-  - 完成目标后自动进入下一步
-  - 4步引导依次完成
-
-- **判定**：✅ 合格 / ❌ 某步引导失效或高亮错误
-
----
-
-#### 测试点 6-3：引导完成后不重复弹出
-
-- **操作步骤**：
-  1. 引导完成后刷新页面
-  2. 或控制台 `location.reload()`
-
-- **预期结果**：
-  - `G.guideDone === true` 时，引导不再自动弹出
-  - 除非手动 `G.guideDone = false; startGuide()`
-
-- **判定**：✅ 合格 / ❌ 引导重复弹出
-
----
-
-### 模块 7：分享裂变
-
-#### 测试点 7-1：命格页面访问
-
-- **操作步骤**：点击命格入口，进入每日吉凶页面
-
-- **预期结果**：命格页面正常加载，显示五行、命格描述、吉凶判断
-
-- **判定**：✅ 合格 / ❌ 页面报错
-
----
-
-#### 测试点 7-2：分享海报生成
-
-- **操作步骤**：
-  1. 在命格页面找到"生成海报"按钮
-  2. 点击生成，查看 Canvas 绘制结果
-  3. 点击分享/下载
-
-```javascript
-// 控制台触发分享面板
-openSharePanel();
-```
-
-- **预期结果**：
-  - Canvas 绘制五星八卦图
-  - 包含玩家昵称/灵兽/命格信息
-  - 下载按钮可下载图片
-
-- **判定**：✅ 合格 / ❌ Canvas报错或图片不显示
-
----
-
-#### 测试点 7-3：分享奖励发放
-
-- **操作步骤**：
-  1. 分享成功后，检查金币或龙气是否增加
-
-```javascript
-G.coins; // 分享前
-// 执行分享...
-G.coins; // 分享后应增加
-```
-
-- **预期结果**：分享成功后获得金币/龙气奖励
-
-- **判定**：✅ 合格 / ❌ 无奖励发放
-
----
-
-## 三、异常场景测试
-
-### 场景 A：高频率连续十连抽
-
-- **操作步骤**：
-  ```javascript
-  // 控制台快速执行10次十连抽
-  for(let i=0;i<10;i++){ doTenSummon('coin'); }
-  ```
-- **预期结果**：程序无崩溃，卡片正常展示，无内存溢出
-- **判定**：✅ 无崩溃 / ❌ 程序崩溃或报错
-
----
-
-### 场景 B：灵兽格子满后继续抽卡
-
-- **操作步骤**：
-  1. 积累满 25 只灵兽（填满 5×5 网格）
-  2. 继续十连抽
-
-- **预期结果**：新灵兽覆盖旧灵兽（最旧的被替换）或正常溢出处理
-- **判定**：✅ 正常处理 / ❌ 报错或数据丢失
-
----
-
-### 场景 C：装备属性数据错乱
-
-- **操作步骤**：
-  1. 快速重复穿戴/卸下装备
-  2. 反复进入/退出试炼塔
-  3. 合并高等级灵兽
-
-- **预期结果**：
-  - 属性数值不跳变、不归零
-  - 试炼塔伤害稳定
-
-```javascript
-// 控制台检查属性一致性
-getEquipTotals();   // 应返回 {atk:xx, def:xx, spd:xx}
-getTowerPlayerDmg(); // 应等于基础 + 装备属性
-```
-
-- **判定**：✅ 属性稳定 / ❌ 数据错乱
-
----
-
-### 场景 D：切换账号数据隔离
-
-- **操作步骤**：
-  1. 账号A玩游戏，获得灵兽
-  2. 退出登录（`logout()`）
-  3. 账号B登录同一设备
-
-- **预期结果**：账号A的数据不泄露到账号B
-- **判定**：✅ 数据隔离 / ❌ 数据串号
-
----
-
-### 场景 E：断网后云端存档恢复
-
-- **操作步骤**：
-  1. 正常游戏，积累数据
-  2. 关闭网络
-  3. 尝试操作（应失败或本地继续）
-  4. 恢复网络
-
-- **预期结果**：
-  - 断网时本地游戏不受影响
-  - 恢复网络后可正常上传存档
-
-- **判定**：✅ 本地继续工作 / ❌ 断网即崩溃
-
----
-
-## 四、最终整体回归测试
-
-### 整体流程遍历
-
-按以下顺序完整游玩一遍，记录每个环节是否正常：
-
-```
-1. 启动页面 → 属相选择 → 确认属相（选鼠/龙/虎等）
-2. 新手引导 → 完成4步引导
-3. 十连抽 → 获得灵兽
-4. 合成灵兽 → Lv3 → Lv6 → Lv9 → Lv12 → Lv15
-5. 切换不同生肖灵兽 → 确认视觉差异
-6. 穿戴装备 → 查看属性提升
-7. 强化/升星装备
-8. 触发套装效果（2件/4件/6件）
-9. 进入试炼塔 → 挑战5层
-10. 打开命格 → 查看每日吉凶
-11. 生成分享海报 → 分享
-12. 打开炼宝阁 → 制作装备 → 十连制作
-13. 刷新页面 → 验证存档完整
-14. 控制台检查全部数据正确性
-```
-
-### 配置文件完整性检查
-
-```bash
-# 检查配置文件是否完整加载
-cd /home/21027522_wy/openclaw/workspace/game-project
-
-# 检查 config.js 行数（应 > 1500）
-wc -l js/config.js
-
-# 检查 dragon_visual_config.json（应 180 条记录）
-python3 -c "
-import json
-with open('docs/dragon_visual_config.json') as f: d = json.load(f)
-grid = d.get('ZODIAC_GRID', [])
-skin_ok = sum(1 for r in grid if r.get('skinOverlays'))
-print(f'总记录: {len(grid)}, 有皮肤: {skin_ok}')
-"
-
-# 检查 SVG 文件（应 180 个）
-ls docs/svgs/ | wc -l
-```
-
----
-
-## 五、测试记录模板
-
-测试完成后填写：
-
-| 测试模块 | 测试点 | 结果 | 问题描述 | 修复状态 |
-|---------|--------|------|---------|---------|
-| UI视觉 | 页面背景一致性 | ✅/❌ | | |
-| 抽卡逻辑 | 十连切换 | ✅/❌ | | |
-| 灵兽体系 | 生肖差异化 | ✅/❌ | | |
-| 装备系统 | 套装触发 | ✅/❌ | | |
-| 云端存档 | 本地存档 | ✅/❌ | | |
-| 新手引导 | 引导首次触发 | ✅/❌ | | |
-| 分享裂变 | 海报生成 | ✅/❌ | | |
-
----
-
-*文档版本：v2 | 更新日期：2026-07-10 | 维护者：基建带师 🛠️*

@@ -1,184 +1,287 @@
-# 生肖天机 · 自测清单（快速核对版）
+# 十二生肖游戏 — 快速自测清单
 
-> 每项完成后打 ✅，有问题打 ❌ 并记录。全部 ✅ 后交付。
+**启动**：项目根目录运行 `python -m http.server 7892`，浏览器打开 `http://localhost:7892`
 
----
-
-## □ 第一组：启动 & 基础
-
-- [ ] `python -m http.server 7892` 正常启动
-- [ ] 浏览器打开 `http://localhost:7892` 无报错
-- [ ] 控制台无红色 ERROR（Warning 忽略）
-- [ ] `localStorage.clear()` 后刷新，强制重置
-
----
-
-## □ 第二组：UI 视觉（截图留证）
-
-- [ ] 登录页 / 主页背景为浅色国风（非深色）
-- [ ] 弹窗内部有 `rgba(255,255,255,0.92)` 白色底色
-- [ ] 所有文字颜色为 `#1A1A1A`，无金色/黄色文字
-- [ ] 召唤区域三按钮排列整齐，图标+数字格式统一
-- [ ] 弹窗遮罩正常，滚动不穿透底层
-
----
-
-## □ 第三组：抽卡逻辑（核心）
-
-- [ ] 十连按钮默认未选中，点击切换状态正确
-- [ ] 选中十连 → 金币召唤执行 10 连抽（消耗 ×10）
-- [ ] 未选中十连 → 金币召唤单抽（消耗正常）
-- [ ] 十连抽展示 10 个灵兽卡片，无问号遮罩
-- [ ] 网格满 25 只后继续抽卡不崩溃
-
----
-
-## □ 第四组：12 生肖灵兽差异化（核心，重中之重）
-
-> 用控制台快速注入 12 只不同生肖灵兽：
-> ```javascript
-> for(let z=0;z<12;z++){G.dragons.push({id:'z'+z,z:z,level:8,idx:z});}
-> renderGrid();
-> ```
-
-- [ ] **12 个格子有 12 种完全不同外观**（鼠/牛/虎/兔/龙/蛇/马/羊/猴/鸡/狗/猪 各不相同）
-  - 鼠：棕灰、尖耳、细尾
-  - 牛：厚重、弯角
-  - 虎：金纹、额王字
-  - 兔：长耳、粉白
-  - 龙：蛇身、双角、长须
-  - 蛇：细长、竖瞳
-  - 马：棕红、鬃毛
-  - 羊：卷角、耳垂
-  - 猴：圆脸、大耳
-  - 鸡：金黄、鸡冠
-  - 狗：竖耳、黑鼻
-  - 猪：大鼻、垂耳
-
-> 用控制台创建各阶段灵兽验证成长：
-> ```javascript
-> G.dragons=[{id:'l1',z:0,level:1,idx:0},{id:'l3',z:0,level:3,idx:1},{id:'l6',z:0,level:6,idx:2},{id:'l9',z:0,level:9,idx:3},{id:'l12',z:0,level:12,idx:4},{id:'l15',z:0,level:15,idx:5}]; renderGrid();
-> ```
-
-- [ ] **5 个成长阶段外观有明显差异**
-  - Lv1-3（幼生）：最小，无灵气圈
-  - Lv4-6（成长）：略大，1圈灵气
-  - Lv7-9（灵通）：中等，2圈灵气，符文显现
-  - Lv10-12（通灵）：大，3圈灵气，灵气蒸腾
-  - Lv13-15（神化）：最大，4圈灵气+粒子光点
-- [ ] **提升等级后网格卡片立刻刷新**（无需刷新页面）
-- [ ] **点击卡片详情弹窗大图同步更新**
-
----
-
-## □ 第五组：皮肤系统（核心）
-
-> 测试皮肤：
-> ```javascript
-> for(const s of ['default','gold','azure','flame','jade','purple','silver','dark','crystal','destiny']){
->   G.equippedSkin=s; renderGrid(); await new Promise(r=>setTimeout(r,500));
-> }
-> ```
-
-- [ ] **10 套皮肤各有不同颜色/效果**（通过 CSS filter + 底色变化）
-  - 金/天命：金黄光晕
-  - 赤焰：红橙色调
-  - 玄青：蓝青色调
-  - 翡翠：绿色调
-  - 紫霄：紫色调
-  - 白银：银白色
-  - 九幽：暗紫色
-  - 琉璃：青绿色
-  - 默认原皮：基础色
-- [ ] 皮肤和等级互不干扰，任意等级可穿戴任意皮肤
-- [ ] 穿戴皮肤后灵兽外观立刻变化（无需刷新）
-
----
-
-## □ 第六组：装备体系
-
-- [ ] 打开炼宝阁，6 类装备齐全（头盔/护甲/鞋子/长剑/护盾/饰品）
-- [ ] 点击 Tab 分类，只展示该分类装备
-- [ ] 制作装备成功，材料扣除正确
-- [ ] 点击装备 → 穿戴 → 属性实时增加（详情弹窗可见）
-- [ ] 穿戴2件同套装 → 套装效果点亮
-- [ ] 穿戴4件同套装 → 套装效果提升
-- [ ] 强化/升星后不跳转页面，留在原地
-- [ ] 进入试炼塔，装备加成生效（伤害提升）
-
----
-
-## □ 第七组：云端存档
-
-- [ ] 刷新页面后本地存档完整保留（灵兽/金币/龙气/装备）
-- [ ] 控制台 `cloudSave()` 发出网络请求（Network 有日志）
-- [ ] 控制台 `cloudLoadFromServer()` 可拉取数据
-
----
-
-## □ 第八组：新手引导
-
-- [ ] 全新账号进入后自动弹出引导第1步
-- [ ] 完成4步引导（召唤→装备→合成→试炼塔）
-- [ ] 引导完成后刷新页面不重复弹出
-
----
-
-## □ 第九组：分享裂变
-
-- [ ] 命格页面正常加载
-- [ ] 生成分享海报，Canvas 绘制成功
-- [ ] 下载海报为图片可用
-
----
-
-## □ 第十组：异常场景
-
-- [ ] 连续10次十连抽无崩溃（控制台 `for(i=0;i<10;i++)doTenSummon('coin')`）
-- [ ] 快速切换皮肤/提升等级/穿戴装备，属性无错乱
-- [ ] `location.reload()` 后所有数据完整
-
----
-
-## □ 第十一组：配置文件完整性
-
-```bash
-# 在项目目录执行
-cd /home/21027522_wy/openclaw/workspace/game-project
-
-# 检查文件数量
-echo "SVG文件数：$(ls docs/svgs/ | wc -l)（应为180）"
-python3 -c "import json; d=json.load(open('docs/dragon_visual_config.json')); g=d.get('ZODIAC_GRID',[]); print(f'配置记录：{len(g)}条（应为180）'); print(f'皮肤字段：{sum(1 for r in g if r.get(\"skinOverlays\"))}条完整')"
-echo "config.js行数：$(wc -l < js/config.js)（应>1500）"
-echo "game.v5.js行数：$(wc -l < js/game.v5.js)"
+**清理重置**：
+```js
+localStorage.removeItem('sxgame_v2'); localStorage.removeItem('sxgame_v2_ach'); localStorage.removeItem('sxgame_v2_rank'); localStorage.removeItem('sxgame_v2_guide'); location.reload();
 ```
 
-- [ ] SVG文件：180个 ✅
-- [ ] 配置记录：180条 ✅
-- [ ] 皮肤字段：180条完整 ✅
-- [ ] config.js > 1500行 ✅
+---
+
+## 一、配置完整性（4项）
+
+- [ ] **SVG 文件数量**：180个 `docs/svgs/drag_X_Y.svg`（X=0~11，Y=1~15），用终端检查
+  ```bash
+  ls docs/svgs/ | wc -l
+  ls docs/svgs/drag_0_1.svg docs/svgs/drag_11_15.svg | wc -l
+  ```
+- [ ] **config.js 龙配置条数**：180条龙记录，搜索 `DRAGON_CONFIG` 数组长度
+  ```bash
+  grep -c "^{" js/config.js
+  ```
+- [ ] **dragon_visual_config.json 数量**：每生肖15级×12属相=180条记录
+  ```bash
+  cat dragon_visual_config.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d))"
+  ```
+- [ ] **skinOverlays 数量**：180条 `skinOverlays` 字段（每龙一条）
+  ```bash
+  grep -c "skinOverlays" dragon_visual_config.json
+  ```
 
 ---
 
-## 自测总结
+## 二、存档与云端（5项）
 
-| 模块 | 通过 | 失败 | 备注 |
-|------|------|------|------|
-| 启动基础 | /5 | | |
-| UI视觉 | /5 | | |
-| 抽卡逻辑 | /5 | | |
-| 生肖差异化 | /4 | | |
-| 皮肤系统 | /3 | | |
-| 装备体系 | /8 | | |
-| 云端存档 | /3 | | |
-| 新手引导 | /3 | | |
-| 分享裂变 | /3 | | |
-| 异常场景 | /3 | | |
-| 配置完整 | /4 | | |
-| **合计** | **__/46** | | |
-
-**结论**：✅ 全部通过 / ⚠️ 有待修复 / ❌ 严重问题
+- [ ] **存档写入**：执行一次抽卡，刷新页，`getCollectionCount()` 返回 >0
+  ```js
+  getCollectionCount()
+  ```
+- [ ] **存档读取**：刷新页后数据保留，`getCollectedZodiacs()` 长度正确
+  ```js
+  getCollectedZodiacs().length
+  ```
+- [ ] **云端上传**：控制台执行，`cloudSave()` 无报错，日志显示 `云端存档已更新`
+  ```js
+  cloudSave()
+  ```
+- [ ] **云端下载**：`cloudLoadFromServer()` 无报错，页面数据刷新
+  ```js
+  cloudLoadFromServer()
+  ```
+- [ ] **存档覆盖**：本地改数据后云端下载，数据正确覆盖，无字段丢失
+  ```js
+  // 先本地改一点数据
+  G.zodiac[5].level = 99
+  cloudLoadFromServer(true)
+  // 验证数据是否被云端覆盖回去
+  ```
 
 ---
 
-*快速核对版 · 2026-07-10*
+## 三、单抽逻辑（5项）
+
+- [ ] **灵石单抽**：`summonQi()` 执行，消耗灵石，有动画/弹窗
+  ```js
+  summonQi()
+  ```
+- [ ] **金币单抽**：`summonCoin()` 执行，消耗金币，有动画/弹窗
+  ```js
+  summonCoin()
+  ```
+- [ ] **免费单抽**：`summonFree()` 执行，消耗0，免费标记正确
+  ```js
+  summonFree()
+  ```
+- [ ] **抽卡消耗扣减**：抽卡前后灵石/金币差值正确（无负值、无多扣）
+  ```js
+  // 抽卡前
+  G.qi; G.coin;
+  // 抽卡后
+  G.qi; G.coin;
+  // 差值应等于单抽消耗
+  ```
+- [ ] **结果弹窗显示**：`showNotif(type, msg)` 正常弹出，消息包含龙名/等级
+  ```js
+  // 执行一次 summonFree()，检查弹窗文字是否包含"生肖"或龙名
+  ```
+
+---
+
+## 四、十连逻辑（5项）
+
+- [ ] **灵石十连**：`doTenSummon('qi')` 执行，10次结果弹窗
+  ```js
+  doTenSummon('qi')
+  ```
+- [ ] **金币十连**：`doTenSummon('coin')` 执行，10次结果弹窗
+  ```js
+  doTenSummon('coin')
+  ```
+- [ ] **十连弹窗显示**：`showBatchSummonResult(results)` 弹出10条结果
+  ```js
+  // 观察弹窗是否出现10条记录，格式正确
+  ```
+- [ ] **十连消耗正确**：灵石十连扣 150，金币十连扣 1500
+  ```js
+  G._isTenMode === true  // 十连期间应为 true
+  ```
+- [ ] **十连状态标志**：`G._isTenMode` 在十连前为 true，十连结束后重置为 false
+  ```js
+  doTenSummon('coin')
+  // 弹窗关闭后
+  G._isTenMode
+  ```
+
+---
+
+## 五、面板开关（5项）
+
+- [ ] **试炼塔面板**：`openTowerPanel()` 打开，无报错
+  ```js
+  openTowerPanel()
+  ```
+- [ ] **活跃中心面板**：`openActiveCenter()` 打开，无报错
+  ```js
+  openActiveCenter()
+  ```
+- [ ] **图鉴面板**：`openAtlasPanel()` 打开，显示生肖列表
+  ```js
+  openAtlasPanel()
+  ```
+- [ ] **炼宝阁面板**：`openForgePanel()` 打开，无报错
+  ```js
+  openForgePanel()
+  ```
+- [ ] **成就/任务面板**：`openTaskPanel()` 打开，无报错
+  ```js
+  openTaskPanel()
+  ```
+
+---
+
+## 六、试炼塔（4项）
+
+- [ ] **塔攻击**：`towerAttack()` 执行，扣体力，层数推进
+  ```js
+  towerAttack()
+  ```
+- [ ] **扫荡**：`towerSweep()` 执行，一次扫多关，奖励正确
+  ```js
+  towerSweep()
+  ```
+- [ ] **体力消耗**：塔攻击后体力减少，无负值
+  ```js
+  G.power
+  ```
+- [ ] **层数记录**：`G.towerFloor` 随攻击推进
+
+---
+
+## 七、属性计算（4项）
+
+- [ ] **equipTotals 返回值**：`getEquipTotals()` 返回 `{atk: number, def: number, spd: number}`
+  ```js
+  typeof getEquipTotals()
+  getEquipTotals()
+  ```
+- [ ] **suitEffect 有/无套装**：有套装时返回效果描述，无套装时返回 null
+  ```js
+  getSuitEffect(G.inventory.slice(0,3))
+  getSuitEffect([])
+  ```
+- [ ] **属性加成显示**：穿戴装备后，ATK/DEF/SPD 数值变化与装备加成一致
+  ```js
+  // 无装备时
+  getEquipTotals()
+  // 装配装备后
+  getEquipTotals()
+  ```
+- [ ] **HUD 刷新**：`updateHud()` 无报错，HUD 数据实时更新
+  ```js
+  updateHud()
+  ```
+
+---
+
+## 八、皮肤系统（5项）
+
+- [ ] **默认皮肤显示**：`dragon_visual_config.json` 中每条龙有 `default` skinOverlay
+  ```bash
+  grep '"default"' dragon_visual_config.json | wc -l
+  ```
+- [ ] **10套皮肤齐全**：皮肤列表 `['default','gold','azure','flame','jade','purple','silver','dark','crystal','destiny']`
+  ```js
+  ['default','gold','azure','flame','jade','purple','silver','dark','crystal','destiny']
+  ```
+- [ ] **穿戴皮肤**：`equipSkin(skinId)` 执行，皮肤切换生效
+  ```js
+  equipSkin('gold')
+  ```
+- [ ] **购买皮肤**：`buySkin(skinId)` 执行，扣金币，皮肤解锁
+  ```js
+  buySkin('gold')
+  ```
+- [ ] **所有皮肤数据存在**：`dragon_visual_config.json` 中每套 skinOverlay 有180条记录
+  ```bash
+  # 验证 gold 皮肤全部180条存在
+  grep '"gold"' dragon_visual_config.json | wc -l
+  ```
+
+---
+
+## 九、活跃中心与成就（5项）
+
+- [ ] **活跃中心状态**：`getWeeklyChallengeState()` 返回正确结构
+  ```js
+  getWeeklyChallengeState()
+  ```
+- [ ] **周挑战领取**：`claimWeeklyChallenge(id)` 执行，奖励发放，无重复领取
+  ```js
+  claimWeeklyChallenge(0)
+  claimWeeklyChallenge(0)  // 再执行一次应无反应或提示已领取
+  ```
+- [ ] **生肖收集状态**：`getZodiacStatus(zid)` 对所有0~11返回有效数据
+  ```js
+  for(let i=0;i<12;i++){console.log(i,getZodiacStatus(i))}
+  ```
+- [ ] **生肖收集数**：`getCollectedZodiacs()` 返回已收集的生肖数组，长度1~12
+  ```js
+  getCollectedZodiacs().length
+  ```
+- [ ] **活跃积分**：完成任务后活跃积分增加，进度条更新
+  ```js
+  getWeeklyChallengeState().totalScore
+  ```
+
+---
+
+## 十、通知与 HUD（4项）
+
+- [ ] **消息通知**：`showNotif('error', '测试消息')` 正常显示
+  ```js
+  showNotif('error', '测试消息')
+  ```
+- [ ] **通知自动关闭**：消息弹出后自动消失（3~5秒内）
+- [ ] **HUD 显示正确**：`updateHud()` 后灵石/金币/体力/关卡数全部正确
+  ```js
+  updateHud()
+  // 肉眼检查：灵石X，金币X，体力X，关卡X
+  ```
+- [ ] **Grid 渲染**：`renderGrid()` 无报错，网格正确显示
+  ```js
+  renderGrid()
+  ```
+
+---
+
+## 汇总表
+
+| 模块 | 通过数 | 失败数 | 状态 |
+|------|--------|--------|------|
+| 配置完整性 | /4 | /4 | |
+| 存档与云端 | /5 | /5 | |
+| 单抽逻辑 | /5 | /5 | |
+| 十连逻辑 | /5 | /5 | |
+| 面板开关 | /5 | /5 | |
+| 试炼塔 | /4 | /4 | |
+| 属性计算 | /4 | /4 | |
+| 皮肤系统 | /5 | /5 | |
+| 活跃中心与成就 | /5 | /5 | |
+| 通知与 HUD | /4 | /4 | |
+| **合计** | **/46** | **/46** | |
+
+---
+
+## 结论
+
+> ✅ 全部通过 / ⚠️ 有待修复 / ❌ 严重问题
+
+---
+
+## 备注
+
+- 测试顺序：先「配置完整性」→「清理存档」→ 逐模块测试
+- 每次修改代码后，执行清理重置命令，再重新测试
+- 云端功能需联网，离线环境跳过云端2项
+- 十连测试注意：灵石十连（150）/ 金币十连（1500）消耗不同，检查日志

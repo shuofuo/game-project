@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <filter id="gf0301" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="0" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="bgg0301" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F0C8D8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#C8A0B0" stop-opacity="0.9"/>
+    </radialGradient>
+  </defs>
+  
+  <circle cx="40" cy="40" r="40" fill="url(#bgg0301)" filter="url(#gf0301)"/>
+  <ellipse cx="40" cy="44" rx="10" ry="9" fill="#C8A0B0"/>
+    <ellipse cx="40" cy="44" rx="8" ry="7" fill="#F0C8D8" opacity="0.4"/>
+    <ellipse cx="30" cy="29" rx="5" ry="7" fill="#C8A0B0" transform="rotate(-10,30,29)"/>
+    <ellipse cx="50" cy="29" rx="5" ry="7" fill="#C8A0B0" transform="rotate(10,50,29)"/>
+    <ellipse cx="30" cy="29" rx="3" ry="4" fill="#F0C8D8" opacity="0.5" transform="rotate(-10,30,29)"/>
+    <ellipse cx="50" cy="29" rx="3" ry="4" fill="#F0C8D8" opacity="0.5" transform="rotate(10,50,29)"/>
+    <ellipse cx="40" cy="50" rx="3" ry="2" fill="#C090A0"/>
+    <circle cx="36" cy="42" r="2.0" fill="#1A1A1A"/>
+    <circle cx="36.7" cy="41.3" r="0.7" fill="white" opacity="0.8"/>
+    <circle cx="44" cy="42" r="2.0" fill="#1A1A1A"/>
+    <circle cx="44.7" cy="41.3" r="0.7" fill="white" opacity="0.8"/>
+  
+  
+</svg>

@@ -3,6 +3,7 @@ function cycleHeroAnim(){
   if(best.id) showDragonDetail(best.id);
 }
 var LNAME = ['','灵蛋','幼灵','化形','灵通','化星','凝神','通灵','灵兽','神兽','天兽','圣兽','天命','天尊','天帝','鸿蒙'];
+var LICON = ['','🐣','🐥','🐤','🦅','🐦','🕊','🦋','🐉','🌟','⚡','💫','🌙','🌈','☀️'];
 
 // ═══════════════════════════════════════════════════
 // 12生肖灵兽图标（差异化：每个生肖有独特的灵兽形态）
@@ -126,42 +127,53 @@ function playSound(type) {
 }
 
 // 灵兽详情弹窗
-function showDragonDetail(dragonId){
+function showDragonDetail(dragonId, previewZodiac){
   const dragon = G.dragons.find(d => d.id === String(dragonId));
-  if(!dragon){
-    const lvl = parseInt(dragonId);
-    if(lvl < 1 || lvl > 15) return;
-    const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
-    const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
-    const colors = {普通:'#555',稀有:'#1565c0',珍稀:'#1976d2',传说:'#6a1b9a',史诗:'#e65100',神话:'#c8860a'};
-    const skills = {普通:'被动：每分钟自动产出少量金币',稀有:'被动：金币产出+50%，有几率触发双倍收益',珍稀:'被动：召唤所需龙气-10%，产出+100%',传说:'被动：每5分钟免费召唤一次（需空格）',史诗:'被动：合并成功率+20%，金币产出翻2倍',神话:'被动：全属性+300%，每级召唤必得珍稀以上'};
-    const r = rarities[lvl-1]||'普通';
-    const color = colors[r];
-    const icon = LICON[lvl]||'🐣';
-    const cps = COIN_S[lvl]||0;
-    const desc = skills[r];
-    showDetailModal({level:lvl, icon, cps, r, color, names:names[lvl-1], desc});
-    return;
-  }
-  const lvl = dragon.level||1;
-  const v = getDragonVisual(dragon);
   const names = ['啾啾雀跃','啾啾雀跃','啾啾雀跃','振翅欲飞','振翅欲飞','振翅欲飞','翩翩起舞','盘龙腾云','盘龙腾云','盘龙腾云','灵蛇灵马','灵蛇灵马','帝王神威','帝王神威','天命永恒'];
   const rarities = ['普通','普通','普通','稀有','稀有','稀有','珍稀','珍稀','珍稀','传说','传说','史诗','史诗','神话','神话'];
   const skills = {普通:'被动：每分钟自动产出少量金币',稀有:'被动：金币产出+50%，有几率触发双倍收益',珍稀:'被动：召唤所需龙气-10%，产出+100%',传说:'被动：每5分钟免费召唤一次（需空格）',史诗:'被动：合并成功率+20%，金币产出翻2倍',神话:'被动：全属性+300%，每级召唤必得珍稀以上'};
-  const r = rarities[lvl-1]||'普通';
-  const color = v.baseColor;
-  const cps = COIN_S[lvl]||0;
+  const r = rarities[dragon ? (dragon.level||1)-1 : parseInt(dragonId)-1]||'普通';
+  const cps = COIN_S[dragon ? dragon.level||1 : parseInt(dragonId)]||0;
   const desc = skills[r];
-  showDetailModal({level:lvl, icon:v.icon, cps, r, color, names:names[lvl-1], desc, dragon, v});
+  const nameStr = names[dragon ? (dragon.level||1)-1 : parseInt(dragonId)-1]||'灵兽';
+
+  // 预览模式（无真实灵兽）：构造虚拟 v 对象用于SVG渲染
+  if(!dragon){
+    const lvl = parseInt(dragonId);
+    if(lvl < 1 || lvl > 15) return;
+    const skinId = G.equippedSkin || 'default';
+    const skin = DRAGON_SKINS.find(s=>s.id===skinId)||DRAGON_SKINS[0];
+    const stage = getLevelStage(lvl);
+    const svgPath = 'docs/svgs/drag_' + (previewZodiac || 0) + '_' + lvl + '.svg'; // 预览用指定生肖
+    const v = {
+      svgPath, emoji: '🐣',
+      filter: skin.filter, baseColor: skin.color, glowColor: skin.glow,
+      border: skin.border, shadow: skin.shadow,
+      bgAlpha: 0.12, iconSize: 60,
+      stage, stageName: LV_STAGE_NAMES[stage]||'幼生',
+      skinId, skinName: skin.name, skinRarity: skin.visualRarity,
+      description: '灵兽预览',
+      skinOverlay: skinId!=='default' ? '皮肤特效：'+skin.name : '',
+    };
+    showDetailModal({level:lvl, v, cps, r, nameStr, desc, dragon:null, previewZodiac});
+    return;
+  }
+
+  const lvl = dragon.level||1;
+  const v = getDragonVisual(dragon);
+  showDetailModal({level:lvl, v, cps, r, nameStr, desc, dragon});
 }
 
-function showDetailModal({level, icon, cps, r, color, names, desc, dragon, v}){
-  // 视觉参数降级处理
-  if(!v){v={iconSize:48,stage:1,stageName:'幼生',glowColor:'#aaa',filter:'',border:'#aaa',shadow:'rgba(180,140,80,.25)',baseColor:'#8b6914',skinName:'默认原皮',skinRarity:0};}
+
+function showDetailModal({level, v, cps, r, nameStr, desc, dragon, previewZodiac}){
+  // previewZodiac 用于显示预览模式时的生肖说明（无dragon时）
+  if(!v){v={svgPath:'docs/svgs/drag_0_1.svg',emoji:'🐣',iconSize:60,stage:1,stageName:'幼生',glowColor:'#aaa',filter:'',border:'#aaa',shadow:'rgba(180,140,80,.25)',baseColor:'#8b6914',skinName:'默认原皮',skinRarity:0};}
   // 判断是最高级灵兽还是普通预览
   const best = G.dragons.reduce((a,b)=>(a.level||0)>=(b.level||0)?a:b);
   const isBest = dragon && dragon.id === best.id;
-  const header = isBest ? '当前最强灵兽' : (dragon ? '灵兽详情' : 'Lv.' + level + ' · ' + (LNAME[level]||'灵兽'));
+  const ZNAMES = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+  const zName = !dragon && previewZodiac !== undefined ? ZNAMES[previewZodiac] + '·' : '';
+  const header = isBest ? '当前最强灵兽' : (dragon ? '灵兽详情' : zName + 'Lv.' + level + ' · ' + (LNAME[level]||'灵兽'));
   const tag = isBest ? '<span style="background:#ffd700;color:#1a0a00;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:2px;display:inline-block;margin-bottom:8px;">★ 当前最强</span>' : '';
   const el = document.createElement('div');
   el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(6px);';
@@ -185,9 +197,9 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon, v}){
   el.innerHTML = `<div style="background:${bgHex};border:1.5px solid ${skinBorderColor};border-radius:28px;padding:36px 32px;width:min(360px,90vw);text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 40px ${v.shadow},0 0 ${glowBlur}px ${v.shadow};">
     ${tag}
     <div style="font-size:10px;letter-spacing:4px;color:${v.baseColor};opacity:.8;margin-bottom:4px;">${header}</div>
-    <!-- 灵兽大图：生肖+等级+皮肤 三叠加 -->
+    <!-- 灵兽大图：生肖+等级+皮肤 三叠加 SVG渲染 -->
     <div style="position:relative;display:inline-block;margin:12px 0;">
-      <div style="font-size:${iconFontSize}px;line-height:1.2;filter:${v.filter} drop-shadow(0 0 ${8+v.stage*3}px ${v.glowColor});">${icon}</div>
+      <div style="filter:drop-shadow(0 0 ${8+v.stage*3}px ${v.glowColor});">${_dragonIconHtml(v, iconFontSize)}</div>
       ${v.stage >= 4 ? '<div style="position:absolute;top:-4px;right:-4px;font-size:12px;animation:pulse 2s infinite;">✨</div>' : ''}
       ${v.stage >= 5 ? '<div style="position:absolute;bottom:-2px;left:-6px;font-size:10px;animation:pulse 2.5s infinite .5s;">⚡</div>' : ''}
     </div>
@@ -204,7 +216,7 @@ function showDetailModal({level, icon, cps, r, color, names, desc, dragon, v}){
     <div style="font-size:11px;color:#555;margin-bottom:14px;">每秒产出 <strong style="color:#8b6010;">${finalCps}</strong> 金币${smult?'（⭐×'+smult+'）':''}</div>
     <!-- 描述卡 -->
     <div style="background:rgba(255,255,255,.92);border-radius:16px;padding:14px;margin-bottom:14px;text-align:left;font-size:12px;color:#333;line-height:1.9;">
-      <div style="color:${v.baseColor};font-weight:700;margin-bottom:6px;font-size:13px;">⚡ ${names}</div>
+      <div style="color:${v.baseColor};font-weight:700;margin-bottom:6px;font-size:13px;">⚡ ${nameStr}</div>
       <div>${desc}</div>
     </div>
     <!-- 三属性卡 -->
@@ -466,21 +478,34 @@ function renderGrid(){
       const card=document.createElement('div');
       card.className='d-card ds-stage-' + v.stage;
       card.dataset.id=d.id;
-      card.style.background=v.baseColor + Math.round(v.bgAlpha * 255).toString(16).padStart(2,'0');
+      // 背景：生肖底色 + 透明度叠加皮肤底色
+      const bgR=parseInt(v.baseColor.slice(1,3),16);
+      const bgG=parseInt(v.baseColor.slice(3,5),16);
+      const bgB=parseInt(v.baseColor.slice(5,7),16);
+      card.style.background=`rgba(${bgR},${bgG},${bgB},${v.bgAlpha})`;
       card.style.border=`1px solid ${v.border}`;
       card.style.borderRadius='10px';
       const glowBlur = 4 + v.stage * 2;
-      const glowSpread = v.skinRarity >= 3 ? (4 + v.stage * 2) : 0;
-      card.style.boxShadow=`0 0 ${glowBlur}px ${glowSpread}px ${v.shadow},inset 0 1px 0 rgba(255,255,255,.3)`;
-      // 阶段成长：低等级朴素，高等级有光效
-      let iconStyle = `display:block;text-align:center;font-size:${v.iconSize}px;filter:${v.filter} drop-shadow(0 0 ${v.stage}px ${v.glowColor});line-height:1.2;`;
-      card.innerHTML=`<span class="d-icon" style="${iconStyle}">${v.icon}</span>`
-        + `<span class="d-lv" style="display:block;text-align:center;font-size:9px;color:${v.baseColor};font-weight:700;margin-top:1px;opacity:.75;">Lv${d.level}</span>`
-        + `<span class="d-skin-badge" style="display:none;position:absolute;top:2px;right:2px;font-size:7px;padding:1px 3px;border-radius:4px;background:${v.border};color:#fff;opacity:.85;">${v.skinId==='default'?'':v.skinId}</span>`;
+      const glowSpread = v.skinRarity >= 3 ? (3 + v.stage * 1.5) : 0;
+      card.style.boxShadow=`0 0 ${glowBlur}px ${glowSpread}px ${v.shadow},inset 0 1px 0 rgba(255,255,255,.4)`;
+      // 渲染灵兽图标：SVG 或 emoji fallback
+      // 卡片内图标统一用28px（格子内自适应）
+      const iconContainer=document.createElement('div');
+      iconContainer.style.cssText='display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0;';
+      iconContainer.innerHTML=_dragonIconHtml(v, 36);
+      const lvLabel=document.createElement('span');
+      lvLabel.className='d-lv';
+      lvLabel.style.cssText=`display:block;text-align:center;font-size:9px;color:${v.baseColor};font-weight:700;margin-top:2px;line-height:1.2;`;
+      lvLabel.textContent='Lv'+d.level;
+      // 皮肤徽章
+      const skinBadge=document.createElement('span');
+      skinBadge.className='d-skin-badge';
+      skinBadge.style.cssText=`display:${v.skinId!=='default'?'block':'none'};position:absolute;top:2px;right:2px;font-size:7px;padding:1px 3px;border-radius:4px;background:${v.border};color:#fff;opacity:.85;line-height:1.2;`;
+      skinBadge.textContent=v.skinId==='default'?'':v.skinId;
       card.style.position='relative';
-      if(v.skinId !== 'default'){
-        card.querySelector('.d-skin-badge').style.display='block';
-      }
+      card.appendChild(iconContainer);
+      card.appendChild(lvLabel);
+      card.appendChild(skinBadge);
       setupDrag(card,d);
       card.onclick=e=>{e.stopPropagation();showDragonDetail(d.id);};
       cell.appendChild(card);
@@ -617,7 +642,9 @@ function doDrop(src,dst){
       // 时光倒流备份
       G._dragonsBak=G.dragons.map(d=>({...d}));
       G.dragons=G.dragons.filter(d=>d.idx!==src&&d.idx!==dst);
-      G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst,star:1});
+      // 合成结果继承源灵兽生肖（两只生肖相同则不变，不同取较大的）
+      var newZ=s.z!==undefined?s.z:(t.z!==undefined?t.z:0);
+      G.dragons.push({id:String(nextId++),level:s.level+1,idx:dst,star:1,z:newZ});
       G.mergeCount++;
       _onWeeklyEvent("merge");
       // 命格修炼加成：土行额外金币、金行额外龙气
@@ -658,20 +685,22 @@ function doDrop(src,dst){
   }else{s.idx=dst;saveGame();renderGrid();}
 }
 function markMergeable(){
+  // 先清掉所有标记
   document.querySelectorAll('.d-cell').forEach(c=>{c.classList.remove('mergeable');c.style.borderColor='';c.style.boxShadow='';});
-  for(let i=0;i<G.dragons.length;i++){
-    for(let j=i+1;j<G.dragons.length;j++){
-      if(G.dragons[i].level===G.dragons[j].level&&G.dragons[i].level<15){
-        document.querySelectorAll('.d-card').forEach(c=>{
-          const id=parseInt(c.dataset.id);
-          if(id===parseInt(G.dragons[i].id)||id===parseInt(G.dragons[j].id)){
-            const cell=c.closest('.d-cell');
-            if(cell){cell.classList.add('mergeable');cell.style.border='1.5px solid rgba(255,215,0,.5)';cell.style.boxShadow='0 0 14px rgba(255,215,0,.3)';}
-          }
-        });
-      }
+  // 直接用 G.dragons 数据驱动：遍历所有格子，通过 idx 匹配灵兽
+  document.querySelectorAll('.d-cell').forEach(cell=>{
+    const idx=parseInt(cell.dataset.idx);
+    if(isNaN(idx))return;
+    const d=G.dragons.find(dr=>dr.idx===idx);
+    if(!d||d.level>=15)return;
+    // 找同等级、同生肖（z属性）的另一只灵兽
+    const same=G.dragons.find(dr=>dr!==d&&dr.level===d.level&&dr.idx!==idx);
+    if(same){
+      cell.classList.add('mergeable');
+      cell.style.border='1.5px solid rgba(255,215,0,.5)';
+      cell.style.boxShadow='0 0 14px rgba(255,215,0,.3)';
     }
-  }
+  });
 }
 function getSummonLevel(pool){
   if(!pool||!Array.isArray(pool)||pool.length===0) pool=[{level:1,weight:100}];
@@ -784,7 +813,9 @@ function doTenSummon(type){
   results.forEach(function(lv){
     if(empty.length===0)return;
     var slot=empty.shift();
-    G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1});
+    // 修复⑤：召唤时随机分配生肖，确保12生肖差异化
+    var summonZ=Math.floor(Math.random()*12);
+    G.dragons.push({id:String(nextId++),level:lv,idx:slot,star:1,z:summonZ});
     G.summonCount++;placed++;
     _onWeeklyEvent('summon');
   });
@@ -805,10 +836,14 @@ function showBatchSummonResult(results){
     var t=rarIdx(lv), color=rarColors[t], bg=bgColors[t];
     var rarityLabel=['','普通','稀有','史诗','传说','神话'][lv];
     var name=LNAME[lv]||'灵兽';
-    var icon=LICON[lv]||'🐣';
+    // 修复④：抽卡结果用 SVG 渲染（修复灵兽图丢失）
+    // 临时 dragon 对象，随机生肖 + 对应等级（getDragonVisual 会自动取 skin）
+    var fakeDragon={id:'summon',level:lv,z:Math.floor(Math.random()*12),idx:-1};
+    var vSummon=getDragonVisual(fakeDragon);
+    var iconHtmlSummon=_dragonIconHtml(vSummon,48);
     var cpsdesc=lv>=4?'产出龙气':'产出金币';
     cardsHtml+='<div style="display:flex;flex-direction:column;align-items:center;padding:10px 8px;background:'+bg+';border:1.5px solid '+color+'60;border-radius:12px;min-width:68px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.06);">';
-    cardsHtml+='<div style="font-size:38px;line-height:1;">'+icon+'</div>';
+    cardsHtml+='<div style="display:flex;align-items:center;justify-content:center;width:56px;height:56px;line-height:1;">'+iconHtmlSummon+'</div>';
     cardsHtml+='<div style="font-size:10px;font-weight:800;color:'+color+';margin-top:3px;">'+name+'</div>';
     cardsHtml+='<div style="font-size:9px;color:#666;margin-top:1px;">['+rarityLabel+']</div>';
     cardsHtml+='<div style="font-size:8px;color:#888;margin-top:2px;">'+cpsdesc+'</div>';
@@ -1176,7 +1211,7 @@ function updateHeroSection(){
     const nextNew = nextLvl > bestLvl;
     const nextCps = COIN_S[nextLvl] || 0;
     heroThumbs.innerHTML = `
-      <div class="ht" onclick="showDragonDetail(${bestLvl})" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'" title="点击查看灵兽详情">
+      <div class="ht" onclick="showDragonDetail(${bestLvl},${best.z||0})" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 8px;font-size:28px;line-height:1;" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'" title="点击查看灵兽详情">
         <span>${ci}</span>
         <span style="font-size:9px;color:rgba(255,215,0,.65);font-weight:600;">Lv${bestLvl}</span>
       </div>
@@ -1217,31 +1252,97 @@ var SKIN_RARITY_NAMES  = ['普通','稀有','珍稀','传说','神话'];
 
 // ═══════════════════════════════════════════════════
 // getDragonVisual 使用 DRAGON_SKINS（统一购买数据+视觉）
+// 渲染规则：生肖基础形象 + 等级成长形态 + 皮肤特效叠加
 // ═══════════════════════════════════════════════════
 function getDragonVisual(dragon){
+  // 修复⑤：取真实灵兽的 zodiac 字段，不用统一0
+  // 每个灵兽 dragon.z 存其生肖，召唤时随机分配（见 doSummon / doTenSummon）
   const zodiac = dragon.z !== undefined ? dragon.z : 0;
   const level  = dragon.level || 1;
-  const skinId = G.equippedSkin || 'default';
+  // 灵兽自身 skinId 优先，否则用全局装备皮肤
+  const skinId = dragon.skinId || G.equippedSkin || 'default';
   const skin   = DRAGON_SKINS.find(s => s.id === skinId) || DRAGON_SKINS[0];
   const stage  = getLevelStage(level);
-  const icon   = ZOD_ICON[zodiac] ? (ZOD_ICON[zodiac][level] || ZOD_ICON[zodiac][1]) : '🐣';
-  const stageSuffix = {1:'',2:'💫',3:'✨',4:'🌟',5:'⚡'}[stage] || '';
-  const displayIcon = stage >= 3 ? icon + stageSuffix : icon;
-  const iconSize = 16 + (level - 1) * 1.2;
+  const stageName = LV_STAGE_NAMES[stage] || '幼生';
   const glowStrength = Math.min(1, level / 15);
+  const visualConfig = _loadVisualConfig(zodiac, level, skinId);
+
   return {
-    icon: displayIcon,
-    baseColor: skin.color,
-    glowColor: skin.glow,
-    iconSize: Math.round(iconSize),
+    // 渲染用的图标：优先SVG，fallback emoji（12生肖×15级差异）
+    svgPath: visualConfig.svgPath,
+    emoji:   ZOD_ICON[zodiac] ? (ZOD_ICON[zodiac][level] || ZOD_ICON[zodiac][1]) : '🐣',
+    // 皮肤 filter（CSS filter string，叠加到 SVG img 元素上）
+    filter:  skin.filter,
+    // 颜色系（用于文字、边框、背景计算）
+    baseColor:  skin.color,
+    glowColor:  skin.glow,
+    border:     skin.border,
+    shadow:     skin.shadow,
+    // 透明度
     bgAlpha: 0.08 + glowStrength * 0.06 + (skin.visualRarity >= 3 ? 0.04 : 0),
-    stage, stageName: LV_STAGE_NAMES[stage],
-    filter: skin.filter,
-    shadow: skin.shadow,
-    border: skin.border,
-    skinId, skinName: skin.name,
-    skinRarity: skin.visualRarity
+    // 大小
+    iconSize: Math.round(16 + (level - 1) * 1.2),
+    // 阶段信息
+    stage, stageName,
+    // 皮肤信息
+    skinId, skinName: skin.name, skinRarity: skin.visualRarity,
+    // 视觉描述
+    description: visualConfig.description,
+    skinOverlay: visualConfig.skinOverlay,
   };
+}
+
+// dragon_visual_config.json 缓存（用 fetch 异步加载一次，之后内存缓存）
+let _visualConfigCache = null;
+let _visualConfigLoading = false;
+function _loadVisualConfig(zodiac, level, skinId){
+  const svgPath = 'docs/svgs/drag_' + zodiac + '_' + level + '.svg';
+  const defaultDescs = ['灵蛋初形，棕灰圆润','微微成形，尖耳竖立','轮廓清晰，灵性初现',
+    '特征完备，灵气环绕','灵气缠绕，特效初现','形态丰满，符文隐现',
+    '符文显现，灵气蒸腾','通灵之相，灵气充沛','灵兽之姿，符文缠绕',
+    '神兽形态，光芒内敛','神兽威仪，灵光大盛','神兽降临，灵气冲天',
+    '帝王神威，光环笼罩','帝王威仪，灵气汹涌','天命永恒，神兽降世'];
+  const descDefault = defaultDescs[level-1] || '灵兽';
+  const skinOverlayDefault = skinId !== 'default'
+    ? '皮肤特效：' + (DRAGON_SKINS.find(s=>s.id===skinId)||{}).name
+    : '';
+  // 有缓存直接读
+  if(_visualConfigCache){
+    const rec = _visualConfigCache.ZODIAC_GRID
+      ? _visualConfigCache.ZODIAC_GRID.find(r => r.zodiac === zodiac && r.level === level) : null;
+    if(rec){
+      return {
+        svgPath: rec.svgPath || svgPath,
+        description: rec.description || descDefault,
+        skinOverlay: rec.skinOverlays && rec.skinOverlays[skinId] !== undefined
+          ? rec.skinOverlays[skinId] : skinOverlayDefault,
+      };
+    }
+  }
+  // 无缓存则用默认值（异步加载在后台进行）
+  if(!_visualConfigLoading && !_visualConfigCache){
+    _visualConfigLoading = true;
+    fetch('docs/dragon_visual_config.json')
+      .then(r=>r.json())
+      .then(data=>{ _visualConfigCache = data; _visualConfigLoading = false; })
+      .catch(()=>{ _visualConfigCache = {}; _visualConfigLoading = false; });
+  }
+  return { svgPath, description: descDefault, skinOverlay: skinOverlayDefault };
+}
+
+// 获取灵兽视觉展示内容（SVG img 或 emoji fallback）
+function _dragonIconHtml(v, sizePx){
+  // 优先尝试 SVG，失败则 emoji
+  const useSvg = v.svgPath && v.svgPath.includes('.svg');
+  const sz = sizePx || v.iconSize;
+  const filter = v.filter || '';
+  const glowPx = 4 + v.stage * 2;
+  const glowColor = v.glowColor || '#aaa';
+  if(useSvg){
+    return `<img src="${v.svgPath}" style="width:${sz}px;height:${sz}px;object-fit:contain;filter:${filter} drop-shadow(0 0 ${glowPx}px ${glowColor});border-radius:8px;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';" />` +
+           `<span style="display:none;font-size:${sz}px;line-height:1.2;filter:${filter} drop-shadow(0 0 ${glowPx}px ${glowColor});">${v.emoji}</span>`;
+  }
+  return `<span style="font-size:${sz}px;line-height:1.2;filter:${filter} drop-shadow(0 0 ${glowPx}px ${glowColor});">${v.emoji}</span>`;
 }
 
 // 图鉴收集进度奖励

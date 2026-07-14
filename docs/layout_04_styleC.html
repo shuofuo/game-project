@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>生肖天机 · 布局解剖图（风格C：科幻感）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:#1a1a2e;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+}
+
+/* 模拟手机屏幕 */
+.phone-frame{
+  width:420px;
+  height:90vh;
+  max-height:780px;
+  background:#07071a;
+  border-radius:40px;
+  overflow:hidden;
+  position:relative;
+  border:3px solid #333;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  display:flex;
+  flex-direction:column;
+}
+
+.phone-screen{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+
+/* 状态栏 */
+.status-bar{
+  height:44px;
+  background:#0d0d1a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:#444;
+  letter-spacing:2px;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(255,215,0,.05);
+}
+
+/* === 每个区域的标注容器 === */
+.region{
+  position:relative;
+  flex-shrink:0;
+  transition:filter .3s;
+}
+.region:hover{filter:brightness(1.1);}
+
+/* 标注标签 */
+.label{
+  position:absolute;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:2px 7px;
+  border-radius:6px;
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:100;
+  line-height:1.6;
+}
+.label::before{
+  content:'▎';
+  margin-right:3px;
+  opacity:.7;
+}
+
+/* 区域边框 */
+.border{
+  position:absolute;
+  pointer-events:none;
+  z-index:50;
+}
+
+/* 1. topHud */
+#topHud{
+  height:48px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(7,7,26,.75);
+  border-bottom:2px solid #ffd700;
+  flex-shrink:0;
+}
+.hud-zodiac{font-size:14px;color:#ffd700;opacity:.7;}
+.hud-center{display:flex;align-items:center;gap:14px;}
+.hud-stat{display:flex;align-items:center;gap:4px;}
+.hud-stat .icon{font-size:14px;}
+.hud-stat .val{font-size:15px;font-weight:700;color:#ffd700;}
+.hud-stat .cps{font-size:10px;color:rgba(255,255,255,.4);}
+.hud-stat .qi{color:#a0d8ef;}
+.hud-yunshi{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;}
+
+/* 2. middleRow */
+#middleRow{
+  flex:1;
+  display:grid;
+  grid-template-columns:52px 1fr 140px 52px;
+  grid-template-rows:1fr;
+  align-items:stretch;
+  min-height:0;
+  overflow:hidden;
+  position:relative;
+}
+
+/* 3. 左侧按钮列 */
+#leftBar{
+  grid-column:1;
+  grid-row:1;
+  width:52px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding-top:40px;
+  padding-bottom:90px;
+  align-items:center;
+  background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,transparent 20%,transparent 75%,rgba(0,0,0,.2) 100%);
+  border-right:2px dashed #4CAF50;
+}
+
+/* 4. 灵兽网格 */
+#dragonGrid{
+  grid-column:2;
+  grid-row:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+.grid-header{
+  height:28px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 14px;
+  border-bottom:1px solid rgba(255,215,0,.07);
+  flex-shrink:0;
+}
+.grid-header-title{font-size:12px;color:#ffd700;letter-spacing:2px;}
+.grid-header-count{font-size:10px;color:rgba(255,255,255,.2);}
+#dragonGridInner{
+  flex:1;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  padding:10px 14px;
+  align-content:start;
+  overflow:hidden;
+}
+.dummy-dragon{
+  aspect-ratio:1;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+.dummy-dragon.lit{
+  background:rgba(255,215,0,.08);
+  border-color:rgba(255,215,0,.3);
+  box-shadow:0 0 8px rgba(255,215,0,.15);
+}
+
+/* 5. 右侧灵兽卡 */
+#heroSection{
+  grid-column:3;
+  grid-row:1;
+  width:140px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:40px;
+  padding-bottom:0;
+  background:rgba(255,255,255,.015);
+  border-left:2px dashed #FF9800;
+  position:relative;
+}
+.hero-btns{
+  width:calc(100% - 8px);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
+}
+.hero-btn{
+  padding:6px 4px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  text-align:center;
+  font-size:18px;
+  color:rgba(255,255,255,.5);
+}
+.hero-btn-label{
+  font-size:9px;
+  color:rgba(255,255,255,.3);
+  margin-top:1px;
+}
+.hero-spacer{flex:1;}
+.hero-emoji{
+  width:90px;
+  height:90px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:64px;
+  filter:drop-shadow(0 0 12px rgba(255,215,0,.4));
+}
+.hero-level{
+  font-size:11px;
+  color:#ffd700;
+  font-weight:700;
+  margin-top:16px;
+  letter-spacing:1px;
+}
+.hero-evo{
+  display:flex;
+  gap:4px;
+  margin-top:6px;
+}
+.evo-dot{
+  width:16px;
+  height:16px;
+  background:rgba(255,215,0,.1);
+  border:1px solid rgba(255,215,0,.2);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+}
+
+/* 6. 右侧按钮列 */
+#rightBar{
+  grid-column:4;
+  grid-row:1;
+  width:52px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding-top:40px;
+  padding-bottom:90px;
+  align-items:center;
+  background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,transparent 20%,transparent 75%,rgba(0,0,0,.2) 100%);
+  border-left:2px dashed #9C27B0;
+}
+
+/* 侧边按钮占位 */
+.side-btn-placeholder{
+  width:36px;
+  height:36px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  color:rgba(255,255,255,.3);
+}
+
+/* 7. 技能条 */
+#skillBarRow{
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 40px;
+  background:rgba(7,7,26,.85);
+  border-top:2px dashed #2196F3;
+  border-bottom:1px solid rgba(255,215,0,.05);
+  flex-shrink:0;
+  gap:8px;
+}
+.skill-btn-placeholder{
+  width:50px;
+  height:44px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+}
+.skill-icon-placeholder{font-size:14px;color:rgba(255,255,255,.3);}
+.skill-name-placeholder{font-size:8px;color:rgba(255,255,255,.25);}
+
+/* 8. 召唤栏 */
+#gameBottomBar{
+  height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  padding:0 20px;
+  background:rgba(7,7,26,.9);
+  border-top:2px solid #FF5722;
+  flex-shrink:0;
+}
+.summon-btn-placeholder{
+  padding:8px 16px;
+  background:linear-gradient(135deg,#2a2000,#1a1000);
+  border:1.5px solid #5a4000;
+  border-radius:20px;
+  font-size:12px;
+  color:#c8a020;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+/* 底部安全区 */
+.safe-area{height:env(safe-area-inset-bottom,0px);background:#07071a;flex-shrink:0;}
+
+/* ============ 标注样式 ============ */
+.t-hud    .label{top:-18px;left:4px;background:#ffd700;color:#000;}
+.t-hud    .corner-tl{top:0;left:0;width:12px;height:12px;border-top:2px solid #ffd700;border-left:2px solid #ffd700;}
+.t-hud    .corner-tr{top:0;right:0;width:12px;height:12px;border-top:2px solid #ffd700;border-right:2px solid #ffd700;}
+.t-left   .label{top:4px;left:-4px;background:#4CAF50;color:#000;transform:translateX(-100%);}
+.t-left   .corner-tl{top:0;left:0;width:12px;height:12px;border-top:2px solid #4CAF50;border-left:2px solid #4CAF50;}
+.t-left   .corner-bl{bottom:0;left:0;width:12px;height:12px;border-bottom:2px solid #4CAF50;border-left:2px solid #4CAF50;}
+.t-grid   .label{top:4px;left:4px;background:#03A9F4;color:#000;}
+.t-grid   .corner-tl{top:0;left:0;width:12px;height:12px;border-top:2px solid #03A9F4;border-left:2px solid #03A9F4;}
+.t-grid   .corner-br{bottom:0;right:0;width:12px;height:12px;border-bottom:2px solid #03A9F4;border-right:2px solid #03A9F4;}
+.t-hero   .label{top:4px;right:-4px;background:#FF9800;color:#000;transform:translateX(100%);}
+.t-hero   .corner-tr{top:0;right:0;width:12px;height:12px;border-top:2px solid #FF9800;border-right:2px solid #FF9800;}
+.t-hero   .corner-br{bottom:0;right:0;width:12px;height:12px;border-bottom:2px solid #FF9800;border-right:2px solid #FF9800;}
+.t-right  .label{top:4px;right:-4px;background:#9C27B0;color:#fff;transform:translateX(100%);}
+.t-right  .corner-tl{top:0;left:0;width:12px;height:12px;border-top:2px solid #9C27B0;border-left:2px solid #9C27B0;}
+.t-right  .corner-bl{bottom:0;left:0;width:12px;height:12px;border-bottom:2px solid #9C27B0;border-left:2px solid #9C27B0;}
+.t-skill  .label{bottom:-18px;left:4px;background:#2196F3;color:#fff;}
+.t-skill  .corner-bl{bottom:0;left:0;width:12px;height:12px;border-bottom:2px solid #2196F3;border-left:2px solid #2196F3;}
+.t-skill  .corner-br{bottom:0;right:0;width:12px;height:12px;border-bottom:2px solid #2196F3;border-right:2px solid #2196F3;}
+.t-summon .label{bottom:-18px;left:50%;transform:translateX(-50%);background:#FF5722;color:#fff;}
+.t-summon .corner-bl{bottom:0;left:0;width:12px;height:12px;border-bottom:2px solid #FF5722;border-left:2px solid #FF5722;}
+.t-summon .corner-br{bottom:0;right:0;width:12px;height:12px;border-bottom:2px solid #FF5722;border-right:2px solid #FF5722;}
+
+/* 信息面板 */
+.info-panel{
+  position:absolute;
+  top:60px;
+  right:calc(100% + 20px);
+  width:200px;
+  background:rgba(0,0,0,.9);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:11px;
+  color:#ccc;
+  line-height:1.7;
+  pointer-events:none;
+}
+.info-panel b{color:#ffd700;}
+.info-panel .close{position:absolute;top:6px;right:10px;cursor:pointer;color:#555;font-size:14px;}
+
+/* 说明 */
+.explain{
+  background:rgba(0,0,0,.8);
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:16px 20px 20px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+  pointer-events:none;
+}
+.explain-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  color:rgba(255,255,255,.7);
+}
+.explain-dot{
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  flex-shrink:0;
+}
+
+/* 宽度尺寸标注 */
+.dim-line{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+}
+.dim-line-v{
+  width:1px;
+  background:rgba(255,255,255,.2);
+  top:0;bottom:0;
+}
+.dim-line-h{
+  height:1px;
+  background:rgba(255,255,255,.2);
+  left:0;right:0;
+}
+.dim-text{
+  font-size:9px;
+  color:rgba(255,255,255,.4);
+  background:rgba(0,0,0,.7);
+  padding:1px 4px;
+  border-radius:3px;
+}
+</style>
+</head>
+<body>
+
+<div class="phone-frame" id="phone-frame">
+  <!-- 状态栏 -->
+  <div class="status-bar">9:41</div>
+
+  <div class="phone-screen">
+
+    <!-- === ① topHud === -->
+    <div id="topHud" class="region t-hud" style="position:relative;">
+      <span class="hud-zodiac">🐉</span>
+      <div class="hud-center">
+        <div class="hud-stat"><span class="icon">💰</span><span class="val">8,432</span><span class="cps">+12/s</span></div>
+        <div class="hud-stat"><span class="icon">✨</span><span class="val" style="color:#a0d8ef;">1,280</span></div>
+      </div>
+      <span class="hud-yunshi">运势：大吉</span>
+      <span class="label">① 顶部状态栏</span>
+      <div class="corner-tl border"></div>
+      <div class="corner-tr border"></div>
+    </div>
+
+    <!-- === ② middleRow === -->
+    <div id="middleRow">
+
+      <!-- === ③ 左侧功能按钮列 === -->
+      <div id="leftBar" class="region t-left" style="position:relative;">
+        <span class="label">③ 左侧功能栏</span>
+        <div class="corner-tl border"></div>
+        <div class="corner-bl border"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+          <div class="side-btn-placeholder">📅</div>
+          <div class="side-btn-placeholder">📝</div>
+          <div class="side-btn-placeholder">⚡</div>
+          <div class="side-btn-placeholder">⚗️</div>
+        </div>
+        <div></div>
+      </div>
+
+      <!-- === ④ 灵兽网格 === -->
+      <div id="dragonGrid" class="region t-grid" style="position:relative;">
+        <div class="grid-header">
+          <span class="grid-header-title">🐾 灵兽</span>
+          <span class="grid-header-count">共 0 只</span>
+        </div>
+        <div id="dragonGridInner">
+          <div class="dummy-dragon lit">🐣</div>
+          <div class="dummy-dragon lit">🐉</div>
+          <div class="dummy-dragon lit">🦊</div>
+          <div class="dummy-dragon lit">🐍</div>
+          <div class="dummy-dragon lit">🐴</div>
+          <div class="dummy-dragon">🐔</div>
+          <div class="dummy-dragon">🐱</div>
+          <div class="dummy-dragon">🐶</div>
+          <div class="dummy-dragon">🐷</div>
+          <div class="dummy-dragon">🐮</div>
+          <div class="dummy-dragon">🐏</div>
+          <div class="dummy-dragon">🐐</div>
+          <div class="dummy-dragon">🐀</div>
+          <div class="dummy-dragon">🐰</div>
+          <div class="dummy-dragon">🐵</div>
+        </div>
+        <span class="label">④ 灵兽网格（5列）</span>
+        <div class="corner-tl border"></div>
+        <div class="corner-br border"></div>
+      </div>
+
+      <!-- === ⑤ 右侧灵兽卡 === -->
+      <div id="heroSection" class="region t-hero" style="position:relative;">
+        <div class="hero-btns" style="width:calc(100% - 8px);">
+          <div style="text-align:center;padding:6px 2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+            <div style="font-size:16px;">🏔️</div>
+            <div style="font-size:8px;color:rgba(255,107,53,.7);">试炼塔</div>
+          </div>
+          <div style="text-align:center;padding:6px 2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+            <div style="font-size:16px;">👑</div>
+            <div style="font-size:8px;color:rgba(147,197,253,.65);">皮肤</div>
+          </div>
+          <div style="text-align:center;padding:6px 2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+            <div style="font-size:16px;">⚒️</div>
+            <div style="font-size:8px;color:rgba(251,191,36,.8);">炼宝</div>
+          </div>
+          <div style="text-align:center;padding:6px 2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;">
+            <div style="font-size:16px;">📖</div>
+            <div style="font-size:8px;color:rgba(180,100,255,.65);">图鉴</div>
+          </div>
+        </div>
+        <div class="hero-spacer"></div>
+        <div style="font-size:8px;color:rgba(255,215,0,.3);letter-spacing:1.5px;margin-bottom:6px;">木命 · 大吉</div>
+        <div class="hero-emoji">🐣</div>
+        <div class="hero-level">Lv.1 &nbsp;·&nbsp; +1/s</div>
+        <div class="hero-evo">
+          <div class="evo-dot">🐣</div>
+          <div class="evo-dot" style="background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.4);">🐥</div>
+          <div class="evo-dot" style="background:rgba(255,215,0,.05);opacity:.4">🐔</div>
+        </div>
+        <span class="label">⑤ 灵兽详情卡</span>
+        <div class="corner-tr border"></div>
+        <div class="corner-br border"></div>
+      </div>
+
+      <!-- === ⑥ 右侧功能按钮列 === -->
+      <div id="rightBar" class="region t-right" style="position:relative;">
+        <span class="label">⑥ 右侧功能栏</span>
+        <div class="corner-tl border"></div>
+        <div class="corner-bl border"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+          <div class="side-btn-placeholder">📋</div>
+          <div class="side-btn-placeholder">🏆</div>
+          <div class="side-btn-placeholder">🎯</div>
+          <div class="side-btn-placeholder">📊</div>
+          <div class="side-btn-placeholder">⚙️</div>
+        </div>
+        <div></div>
+      </div>
+
+    </div><!-- /middleRow -->
+
+    <!-- === ⑦ 技能条 === -->
+    <div id="skillBarRow" class="region t-skill" style="position:relative;">
+      <div class="skill-btn-placeholder"><div class="skill-icon-placeholder">⚔️</div><div class="skill-name-placeholder">龙息</div></div>
+      <div class="skill-btn-placeholder"><div class="skill-icon-placeholder">🛡️</div><div class="skill-name-placeholder">护盾</div></div>
+      <div class="skill-btn-placeholder"><div class="skill-icon-placeholder">⚡</div><div class="skill-name-placeholder">雷霆</div></div>
+      <span class="label">⑦ 技能条</span>
+      <div class="corner-bl border"></div>
+      <div class="corner-br border"></div>
+    </div>
+
+    <!-- === ⑧ 召唤栏 === -->
+    <div id="gameBottomBar" class="region t-summon" style="position:relative;">
+      <div class="summon-btn-placeholder"><span>💰</span><span>100</span></div>
+      <div class="summon-btn-placeholder"><span>✨</span><span>500</span></div>
+      <div class="summon-btn-placeholder"><span>🌿</span><span>免费</span></div>
+      <span class="label">⑧ 召唤栏</span>
+      <div class="corner-bl border"></div>
+      <div class="corner-br border"></div>
+    </div>
+
+    <!-- 安全区 -->
+    <div class="safe-area"></div>
+
+  </div><!-- /phone-screen -->
+
+</div><!-- /phone-frame -->
+
+<br><br>
+<div style="text-align:center;font-size:12px;color:#444;letter-spacing:2px;">
+  🔍 鼠标悬停各区块可高亮 · 颜色对应各区域标注
+</div>
+
+
+<script>
+document.getElementById('phone-frame').classList.add('style-c');
+</script></body>
+</html>

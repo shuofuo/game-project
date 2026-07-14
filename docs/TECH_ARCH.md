@@ -1,7 +1,7 @@
 # 🔧 技术架构文档 · 生肖天机
 
 > 版本：v1.0  
-> 日期：2026-06-26（2026-07-08 更新：移除 Cocos 引用，更新 COIN_S）  
+> 日期：2026-06-26  
 > 状态：设计阶段
 
 ---
@@ -156,24 +156,23 @@ interface DragonData {
 }
 
 // 产金表（15级）
-const // 2026-07-08 重新平衡：Lv15 从 800000/s 降至 30/s
 const COIN_PER_SECOND: number[] = [
   0,   // 占位（索引0不用）
   1,   // Lv1 灵蛋
-  2,   // Lv2 幼灵
-  3,   // Lv3 化形
-  4,   // Lv4 灵通
-  8,   // Lv5 化星
-  9,   // Lv6 凝神
-  10,  // Lv7 通灵
-  11,  // Lv8 灵兽
-  12,  // Lv9 神兽
-  16,  // Lv10 天兽
-  17,  // Lv11 圣兽
-  18,  // Lv12 天命
-  20,  // Lv13 天尊
-  24,  // Lv14 天帝
-  30,  // Lv15 鸿蒙神兽（终极上限）
+  3,   // Lv2 幼灵
+  8,   // Lv3 化形
+  20,  // Lv4 灵通
+  55,  // Lv5 化星
+  150, // Lv6 凝神
+  400, // Lv7 通灵
+  1100,// Lv8 灵兽
+  3000,// Lv9 神兽
+  8000,// Lv10 天兽
+  20000,// Lv11 圣兽
+  50000,// Lv12 天命
+  120000,// Lv13 天尊
+  300000,// Lv14 天帝
+  800000,// Lv15 鸿蒙神兽
 ];
 
 class DragonSystem {
@@ -449,73 +448,3 @@ git push origin v0.1
 
 > 本文档为技术架构设计 v1.0  
 > 后续更新需记录变更内容到 SPEC.md 的"重要决策记录"章节
----
-
-## 三、游戏后端 API（2026-07-08 部署）
-
-### 架构
-
-```
-玩家浏览器/小程序
-    ↓ HTTPS → http://shengxiao.ink/api/
-阿里云 ECS（47.105.41.23:5000）
-    ↓ 内网连接
-阿里云 RDS MySQL 8.0（shengxiao 数据库）
-```
-
-### 依赖
-
-```bash
-pip3 install flask flask-cors pymysql
-# 安装到 /usr/local/lib/python3.12/site-packages
-```
-
-### 启动方式
-
-```bash
-systemctl start shengxiao    # 启动
-systemctl stop shengxiao     # 停止
-systemctl restart shengxiao  # 重启
-journalctl -u shengxiao -f   # 查看日志
-```
-
-### 环境变量
-
-| 变量 | 值 |
-|------|-----|
-| PYTHONPATH | /usr/local/lib/python3.12/site-packages |
-| DB_HOST | rm-m5e3c29lzp37083us-pub.mysql.rds.aliyuncs.com |
-| DB_USER | root |
-| DB_PASS | Fuofuo230 |
-| DB_NAME | shengxiao |
-
-### 安全注意
-
-> ⚠️ 密码明文存在代码里，后续要改：
-> 1. 数据库密码写入环境变量
-> 2. 密码 hash 改用 bcrypt
-
-### 关键文件位置（ECS）
-
-| 文件 | 说明 |
-|------|------|
-| `/opt/shengxiao/app.py` | Flask 后端代码 |
-| `/etc/systemd/system/shengxiao.service` | 自启动服务文件 |
-| `/opt/shengxiao/api.log` | 运行日志 |
-| `/opt/shengxiao/backend/` | 代码备份目录 |
-
-### ECS 登录
-
-```bash
-ssh root@47.105.41.23
-# 密码见：~/.ssh/config 或公司密码管理器
-```
-
-### RDS 连接信息
-
-| 项目 | 值 |
-|------|-----|
-| 连接地址 | rm-m5e3c29lzp37083us-pub.mysql.rds.aliyuncs.com |
-| 数据库名 | shengxiao |
-| 账号 | root |
-| 密码 | 见密码管理器（勿写在代码里）|

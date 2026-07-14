@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>生肖天机 · 风格D：赛博朋克</title>
+<style>
+.game{
+  display:flex;flex-direction:column;
+  height:100dvh;max-width:500px;margin:0 auto;
+  background:#08000f;overflow:hidden;position:relative;
+}
+/* 霓虹扫描线 */
+.game::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(
+    0deg,transparent 0px,transparent 3px,rgba(255,0,128,.025) 3px,rgba(255,0,128,.025) 4px
+  );
+}
+/* 网格线 */
+.game::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    linear-gradient(rgba(0,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,255,.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* 顶栏 */
+.top-hud{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;height:48px;
+  background:rgba(8,0,15,.92);backdrop-filter:blur(16px);
+  border-bottom:2px solid rgba(255,0,255,.3);
+  box-shadow:0 2px 20px rgba(255,0,255,.15);
+  position:relative;z-index:2;
+}
+.hud-zodiac{font-size:20px;filter:drop-shadow(0 0 8px rgba(255,0,255,.8));}
+.hud-center{display:flex;align-items:center;gap:14px;}
+.hud-stat{display:flex;align-items:center;gap:4px;}
+.hud-stat .icon{font-size:15px;}
+.hud-stat .val{font-size:15px;font-weight:700;color:#ff0080;text-shadow:0 0 10px rgba(255,0,128,.7);}
+.hud-stat .cps{font-size:11px;color:rgba(0,255,255,.5);}
+.hud-stat .qi{color:#00ffff;text-shadow:0 0 8px rgba(0,255,255,.7);}
+.hud-yunshi{font-size:12px;color:rgba(0,255,255,.35);letter-spacing:2px;}
+
+/* 技能条 */
+.skill-row{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  padding:5px 12px;gap:5px;
+  background:rgba(8,0,15,.75);border-bottom:1px solid rgba(0,255,255,.1);position:relative;z-index:2;
+}
+.skill-item{
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  padding:4px 8px;min-width:48px;
+  background:rgba(255,0,128,.04);border:1px solid rgba(255,0,128,.2);
+  border-radius:6px;cursor:pointer;transition:all .2s;
+  position:relative;
+}
+.skill-item::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,0,255,.8),transparent);
+}
+.skill-item:hover{background:rgba(255,0,255,.12);border-color:rgba(255,0,255,.6);}
+.skill-item .sname{font-size:11px;font-weight:700;color:#ff0080;text-shadow:0 0 8px rgba(255,0,128,.5);}
+.skill-item .scd{font-size:10px;color:rgba(0,255,255,.4);}
+.skill-dot{position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;background:#ff0080;box-shadow:0 0 6px #ff0080;}
+
+/* 中间 */
+.mid-row{flex:1;display:flex;min-height:0;overflow:hidden;position:relative;z-index:2;}
+
+/* 左栏 */
+.sidebar{
+  width:44px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:28px 0 70px;
+  background:linear-gradient(to bottom,rgba(8,0,15,.5) 0%,transparent 25%,transparent 75%,rgba(8,0,15,.5) 100%);
+}
+.sd-btn{
+  width:34px;height:34px;margin:2px 0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,255,255,.03);border:1px solid rgba(0,255,255,.15);
+  border-radius:6px;cursor:pointer;font-size:15px;
+  transition:all .2s;
+}
+.sd-btn:hover{background:rgba(0,255,255,.1);border-color:rgba(0,255,255,.6);box-shadow:0 0 10px rgba(0,255,255,.3);}
+
+/* 灵兽格子 */
+.dragon-sec{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.dragon-hd{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px 7px;
+  border-bottom:1px solid rgba(0,255,255,.08);
+}
+.dragon-hd span{font-size:12px;font-weight:700;color:#00ffff;text-transform:uppercase;letter-spacing:2px;}
+.dragon-hd small{color:rgba(0,255,255,.3);font-size:11px;}
+.dragon-grid{
+  flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
+  padding:10px;align-content:start;overflow:hidden;
+}
+.dg{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,0,128,.03);border:1px solid rgba(255,0,128,.18);
+  border-radius:6px;position:relative;font-size:clamp(22px,5vw,33px);
+  cursor:pointer;transition:all .2s;
+}
+.dg:hover{transform:scale(1.07);border-color:rgba(255,0,255,.7);background:rgba(255,0,255,.08);}
+.dg .lv{
+  position:absolute;top:2px;left:4px;font-size:9px;font-weight:700;
+  color:#00ffff;text-shadow:0 0 6px rgba(0,255,255,.8);
+}
+.dg.hi{border-color:rgba(255,0,128,.5);background:rgba(255,0,128,.08);}
+.dg.sp{border-color:rgba(0,255,255,.4);background:rgba(0,255,255,.06);}
+.dg.le{border-color:rgba(180,80,255,.5);background:rgba(180,80,255,.06);}
+
+/* 主角卡 */
+.hero-card{
+  width:115px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 7px;gap:3px;
+  background:rgba(255,0,128,.02);border-left:2px solid rgba(255,0,255,.2);
+}
+.hero-fate{font-size:9px;color:rgba(255,0,128,.5);letter-spacing:2px;text-transform:uppercase;}
+.hero-glow{width:72px;height:72px;position:relative;display:flex;align-items:center;justify-content:center;}
+.hero-glow::before{
+  content:'';position:absolute;inset:-14px;
+  border:2px solid rgba(255,0,128,.3);border-radius:50%;
+  animation:cyber-spin 4s linear infinite;
+}
+.hero-glow::after{
+  content:'';position:absolute;inset:-20px;
+  border:1px solid rgba(0,255,255,.2);border-radius:50%;
+  animation:cyber-spin 6s linear infinite reverse;
+}
+@keyframes cyber-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hero-icon{font-size:56px;line-height:1;z-index:2;filter:drop-shadow(0 0 10px rgba(255,0,128,.6));}
+.hero-evo{display:flex;gap:2px;font-size:13px;opacity:.3;align-items:center;}
+.hero-lv{font-size:11px;font-weight:700;color:#ff0080;text-shadow:0 0 8px rgba(255,0,128,.6);}
+.hero-cps{font-size:10px;color:rgba(0,255,255,.4);}
+.hero-btns{display:flex;gap:4px;margin-top:3px;}
+.hero-btn{
+  font-size:11px;padding:4px 8px;border-radius:4px;
+  border:1px solid rgba(255,0,255,.3);background:rgba(255,0,128,.05);
+  color:#cc0066;cursor:pointer;transition:all .2s;
+  font-family:monospace;
+}
+.hero-btn:hover{background:rgba(255,0,255,.15);border-color:rgba(255,0,255,.7);}
+.hero-btn.pk{background:rgba(255,0,128,.15);border-color:rgba(255,0,255,.7);color:#ff0080;text-shadow:0 0 6px rgba(255,0,128,.6);}
+
+/* 底栏 */
+.bot-bar{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,6px));
+  background:rgba(8,0,15,.92);border-top:2px solid rgba(0,255,255,.2);
+  position:relative;z-index:2;
+}
+.bot-bar::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,255,255,.8),transparent);
+}
+.sm-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:9px 14px;border-radius:4px;border:none;cursor:pointer;
+  font-size:14px;font-weight:700;transition:all .2s;font-family:monospace;
+}
+.sm-btn:hover{transform:scale(1.04);}
+.sm-btn:active{transform:scale(.97);}
+.sm-coin{background:rgba(255,0,128,.12);color:#ff0080;border:1px solid rgba(255,0,128,.4);}
+.sm-qi{background:rgba(0,255,255,.08);color:#00ffff;border:1px solid rgba(0,255,255,.4);}
+.sm-free{background:rgba(76,175,80,.1);color:#60cc60;border:1px solid rgba(76,175,80,.4);}
+
+@media(max-width:400px){
+  .hero-card{width:98px;padding:8px 5px;}
+  .hero-glow{width:58px;height:58px;}
+  .hero-icon{font-size:46px;}
+  .sidebar{width:38px;}
+}
+</style>
+</head>
+<body style="margin:0;padding:0;">
+<div class="game">
+  <div class="top-hud">
+    <span class="hud-zodiac">🐉</span>
+    <div class="hud-center">
+      <div class="hud-stat"><span class="icon">💰</span><span class="val">12,847</span><span class="cps">+86/s</span></div>
+      <div class="hud-stat"><span class="icon">✨</span><span class="val qi">520</span></div>
+    </div>
+    <span class="hud-yunshi">▸▸▸</span>
+  </div>
+  <div class="skill-row">
+    <div class="skill-item"><span>📋</span><span class="sname">签到</span><span class="scd">未签到</span></div>
+    <div class="skill-item" style="position:relative">📝<span class="sname">任务</span><span class="scd">3/5</span><span class="skill-dot"></span></div>
+    <div class="skill-item"><span>⚡</span><span class="sname">活动</span><span class="scd">进行中</span></div>
+    <div class="skill-item"><span>🎯</span><span class="sname">挑战</span><span class="scd">4天</span></div>
+  </div>
+  <div class="mid-row">
+    <div class="sidebar">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="sd-btn" title="签到">📋</div>
+        <div class="sd-btn" title="任务">📝</div>
+        <div class="sd-btn" title="活动">⚡</div>
+        <div class="sd-btn" title="图鉴">📖</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="sd-btn" title="排行">🏆</div>
+        <div class="sd-btn" title="成就">🎖️</div>
+        <div class="sd-btn" title="统计">📊</div>
+        <div class="sd-btn" title="设置">⚙️</div>
+      </div>
+    </div>
+    <div class="dragon-sec">
+      <div class="dragon-hd"><span>DRAGON GRID</span><small>12UNITS · +86/s</small></div>
+      <div class="dragon-grid">
+        <div class="dg hi"><span class="lv">5</span>🐉</div>
+        <div class="dg"><span class="lv">3</span>🐍</div>
+        <div class="dg"><span class="lv">2</span>🐴</div>
+        <div class="dg"><span class="lv">1</span>🐏</div>
+        <div class="dg"><span class="lv">4</span>🐅</div>
+        <div class="dg"><span class="lv">3</span>🐂</div>
+        <div class="dg"><span class="lv">2</span>🐇</div>
+        <div class="dg"><span class="lv">1</span>🐀</div>
+        <div class="dg"><span class="lv">3</span>🐎</div>
+        <div class="dg"><span class="lv">2</span>🐒</div>
+        <div class="dg sp"><span class="lv">6</span>🐓</div>
+        <div class="dg"><span class="lv">1</span>🐕</div>
+        <div class="dg"><span class="lv">2</span>🐖</div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+        <div class="dg" style="opacity:.15"></div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-fate">木命 · 大吉</div>
+      <div class="hero-evo">🐣→🐥→🐦→🐓</div>
+      <div class="hero-glow"><div class="hero-icon">🐉</div></div>
+      <div><span class="hero-lv">Lv.5</span><span class="hero-cps"> +55/s</span></div>
+      <div class="hero-btns">
+        <button class="hero-btn pk">升星</button>
+        <button class="hero-btn">详情</button>
+      </div>
+    </div>
+  </div>
+  <div class="bot-bar">
+    <button class="sm-btn sm-coin">💰 100</button>
+    <button class="sm-btn sm-qi">✨ 500</button>
+    <button class="sm-btn sm-free">🌿 免费×3</button>
+  </div>
+</div>
+</body></html>

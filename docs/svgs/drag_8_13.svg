@@ -11,8 +11,8 @@
   </defs>
   <circle cx="40" cy="40" r="38.0" fill="none" stroke="#D8A86880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="42.0" fill="none" stroke="#D8A86880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="46.0" fill="none" stroke="#D8A86880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="34" r="50.0" fill="none" stroke="#D8A86880" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0813)" filter="url(#gf0813)"/>
-  <ellipse cx="40" cy="42" rx="18" ry="17" fill="#B08040"/>
-    <ellipse cx="40" cy="42" rx="16" ry="15" fill="#D8A868" opacity="0.4"/>
+  <ellipse cx="40" cy="42" rx="19" ry="18" fill="#B08040"/>
+    <ellipse cx="40" cy="42" rx="17" ry="16" fill="#D8A868" opacity="0.4"/>
     <circle cx="26" cy="34" r="6" fill="#B08040"/>
     <circle cx="26" cy="34" r="4" fill="#D8A868" opacity="0.5"/>
     <circle cx="54" cy="34" r="6" fill="#B08040"/>

@@ -7,12 +7,19 @@ function initHomeGesture(){}
 function startGame(zz,ff){
   zz=zz??sz??-1; ff=ff??sf??1;
   G.zodiac=zz; G.fate=ff; G.created=true;
-  G.unlockedAtlas=[zz];
+  //G.unlockedAtlas=[zz];
   G.coins=0; G.qi=0; G.dragons=[]; G.mergeCount=0; G.summonCount=0;
   G.freeLeft=3; G.lastFreeDate=today(); G.currentFate=3;
   if(G.lastFateDate!==today()){rollFate();}
-  G.cultivation={mu:0,huo:0,tu:0,kin:0,shui:0}; G.lastQiTime=Date.now();
-  G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}]; nextId=3;
+  G.cultivation={mu:0,huo:0,tu:0,kin:0}; G.lastQiTime=Date.now();
+  G.dragons=[
+   {id:'1',level:1,idx:12,z:G.zodiac},
+   {id:'2',level:1,idx:13,z:G.zodiac}
+  ];
+  nextId=3;
+  G.unlocked = [G.zodiac];
+  // 切换本命后清理非本命生肖的旧灵兽
+  filterZodiacDragons();
   if(G.lastTaskDate!==today()){G.tasks={};G.lastTaskDate=today();G._qiSpentDaily=0;G.tasks.login={progress:1,claimed:false};}
   saveGame();
   // UI 切换
@@ -74,8 +81,16 @@ function initGame(){ startSkyEvents();try{initWeekly();}catch(e){}
     if(!G.guideDone){requestAnimationFrame(()=>{setTimeout(()=>startGuide(),600);});}
     // 首次加载时同步龙数据
     if(!G.dragons||G.dragons.length===0){
-      G.dragons=[{id:'1',level:1,idx:12},{id:'2',level:1,idx:13}];
-      nextId=3;saveGame();renderGrid();
+      G.dragons=[
+        {id:'1',level:1,idx:12,z:G.zodiac},
+        {id:'2',level:1,idx:13,z:G.zodiac}
+      ];
+      nextId=3;
+      // 同步解锁本命图鉴
+      if(!G.unlockedAtlas?.includes(G.zodiac)){
+        G.unlockedAtlas.push(G.zodiac);
+      }
+      saveGame();renderGrid();
     }
   }
 }
@@ -413,37 +428,61 @@ function closeSummonAnim(){
 
 // ── 单抽：直接展示完整灵兽信息，无翻转无问号 ──────────
 function doSummon(level){
-  try{initAudio();}catch(e){}
+  if(G.zodiac === -1 || G.zodiac === undefined){
+    showNotif('warning','请先在登录页选择本命生肖，才能进行召唤！');
+    return;
+  }
   if(G.zodiac>=0) playSound('summon_z'+G.zodiac);
-  const used=new Set(G.dragons.map(d=>d.idx));
-  const spots=[];
-  for(let i=0;i<TOTAL;i++)if(!used.has(i))spots.push(i);
+  var used=new Set(G.dragons.map(function(d){return d.idx;}));
+  var spots=[];
+  for(var i=0;i<TOTAL;i++){if(!used.has(i))spots.push(i);}
   if(spots.length===0){showNotif('error','灵兽已满，请先合并！');return;}
-  const idx=spots[Math.floor(Math.random()*spots.length)];
-  G.dragons.push({id:String(nextId++),level,idx,star:1,z:Math.floor(Math.random()*12)});
+  var idx=spots[Math.floor(Math.random()*spots.length)];
+  G.dragons.push({
+    id:String(nextId++),
+    level,
+    idx,
+    star:1,
+    z:G.zodiac
+  });
   G.summonCount++;
-  saveGame();renderGrid();updateHud();checkAch();
+  saveGame();
+  renderGrid();
+  updateHud();
+  checkAch();
   _onWeeklyEvent("summon");
   try{updateHeroSection();}catch(e){}
-  // 召唤记录
-  if(!G.summonLog) G.summonLog=[];
-  G.summonLog.unshift({level,lvl:level>=6?'传说':level>=4?'稀有':'普通',t:new Date().toLocaleTimeString()});
-  if(G.summonLog.length>20) G.summonLog.length=20;
+  if(!G.summonLog)G.summonLog=[];
+  G.summonLog.unshift({
+    level: level,
+    lvl: level>=6?'传说':level>=4?'稀有':'普通',
+    t: new Date().toLocaleTimeString()
+  });
+  if(G.summonLog.length>20)G.summonLog.length=20;
   saveGame();
-  // 直接展示结果弹窗
-  showSingleSummonResult(level);
+  var fakeD={id:'summon',level:level,z:G.zodiac,idx:-1};
+  showSingleSummonResult(fakeD,level);
 }
 
 
 
 // ── 单抽结果弹窗：全屏黑遮罩 + 白底卡片，无翻转无问号 ─────────────────
-function showSingleSummonResult(level){
+function showSingleSummonResult(dragon, level){
+  var lvl;
+  if(dragon && typeof dragon.level==='number'){
+    lvl=dragon.level;
+  } else if(typeof dragon==='number'){  
+    lvl=dragon;
+    dragon=null;
+  }
   var rarColors=['#555','#1565c0','#7b3fcb','#c8860a','#c62828'];
-  var t=rarIdx(level);
+  var t=rarIdx(lvl);
   var color=rarColors[t];
-  var name=LNAME[level]||'灵兽';
-  var fakeD={id:'summon',level:level,z:Math.floor(Math.random()*12),idx:-1};var vS=getDragonVisual(fakeD);var iconHtmlS=_dragonIconHtml(vS,64);
-  var cps=COIN_S[level]||0;
+  var name=LNAME[lvl]||'灵兽';
+  var fakeD=dragon||{id:'summon',level:lvl,z:G.zodiac,idx:-1};
+  var vS=getDragonVisual(fakeD);
+  var iconHtmlS=_dragonIconHtml(vS,64);
+  var cps=COIN_S[lvl]||0;
   var rarityName=['普通','稀有','史诗','传说','神话'][t]||'普通';
 
   var html='<div style="padding:28px 28px 24px;text-align:center;background:rgba(255,255,255,.97);border-radius:24px;border:1.5px solid rgba(180,140,80,.3);">';
@@ -667,7 +706,15 @@ function today(){
   const d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+// 切换本命后过滤异种灵兽
+function filterZodiacDragons(){
+  G.dragons=G.dragons.filter(function(d){return d.z===G.zodiac;});
+}
 function reselect(){
+  // 换生肖前清理当前背包里的非本命灵兽
+  if(G.dragons && G.zodiac >= 0){
+    G.dragons = G.dragons.filter(function(d){return d.z === G.zodiac;});
+  }
   G.created=false;
   document.getElementById('modal').classList.remove('show');
   document.getElementById('loginWrap').style.display='block';

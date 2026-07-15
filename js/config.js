@@ -459,6 +459,9 @@ var RAR_COLORS = {0:'#1a1a1a',1:'#0a1a2a',2:'#1a0a2a',3:'#2a1a00',4:'#2a0a00'}; 
 var RAR_BORDER = {0:'rgba(255,255,255,.06)',1:'rgba(126,184,255,.3)',2:'rgba(181,126,220,.3)',3:'rgba(255,215,0,.4)',4:'rgba(255,107,53,.5)'};
 function rarIdx(lvl){if(lvl<=2)return 0;if(lvl<=4)return 1;if(lvl<=7)return 2;if(lvl<=10)return 3;return 4;}
 function renderGrid(){
+  // 实时过滤，仅保留当前本命生肖灵兽
+  G.dragons=G.dragons.filter(item=>item.z===G.zodiac);
+  saveGame();
   const grid=document.getElementById('dragonGridInner');
   if(!grid)return;
   grid.innerHTML='';
@@ -1175,7 +1178,7 @@ function updateHeroSection(){
     if(heroThumbs){
       heroThumbs.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:rgba(255,215,0,.4);padding:4px 12px;letter-spacing:1px;">
-          <span class="qi-icon qi-icon-xl" style="display:block;margin:0 auto 2px;"></span>
+          <span style="display:block;margin:0 auto 2px;font-size:18px;">💧</span>
           <span>首次召唤获得灵兽</span>
           <span style="font-size:9px;opacity:.6;">点击下方召唤按钮</span>
         </div>`;

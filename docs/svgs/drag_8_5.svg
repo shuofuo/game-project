@@ -11,18 +11,18 @@
   </defs>
   <circle cx="40" cy="40" r="34.0" fill="none" stroke="#D8A86880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0805)" filter="url(#gf0805)"/>
-  <ellipse cx="40" cy="42" rx="12" ry="11" fill="#B08040"/>
-    <ellipse cx="40" cy="42" rx="10" ry="9" fill="#D8A868" opacity="0.4"/>
+  <ellipse cx="40" cy="42" rx="13" ry="12" fill="#B08040"/>
+    <ellipse cx="40" cy="42" rx="11" ry="10" fill="#D8A868" opacity="0.4"/>
     <circle cx="26" cy="34" r="6" fill="#B08040"/>
     <circle cx="26" cy="34" r="4" fill="#D8A868" opacity="0.5"/>
     <circle cx="54" cy="34" r="6" fill="#B08040"/>
     <circle cx="54" cy="34" r="4" fill="#D8A868" opacity="0.5"/>
     <ellipse cx="40" cy="46" rx="8" ry="6" fill="#D8A868" opacity="0.7"/>
     <ellipse cx="40" cy="45" rx="3" ry="2" fill="#8B5030"/>
-    <circle cx="35" cy="40" r="2.4" fill="#1A1A1A"/>
-    <circle cx="35.7" cy="39.3" r="0.84" fill="white" opacity="0.8"/>
-    <circle cx="45" cy="40" r="2.4" fill="#1A1A1A"/>
-    <circle cx="45.7" cy="39.3" r="0.84" fill="white" opacity="0.8"/>
+    <circle cx="35" cy="40" r="2.4000000000000004" fill="#1A1A1A"/>
+    <circle cx="35.7" cy="39.3" r="0.8400000000000001" fill="white" opacity="0.8"/>
+    <circle cx="45" cy="40" r="2.4000000000000004" fill="#1A1A1A"/>
+    <circle cx="45.7" cy="39.3" r="0.8400000000000001" fill="white" opacity="0.8"/>
   
   
 </svg>

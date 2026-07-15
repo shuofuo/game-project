@@ -11,15 +11,15 @@
   </defs>
   <circle cx="40" cy="40" r="36.0" fill="none" stroke="#C3B39880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="40.0" fill="none" stroke="#C3B39880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0109)" filter="url(#gf0109)"/>
-  <ellipse cx="40" cy="42" rx="16" ry="14" fill="#9B8B70"/>
-    <ellipse cx="40" cy="42" rx="14" ry="12" fill="#C3B398" opacity="0.3"/>
-    <path d="M28,32 Q20,18 26,12" stroke="#9B8B70" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M52,32 Q60,18 54,12" stroke="#9B8B70" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <ellipse cx="40" cy="50" rx="6" ry="4" fill="#C3B398" opacity="0.6"/>
-    <circle cx="34" cy="38" r="2.8" fill="#1A1A1A"/>
-    <circle cx="34.7" cy="37.3" r="0.9799999999999999" fill="white" opacity="0.8"/>
-    <circle cx="46" cy="38" r="2.8" fill="#1A1A1A"/>
-    <circle cx="46.7" cy="37.3" r="0.9799999999999999" fill="white" opacity="0.8"/>
+  <ellipse cx="40" cy="42" rx="17" ry="15" fill="#9B8B70"/>
+    <ellipse cx="40" cy="42" rx="15" ry="13" fill="#C3B398" opacity="0.3"/>
+    <path d="M28,31 Q20,17 26,11" stroke="#9B8B70" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M52,31 Q60,17 54,11" stroke="#9B8B70" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="40" cy="51" rx="6" ry="4" fill="#C3B398" opacity="0.6"/>
+    <circle cx="34" cy="38" r="2.8000000000000003" fill="#1A1A1A"/>
+    <circle cx="34.7" cy="37.3" r="0.98" fill="white" opacity="0.8"/>
+    <circle cx="46" cy="38" r="2.8000000000000003" fill="#1A1A1A"/>
+    <circle cx="46.7" cy="37.3" r="0.98" fill="white" opacity="0.8"/>
   <circle cx="20" cy="20" r="1.5" fill="#C3B398C0" opacity="0.9"/><circle cx="60" cy="20" r="1.6" fill="#C3B398C0" opacity="0.9"/><circle cx="20" cy="60" r="1.7" fill="#C3B398C0" opacity="0.9"/><circle cx="60" cy="60" r="1.8" fill="#C3B398C0" opacity="0.9"/><circle cx="40" cy="12" r="1.9" fill="#C3B398C0" opacity="0.9"/><circle cx="12" cy="40" r="2.0" fill="#C3B398C0" opacity="0.9"/>
   
 </svg>

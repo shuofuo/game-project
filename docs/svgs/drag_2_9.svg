@@ -11,19 +11,19 @@
   </defs>
   <circle cx="40" cy="40" r="36.0" fill="none" stroke="#FC9E4280" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="40.0" fill="none" stroke="#FC9E4280" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0209)" filter="url(#gf0209)"/>
-  <ellipse cx="40" cy="42" rx="14" ry="15" fill="#D4761A"/>
-    <ellipse cx="40" cy="42" rx="12" ry="13" fill="#FC9E42" opacity="0.35"/>
+  <ellipse cx="40" cy="42" rx="15" ry="16" fill="#D4761A"/>
+    <ellipse cx="40" cy="42" rx="13" ry="14" fill="#FC9E42" opacity="0.35"/>
     <path d="M30,36 L50,36" stroke="#FC9E42" stroke-width="2.8" opacity="0.5" stroke-linecap="round"/>
     <path d="M30,40 L50,40" stroke="#FC9E42" stroke-width="2.8" opacity="0.5" stroke-linecap="round"/>
     <path d="M30,44 L50,44" stroke="#FC9E42" stroke-width="2.8" opacity="0.5" stroke-linecap="round"/>
-    <polygon points="26,34 22,20 32,32" fill="#D4761A"/>
-    <polygon points="54,34 58,20 48,32" fill="#D4761A"/>
-    <polygon points="27,33 24,22 31,32" fill="#FC9E42" opacity="0.6"/>
-    <polygon points="53,33 56,22 49,32" fill="#FC9E42" opacity="0.6"/>
-    <circle cx="36" cy="40" r="2.8" fill="#1A1A1A"/>
-    <circle cx="36.7" cy="39.3" r="0.9799999999999999" fill="white" opacity="0.8"/>
-    <circle cx="44" cy="40" r="2.8" fill="#1A1A1A"/>
-    <circle cx="44.7" cy="39.3" r="0.9799999999999999" fill="white" opacity="0.8"/>
+    <polygon points="26,33 22,19 32,31" fill="#D4761A"/>
+    <polygon points="54,33 58,19 48,31" fill="#D4761A"/>
+    <polygon points="27,32 24,21 31,31" fill="#FC9E42" opacity="0.6"/>
+    <polygon points="53,32 56,21 49,31" fill="#FC9E42" opacity="0.6"/>
+    <circle cx="36" cy="40" r="2.8000000000000003" fill="#1A1A1A"/>
+    <circle cx="36.7" cy="39.3" r="0.98" fill="white" opacity="0.8"/>
+    <circle cx="44" cy="40" r="2.8000000000000003" fill="#1A1A1A"/>
+    <circle cx="44.7" cy="39.3" r="0.98" fill="white" opacity="0.8"/>
   <circle cx="20" cy="20" r="1.5" fill="#FC9E42C0" opacity="0.9"/><circle cx="60" cy="20" r="1.6" fill="#FC9E42C0" opacity="0.9"/><circle cx="20" cy="60" r="1.7" fill="#FC9E42C0" opacity="0.9"/><circle cx="60" cy="60" r="1.8" fill="#FC9E42C0" opacity="0.9"/><circle cx="40" cy="12" r="1.9" fill="#FC9E42C0" opacity="0.9"/><circle cx="12" cy="40" r="2.0" fill="#FC9E42C0" opacity="0.9"/>
   
 </svg>

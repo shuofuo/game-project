@@ -11,16 +11,16 @@
   </defs>
   
   <circle cx="40" cy="40" r="40" fill="url(#bgg0701)" filter="url(#gf0701)"/>
-  <ellipse cx="40" cy="43" rx="10" ry="9" fill="#D0C8A0"/>
-    <ellipse cx="40" cy="43" rx="8" ry="7" fill="#F8F0C8" opacity="0.4"/>
-    <path d="M28,36 Q20,28 24,20 Q32,16 36,24" stroke="#D0C8A0" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M52,36 Q60,28 56,20 Q48,16 44,24" stroke="#D0C8A0" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <ellipse cx="30" cy="40" rx="3" ry="4" fill="#D0C8A0"/>
-    <ellipse cx="50" cy="40" rx="3" ry="4" fill="#D0C8A0"/>
-    <circle cx="36" cy="40" r="2.0" fill="#1A1A1A"/>
-    <circle cx="36.7" cy="39.3" r="0.7" fill="white" opacity="0.8"/>
-    <circle cx="44" cy="40" r="2.0" fill="#1A1A1A"/>
-    <circle cx="44.7" cy="39.3" r="0.7" fill="white" opacity="0.8"/>
+  <ellipse cx="40" cy="43" rx="7" ry="6" fill="#D0C8A0"/>
+    <ellipse cx="40" cy="43" rx="5" ry="4" fill="#F8F0C8" opacity="0.4"/>
+    <path d="M28,39 Q20,31 24,23 Q32,19 36,27" stroke="#D0C8A0" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M52,39 Q60,31 56,23 Q48,19 44,27" stroke="#D0C8A0" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="30" cy="43" rx="3" ry="4" fill="#D0C8A0"/>
+    <ellipse cx="50" cy="43" rx="3" ry="4" fill="#D0C8A0"/>
+    <circle cx="36" cy="40" r="1.2" fill="#1A1A1A"/>
+    <circle cx="36.7" cy="39.3" r="0.42" fill="white" opacity="0.8"/>
+    <circle cx="44" cy="40" r="1.2" fill="#1A1A1A"/>
+    <circle cx="44.7" cy="39.3" r="0.42" fill="white" opacity="0.8"/>
   
   
 </svg>

@@ -20,7 +20,7 @@ function renderAch(filter){
   const achHtml=filtered.map(a=>{
     const d=_unlocked.has(a.id);
     const rc=a.reward||{};
-    const rLine='<div style="margin-top:4px;font-size:10px;color:#666;">'+(rc.coins?'<span style="color:#ffd700">+'+rc.coins+'💰</span> ':'')+(rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'<span class="qi-icon qi-icon-sm"></span></span> ':'')+(rc.title?'<span style="color:#f0abfc">★'+rc.title+'</span> ':'')+'</div>';
+    const rLine='<div style="margin-top:4px;font-size:10px;color:#666;">'+(rc.coins?'<span style="color:#ffd700">+'+rc.coins+'💰</span> ':'')+(rc.qi?'<span style="color:#a0d8ef">+'+rc.qi+'💧</span> ':'')+(rc.title?'<span style="color:#f0abfc">★'+rc.title+'</span> ':'')+'</div>';
     const borderCol=d?(a.color||'#ffd700'):'rgba(255,255,255,.06)';
     return '<div style="background:'+(d?'rgba(255,215,0,.04)':'rgba(255,255,255,.02)')+';border:1px solid '+borderCol+';border-radius:12px;padding:12px 8px;text-align:center;opacity:'+(d?'1':'0.45')+';transition:opacity .2s">'+
       '<div style="font-size:26px;margin-bottom:4px;filter:'+(d?'none':'grayscale(1)')+';">'+a.icon+'</div>'+
@@ -38,7 +38,7 @@ function renderAch(filter){
       '<div style="font-size:11px;color:#888;margin-top:2px;">已集齐 '+cnt+' 种灵兽 · '+done+'/'+total+' 成就</div>'+
       '<div style="margin-top:8px;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">'+
         '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#ffd700,#ff8c00);border-radius:3px;"></div></div>'+
-      '<div style="margin-top:6px;font-size:11px;color:#666;">已领奖励: <span style="color:#ffd700">'+ac+'💰</span> <span style="color:#a0d8ef">'+aq+'<span class="qi-icon qi-icon-sm"></span></span>'+
+      '<div style="margin-top:6px;font-size:11px;color:#666;">已领奖励: <span style="color:#ffd700">'+ac+'💰</span> <span style="color:#a0d8ef">'+aq+'💧龙气</span>'+
         (G.titles&&G.titles.length?' · <span style="color:#f0abfc">'+G.titles.map(function(t){return '★'+t;}).join('')+'</span>':'')+'</div>'+
     '</div>'+
     '<div style="display:flex;gap:4px;margin-bottom:12px;">'+tabsHtml+'</div>'+

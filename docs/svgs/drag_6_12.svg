@@ -11,15 +11,15 @@
   </defs>
   <circle cx="40" cy="40" r="37.5" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="41.5" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="45.5" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0612)" filter="url(#gf0612)"/>
-  <ellipse cx="40" cy="43" rx="16" ry="17" fill="#A07040"/>
-    <ellipse cx="40" cy="43" rx="14" ry="15" fill="#C89868" opacity="0.35"/>
-    <path d="M34,30 Q31,13.5 36,10.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M37,30 Q34,12.0 39,9.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M40,30 Q37,10.5 42,7.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M43,30 Q40,12.0 45,9.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M46,30 Q43,13.5 48,10.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <polygon points="32,32 26,16 36,30" fill="#A07040"/>
-    <polygon points="48,32 54,16 44,30" fill="#A07040"/>
+  <ellipse cx="40" cy="43" rx="17" ry="18" fill="#A07040"/>
+    <ellipse cx="40" cy="43" rx="15" ry="16" fill="#C89868" opacity="0.35"/>
+    <path d="M34,29 Q31,12.5 36,9.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M37,29 Q34,11.0 39,8.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M40,29 Q37,9.5 42,6.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M43,29 Q40,11.0 45,8.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M46,29 Q43,12.5 48,9.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <polygon points="32,31 26,15 36,29" fill="#A07040"/>
+    <polygon points="48,31 54,15 44,29" fill="#A07040"/>
     <circle cx="35" cy="40" r="3.1" fill="#1A1A1A"/>
     <circle cx="35.7" cy="39.3" r="1.085" fill="white" opacity="0.8"/>
     <circle cx="45" cy="40" r="3.1" fill="#1A1A1A"/>

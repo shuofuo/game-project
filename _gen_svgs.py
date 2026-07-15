@@ -36,14 +36,19 @@ def light_hex(z, extra=0):
     return f'#{r:02X}{g:02X}{b:02X}'
 
 def body_h(lvl):
-    if lvl<=3: return 10
-    if lvl<=6: return 12
-    if lvl<=9: return 14
-    if lvl<=12: return 16
-    return 18
+    # Lv1/2/3 拉开更大差距，让升级视觉冲击更强
+    lvls = {1:7, 2:9, 3:11}
+    if lvl in lvls: return lvls[lvl]
+    if lvl<=6: return 13
+    if lvl<=9: return 15
+    if lvl<=12: return 17
+    return 19
 
 def eye_size(lvl):
-    return 2.0 + (lvl-1)*0.1
+    # Lv1/2/3 眼睛更大差距
+    lvls = {1:1.2, 2:1.6, 3:1.9}
+    if lvl in lvls: return lvls[lvl]
+    return 2.2 + (lvl-3)*0.1
 
 # ─── 身体画法（每个生肖独立）───
 
@@ -336,5 +341,5 @@ for z in range(12):
         svg = generate_svg(z, lvl)
         with open(path, 'w', encoding='utf-8') as f:
             f.write(svg)
-        print(f'  {ZODIACS[z]} z={z} Lv{lvl:02d} ✓', flush=True)
+        print(f'  {ZODIACS[z]} z={z} Lv{lvl:02d} OK', flush=True)
 print("\n全部生成完毕！")

@@ -11,15 +11,15 @@
   </defs>
   <circle cx="40" cy="40" r="38.0" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="42.0" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="46.0" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="34" r="50.0" fill="none" stroke="#C8986880" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0613)" filter="url(#gf0613)"/>
-  <ellipse cx="40" cy="43" rx="18" ry="19" fill="#A07040"/>
-    <ellipse cx="40" cy="43" rx="16" ry="17" fill="#C89868" opacity="0.35"/>
-    <path d="M34,28 Q31,11.0 36,8.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M37,28 Q34,9.5 39,6.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M40,28 Q37,8.0 42,5.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M43,28 Q40,9.5 45,6.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M46,28 Q43,11.0 48,8.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <polygon points="32,30 26,14 36,28" fill="#A07040"/>
-    <polygon points="48,30 54,14 44,28" fill="#A07040"/>
+  <ellipse cx="40" cy="43" rx="19" ry="20" fill="#A07040"/>
+    <ellipse cx="40" cy="43" rx="17" ry="18" fill="#C89868" opacity="0.35"/>
+    <path d="M34,27 Q31,10.0 36,7.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M37,27 Q34,8.5 39,5.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M40,27 Q37,7.0 42,4.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M43,27 Q40,8.5 45,5.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M46,27 Q43,10.0 48,7.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <polygon points="32,29 26,13 36,27" fill="#A07040"/>
+    <polygon points="48,29 54,13 44,27" fill="#A07040"/>
     <circle cx="35" cy="40" r="3.2" fill="#1A1A1A"/>
     <circle cx="35.7" cy="39.3" r="1.1199999999999999" fill="white" opacity="0.8"/>
     <circle cx="45" cy="40" r="3.2" fill="#1A1A1A"/>

@@ -11,13 +11,13 @@
   </defs>
   <circle cx="40" cy="40" r="35.5" fill="none" stroke="#B39B7D80" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="39.5" fill="none" stroke="#B39B7D80" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0008)" filter="url(#gf0008)"/>
-  <ellipse cx="40" cy="42" rx="14" ry="13" fill="#8B7355"/>
-    <ellipse cx="40" cy="42" rx="12" ry="11" fill="#B39B7D" opacity="0.35"/>
+  <ellipse cx="40" cy="42" rx="15" ry="14" fill="#8B7355"/>
+    <ellipse cx="40" cy="42" rx="13" ry="12" fill="#B39B7D" opacity="0.35"/>
     <polygon points="26,40 22,26 32,36" fill="#8B7355"/>
     <polygon points="54,40 58,26 48,36" fill="#8B7355"/>
     <polygon points="27,39 25,29 31,36" fill="#B39B7D" opacity="0.5"/>
     <polygon points="53,39 55,29 49,36" fill="#B39B7D" opacity="0.5"/>
-    <ellipse cx="40" cy="57" rx="2.7" ry="5" fill="#8B7355"/>
+    <ellipse cx="40" cy="58" rx="2.7" ry="5" fill="#8B7355"/>
     <circle cx="40" cy="42" r="2.2" fill="#B39B7D" opacity="0.4"/>
     <circle cx="37" cy="41" r="2.7" fill="#1A1A1A"/>
     <circle cx="37.7" cy="40.3" r="0.945" fill="white" opacity="0.8"/>

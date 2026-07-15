@@ -12,15 +12,15 @@
   <circle cx="40" cy="40" r="36.5" fill="none" stroke="#5288B880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="40.5" fill="none" stroke="#5288B880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="44.5" fill="none" stroke="#5288B880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0410)" filter="url(#gf0410)"/>
   <path d="M30,50 Q20,42 32,32 Q40,24 48,32 Q60,42 50,50 Q45,56 40,54 Q35,56 30,50" fill="#2A6090"/>
-    <ellipse cx="40" cy="42" rx="13" ry="12" fill="#5288B8" opacity="0.4"/>
-    <path d="M33,31 Q28,10.600000000000001 34,6.600000000000001" stroke="#5288B8" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M47,31 Q52,10.600000000000001 46,6.600000000000001" stroke="#5288B8" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="40" cy="42" rx="14" ry="13" fill="#5288B8" opacity="0.4"/>
+    <path d="M33,30 Q28,9.600000000000001 34,5.600000000000001" stroke="#5288B8" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M47,30 Q52,9.600000000000001 46,5.600000000000001" stroke="#5288B8" stroke-width="4" fill="none" stroke-linecap="round"/>
     <path d="M36,42 Q18,37 12,42" stroke="#5288B8" stroke-width="1.2" fill="none" opacity="0.7"/>
     <path d="M44,42 Q62,37 68,42" stroke="#5288B8" stroke-width="1.2" fill="none" opacity="0.7"/>
-    <circle cx="35" cy="39" r="2.9" fill="#1A1A1A"/>
-    <circle cx="35.7" cy="38.3" r="1.015" fill="white" opacity="0.8"/>
-    <circle cx="45" cy="39" r="2.9" fill="#1A1A1A"/>
-    <circle cx="45.7" cy="38.3" r="1.015" fill="white" opacity="0.8"/>
+    <circle cx="35" cy="39" r="2.9000000000000004" fill="#1A1A1A"/>
+    <circle cx="35.7" cy="38.3" r="1.0150000000000001" fill="white" opacity="0.8"/>
+    <circle cx="45" cy="39" r="2.9000000000000004" fill="#1A1A1A"/>
+    <circle cx="45.7" cy="38.3" r="1.0150000000000001" fill="white" opacity="0.8"/>
     <path d="M40,54 Q35,62 40,68" stroke="#2A6090" stroke-width="2.9" fill="none" stroke-linecap="round"/>
   <circle cx="20" cy="20" r="1.5" fill="#5288B8C0" opacity="0.9"/><circle cx="60" cy="20" r="1.6" fill="#5288B8C0" opacity="0.9"/><circle cx="20" cy="60" r="1.7" fill="#5288B8C0" opacity="0.9"/><circle cx="60" cy="60" r="1.8" fill="#5288B8C0" opacity="0.9"/><circle cx="40" cy="12" r="1.9" fill="#5288B8C0" opacity="0.9"/><circle cx="12" cy="40" r="2.0" fill="#5288B8C0" opacity="0.9"/><circle cx="68" cy="40" r="2.1" fill="#5288B8C0" opacity="0.9"/><circle cx="10" cy="10" r="1.4" fill="#5288B8C0" opacity="0.8"/>
   <text x="40" y="76" text-anchor="middle" font-size="6.5" fill="#5288B8C0" font-weight="bold" font-family="sans-serif">Lv10</text>

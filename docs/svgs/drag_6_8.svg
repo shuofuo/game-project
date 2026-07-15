@@ -11,15 +11,15 @@
   </defs>
   <circle cx="40" cy="40" r="35.5" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="39.5" fill="none" stroke="#C8986880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0608)" filter="url(#gf0608)"/>
-  <ellipse cx="40" cy="43" rx="14" ry="15" fill="#A07040"/>
-    <ellipse cx="40" cy="43" rx="12" ry="13" fill="#C89868" opacity="0.35"/>
-    <path d="M34,32 Q31,17.5 36,14.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M37,32 Q34,16.0 39,13.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M40,32 Q37,14.5 42,11.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M43,32 Q40,16.0 45,13.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M46,32 Q43,17.5 48,14.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <polygon points="32,34 26,18 36,32" fill="#A07040"/>
-    <polygon points="48,34 54,18 44,32" fill="#A07040"/>
+  <ellipse cx="40" cy="43" rx="15" ry="16" fill="#A07040"/>
+    <ellipse cx="40" cy="43" rx="13" ry="14" fill="#C89868" opacity="0.35"/>
+    <path d="M34,31 Q31,16.5 36,13.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M37,31 Q34,15.0 39,12.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M40,31 Q37,13.5 42,10.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M43,31 Q40,15.0 45,12.0" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M46,31 Q43,16.5 48,13.5" stroke="#A07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <polygon points="32,33 26,17 36,31" fill="#A07040"/>
+    <polygon points="48,33 54,17 44,31" fill="#A07040"/>
     <circle cx="35" cy="40" r="2.7" fill="#1A1A1A"/>
     <circle cx="35.7" cy="39.3" r="0.945" fill="white" opacity="0.8"/>
     <circle cx="45" cy="40" r="2.7" fill="#1A1A1A"/>

@@ -11,12 +11,12 @@
   </defs>
   <circle cx="40" cy="40" r="38.0" fill="none" stroke="#FFC84880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="42.0" fill="none" stroke="#FFC84880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="46.0" fill="none" stroke="#FFC84880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="34" r="50.0" fill="none" stroke="#FFC84880" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0913)" filter="url(#gf0913)"/>
-  <ellipse cx="40" cy="46" rx="17" ry="18" fill="#E0A020"/>
-    <ellipse cx="40" cy="46" rx="15" ry="16" fill="#FFC848" opacity="0.4"/>
-    <polygon points="40,8.8 35,24 45,24" fill="#E05030" opacity="0.9"/>
-    <polygon points="37,12.8 33,6.800000000000001 40,14.8" fill="#E05030" opacity="0.8"/>
-    <polygon points="43,12.8 47,6.800000000000001 40,14.8" fill="#E05030" opacity="0.8"/>
-    <polygon points="40,64 36,70 44,70" fill="#D07020"/>
+  <ellipse cx="40" cy="46" rx="18" ry="19" fill="#E0A020"/>
+    <ellipse cx="40" cy="46" rx="16" ry="17" fill="#FFC848" opacity="0.4"/>
+    <polygon points="40,7.800000000000001 35,23 45,23" fill="#E05030" opacity="0.9"/>
+    <polygon points="37,11.8 33,5.800000000000001 40,13.8" fill="#E05030" opacity="0.8"/>
+    <polygon points="43,11.8 47,5.800000000000001 40,13.8" fill="#E05030" opacity="0.8"/>
+    <polygon points="40,65 36,71 44,71" fill="#D07020"/>
     <path d="M34,46 Q24,42 26,52" stroke="#E0A020" stroke-width="3" fill="none" stroke-linecap="round"/>
     <path d="M46,46 Q56,42 54,52" stroke="#E0A020" stroke-width="3" fill="none" stroke-linecap="round"/>
     <circle cx="36" cy="42" r="3.2" fill="#1A1A1A"/>

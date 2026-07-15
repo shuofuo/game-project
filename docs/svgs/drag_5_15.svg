@@ -11,12 +11,12 @@
   </defs>
   <circle cx="40" cy="40" r="39.0" fill="none" stroke="#62A26280" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="43.0" fill="none" stroke="#62A26280" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="47.0" fill="none" stroke="#62A26280" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="34" r="51.0" fill="none" stroke="#62A26280" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0515)" filter="url(#gf0515)"/>
-  <ellipse cx="40" cy="42" rx="19" ry="20" fill="#3A7A3A"/>
-    <ellipse cx="40" cy="42" rx="17" ry="18" fill="#62A262" opacity="0.35"/>
+  <ellipse cx="40" cy="42" rx="20" ry="21" fill="#3A7A3A"/>
+    <ellipse cx="40" cy="42" rx="18" ry="19" fill="#62A262" opacity="0.35"/>
     <path d="M32,38 L48,38" stroke="#62A262" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>
     <path d="M32,42 L48,42" stroke="#62A262" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>
     <path d="M32,46 L48,46" stroke="#62A262" stroke-width="1.2" opacity="0.5" stroke-linecap="round"/>
-    <path d="M40,62 Q48,76.0 44,81.0" stroke="#3A7A3A" stroke-width="2.9000000000000004" fill="none" stroke-linecap="round"/>
+    <path d="M40,63 Q48,77.0 44,82.0" stroke="#3A7A3A" stroke-width="2.9000000000000004" fill="none" stroke-linecap="round"/>
     <circle cx="36" cy="40" r="3.4000000000000004" fill="#1A1A1A"/>
     <circle cx="36.7" cy="39.3" r="1.19" fill="white" opacity="0.8"/>
     <ellipse cx="36.7" cy="40" rx="0.8500000000000001" ry="1.7000000000000002" fill="#1A1A1A" opacity="0.6"/>

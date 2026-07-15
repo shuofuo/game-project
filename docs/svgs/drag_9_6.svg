@@ -11,10 +11,10 @@
   </defs>
   <circle cx="40" cy="40" r="34.5" fill="none" stroke="#FFC84880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0906)" filter="url(#gf0906)"/>
-  <ellipse cx="40" cy="46" rx="11" ry="12" fill="#E0A020"/>
-    <ellipse cx="40" cy="46" rx="9" ry="10" fill="#FFC848" opacity="0.4"/>
-    <polygon points="40,19.0 35,30 45,30" fill="#E05030" opacity="0.9"/>
-    <polygon points="40,58 36,64 44,64" fill="#D07020"/>
+  <ellipse cx="40" cy="46" rx="12" ry="13" fill="#E0A020"/>
+    <ellipse cx="40" cy="46" rx="10" ry="11" fill="#FFC848" opacity="0.4"/>
+    <polygon points="40,18.0 35,29 45,29" fill="#E05030" opacity="0.9"/>
+    <polygon points="40,59 36,65 44,65" fill="#D07020"/>
     <path d="M34,46 Q24,42 26,52" stroke="#E0A020" stroke-width="3" fill="none" stroke-linecap="round"/>
     <path d="M46,46 Q56,42 54,52" stroke="#E0A020" stroke-width="3" fill="none" stroke-linecap="round"/>
     <circle cx="36" cy="42" r="2.5" fill="#1A1A1A"/>

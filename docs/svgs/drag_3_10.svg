@@ -11,17 +11,17 @@
   </defs>
   <circle cx="40" cy="40" r="36.5" fill="none" stroke="#F0C8D880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="38" r="40.5" fill="none" stroke="#F0C8D880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/><circle cx="40" cy="36" r="44.5" fill="none" stroke="#F0C8D880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0310)" filter="url(#gf0310)"/>
-  <ellipse cx="40" cy="44" rx="16" ry="15" fill="#C8A0B0"/>
-    <ellipse cx="40" cy="44" rx="14" ry="13" fill="#F0C8D8" opacity="0.4"/>
-    <ellipse cx="30" cy="19" rx="5" ry="11" fill="#C8A0B0" transform="rotate(-10,30,19)"/>
-    <ellipse cx="50" cy="19" rx="5" ry="11" fill="#C8A0B0" transform="rotate(10,50,19)"/>
-    <ellipse cx="30" cy="19" rx="3" ry="8" fill="#F0C8D8" opacity="0.5" transform="rotate(-10,30,19)"/>
-    <ellipse cx="50" cy="19" rx="3" ry="8" fill="#F0C8D8" opacity="0.5" transform="rotate(10,50,19)"/>
-    <ellipse cx="40" cy="56" rx="3" ry="2" fill="#C090A0"/>
-    <circle cx="36" cy="42" r="2.9" fill="#1A1A1A"/>
-    <circle cx="36.7" cy="41.3" r="1.015" fill="white" opacity="0.8"/>
-    <circle cx="44" cy="42" r="2.9" fill="#1A1A1A"/>
-    <circle cx="44.7" cy="41.3" r="1.015" fill="white" opacity="0.8"/>
+  <ellipse cx="40" cy="44" rx="17" ry="16" fill="#C8A0B0"/>
+    <ellipse cx="40" cy="44" rx="15" ry="14" fill="#F0C8D8" opacity="0.4"/>
+    <ellipse cx="30" cy="18" rx="5" ry="11" fill="#C8A0B0" transform="rotate(-10,30,18)"/>
+    <ellipse cx="50" cy="18" rx="5" ry="11" fill="#C8A0B0" transform="rotate(10,50,18)"/>
+    <ellipse cx="30" cy="18" rx="3" ry="8" fill="#F0C8D8" opacity="0.5" transform="rotate(-10,30,18)"/>
+    <ellipse cx="50" cy="18" rx="3" ry="8" fill="#F0C8D8" opacity="0.5" transform="rotate(10,50,18)"/>
+    <ellipse cx="40" cy="57" rx="3" ry="2" fill="#C090A0"/>
+    <circle cx="36" cy="42" r="2.9000000000000004" fill="#1A1A1A"/>
+    <circle cx="36.7" cy="41.3" r="1.0150000000000001" fill="white" opacity="0.8"/>
+    <circle cx="44" cy="42" r="2.9000000000000004" fill="#1A1A1A"/>
+    <circle cx="44.7" cy="41.3" r="1.0150000000000001" fill="white" opacity="0.8"/>
   <circle cx="20" cy="20" r="1.5" fill="#F0C8D8C0" opacity="0.9"/><circle cx="60" cy="20" r="1.6" fill="#F0C8D8C0" opacity="0.9"/><circle cx="20" cy="60" r="1.7" fill="#F0C8D8C0" opacity="0.9"/><circle cx="60" cy="60" r="1.8" fill="#F0C8D8C0" opacity="0.9"/><circle cx="40" cy="12" r="1.9" fill="#F0C8D8C0" opacity="0.9"/><circle cx="12" cy="40" r="2.0" fill="#F0C8D8C0" opacity="0.9"/><circle cx="68" cy="40" r="2.1" fill="#F0C8D8C0" opacity="0.9"/><circle cx="10" cy="10" r="1.4" fill="#F0C8D8C0" opacity="0.8"/>
   <text x="40" y="76" text-anchor="middle" font-size="6.5" fill="#F0C8D8C0" font-weight="bold" font-family="sans-serif">Lv10</text>
 </svg>

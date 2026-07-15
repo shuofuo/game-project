@@ -11,17 +11,17 @@
   </defs>
   <circle cx="40" cy="40" r="33.5" fill="none" stroke="#F0C8D880" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
   <circle cx="40" cy="40" r="40" fill="url(#bgg0304)" filter="url(#gf0304)"/>
-  <ellipse cx="40" cy="44" rx="12" ry="11" fill="#C8A0B0"/>
-    <ellipse cx="40" cy="44" rx="10" ry="9" fill="#F0C8D8" opacity="0.4"/>
-    <ellipse cx="30" cy="26" rx="5" ry="8" fill="#C8A0B0" transform="rotate(-10,30,26)"/>
-    <ellipse cx="50" cy="26" rx="5" ry="8" fill="#C8A0B0" transform="rotate(10,50,26)"/>
-    <ellipse cx="30" cy="26" rx="3" ry="5" fill="#F0C8D8" opacity="0.5" transform="rotate(-10,30,26)"/>
-    <ellipse cx="50" cy="26" rx="3" ry="5" fill="#F0C8D8" opacity="0.5" transform="rotate(10,50,26)"/>
-    <ellipse cx="40" cy="52" rx="3" ry="2" fill="#C090A0"/>
-    <circle cx="36" cy="42" r="2.3" fill="#1A1A1A"/>
-    <circle cx="36.7" cy="41.3" r="0.8049999999999999" fill="white" opacity="0.8"/>
-    <circle cx="44" cy="42" r="2.3" fill="#1A1A1A"/>
-    <circle cx="44.7" cy="41.3" r="0.8049999999999999" fill="white" opacity="0.8"/>
+  <ellipse cx="40" cy="44" rx="13" ry="12" fill="#C8A0B0"/>
+    <ellipse cx="40" cy="44" rx="11" ry="10" fill="#F0C8D8" opacity="0.4"/>
+    <ellipse cx="30" cy="25" rx="5" ry="8" fill="#C8A0B0" transform="rotate(-10,30,25)"/>
+    <ellipse cx="50" cy="25" rx="5" ry="8" fill="#C8A0B0" transform="rotate(10,50,25)"/>
+    <ellipse cx="30" cy="25" rx="3" ry="5" fill="#F0C8D8" opacity="0.5" transform="rotate(-10,30,25)"/>
+    <ellipse cx="50" cy="25" rx="3" ry="5" fill="#F0C8D8" opacity="0.5" transform="rotate(10,50,25)"/>
+    <ellipse cx="40" cy="53" rx="3" ry="2" fill="#C090A0"/>
+    <circle cx="36" cy="42" r="2.3000000000000003" fill="#1A1A1A"/>
+    <circle cx="36.7" cy="41.3" r="0.805" fill="white" opacity="0.8"/>
+    <circle cx="44" cy="42" r="2.3000000000000003" fill="#1A1A1A"/>
+    <circle cx="44.7" cy="41.3" r="0.805" fill="white" opacity="0.8"/>
   
   
 </svg>
